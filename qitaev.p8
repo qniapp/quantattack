@@ -345,15 +345,16 @@ wire = {
 gate = {
   types = {"h", "x", "y", "z", "s", "t", "i"},
 
-  -- todo: sprites → sprites.idle
   sprites = {
-    ["h"] = 0,
-    ["x"] = 1,
-    ["y"] = 2,
-    ["z"] = 3,
-    ["s"] = 4,
-    ["t"] = 5,
-    ["i"] = 6,
+    ["idle"] = {
+      ["h"] = 0,
+      ["x"] = 1,
+      ["y"] = 2,
+      ["z"] = 3,
+      ["s"] = 4,
+      ["t"] = 5,
+      ["i"] = 6,
+    }
   },
   -- todo: sprites_dropped → sprites.dropped
   sprites_dropped = {
@@ -461,15 +462,15 @@ gate = {
 
       _sprite = function(self)
         if self.state == "idle" then
-          return gate.sprites[self.type]
+          return gate.sprites[self.state][self.type]
         elseif self.state == "replacing" then
           if self.frame_count_since_replace % 4 == 0 or self.frame_count_since_replace % 4 == 1 then
             return gate.sprites_flash[self.type]
           else
-            return gate.sprites[self.type]
+            return gate.sprites.idle[self.type]
           end
         elseif self.state == "replaced" then
-          return gate.sprites[self.type]
+          return gate.sprites.idle[self.type]
         elseif self.state == "dropped" then
           return gate.sprites_dropped[self.type]
         elseif self.state == "dropped1" then
