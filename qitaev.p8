@@ -354,26 +354,24 @@ gate = {
       ["s"] = 4,
       ["t"] = 5,
       ["i"] = 6,
-    }
-  },
-  -- todo: sprites_dropped → sprites.dropped
-  sprites_dropped = {
-    ["h"] = 16,
-    ["x"] = 17,
-    ["y"] = 18,
-    ["z"] = 19,
-    ["s"] = 20,
-    ["t"] = 21,
-  },
-  -- todo: sprites_dropped1 → sprites.dropped1
-  -- todo: もっとまともな名前にする
-  sprites_dropped1 = {
-    ["h"] = 32,
-    ["x"] = 33,
-    ["y"] = 34,
-    ["z"] = 35,
-    ["s"] = 36,
-    ["t"] = 37,
+    },
+    ["dropped"] = {
+      ["h"] = 16,
+      ["x"] = 17,
+      ["y"] = 18,
+      ["z"] = 19,
+      ["s"] = 20,
+      ["t"] = 21,
+    },
+    -- todo: もっとまともな名前にする
+    ["dropped1"] = {
+      ["h"] = 32,
+      ["x"] = 33,
+      ["y"] = 34,
+      ["z"] = 35,
+      ["s"] = 36,
+      ["t"] = 37,
+    },
   },
   -- todo: sprites_flash → sprites.flash
   -- todo: スプライトを使わなくても pal でできる? 要検討
@@ -472,9 +470,9 @@ gate = {
         elseif self.state == "replaced" then
           return gate.sprites.idle[self.type]
         elseif self.state == "dropped" then
-          return gate.sprites_dropped[self.type]
+          return gate.sprites[self.state][self.type]
         elseif self.state == "dropped1" then
-          return gate.sprites_dropped1[self.type]
+          return gate.sprites.dropped1[self.type]
         else
           assert(false, "we should never get here")
         end
