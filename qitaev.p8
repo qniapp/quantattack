@@ -324,7 +324,7 @@ board = {
       -- private
 
       _random_gate = function(self)
-        return gate:create(gate.types[flr(rnd(#gate.types)) + 1])
+        return gate:new(gate.types[flr(rnd(#gate.types)) + 1])
       end,
     }
 
@@ -344,6 +344,8 @@ wire = {
 
 gate = {
   types = {"h", "x", "y", "z", "s", "t", "i"},
+
+  -- todo: sprites → sprites.idle
   sprites = {
     ["h"] = 0,
     ["x"] = 1,
@@ -353,6 +355,7 @@ gate = {
     ["t"] = 5,
     ["i"] = 6,
   },
+  -- todo: sprites_dropped → sprites.dropped
   sprites_dropped = {
     ["h"] = 16,
     ["x"] = 17,
@@ -361,6 +364,8 @@ gate = {
     ["s"] = 20,
     ["t"] = 21,
   },
+  -- todo: sprites_dropped1 → sprites.dropped1
+  -- todo: もっとまともな名前にする
   sprites_dropped1 = {
     ["h"] = 32,
     ["x"] = 33,
@@ -369,6 +374,8 @@ gate = {
     ["s"] = 36,
     ["t"] = 37,
   },
+  -- todo: sprites_flash → sprites.flash
+  -- todo: スプライトを使わなくても pal でできる? 要検討
   sprites_flash = {
     ["h"] = 48,
     ["x"] = 49,
@@ -379,7 +386,7 @@ gate = {
   },
   size = 8,
 
-  create = function(self, type)
+  new = function(self, type)
     return {
       type = type,
       next_type = nil,
@@ -476,19 +483,19 @@ gate = {
 }
 
 gate.x = function()
-  return gate:create("x")
+  return gate:new("x")
 end
 gate.y = function()
-  return gate:create("y")
+  return gate:new("y")
 end
 gate.z = function()
-  return gate:create("z")
+  return gate:new("z")
 end
 gate.s = function()
-  return gate:create("s")
+  return gate:new("s")
 end
 gate.i = function()
-  return gate:create("i")
+  return gate:new("i")
 end
 
 -- player's cursor class
