@@ -121,210 +121,216 @@ gate_reduction_rules = {
   end,
 }
 
--- todo: git で管理
--- todo: マルチプレーヤー用に board:new で複数インスタンスを生成できるようにする
-
 board = {
-  gate = {},
-
   cols = 6,
   rows = 12,
 
-  top = 31,
-  left = 2,
+  new = function(self, top, left)
+    local b = {
+      init = function(self, top, left)
+        self.gate = {}
+        self.top = top
+        self.left = left
+        self.cols = board.cols
+        self.rows = board.rows
 
-  init = function(self)
-    for x = 1, self.cols do
-      self.gate[x] = {}
-      for y = self.rows, 1, -1 do
-        if y >= 5 then
-          repeat
-            self:set(x, y, self:_random_gate())
-          until (self:idle_gate_at(x, y).type ~= "i" and #gate_reduction_rules:reduce(self, x, y) == 0)
-        else
-          self:set(x, y, gate.i())
+        for x = 1, board.cols do
+          self.gate[x] = {}
+          for y = board.rows, 1, -1 do
+            if y >= 5 then
+              repeat
+                self:set(x, y, self:_random_gate())
+              until (self:idle_gate_at(x, y).type ~= "i" and #gate_reduction_rules:reduce(self, x, y) == 0)
+            else
+              self:set(x, y, gate.i())
+            end
+          end
         end
-      end
-    end
-  end,
+      end,
 
-  idle_gate_at = function(self, x, y)
-    assert(x >= 1 and x <= self.cols)
-    assert(y >= 1 and y <= self.rows)
+      idle_gate_at = function(self, x, y)
+        assert(x >= 1 and x <= board.cols)
+        assert(y >= 1 and y <= board.rows)
 
-    if self.gate[x][y].state == "idle" then
-      return self.gate[x][y]
-    else
-      return gate.i()
-    end
-  end,
-
-  set = function(self, x, y, gate)
-    assert(x >= 1 and x <= self.cols)
-    assert(y >= 1 and y <= self.rows)
-
-    self.gate[x][y] = gate
-  end,
-
-  update = function(self)
-    self:reduce()
-    self:drop_gates()
-    self:update_gates()
-  end,
-
-  draw = function(self)
-    for x = 1, self.cols do
-      for y = 1, self.rows do
-        local _x = board.left + (x - 1) * gate.size
-        local _y = board.top + (y - 1) * gate.size
-        wire:draw(_x, _y)
-
-        if self.gate[x][y].state == "dropped" then
-          self.gate[x][y]:draw(_x, _y + 4)
-        elseif self.gate[x][y].state == "dropped1" then
-          self.gate[x][y]:draw(_x, _y + 3)
-        else
-          self.gate[x][y]:draw(_x, _y)
-        end
-      end
-    end
-  end,
-
-  swap = function(self, xl, xr, y)
-    local left_gate = self.gate[xl][y]
-    local right_gate = self.gate[xr][y]
-    assert(left_gate ~= nil)
-    assert(right_gate ~= nil)
-
-    if left_gate.state ~= "idle" or right_gate.state ~= "idle" then
-      return false
-    end
-
-    self:set(xl, y, right_gate)
-    self:set(xr, y, left_gate)
-  end,
-
-  reduce = function(self)
-    for x = 1, self.cols do
-      for y = self.rows - 1, 1, -1 do
         if self.gate[x][y].state == "idle" then
-          reduction = gate_reduction_rules:reduce(self, x, y)
-          for index, gate in pairs(reduction) do
-            self.gate[x][y + index - 1]:replace_with(gate)
-          end        
-        end
-      end
-    end
-  end,
-
-  gates_in_action = function(self)
-    local gates = {}
-
-    for x = 1, self.cols do
-      for y = 1, self.rows do
-        if self.gate[x][y].state != "idle" then
-          add(gates, self.gate[x][y])
-        end
-      end
-    end
-
-    return gates
-  end,
-
-  gates_dropped_bottom = function(self)
-    local gates = {}
-
-    for x = 1, self.cols do
-      for y = 1, self.rows do
-        if (self.gate[x][y].type ~= "i" and
-            self.gate[x][y].state == "dropped" and
-            (self.gate[x][y + 1] == nil or
-             (self.gate[x][y + 1].state != "dropped"))) then
-          self.gate[x][y].x = x
-          self.gate[x][y].y = y
-          add(gates, self.gate[x][y])
-        end
-      end
-    end
-
-    return gates
-  end,
-
-  replaced_gates = function(self)
-    local gates = {}
-
-    for x = 1, self.cols do
-      for y = 1, self.rows do
-        if (self.gate[x][y].state == "replaced") then
-          self.gate[x][y].x = x
-          self.gate[x][y].y = y
-          add(gates, self.gate[x][y])
-        end
-      end
-    end
-
-    return gates  
-  end,
-
-  drop_gates = function(self)
-    for x = 1, self.cols do
-      for y = self.rows - 1, 1, -1 do
-        local ty = y
-        local lower_gate = self.gate[x][ty + 1]
-        while (lower_gate ~= nil and
-               self.gate[x][ty].type != "i" and
-               self.gate[x][ty].state == "idle" and
-               lower_gate.state == "idle" and
-               lower_gate.type == "i") do
-          self.gate[x][ty + 1] = self.gate[x][ty]
-          self.gate[x][ty] = gate.i()
-          ty += 1
-          lower_gate = self.gate[x][ty + 1]
-        end
-
-        if (ty > y) then
-          self.gate[x][ty]:dropped()
-        end
-      end
-    end    
-  end,
-  
-  insert_gates_at_bottom = function(self)
-    for x = 1, self.cols do
-      for y = 1, self.rows - 1 do
-        if y == 1 and self.gate[x][y].type ~= 'i' then
-          self:game_over()
+          return self.gate[x][y]
         else
-          self.gate[x][y] = self.gate[x][y + 1]
+          return gate.i()
         end
-      end
-    end
+      end,
 
-    for x = 1, self.cols do
-      repeat 
-        self:set(x, self.rows, self:_random_gate())
-      until (self:idle_gate_at(x, self.rows).type ~= "i" and
-             #gate_reduction_rules:reduce(self, x, self.rows - 1) == 0 and
-             #gate_reduction_rules:reduce(self, x, self.rows - 2) == 0)
-    end
-  end,
+      set = function(self, x, y, gate)
+        assert(x >= 1 and x <= board.cols)
+        assert(y >= 1 and y <= board.rows)
 
-  update_gates = function(self)
-    for x = 1, self.cols do
-      for y = 1, self.rows do
-        self.gate[x][y]:update()
-      end
-    end      
-  end,
+        self.gate[x][y] = gate
+      end,
 
-  game_over = function(self)
-    assert(false, "game over")
-  end,
+      update = function(self)
+        self:reduce()
+        self:drop_gates()
+        self:update_gates()
+      end,
 
-  -- private
+      draw = function(self)
+        for x = 1, board.cols do
+          for y = 1, board.rows do
+            local _x = self.left + (x - 1) * gate.size
+            local _y = self.top + (y - 1) * gate.size
+            wire:draw(_x, _y)
 
-  _random_gate = function(self)
-    return gate:create(gate.types[flr(rnd(#gate.types)) + 1])
+            if self.gate[x][y].state == "dropped" then
+              self.gate[x][y]:draw(_x, _y + 4)
+            elseif self.gate[x][y].state == "dropped1" then
+              self.gate[x][y]:draw(_x, _y + 3)
+            else
+              self.gate[x][y]:draw(_x, _y)
+            end
+          end
+        end
+      end,
+
+      swap = function(self, xl, xr, y)
+        local left_gate = self.gate[xl][y]
+        local right_gate = self.gate[xr][y]
+        assert(left_gate ~= nil)
+        assert(right_gate ~= nil)
+
+        if left_gate.state ~= "idle" or right_gate.state ~= "idle" then
+          return false
+        end
+
+        self:set(xl, y, right_gate)
+        self:set(xr, y, left_gate)
+      end,
+
+      reduce = function(self)
+        for x = 1, board.cols do
+          for y = board.rows - 1, 1, -1 do
+            if self.gate[x][y].state == "idle" then
+              reduction = gate_reduction_rules:reduce(self, x, y)
+              for index, gate in pairs(reduction) do
+                self.gate[x][y + index - 1]:replace_with(gate)
+              end
+            end
+          end
+        end
+      end,
+
+      gates_in_action = function(self)
+        local gates = {}
+
+        for x = 1, board.cols do
+          for y = 1, board.rows do
+            if self.gate[x][y].state != "idle" then
+              add(gates, self.gate[x][y])
+            end
+          end
+        end
+
+        return gates
+      end,
+
+      gates_dropped_bottom = function(self)
+        local gates = {}
+
+        for x = 1, board.cols do
+          for y = 1, board.rows do
+            if (self.gate[x][y].type ~= "i" and
+                self.gate[x][y].state == "dropped" and
+                (self.gate[x][y + 1] == nil or
+                 (self.gate[x][y + 1].state != "dropped"))) then
+              self.gate[x][y].x = x
+              self.gate[x][y].y = y
+              add(gates, self.gate[x][y])
+            end
+          end
+        end
+
+        return gates
+      end,
+
+      replaced_gates = function(self)
+        local gates = {}
+
+        for x = 1, board.cols do
+          for y = 1, board.rows do
+            if (self.gate[x][y].state == "replaced") then
+              self.gate[x][y].x = x
+              self.gate[x][y].y = y
+              add(gates, self.gate[x][y])
+            end
+          end
+        end
+
+        return gates
+      end,
+
+      drop_gates = function(self)
+        for x = 1, board.cols do
+          for y = board.rows - 1, 1, -1 do
+            local ty = y
+            local lower_gate = self.gate[x][ty + 1]
+            while (lower_gate ~= nil and
+                   self.gate[x][ty].type != "i" and
+                   self.gate[x][ty].state == "idle" and
+                   lower_gate.state == "idle" and
+                   lower_gate.type == "i") do
+              self.gate[x][ty + 1] = self.gate[x][ty]
+              self.gate[x][ty] = gate.i()
+              ty += 1
+              lower_gate = self.gate[x][ty + 1]
+            end
+
+            if (ty > y) then
+              self.gate[x][ty]:dropped()
+            end
+          end
+        end
+      end,
+
+      insert_gates_at_bottom = function(self)
+        for x = 1, board.cols do
+          for y = 1, board.rows - 1 do
+            if y == 1 and self.gate[x][y].type ~= 'i' then
+              self:game_over()
+            else
+              self.gate[x][y] = self.gate[x][y + 1]
+            end
+          end
+        end
+
+        for x = 1, board.cols do
+          repeat
+            self:set(x, board.rows, self:_random_gate())
+          until (self:idle_gate_at(x, board.rows).type ~= "i" and
+                 #gate_reduction_rules:reduce(self, x, board.rows - 1) == 0 and
+                 #gate_reduction_rules:reduce(self, x, board.rows - 2) == 0)
+        end
+      end,
+
+      update_gates = function(self)
+        for x = 1, board.cols do
+          for y = 1, board.rows do
+            self.gate[x][y]:update()
+          end
+        end
+      end,
+
+      game_over = function(self)
+        assert(false, "game over")
+      end,
+
+      -- private
+
+      _random_gate = function(self)
+        return gate:create(gate.types[flr(rnd(#gate.types)) + 1])
+      end,
+    }
+
+    b:init(top, left)
+
+    return b
   end,
 }
 
@@ -493,11 +499,12 @@ player_cursor = {
     ["middle"] = 38
   },
 
-  new = function(self, x, y)
+  new = function(self, x, y, board)
     local c = {
-      init = function(self, x, y)
+      init = function(self, x, y, board)
         self.x = x
         self.y = y
+        self.board = board
         self._tick = 0
         self:_change_state("idle")
       end,
@@ -559,27 +566,27 @@ player_cursor = {
 
       draw = function(self)
         -- top left
-        local xtl = board.left + (self.x - 1) * gate.size - 5
-        local ytl = board.top + (self.y - 1) * gate.size - 5
+        local xtl = self.board.left + (self.x - 1) * gate.size - 5
+        local ytl = self.board.top + (self.y - 1) * gate.size - 5
 
         -- top right
-        local xtr = board.left + self.x * gate.size + 4
+        local xtr = self.board.left + self.x * gate.size + 4
         local ytr = ytl
 
         -- bottom left
         local xbl = xtl
-        local ybl = board.top + self.y * gate.size - 4
+        local ybl = self.board.top + self.y * gate.size - 4
 
         -- bottom right
-        local xbr = board.left + self.x * gate.size + 4
+        local xbr = self.board.left + self.x * gate.size + 4
         local ybr = ybl
 
         -- top middle
-        local xtm = board.left + (self.x - 1) * gate.size + 4
+        local xtm = self.board.left + (self.x - 1) * gate.size + 4
         local ytm = ytl
 
         -- bottom middle
-        local xbm = board.left + (self.x - 1) * gate.size + 4
+        local xbm = self.board.left + (self.x - 1) * gate.size + 4
         local ybm = ybl
 
         if self.state == "shrunk" then
@@ -626,24 +633,22 @@ player_cursor = {
       end,
     }
 
-    c:init(x, y)
+    c:init(x, y, board)
 
     return c
   end,
 }
 
 game = {
-  board = board,
-
   init = function(self)
     drop_particles = {}
-    self.player_cursor = player_cursor:new(1, 1)
-    self.board:init()
+    self.board = board:new(32, 2)
+    self.player_cursor = player_cursor:new(1, 1, self.board)
     self.frame_count = 0
     self.num_raise_gates = 0
   end,
 
-  update = function(self)
+  update = function(self, board)
     self.frame_count += 1
 
     foreach(drop_particles, drop_particle.update)
@@ -676,8 +681,8 @@ game = {
     self.board:update_gates()
     foreach(self.board:gates_dropped_bottom(), function(each)
       assert(each.state == "dropped")
-        local x = board.left + (each.x - 1) * gate.size
-        local y = board.top + (each.y - 1) * gate.size
+        local x = self.board.left + (each.x - 1) * gate.size
+        local y = self.board.top + (each.y - 1) * gate.size
         drop_particle.create(x + 3, y + 7, 0, 9)
         drop_particle.create(x + 3, y + 7, 0, 9)
         drop_particle.create(x + 3, y + 7, 0, 10)
