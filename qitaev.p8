@@ -210,8 +210,6 @@ board = {
               gate:draw(x, y - self.raised_dots)
             end
 
-            -- self.gate[bx][by]:draw(x, y - self.raised_dots)
-
             if (by == board.rows + board.next_row) then
               spr(13, x, y - self.raised_dots)
             end
