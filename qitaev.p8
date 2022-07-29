@@ -153,7 +153,7 @@ board = {
         assert(x >= 1 and x <= board.cols)
         assert(y >= 1 and y <= board.rows)
 
-        if self.gate[x][y].state == "idle" then
+        if self.gate[x][y]:is_idle() then
           return self.gate[x][y]
         else
           return gate.i()
@@ -174,19 +174,13 @@ board = {
       end,
 
       draw = function(self)
-        for x = 1, board.cols do
-          for y = 1, board.rows do
-            local _x = self.left + (x - 1) * gate.size
-            local _y = self.top + (y - 1) * gate.size
-            wire:draw(_x, _y)
+        for bx = 1, board.cols do
+          for by = board.rows, 1, -1 do
+            local x = self.left + (bx - 1) * gate.size
+            local y = self.top + (by - 1) * gate.size
 
-            if self.gate[x][y].state == "dropped" then
-              self.gate[x][y]:draw(_x, _y + 4)
-            elseif self.gate[x][y].state == "dropped1" then
-              self.gate[x][y]:draw(_x, _y + 3)
-            else
-              self.gate[x][y]:draw(_x, _y)
-            end
+            wire:draw(x, y)
+            self.gate[bx][by]:draw(x, y)
           end
         end
       end,
@@ -197,7 +191,7 @@ board = {
         assert(left_gate ~= nil)
         assert(right_gate ~= nil)
 
-        if left_gate.state ~= "idle" or right_gate.state ~= "idle" then
+        if not (self:_is_swappable(left_gate) and self:_is_swappable(right_gate)) then
           return false
         end
 
@@ -205,10 +199,14 @@ board = {
         self:set(xr, y, left_gate)
       end,
 
+      _is_swappable = function(self, gate)
+        return gate:is_idle() or gate:is_dropped()
+      end,
+
       reduce = function(self)
         for x = 1, board.cols do
           for y = board.rows - 1, 1, -1 do
-            if self.gate[x][y].state == "idle" then
+            if self.gate[x][y]:is_idle() then
               reduction = gate_reduction_rules:reduce(self, x, y)
               for index, gate in pairs(reduction) do
                 self.gate[x][y + index - 1]:replace_with(gate)
@@ -238,25 +236,9 @@ board = {
         for x = 1, board.cols do
           for y = 1, board.rows do
             if (self.gate[x][y].type ~= "i" and
-                self.gate[x][y].state == "dropped" and
+                self.gate[x][y]:is_dropped() and
                 (self.gate[x][y + 1] == nil or
                  (self.gate[x][y + 1].state != "dropped"))) then
-              self.gate[x][y].x = x
-              self.gate[x][y].y = y
-              add(gates, self.gate[x][y])
-            end
-          end
-        end
-
-        return gates
-      end,
-
-      replaced_gates = function(self)
-        local gates = {}
-
-        for x = 1, board.cols do
-          for y = 1, board.rows do
-            if (self.gate[x][y].state == "replaced") then
               self.gate[x][y].x = x
               self.gate[x][y].y = y
               add(gates, self.gate[x][y])
@@ -274,8 +256,8 @@ board = {
             local lower_gate = self.gate[x][ty + 1]
             while (lower_gate ~= nil and
                    self.gate[x][ty].type != "i" and
-                   self.gate[x][ty].state == "idle" and
-                   lower_gate.state == "idle" and
+                   self.gate[x][ty]:is_idle() and
+                   lower_gate:is_idle() and
                    lower_gate.type == "i") do
               self.gate[x][ty + 1] = self.gate[x][ty]
               self.gate[x][ty] = gate.i()
@@ -364,15 +346,22 @@ gate = {
       ["s"] = 20,
       ["t"] = 21,
     },
-    -- todo: better name
-    ["dropped1"] = {
+    ["jumping"] = {
+      ["h"] = 48,
+      ["x"] = 49,
+      ["y"] = 50,
+      ["z"] = 51,
+      ["s"] = 52,
+      ["t"] = 53,
+    },
+    ["falling"] = {
       ["h"] = 32,
       ["x"] = 33,
       ["y"] = 34,
       ["z"] = 35,
       ["s"] = 36,
       ["t"] = 37,
-    },
+    },    
     ["match"] = {
       ["h"] = 48,
       ["x"] = 49,
@@ -412,11 +401,8 @@ gate = {
   new = function(self, type)
     return {
       type = type,
-      next_type = nil,
+      replace_with_type = nil,
       state = "idle",
-
-      tick_replace = 0,
-      tick_drop = 0,
 
       draw = function(self, x, y)
         if self.type == "i" then return end
@@ -432,9 +418,9 @@ gate = {
           return
         end
 
-        self.next_type = other.type
-        self:change_state("replacing")
-        self.tick_replace = 0
+        self.replace_with_type = other.type
+        self:change_state("match")
+        self.tick_match = 0
       end,
 
       dropped = function(self)
@@ -449,44 +435,47 @@ gate = {
       end,
 
       update = function(self)
-        if self.state == "idle" then
+        if self:is_idle() then
           return
-        elseif self.state == "replacing" then
-          if self.tick_replace < 60 then
-            self.tick_replace += 1
+        elseif self:is_match() then
+          if self.tick_match == nil then
+            self.tick_match = 0
+          elseif self.tick_match < 60 then
+            self.tick_match += 1
           else
-            self.type = self.next_type
-            if self.type == "i" then
-              self:change_state("idle")
-            else
-              self:change_state("replaced")
-            end
-            self.tick_replace = 0
-          end
-        elseif self.state == "replaced" then
-          self:change_state("idle")
-        elseif self.state == "dropped" then
-          self.tick_drop += 1
-          if (self.tick_drop == 3) then
-            self:change_state("dropped1")
-          end
-        elseif self.state == "dropped1" then
-          self.tick_drop += 1
-          if (self.tick_drop == 5) then
+            self.type = self.replace_with_type
             self:change_state("idle")
           end
-        else
+        elseif self:is_dropped() then
+          self.tick_drop += 1
+          if self.tick_drop == 12 then
+             self.tick_drop = nil
+             self:change_state("idle")
+          end
+         else
           assert(false, "we should never get here")
         end
+      end,
+
+      is_idle = function(self)
+        return self.state == "idle"
+      end,
+
+      is_match = function(self)
+        return self.state == "match"
+      end,
+
+      is_dropped = function(self)
+        return self.state == "dropped"
       end,
 
       -- private
 
       _sprite = function(self)
-        if self.state == "idle" then
+        if self:is_idle() then
           return gate.sprites.idle[self.type]
-        elseif self.state == "replacing" then
-          local icon = self.tick_replace % 12
+        elseif self:is_match() then
+          local icon = self.tick_match % 12
           if icon == 0 or icon == 1 or icon == 2 then
             return gate.sprites.match_left[self.type]
           elseif icon == 3 or icon == 4 or icon == 5 then
@@ -496,12 +485,15 @@ gate = {
           elseif icon == 9 or icon == 10 or icon == 11 then
             return gate.sprites.match_middle[self.type]
           end
-        elseif self.state == "replaced" then
-          return gate.sprites.idle[self.type]
-        elseif self.state == "dropped" then
+        elseif self:is_dropped() then
+          if self.tick_drop < 5 then
+            return gate.sprites.dropped[self.type]
+          elseif self.tick_drop < 7 then
+            return gate.sprites.jumping[self.type]
+          elseif self.tick_drop < 11 then
+            return gate.sprites.falling[self.type]
+          end        
           return gate.sprites.dropped[self.type]
-        elseif self.state == "dropped1" then
-          return gate.sprites.dropped1[self.type]
         else
           assert(false, "we should never get here")
         end
@@ -625,7 +617,7 @@ player_cursor = {
         local xbm = self.board.left + (self.x - 1) * gate.size + 4
         local ybm = ybl
 
-        if self.state == "shrunk" then
+        if self:is_shrunk() then
           xtl += 1
           ytl += 1
           xtr -= 1
@@ -638,7 +630,7 @@ player_cursor = {
           ybm -= 1
         end
 
-        if self.state == "flash" then
+        if self:is_flash() then
           pal(self._color, colors.red)
         end
 
@@ -652,6 +644,18 @@ player_cursor = {
         pal(self._color, self._color)
       end,
 
+      is_idle = function(self)
+        return self.state == "idle"
+      end,
+
+      is_flash = function(self)
+        return self.state == "flash"
+      end,
+
+      is_shrunk = function(self)
+        return self.state == "shrunk"
+      end,
+
       -- private
 
       _change_state = function(self, new_state)
@@ -659,10 +663,11 @@ player_cursor = {
         assert(new_state == "idle" or new_state == "shrunk" or new_state == "flash")
 
         if new_state == "idle" then
-          assert(self.state == nil or self.state == "shrunk" or self.state == "flash")
+          assert(self.state == nil or self:is_shrunk() or self:is_flash())
         end
         if new_state == "shrunk" then
-          assert(self.state == "idle" or self.state == "flash")
+          printh(self.state)
+          assert(self:is_idle() or self:is_flash())
         end
 
         self.state = new_state
@@ -678,7 +683,7 @@ player_cursor = {
 game = {
   init = function(self)
     drop_particles = {}
-    self.board = board:new(32, 2)
+    self.board = board:new(32, 3)
     self.player_cursor = player_cursor:new(1, 1, self.board)
     self.frame_count = 0
     self.num_raise_gates = 0
@@ -716,14 +721,15 @@ game = {
     self.board:drop_gates()
     self.board:update_gates()
     foreach(self.board:gates_dropped_bottom(), function(each)
-      assert(each.state == "dropped")
-        local x = self.board.left + (each.x - 1) * gate.size
-        local y = self.board.top + (each.y - 1) * gate.size
-        drop_particle.create(x + 3, y + 7, 0, 9)
-        drop_particle.create(x + 3, y + 7, 0, 9)
-        drop_particle.create(x + 3, y + 7, 0, 10)
-        drop_particle.create(x + 3, y + 7, 0, 10)
+      assert(each:is_dropped())
+      local x = self.board.left + (each.x - 1) * gate.size
+      local y = self.board.top + (each.y - 1) * gate.size
+      drop_particle.create(x + 3, y + 7, 0, 9)
+      drop_particle.create(x + 3, y + 7, 0, 9)
+      drop_particle.create(x + 3, y + 7, 0, 10)
+      drop_particle.create(x + 3, y + 7, 0, 10)
     end)
+
     self.player_cursor:update()
 
     if self.frame_count == 30 then
@@ -770,26 +776,34 @@ function _draw()
   foreach(drop_particles, drop_particle.draw)
 end
 __gfx__
-066666000066600006666600066666000444440002222200cccccc000cccc000cccccc00cccccc00cccccc00cccccc0000050000006666000000000000000000
-616661600661660061666160611111604466664026666620c1cc1cc0cc1cc000cccc1cc0c1111cc0c1111cc0c1111cc000050000060000600000000000000000
-616661606661666066161660666616604644444022262220c1ccc1c0cc1cccc0c1cc1cc0cccc1cc0c1ccccc0ccc1ccc000050000600000060000000000000000
-611111606111116066616660666166604466644022262220cc1111c0c11111c0cc111cc0ccc1ccc0cc1111c0ccc1ccc000050000600000060000000000000000
-6166616066616660666166606616666044444640222622200c1ccc1ccccc1cc00cccc1cc0c1ccccc0ccccc1c0ccc1ccc00050000600000060000000000000000
-6166616006616600666166606111116046666440222622200c1ccc1c00cc1cc00cccc1cc0c11111c0cc111cc0ccc1ccc00050000600000060000000000000000
-06666600006660000666660006666600044444000222220000cccccc00cccc0000cccccc00cccccc00cccccc00cccccc00050000060000600000000000000000
+06666600006660000666660006666600044444000222220007ccc70000c7c00007ccc700077777000c7777000777770000050000006666000711170000000000
+616661600661660061666160611111604466664026666620c7ccc7c00cc7cc00cc7c7cc0cccc7cc0c7ccccc0ccc7ccc0000500000600006017ccc71000000000
+616661606661666066161660666616604644444022262220c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000050000600000061777771000000000
+611111606111116066616660666166604466644022262220c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc0000500006000000617c1c71000000000
+616661606661666066616660661666604444464022262220c7ccc7c0ccc7ccc0ccc7ccc0c77777c0c7777cc0ccc7ccc0000500006000000617ccc71000000000
+616661600661660066616660611111604666644022262220ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc000050000600000061ccccc1000000000
+0666660000666000066666000666660004444400022222000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc0000050000060000600111110000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000050000006666000000000000000000
-0666660000666000066666000666660004444400022222000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc0000000000000000000000000000000000
-666666600666660066666660666666604444444022222220c1ccc1c00cc1cc00c1ccc1c0c11111c0cc1111c0c11111c000000000000000000000000000000000
-666666606666666066666660666666604444444022222220c1ccc1c0ccc1ccc0cc1c1cc0cccc1cc0c1ccccc0ccc1ccc000000000000000000000000000000000
-666666606666666066666660666666604444444022222220c11111c0c11111c0ccc1ccc0ccc1ccc0cc111cc0ccc1ccc000033300000000000000000000000000
-666666606666666066666660666666604444444022222220c1ccc1c0ccc1ccc0ccc1ccc0cc1cccc0ccccc1c0ccc1ccc000030000000000000000000000000000
-616661600111110061161160611111604466664026666620c1ccc1c00cc1cc00ccc1ccc0c11111c0c1111cc0ccc1ccc000030000000000000000000000000000
-0111110000616000061116000111110006666600022622000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc0000000000000000000000000000000000
+0666660000666000066666000666660004444400022222000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc0000000000000000000ccccc0000000000
+666666600666660066666660666666604444444022222220c7ccc7c00cc7cc00c7ccc7c0c77777c0cc7777c0c77777c00000000000000000c7ccc7c000000000
+666666606666666066666660666666604444444022222220c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc00033333000000000c7c1c7c000000000
+616661606661666061666160611111604466664026666620c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc00037773000000000c77777c000000000
+616661606661666066161660666616604644444022262220c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc00037333000000000c7c1c7c000000000
+611111600111110066616660661166604466664022262220c7ccc7c00cc7cc00ccc7ccc0c77777c0c7777cc0ccc7ccc00037300000000000c7ccc7c000000000
+0116110000616000066166000111110006666600022622000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc0000333000000000000ccccc0000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-06666600006660000666660006666600044444000222220000cccccc00cccc0000cccccc00cccccc00cccccc00cccccc00000000000000000000000000000000
-6666666006666600666666606666666044444440222222200c1ccc1c00cc1cc00c1ccc1c0c11111c0cc1111c0c11111c00000000000000000000000000000000
-6666666066666660666666606666666044444440222222200c1ccc1ccccc1cc00c1ccc1c0cccc1cc0c1ccccc0ccc1ccc00000000000000000000000000000000
-6666666066666660666666606666666044444440222222200c1111ccc11111c00ccc11cc0cc11ccc0cc11ccc0ccc1ccc03333300000000000000000000000000
-616661606661666061666160611111604466644026666620c1ccc1c0cc1cccc0ccc1ccc0cc1cccc0ccccc1c0ccc1ccc000030000000000000000000000000000
-611111600111110066111660661116604666664022262220c1ccc1c00c1cc000ccc1ccc0c11111c0c1111cc0cc11ccc000030000000000000000000000000000
-016661000061600006616600011111000466640002262200cccccc000cccc000cccccc00cccccc00cccccc00cccccc0000000000000000000000000000000000
+0166610000616000016661000111110004666600066666000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc0000000000000000000ccccc0000000000
+616661600661660066161660666616604644444022262220ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc00000000000000000cc111cc000000000
+611111606111116066616660666166604466644022262220c7ccc7c0ccc7ccc0c7ccc7c0c77777c0cc7777c0c77777c03333333000000000c7ccc7c000000000
+616661606661666066616660661666604444464022262220c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc03777773000000000c7ccc7c000000000
+616661606661666066616660611111604666644022262220c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc03337333000000000c77777c000000000
+666666600666660066666660666666604444444022222220c7ccc7c00cc7cc00ccc7ccc0cc7cccc0ccccc7c0ccc7ccc00037300000000000c71117c000000000
+06666600006660000666660006666600044444000222220007ccc70000c7c0000cc7cc000777770007777c000cc7cc00003330000000000007ccc70000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01111100001110000661660006616600046664000226220000000000000000000000000000000000000000000000000000000000000000000000000000000000
+61666160066166006661666066166660444446402226222000000000000000000000000000000000000000000000000000000000000000000000000000000000
+61666160666166606661666061111160466664402226222000000000000000000000000000000000000000000000000000000000000000000000000000000000
+66666660666666606666666066666660444444402222222000000000000000000000000000000000000000000000000000000000000000000000000000000000
+66666660666666606666666066666660444444402222222000000000000000000000000000000000000000000000000000000000000000000000000000000000
+66666660066666006666666066666660444444402222222000000000000000000000000000000000000000000000000000000000000000000000000000000000
+06666600006660000666660006666600044444000222220000000000000000000000000000000000000000000000000000000000000000000000000000000000
