@@ -667,7 +667,6 @@ player_cursor = {
           assert(self.state == nil or self:is_shrunk() or self:is_flash())
         end
         if new_state == "shrunk" then
-          printh(self.state)
           assert(self:is_idle() or self:is_flash())
         end
 
