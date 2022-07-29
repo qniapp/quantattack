@@ -54,11 +54,11 @@ drop_particle = {
 }
 
 gate_reduction_rules = {
-  reduce = function(self, board, x, y, including_next)
-    including_next = including_next or false
+  reduce = function(self, board, x, y, include_next)
+    include_next = include_next or false
 
-    if including_next then
-      if y + 1 > board.rows + 1 then
+    if include_next then
+      if y + 1 > board.rows + board.next_row then
         return {}
       end
     else
@@ -107,8 +107,8 @@ gate_reduction_rules = {
       return { gate.i(), gate.s() }
     end
 
-    if including_next then
-      if y + 2 > board.rows + 1 then
+    if include_next then
+      if y + 2 > board.rows + board.next_row then
         return {}
       end       
     else
@@ -119,16 +119,19 @@ gate_reduction_rules = {
 
     -- hxh -> z
     if (board:idle_gate_at(x, y).type == "h" and board:idle_gate_at(x, y + 1).type == "x" and board:idle_gate_at(x, y + 2).type == "h") then
+      printh("hxh -> z")
       return { gate.i(), gate.i(), gate.z() }
     end 
 
     -- hzh -> z
     if (board:idle_gate_at(x, y).type == "h" and board:idle_gate_at(x, y + 1).type == "z" and board:idle_gate_at(x, y + 2).type == "h") then
+      printh("hzh -> z")
       return { gate.i(), gate.i(), gate.x() }
     end 
 
     -- szs -> z
     if (board:idle_gate_at(x, y).type == "s" and board:idle_gate_at(x, y + 1).type == "z" and board:idle_gate_at(x, y + 2).type == "s") then
+      printh("szs -> z")
       return { gate.i(), gate.i(), gate.z() }
     end 
 
@@ -149,6 +152,7 @@ board = {
         self.left = left
         self.cols = board.cols
         self.rows = board.rows
+        self.next_row = board.next_row
         self.raised_dots = 0
 
         for x = 1, board.cols do
@@ -157,8 +161,7 @@ board = {
             if y >= 5 then
               repeat
                 self:set(x, y, self:_random_gate())
-              until (self:idle_gate_at(x, y).type ~= "i" and
-                     #gate_reduction_rules:reduce(self, x, y, true) == 0)
+              until (#gate_reduction_rules:reduce(self, x, y, true) == 0)
             else
               self:set(x, y, gate.i())
             end
@@ -197,7 +200,17 @@ board = {
             local y = self.top + (by - 1) * gate.size
 
             wire:draw(x, y - self.raised_dots)
-            self.gate[bx][by]:draw(x, y - self.raised_dots)
+
+            local gate = self.gate[bx][by]
+            if gate:is_swapping_with_left() then
+              gate:draw(x + 4, y - self.raised_dots)
+            elseif gate:is_swapping_with_right() then
+              gate:draw(x - 4, y - self.raised_dots)
+            else
+              gate:draw(x, y - self.raised_dots)
+            end
+
+            -- self.gate[bx][by]:draw(x, y - self.raised_dots)
 
             if (by == board.rows + board.next_row) then
               spr(13, x, y - self.raised_dots)
@@ -215,6 +228,9 @@ board = {
         if not self:is_swappable(left_gate, right_gate) then
           return false
         end
+
+        right_gate:swap_with_left()
+        left_gate:swap_with_right()
 
         self:set(xl, y, right_gate)
         self:set(xr, y, left_gate)
@@ -305,13 +321,11 @@ board = {
           end
         end
 
-        -- todo: 3 量子ビットで消えないかチェック
         for x = 1, board.cols do
           repeat
             self:set(x, board.rows + board.next_row, self:_random_gate())
-          until (self:idle_gate_at(x, board.rows + board.next_row).type ~= "i" and
-                 #gate_reduction_rules:reduce(self, x, board.rows, true) == 0)
-          --     #gate_reduction_rules:reduce(self, x, board.rows - 1, true) == 0)
+            gate_reduction_rules:reduce(self, x, board.rows - 1, true)
+          until (#gate_reduction_rules:reduce(self, x, board.rows, true) == 0)
         end
       end,
 
@@ -337,7 +351,12 @@ board = {
       -- private
 
       _random_gate = function(self)
-        return gate:new(gate.types[flr(rnd(#gate.types)) + 1])
+        local non_i_gate = nil
+        repeat
+          non_i_gate = gate:new(gate.types[flr(rnd(#gate.types)) + 1])
+        until non_i_gate.type ~= "i"
+
+        return non_i_gate
       end,
     }
 
@@ -428,10 +447,13 @@ gate = {
 
   size = 8,
 
+  num_frames_swap = 4,
+
   new = function(self, type)
     return {
       type = type,
       replace_with_type = nil,
+      -- todo: state -> _state
       state = "idle",
 
       draw = function(self, x, y)
@@ -464,9 +486,25 @@ gate = {
         self.state = new_state
       end,
 
+      swap_with_left = function(self)
+        self:change_state("swapping_with_left")
+      end,
+
+      swap_with_right = function(self)
+        self:change_state("swapping_with_right")
+      end,
+
       update = function(self)
         if self:is_idle() then
           return
+        elseif self:is_swapping() then
+          if self.tick_swap == nil then
+            self.tick_swap = 0
+          elseif self.tick_swap < gate.num_frames_swap then
+            self.tick_swap += 1
+          else
+            self:change_state("idle")
+          end
         elseif self:is_match() then
           if self.tick_match == nil then
             self.tick_match = 0
@@ -482,13 +520,25 @@ gate = {
              self.tick_drop = nil
              self:change_state("idle")
           end
-         else
+        else
           assert(false, "we should never get here")
         end
       end,
 
       is_idle = function(self)
         return self.state == "idle"
+      end,
+
+      is_swapping = function(self)
+        return self:is_swapping_with_left() or self:is_swapping_with_right()
+      end,
+
+      is_swapping_with_left = function(self)
+        return self.state == "swapping_with_left"
+      end,
+
+      is_swapping_with_right = function(self)
+        return self.state == "swapping_with_right"
       end,
 
       is_match = function(self)
@@ -503,6 +553,8 @@ gate = {
 
       _sprite = function(self)
         if self:is_idle() then
+          return gate.sprites.idle[self.type]
+        elseif self:is_swapping() then
           return gate.sprites.idle[self.type]
         elseif self:is_match() then
           local icon = self.tick_match % 12
