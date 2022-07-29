@@ -777,12 +777,12 @@ game = {
   init = function(self)
     self.board = board:new(32, 3)
     self.player_cursor = player_cursor:new(1, 1, self.board)
-    self.frame_count = 0
+    self.tick = 0
     self.num_raise_gates = 0
   end,
 
   update = function(self, board)
-    self.frame_count += 1
+    self.tick += 1
 
     drop_particle:update()
 
@@ -830,7 +830,7 @@ game = {
       self.player_cursor:flash()
     end
 
-    if self.frame_count == 30 then
+    if self.tick == 30 then
       if #self.board:gates_in_action() == 0 then
         self.num_raise_gates += 1
         self.board:raise_one_dot()
@@ -841,7 +841,7 @@ game = {
         end
       end
 
-      self.frame_count = 0
+      self.tick = 0
     end
   end,
 
