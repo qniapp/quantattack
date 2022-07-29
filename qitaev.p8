@@ -54,9 +54,17 @@ drop_particle = {
 }
 
 gate_reduction_rules = {
-  reduce = function(self, board, x, y)
-    if y + 1 > board.rows then
-      return {}
+  reduce = function(self, board, x, y, including_next)
+    including_next = including_next or false
+
+    if including_next then
+      if y + 1 > board.rows + 1 then
+        return {}
+      end
+    else
+      if y + 1 > board.rows then
+        return {}
+      end    
     end
 
     -- hh -> i
@@ -99,8 +107,14 @@ gate_reduction_rules = {
       return { gate.i(), gate.s() }
     end
 
-    if y + 2 > board.rows then
-      return {}
+    if including_next then
+      if y + 2 > board.rows + 1 then
+        return {}
+      end       
+    else
+      if y + 2 > board.rows then
+        return {}
+      end    
     end
 
     -- hxh -> z
@@ -125,6 +139,7 @@ gate_reduction_rules = {
 board = {
   cols = 6,
   rows = 12,
+  next_row = 1,
 
   new = function(self, top, left)
     local b = {
@@ -134,14 +149,16 @@ board = {
         self.left = left
         self.cols = board.cols
         self.rows = board.rows
+        self.raised_dots = 0
 
         for x = 1, board.cols do
           self.gate[x] = {}
-          for y = board.rows, 1, -1 do
+          for y = board.rows + board.next_row, 1, -1 do
             if y >= 5 then
               repeat
                 self:set(x, y, self:_random_gate())
-              until (self:idle_gate_at(x, y).type ~= "i" and #gate_reduction_rules:reduce(self, x, y) == 0)
+              until (self:idle_gate_at(x, y).type ~= "i" and
+                     #gate_reduction_rules:reduce(self, x, y, true) == 0)
             else
               self:set(x, y, gate.i())
             end
@@ -151,7 +168,7 @@ board = {
 
       idle_gate_at = function(self, x, y)
         assert(x >= 1 and x <= board.cols)
-        assert(y >= 1 and y <= board.rows)
+        assert(y >= 1 and y <= board.rows + board.next_row)
 
         if self.gate[x][y]:is_idle() then
           return self.gate[x][y]
@@ -162,7 +179,7 @@ board = {
 
       set = function(self, x, y, gate)
         assert(x >= 1 and x <= board.cols)
-        assert(y >= 1 and y <= board.rows)
+        assert(y >= 1 and y <= board.rows + board.next_row)
 
         self.gate[x][y] = gate
       end,
@@ -175,12 +192,16 @@ board = {
 
       draw = function(self)
         for bx = 1, board.cols do
-          for by = board.rows, 1, -1 do
+          for by = board.rows + board.next_row, 1, -1 do
             local x = self.left + (bx - 1) * gate.size
             local y = self.top + (by - 1) * gate.size
 
-            wire:draw(x, y)
-            self.gate[bx][by]:draw(x, y)
+            wire:draw(x, y - self.raised_dots)
+            self.gate[bx][by]:draw(x, y - self.raised_dots)
+
+            if (by == board.rows + board.next_row) then
+              spr(13, x, y - self.raised_dots)
+            end
           end
         end
       end,
@@ -275,7 +296,7 @@ board = {
 
       insert_gates_at_bottom = function(self)
         for x = 1, board.cols do
-          for y = 1, board.rows - 1 do
+          for y = 1, board.rows + board.next_row - 1 do
             if y == 1 and self.gate[x][y].type ~= 'i' then
               self:game_over()
             else
@@ -284,12 +305,13 @@ board = {
           end
         end
 
+        -- todo: 3 量子ビットで消えないかチェック
         for x = 1, board.cols do
           repeat
-            self:set(x, board.rows, self:_random_gate())
-          until (self:idle_gate_at(x, board.rows).type ~= "i" and
-                 #gate_reduction_rules:reduce(self, x, board.rows - 1) == 0 and
-                 #gate_reduction_rules:reduce(self, x, board.rows - 2) == 0)
+            self:set(x, board.rows + board.next_row, self:_random_gate())
+          until (self:idle_gate_at(x, board.rows + board.next_row).type ~= "i" and
+                 #gate_reduction_rules:reduce(self, x, board.rows, true) == 0)
+          --     #gate_reduction_rules:reduce(self, x, board.rows - 1, true) == 0)
         end
       end,
 
@@ -298,6 +320,13 @@ board = {
           for y = 1, board.rows do
             self.gate[x][y]:update()
           end
+        end
+      end,
+
+      raise_one_dot = function(self)
+        self.raised_dots += 1
+        if self.raised_dots == 8 then
+          self.raised_dots = 0
         end
       end,
 
@@ -593,7 +622,7 @@ player_cursor = {
         end
       end,
 
-      draw = function(self)
+      draw = function(self, raised_dots)
         -- top left
         local xtl = self.board.left + (self.x - 1) * gate.size - 5
         local ytl = self.board.top + (self.y - 1) * gate.size - 5
@@ -635,12 +664,12 @@ player_cursor = {
           pal(self._color, colors.red)
         end
 
-        spr(player_cursor._sprites.corner, xtl, ytl)
-        spr(player_cursor._sprites.corner, xtr, ytr, 1, 1, true, false)
-        spr(player_cursor._sprites.corner, xbl, ybl, 1, 1, false, true)
-        spr(player_cursor._sprites.corner, xbr, ybr, 1, 1, true, true)
-        spr(player_cursor._sprites.middle, xtm, ytm)
-        spr(player_cursor._sprites.middle, xbm, ybm, 1, 1, false, true)
+        spr(player_cursor._sprites.corner, xtl, ytl - raised_dots)
+        spr(player_cursor._sprites.corner, xtr, ytr - raised_dots, 1, 1, true, false)
+        spr(player_cursor._sprites.corner, xbl, ybl - raised_dots, 1, 1, false, true)
+        spr(player_cursor._sprites.corner, xbr, ybr - raised_dots, 1, 1, true, true)
+        spr(player_cursor._sprites.middle, xtm, ytm - raised_dots)
+        spr(player_cursor._sprites.middle, xbm, ybm - raised_dots, 1, 1, false, true)
 
         pal(self._color, self._color)
       end,
@@ -740,6 +769,7 @@ game = {
     if self.frame_count == 30 then
       if #self.board:gates_in_action() == 0 then
         self.num_raise_gates += 1
+        self.board:raise_one_dot()
         if self.num_raise_gates == 8 then
           self.num_raise_gates = 0
           self.board:insert_gates_at_bottom()
@@ -762,7 +792,7 @@ game = {
     cls()
 
     self.board:draw()
-    self.player_cursor:draw()
+    self.player_cursor:draw(self.board.raised_dots)
     self:draw_stats()
   end,    
 }
@@ -781,29 +811,29 @@ function _draw()
   foreach(drop_particles, drop_particle.draw)
 end
 __gfx__
-06666600006660000666660006666600044444000222220007ccc70000c7c00007ccc700077777000c7777000777770000050000006666000711170000000000
-616661600661660061666160611111604466664026666620c7ccc7c00cc7cc00cc7c7cc0cccc7cc0c7ccccc0ccc7ccc0000500000600006017ccc71000000000
-616661606661666066161660666616604644444022262220c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000050000600000061777771000000000
-611111606111116066616660666166604466644022262220c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc0000500006000000617c1c71000000000
-616661606661666066616660661666604444464022262220c7ccc7c0ccc7ccc0ccc7ccc0c77777c0c7777cc0ccc7ccc0000500006000000617ccc71000000000
-616661600661660066616660611111604666644022262220ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc000050000600000061ccccc1000000000
-0666660000666000066666000666660004444400022222000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc0000050000060000600111110000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000050000006666000000000000000000
-0666660000666000066666000666660004444400022222000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc0000000000000000000ccccc0000000000
-666666600666660066666660666666604444444022222220c7ccc7c00cc7cc00c7ccc7c0c77777c0cc7777c0c77777c00000000000000000c7ccc7c000000000
-666666606666666066666660666666604444444022222220c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc00033333000000000c7c1c7c000000000
-616661606661666061666160611111604466664026666620c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc00037773000000000c77777c000000000
-616661606661666066161660666616604644444022262220c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc00037333000000000c7c1c7c000000000
-611111600111110066616660661166604466664022262220c7ccc7c00cc7cc00ccc7ccc0c77777c0c7777cc0ccc7ccc00037300000000000c7ccc7c000000000
-0116110000616000066166000111110006666600022622000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc0000333000000000000ccccc0000000000
+06666600006660000666660006666600044444000222220007ccc70000c7c00007ccc700077777000c7777000777770000050000505050500000000000000000
+616661600661660061666160611111604466664026666620c7ccc7c00cc7cc00cc7c7cc0cccc7cc0c7ccccc0ccc7ccc000050000050505050000000000000000
+616661606661666066161660666616604644444022262220c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000050000505050500000000000000000
+611111606111116066616660666166604466644022262220c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc000050000050505050000000000000000
+616661606661666066616660661666604444464022262220c7ccc7c0ccc7ccc0ccc7ccc0c77777c0c7777cc0ccc7ccc000050000505050500000000000000000
+616661600661660066616660611111604666644022262220ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc000050000050505050000000000000000
+0666660000666000066666000666660004444400022222000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc0000050000505050500000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000050000050505050000000000000000
+0666660000666000066666000666660004444400022222000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc0000000000000000000000000000000000
+666666600666660066666660666666604444444022222220c7ccc7c00cc7cc00c7ccc7c0c77777c0cc7777c0c77777c000000000000000000000000000000000
+666666606666666066666660666666604444444022222220c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc000333330000000000000000000000000
+616661606661666061666160611111604466664026666620c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000377730000000000000000000000000
+616661606661666066161660666616604644444022262220c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc000373330000000000000000000000000
+611111600111110066616660661166604466664022262220c7ccc7c00cc7cc00ccc7ccc0c77777c0c7777cc0ccc7ccc000373000000000000000000000000000
+0116110000616000066166000111110006666600022622000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc0000333000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0166610000616000016661000111110004666600066666000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc0000000000000000000ccccc0000000000
-616661600661660066161660666616604644444022262220ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc00000000000000000cc111cc000000000
-611111606111116066616660666166604466644022262220c7ccc7c0ccc7ccc0c7ccc7c0c77777c0cc7777c0c77777c03333333000000000c7ccc7c000000000
-616661606661666066616660661666604444464022262220c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc03777773000000000c7ccc7c000000000
-616661606661666066616660611111604666644022262220c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc03337333000000000c77777c000000000
-666666600666660066666660666666604444444022222220c7ccc7c00cc7cc00ccc7ccc0cc7cccc0ccccc7c0ccc7ccc00037300000000000c71117c000000000
-06666600006660000666660006666600044444000222220007ccc70000c7c0000cc7cc000777770007777c000cc7cc00003330000000000007ccc70000000000
+0166610000616000016661000111110004666600066666000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc0000000000000000000000000000000000
+616661600661660066161660666616604644444022262220ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc000000000000000000000000000000000
+611111606111116066616660666166604466644022262220c7ccc7c0ccc7ccc0c7ccc7c0c77777c0cc7777c0c77777c033333330000000000000000000000000
+616661606661666066616660661666604444464022262220c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc037777730000000000000000000000000
+616661606661666066616660611111604666644022262220c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc033373330000000000000000000000000
+666666600666660066666660666666604444444022222220c7ccc7c00cc7cc00ccc7ccc0cc7cccc0ccccc7c0ccc7ccc000373000000000000000000000000000
+06666600006660000666660006666600044444000222220007ccc70000c7c0000cc7cc000777770007777c000cc7cc0000333000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 01111100001110000661660006616600046664000226220000000000000000000000000000000000000000000000000000000000000000000000000000000000
 61666160066166006661666066166660444446402226222000000000000000000000000000000000000000000000000000000000000000000000000000000000
