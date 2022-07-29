@@ -3,12 +3,18 @@ version 36
 __lua__
 colors = {
   ["dark_green"] = 3,
+  ["dark_grey"] = 5,
+  ["light_grey"] = 6,
   ["red"] = 8,
+  ["orange"] = 9,
+  ["yellow"] = 10,
   ["blue"] = 12,
 }
 
 drop_particle = {
-  create = function(x, y, init_size, col)
+  all = {},
+
+  create = function(self, x, y, init_size, color)
     local p = {}
     local left = false
 
@@ -18,10 +24,10 @@ drop_particle = {
 
     p.x = x
     p.y = y
-    p.col = col
+    p.color = color
     p.width = init_size
     p.t = 0
-    p.max_t = 30 + rnd(10)
+    p.max_t = 20 + rnd(10)
     p.dx = (rnd(.8)) * .4
     p.dy = rnd(.05)
     p.ddy = .02
@@ -30,26 +36,31 @@ drop_particle = {
       p.dx *= -1
     end
 
-    add(drop_particles, p)
+    add(drop_particle.all, p)
+
     return p
   end,
 
-  update = function(p)
-    if (p.t > p.max_t) then
-      del(drop_particles, p)
-    end
-    if (p.t > p.max_t - 15) then
-      p.col = 6
-    end
+  update = function(self)
+    foreach(drop_particle.all, function(p)
+      if (p.t > p.max_t) then
+        del(drop_particle.all, p)
+      end
+      if (p.t > p.max_t - 5) then
+        p.color = colors.dark_grey
+      end
 
-    p.x = p.x + p.dx
-    p.y = p.y + p.dy
-    p.dy = p.dy + p.ddy
-    p.t = p.t + 1
+      p.x = p.x + p.dx
+      p.y = p.y + p.dy
+      p.dy = p.dy + p.ddy
+      p.t = p.t + 1
+    end)
   end,
 
-  draw = function(p)
-    circfill(p.x, p.y, p.width, p.col)
+  draw = function(self)
+    foreach(drop_particle.all, function(p)
+      circfill(p.x, p.y, p.width, p.color)
+    end)
   end
 }
 
@@ -273,6 +284,7 @@ board = {
           for y = 1, board.rows do
             if (self.gate[x][y].type ~= "i" and
                 self.gate[x][y]:is_dropped() and
+                self.gate[x][y].tick_drop == 0 and
                 (self.gate[x][y + 1] == nil or
                  (not self.gate[x][y + 1]:is_dropped()))) then
               self.gate[x][y].x = x
@@ -474,7 +486,6 @@ gate = {
 
       dropped = function(self)
         self:change_state("dropped")
-        self.tick_drop = 0
       end,
 
       change_state = function(self, new_state)
@@ -512,10 +523,14 @@ gate = {
             self:change_state("idle")
           end
         elseif self:is_dropped() then
-          self.tick_drop += 1
-          if self.tick_drop == 12 then
-             self.tick_drop = nil
-             self:change_state("idle")
+          if self.tick_drop == nil then
+            self.tick_drop = 0
+          else
+            self.tick_drop += 1
+            if self.tick_drop == 12 then
+               self.tick_drop = nil
+               self:change_state("idle")
+            end
           end
         else
           assert(false, "we should never get here")
@@ -760,7 +775,6 @@ player_cursor = {
 
 game = {
   init = function(self)
-    drop_particles = {}
     self.board = board:new(32, 3)
     self.player_cursor = player_cursor:new(1, 1, self.board)
     self.frame_count = 0
@@ -770,7 +784,7 @@ game = {
   update = function(self, board)
     self.frame_count += 1
 
-    foreach(drop_particles, drop_particle.update)
+    drop_particle:update()
 
     if btnp(0) then
       self.player_cursor:move_left()
@@ -798,14 +812,15 @@ game = {
     self.board:reduce()
     self.board:drop_gates()
     self.board:update_gates()
+
     foreach(self.board:gates_dropped_bottom(), function(each)
-      assert(each:is_dropped())
       local x = self.board.left + (each.x - 1) * gate.size
       local y = self.board.top + (each.y - 1) * gate.size
-      drop_particle.create(x + 3, y + 7, 0, 9)
-      drop_particle.create(x + 3, y + 7, 0, 9)
-      drop_particle.create(x + 3, y + 7, 0, 10)
-      drop_particle.create(x + 3, y + 7, 0, 10)
+
+      drop_particle:create(x + 3, y + 7, 0, colors.orange)
+      drop_particle:create(x + 3, y + 7, 0, colors.orange)
+      drop_particle:create(x + 3, y + 7, 0, colors.yellow)
+      drop_particle:create(x + 3, y + 7, 0, colors.yellow)
     end)
 
     self.player_cursor:update()
@@ -856,8 +871,7 @@ end
 
 function _draw()
   game:draw()
-
-  foreach(drop_particles, drop_particle.draw)
+  drop_particle:draw()
 end
 __gfx__
 06666600006660000666660006666600044444000222220007ccc70000c7c00007ccc700077777000c7777000777770000050000505050500000000000000000
