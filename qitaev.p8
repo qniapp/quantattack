@@ -257,7 +257,7 @@ board = {
 
         for x = 1, board.cols do
           for y = 1, board.rows do
-            if self.gate[x][y].state != "idle" then
+            if not self.gate[x][y]:is_idle() then
               add(gates, self.gate[x][y])
             end
           end
@@ -274,7 +274,7 @@ board = {
             if (self.gate[x][y].type ~= "i" and
                 self.gate[x][y]:is_dropped() and
                 (self.gate[x][y + 1] == nil or
-                 (self.gate[x][y + 1].state != "dropped"))) then
+                 (not self.gate[x][y + 1]:is_dropped()))) then
               self.gate[x][y].x = x
               self.gate[x][y].y = y
               add(gates, self.gate[x][y])
@@ -451,8 +451,7 @@ gate = {
     return {
       type = type,
       replace_with_type = nil,
-      -- todo: state -> _state
-      state = "idle",
+      _state = "idle",
 
       draw = function(self, x, y)
         if self.type == "i" then return end
@@ -464,7 +463,7 @@ gate = {
         assert(self.type ~= "i")
         assert(other.type)
 
-        if self.state != "idle" then
+        if self._state != "idle" then
           return
         end
 
@@ -481,7 +480,7 @@ gate = {
       change_state = function(self, new_state)
         assert(new_state)
 
-        self.state = new_state
+        self._state = new_state
       end,
 
       swap_with_left = function(self)
@@ -524,7 +523,7 @@ gate = {
       end,
 
       is_idle = function(self)
-        return self.state == "idle"
+        return self._state == "idle"
       end,
 
       is_swapping = function(self)
@@ -532,19 +531,19 @@ gate = {
       end,
 
       is_swapping_with_left = function(self)
-        return self.state == "swapping_with_left"
+        return self._state == "swapping_with_left"
       end,
 
       is_swapping_with_right = function(self)
-        return self.state == "swapping_with_right"
+        return self._state == "swapping_with_right"
       end,
 
       is_match = function(self)
-        return self.state == "match"
+        return self._state == "match"
       end,
 
       is_dropped = function(self)
-        return self.state == "dropped"
+        return self._state == "dropped"
       end,
 
       -- private
@@ -725,15 +724,15 @@ player_cursor = {
       end,
 
       is_idle = function(self)
-        return self.state == "idle"
+        return self._state == "idle"
       end,
 
       is_flash = function(self)
-        return self.state == "flash"
+        return self._state == "flash"
       end,
 
       is_shrunk = function(self)
-        return self.state == "shrunk"
+        return self._state == "shrunk"
       end,
 
       -- private
@@ -743,13 +742,13 @@ player_cursor = {
         assert(new_state == "idle" or new_state == "shrunk" or new_state == "flash")
 
         if new_state == "idle" then
-          assert(self.state == nil or self:is_shrunk() or self:is_flash())
+          assert(self._state == nil or self:is_shrunk() or self:is_flash())
         end
         if new_state == "shrunk" then
           assert(self:is_idle() or self:is_flash())
         end
 
-        self.state = new_state
+        self._state = new_state
       end,
     }
 
