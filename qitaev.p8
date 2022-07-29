@@ -191,7 +191,7 @@ board = {
         assert(left_gate ~= nil)
         assert(right_gate ~= nil)
 
-        if not (self:_is_swappable(left_gate) and self:_is_swappable(right_gate)) then
+        if not self:is_swappable(left_gate, right_gate) then
           return false
         end
 
@@ -199,8 +199,9 @@ board = {
         self:set(xr, y, left_gate)
       end,
 
-      _is_swappable = function(self, gate)
-        return gate:is_idle() or gate:is_dropped()
+      is_swappable = function(self, left_gate, right_gate)
+        return (left_gate:is_idle() or left_gate:is_dropped()) and
+                 (right_gate:is_idle() or right_gate:is_dropped())
       end,
 
       reduce = function(self)
@@ -731,6 +732,11 @@ game = {
     end)
 
     self.player_cursor:update()
+    local left_gate = self.board.gate[self.player_cursor.x][self.player_cursor.y]
+    local right_gate = self.board.gate[self.player_cursor.x + 1][self.player_cursor.y]
+    if not self.board:is_swappable(left_gate, right_gate) then
+      self.player_cursor:flash()
+    end
 
     if self.frame_count == 30 then
       if #self.board:gates_in_action() == 0 then
