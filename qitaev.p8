@@ -13,7 +13,7 @@ colors = {
   ["blue"] = 12,
 }
 
-drop_particle = {
+dropping_particle = {
   all = {},
 
   create = function(self, x, y, init_size, color)
@@ -38,15 +38,15 @@ drop_particle = {
       p.dx *= -1
     end
 
-    add(drop_particle.all, p)
+    add(dropping_particle.all, p)
 
     return p
   end,
 
   update = function(self)
-    foreach(drop_particle.all, function(p)
+    foreach(dropping_particle.all, function(p)
       if (p.tick > p.max_tick) then
-        del(drop_particle.all, p)
+        del(dropping_particle.all, p)
       end
       if (p.tick > p.max_tick - 5) then
         p.color = colors.dark_grey
@@ -60,7 +60,7 @@ drop_particle = {
   end,
 
   draw = function(self)
-    foreach(drop_particle.all, function(p)
+    foreach(dropping_particle.all, function(p)
       circfill(p.x, p.y, p.width, p.color)
     end)
   end
@@ -80,44 +80,68 @@ gate_reduction_rules = {
       end    
     end
 
-    -- hh -> i
-    if (board:idle_gate_at(x, y).type == "h" and board:idle_gate_at(x, y + 1).type == "h") then
-      return { gate.i(), gate.i() }
+    if (board:idle_gate_at(x, y).type == "h" and
+        board:idle_gate_at(x, y + 1).type == "h") then
+      return {
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
+      }
     end
 
-    -- xx -> i
-    if (board:idle_gate_at(x, y).type == "x" and board:idle_gate_at(x, y + 1).type == "x") then
-      return { gate.i(), gate.i() }
+    if (board:idle_gate_at(x, y).type == "x" and
+        board:idle_gate_at(x, y + 1).type == "x") then
+      return {
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
+      }
     end
 
-    -- yy -> i
-    if (board:idle_gate_at(x, y).type == "y" and board:idle_gate_at(x, y + 1).type == "y") then
-      return { gate.i(), gate.i() }
+    if (board:idle_gate_at(x, y).type == "y" and
+        board:idle_gate_at(x, y + 1).type == "y") then
+      return {
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
+      }
     end
 
-    -- zz -> i
-    if (board:idle_gate_at(x, y).type == "z" and board:idle_gate_at(x, y + 1).type == "z") then
-      return { gate.i(), gate.i() }
+    if (board:idle_gate_at(x, y).type == "z" and
+        board:idle_gate_at(x, y + 1).type == "z") then
+      return {
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
+      }
     end
 
-    -- zx -> y
-    if (board:idle_gate_at(x, y).type == "z" and board:idle_gate_at(x, y + 1).type == "x") then
-      return { gate.i(), gate.y() }
+    if (board:idle_gate_at(x, y).type == "z" and
+        board:idle_gate_at(x, y + 1).type == "x") then
+      return {
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.y() },
+      }
     end
 
-    -- xz -> y
-    if (board:idle_gate_at(x, y).type == "x" and board:idle_gate_at(x, y + 1).type == "z") then
-      return { gate.i(), gate.y() }
+    if (board:idle_gate_at(x, y).type == "x" and
+        board:idle_gate_at(x, y + 1).type == "z") then
+      return {
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.y() },
+      }
     end
 
-    -- ss -> z
-    if (board:idle_gate_at(x, y).type == "s" and board:idle_gate_at(x, y + 1).type == "s") then
-      return { gate.i(), gate.z() }
+    if (board:idle_gate_at(x, y).type == "s" and
+        board:idle_gate_at(x, y + 1).type == "s") then
+      return {
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.z() },
+      }
     end
 
-    -- tt -> s
-    if (board:idle_gate_at(x, y).type == "t" and board:idle_gate_at(x, y + 1).type == "t") then
-      return { gate.i(), gate.s() }
+    if (board:idle_gate_at(x, y).type == "t" and
+        board:idle_gate_at(x, y + 1).type == "t") then
+      return {
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.s() },
+      }
     end
 
     if include_next then
@@ -130,22 +154,34 @@ gate_reduction_rules = {
       end    
     end
 
-    -- hxh -> z
-    if (board:idle_gate_at(x, y).type == "h" and board:idle_gate_at(x, y + 1).type == "x" and board:idle_gate_at(x, y + 2).type == "h") then
-      printh("hxh -> z")
-      return { gate.i(), gate.i(), gate.z() }
+    if (board:idle_gate_at(x, y).type == "h" and
+        board:idle_gate_at(x, y + 1).type == "x" and
+        board:idle_gate_at(x, y + 2).type == "h") then
+      return {
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 2, ["gate"] = gate.z() },
+      }      
     end 
 
-    -- hzh -> z
-    if (board:idle_gate_at(x, y).type == "h" and board:idle_gate_at(x, y + 1).type == "z" and board:idle_gate_at(x, y + 2).type == "h") then
-      printh("hzh -> z")
-      return { gate.i(), gate.i(), gate.x() }
+    if (board:idle_gate_at(x, y).type == "h" and
+        board:idle_gate_at(x, y + 1).type == "z" and
+        board:idle_gate_at(x, y + 2).type == "h") then
+      return {
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 2, ["gate"] = gate.x() },
+      }
     end 
 
-    -- szs -> z
-    if (board:idle_gate_at(x, y).type == "s" and board:idle_gate_at(x, y + 1).type == "z" and board:idle_gate_at(x, y + 2).type == "s") then
-      printh("szs -> z")
-      return { gate.i(), gate.i(), gate.z() }
+    if (board:idle_gate_at(x, y).type == "s" and
+        board:idle_gate_at(x, y + 1).type == "z" and
+        board:idle_gate_at(x, y + 2).type == "s") then
+      return {
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 2, ["gate"] = gate.z() },
+      }      
     end 
 
     return {}
@@ -257,8 +293,9 @@ board = {
           for y = board.rows - 1, 1, -1 do
             if self.gate[x][y]:is_idle() then
               reduction = gate_reduction_rules:reduce(self, x, y)
-              for index, gate in pairs(reduction) do
-                self.gate[x][y + index - 1]:replace_with(gate)
+              for index, r in pairs(reduction) do
+                self.gate[x + r.dx][y + r.dy]:replace_with(r.gate)
+                -- self.gate[x][y + index - 1]:replace_with(gate)
               end
             end
           end
@@ -811,7 +848,7 @@ game = {
   update = function(self, board)
     self.tick += 1
 
-    drop_particle:update()
+    dropping_particle:update()
 
     if btnp(0) then
       self.player_cursor:move_left()
@@ -844,9 +881,9 @@ game = {
       local x = self.board.left + (each.x - 1) * gate.size
       local y = self.board.top + (each.y - 1) * gate.size
 
-      drop_particle:create(x + 1, y + 7, 0, colors.white)
-      drop_particle:create(x + 3, y + 7, 0, colors.white)
-      drop_particle:create(x + 5, y + 7, 0, colors.white)
+      dropping_particle:create(x + 1, y + 7, 0, colors.white)
+      dropping_particle:create(x + 3, y + 7, 0, colors.white)
+      dropping_particle:create(x + 5, y + 7, 0, colors.white)
     end)
 
     foreach(self.board:gates_changing_to_i(), function(each)
@@ -856,8 +893,8 @@ game = {
             local px = self.board.left + (each.x - 1) * gate.size + x
             local py = self.board.top + (each.y - 1) * gate.size + y
 
-            drop_particle:create(px, py, 1, colors.blue)
-            drop_particle:create(px, py, 0, colors.dark_purple)
+            dropping_particle:create(px, py, 1, colors.blue)
+            dropping_particle:create(px, py, 0, colors.dark_purple)
           end
         end
       end
@@ -898,6 +935,7 @@ game = {
     self.board:draw()
     self.player_cursor:draw(self.board.raised_dots)
     self:draw_stats()
+    dropping_particle:draw()
   end,    
 }
 
@@ -912,7 +950,6 @@ end
 
 function _draw()
   game:draw()
-  drop_particle:draw()
 end
 __gfx__
 06666600006660000666660006666600044444000222220007ccc70000c7c00007ccc700077777000c7777000777770000050000505050500000000000000000
