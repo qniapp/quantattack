@@ -282,14 +282,16 @@ board = {
 
         for x = 1, board.cols do
           for y = 1, board.rows do
-            if (self.gate[x][y].type ~= "i" and
-                self.gate[x][y]:is_dropped() and
-                self.gate[x][y].tick_drop == 0 and
-                (self.gate[x][y + 1] == nil or
-                 (not self.gate[x][y + 1]:is_dropped()))) then
-              self.gate[x][y].x = x
-              self.gate[x][y].y = y
-              add(gates, self.gate[x][y])
+            local gate = self.gate[x][y]
+            local gate_below = self.gate[x][y + 1]
+
+            if (gate.type ~= "i" and
+                gate:is_dropped() and
+                gate.tick_drop == 0 and
+                (gate_below == nil or (not gate_below:is_dropped()))) then
+              gate.x = x
+              gate.y = y
+              add(gates, gate)
             end
           end
         end
@@ -303,6 +305,7 @@ board = {
         for x = 1, board.cols do
           for y = 1, board.rows do
             local gate = self.gate[x][y]
+
             if gate:is_changing_to_i() then
               gate.x = x
               gate.y = y
@@ -318,16 +321,16 @@ board = {
         for x = 1, board.cols do
           for y = board.rows - 1, 1, -1 do
             local ty = y
-            local lower_gate = self.gate[x][ty + 1]
-            while (lower_gate ~= nil and
+            local gate_below = self.gate[x][ty + 1]
+            while (gate_below ~= nil and
                    self.gate[x][ty].type != "i" and
                    self.gate[x][ty]:is_idle() and
-                   lower_gate:is_idle() and
-                   lower_gate.type == "i") do
+                   gate_below:is_idle() and
+                   gate_below.type == "i") do
               self.gate[x][ty + 1] = self.gate[x][ty]
               self.gate[x][ty] = gate.i()
               ty += 1
-              lower_gate = self.gate[x][ty + 1]
+              gate_below = self.gate[x][ty + 1]
             end
 
             if (ty > y) then
