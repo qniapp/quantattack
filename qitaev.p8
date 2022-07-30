@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 36
 __lua__
 colors = {
+  ["dark_purple"] = 2,
   ["dark_green"] = 3,
   ["dark_grey"] = 5,
   ["light_grey"] = 6,
@@ -851,10 +852,13 @@ game = {
     foreach(self.board:gates_changing_to_i(), function(each)
       for x = 0, 7 do
         for y = 0, 7 do
-          local px = self.board.left + (each.x - 1) * gate.size + x
-          local py = self.board.top + (each.y - 1) * gate.size + y
+          if x % 3 == 0 and y % 3 == 0 then
+            local px = self.board.left + (each.x - 1) * gate.size + x
+            local py = self.board.top + (each.y - 1) * gate.size + y
 
-          drop_particle:create(px, py, 0, colors.blue)
+            drop_particle:create(px, py, 1, colors.blue)
+            drop_particle:create(px, py, 0, colors.dark_purple)
+          end
         end
       end
     end)
