@@ -6,6 +6,7 @@ colors = {
   ["dark_green"] = 3,
   ["dark_grey"] = 5,
   ["light_grey"] = 6,
+  ["white"] = 7,
   ["red"] = 8,
   ["orange"] = 9,
   ["yellow"] = 10,
@@ -27,8 +28,8 @@ drop_particle = {
     p.y = y
     p.color = color
     p.width = init_size
-    p.t = 0
-    p.max_t = 20 + rnd(10)
+    p.tick = 0
+    p.max_tick = 20 + rnd(10)
     p.dx = (rnd(.8)) * .4
     p.dy = rnd(.05)
     p.ddy = .02
@@ -44,17 +45,17 @@ drop_particle = {
 
   update = function(self)
     foreach(drop_particle.all, function(p)
-      if (p.t > p.max_t) then
+      if (p.tick > p.max_tick) then
         del(drop_particle.all, p)
       end
-      if (p.t > p.max_t - 5) then
+      if (p.tick > p.max_tick - 5) then
         p.color = colors.dark_grey
       end
 
       p.x = p.x + p.dx
       p.y = p.y + p.dy
       p.dy = p.dy + p.ddy
-      p.t = p.t + 1
+      p.tick = p.tick + 1
     end)
   end,
 
@@ -843,10 +844,9 @@ game = {
       local x = self.board.left + (each.x - 1) * gate.size
       local y = self.board.top + (each.y - 1) * gate.size
 
-      drop_particle:create(x + 3, y + 7, 0, colors.orange)
-      drop_particle:create(x + 3, y + 7, 0, colors.orange)
-      drop_particle:create(x + 3, y + 7, 0, colors.yellow)
-      drop_particle:create(x + 3, y + 7, 0, colors.yellow)
+      drop_particle:create(x + 1, y + 7, 0, colors.white)
+      drop_particle:create(x + 3, y + 7, 0, colors.white)
+      drop_particle:create(x + 5, y + 7, 0, colors.white)
     end)
 
     foreach(self.board:gates_changing_to_i(), function(each)
