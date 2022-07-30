@@ -297,6 +297,23 @@ board = {
         return gates
       end,
 
+      gates_changing_to_i = function(self)
+        local gates = {}
+
+        for x = 1, board.cols do
+          for y = 1, board.rows do
+            local gate = self.gate[x][y]
+            if gate:is_changing_to_i() then
+              gate.x = x
+              gate.y = y
+              add(gates, gate)
+            end
+          end
+        end
+
+        return gates
+      end,
+
       drop_gates = function(self)
         for x = 1, board.cols do
           for y = board.rows - 1, 1, -1 do
@@ -458,6 +475,7 @@ gate = {
   size = 8,
 
   num_frames_swap = 4,
+  num_frames_match = 60,
 
   new = function(self, type)
     return {
@@ -516,7 +534,7 @@ gate = {
         elseif self:is_match() then
           if self.tick_match == nil then
             self.tick_match = 0
-          elseif self.tick_match < 60 then
+          elseif self.tick_match < gate.num_frames_match then
             self.tick_match += 1
           else
             self.type = self.replace_with_type
@@ -559,6 +577,10 @@ gate = {
 
       is_dropped = function(self)
         return self._state == "dropped"
+      end,
+
+      is_changing_to_i = function(self)
+        return self.tick_match == gate.num_frames_match - 1 and self.replace_with_type == "i"
       end,
 
       -- private
@@ -823,6 +845,17 @@ game = {
       drop_particle:create(x + 3, y + 7, 0, colors.yellow)
     end)
 
+    foreach(self.board:gates_changing_to_i(), function(each)
+      for x = 0, 7 do
+        for y = 0, 7 do
+          local px = self.board.left + (each.x - 1) * gate.size + x
+          local py = self.board.top + (each.y - 1) * gate.size + y
+
+          drop_particle:create(px, py, 0, colors.blue)
+        end
+      end
+    end)
+
     self.player_cursor:update()
     local left_gate = self.board.gate[self.player_cursor.x][self.player_cursor.y]
     local right_gate = self.board.gate[self.player_cursor.x + 1][self.player_cursor.y]
@@ -866,6 +899,7 @@ function _init()
 end
 
 function _update60()
+-- function _update()
   game:update()
 end
 
