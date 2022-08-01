@@ -12,6 +12,7 @@ colors = {
   ["red"] = 8,
   ["orange"] = 9,
   ["yellow"] = 10,
+  ["green"] = 11,
   ["blue"] = 12,
 }
 
@@ -215,7 +216,7 @@ board = {
   cols = 6,
   rows = 12,
   next_row = 1,
-  cnot_probability = 0.1,
+  cnot_probability = 0.9,
 
   new = function(self, top, left)
     local b = {
@@ -305,14 +306,41 @@ board = {
           end
         end
 
-        -- draw cnot gates over the cnot laser
+        -- draw swap line
+        for bx = 1, board.cols do
+          for by = board.rows, 1, -1 do
+            local x = self.left + (bx - 1) * quantum_gate.size
+            local y = self.top + (by - 1) * quantum_gate.size
+            local gate = self.gate[bx][by]
+
+            if gate:is_swap() then
+              local other_x = nil
+              for ox = 1, board.cols do
+                if ox ~= bx and self.gate[ox][by]:is_swap() then
+                  other_x = ox
+                  break
+                end
+              end
+              assert(other_x)
+
+              local lx0 = x + 3
+              local ly0 = y + 3 - self.raised_dots
+              local lx1 = self.left + (other_x - 1) * 8 + 3
+              local ly1 = ly0
+
+              line(lx0, ly0, lx1, ly1, colors.green)
+            end
+          end
+        end        
+
+        -- draw cnot and swap gates over the cnot and swap laser
         for bx = 1, board.cols do
           for by = board.rows + board.next_row, 1, -1 do
             local x = self.left + (bx - 1) * quantum_gate.size
             local y = self.top + (by - 1) * quantum_gate.size
             local gate = self.gate[bx][by]
 
-            if gate:is_c() or gate:is_cnot_x() then
+            if gate:is_c() or gate:is_cnot_x() or gate:is_swap() then
               gate:draw(x, y - self.raised_dots)
             end
 
@@ -320,7 +348,7 @@ board = {
               spr(64, x, y - self.raised_dots)
             end
           end
-        end        
+        end
       end,
 
       swap = function(self, xl, xr, y)
@@ -460,6 +488,7 @@ board = {
 
             while ((not self.gate[x][tmp_y]:is_c()) and
                    (not self.gate[x][tmp_y]:is_cnot_x()) and
+                   (not self.gate[x][tmp_y]:is_swap()) and
                     self:is_droppable(x, tmp_y)) do
               self.gate[x][tmp_y + 1] = self.gate[x][tmp_y]
               self.gate[x][tmp_y] = quantum_gate.i()
@@ -545,14 +574,24 @@ board = {
         return false
       end,
 
+      is_game_over = function(self)
+        for x = 1, board.cols do
+          if not self.gate[x][1]:is_i() then
+            return true
+          end
+        end
+
+        return false
+      end,
+
       insert_gates_at_bottom = function(self)
         for x = 1, board.cols do
           for y = 1, board.rows + board.next_row - 1 do
-            if y == 1 and (not self.gate[x][y]:is_i()) then
-              self:game_over()
-            else
-              self.gate[x][y] = self.gate[x][y + 1]
+            if y == 1 then
+              assert(self.gate[x][1]:is_i())
             end
+
+            self.gate[x][y] = self.gate[x][y + 1]
           end
         end
 
@@ -600,18 +639,18 @@ board = {
       end,
 
       game_over = function(self)
-        assert(false, "game over")
+        self._state = "game over"
       end,
 
       -- private
 
       _random_gate = function(self)
-        local g = nil
+        local gate = nil
         repeat
-          g = quantum_gate:new(quantum_gate.types[flr(rnd(#quantum_gate.types)) + 1])
-        until ((not g:is_i()) and (not g:is_c()) and (not g:is_swap()))
+          gate = quantum_gate:new(quantum_gate.types[flr(rnd(#quantum_gate.types)) + 1])
+        until ((not gate:is_i()) and (gate.type ~= "c") and (gate.type ~= "swap"))
 
-        return g
+        return gate
       end,
     }
 
@@ -853,8 +892,11 @@ quantum_gate = {
       end,
 
       is_c = function(self)
-        -- assert(self.cnot_x_x)
-        return self.type == "c"
+        if self.type == "c" then
+          assert(self.cnot_x_x)
+          return true
+        end
+        return false
       end,
 
       is_swap = function(self)
@@ -924,7 +966,7 @@ quantum_gate.c = function(cnot_x_x)
   return c
 end
 
-quantum_gate.swap = function()
+quantum_gate.swap = function(other_x)
   return quantum_gate:new("swap")
 end
 
@@ -1095,6 +1137,7 @@ player_cursor = {
 
 game = {
   init = function(self)
+    self._state = "solo"
     self.board = board:new(32, 3)
     self.player_cursor = player_cursor:new(1, 1, self.board)
     self.tick = 0
@@ -1102,79 +1145,97 @@ game = {
   end,
 
   update = function(self, board)
-    self.tick += 1
+    if self._state == "solo" then
+      self.tick += 1
 
-    dropping_particle:update()
+      dropping_particle:update()
 
-    if btnp(0) then
-      self.player_cursor:move_left()
-    end
-
-    if btnp(1) then
-      self.player_cursor:move_right()
-    end
-
-    if btnp(2) then
-      self.player_cursor:move_up()
-    end
-
-    if btnp(3) then
-      self.player_cursor:move_down()
-    end
-
-    if (btnp(4)) then
-      local swapped = self.board:swap(self.player_cursor.x, self.player_cursor.x + 1, self.player_cursor.y)
-      if swapped == false then
-        self.player_cursor:flash()
+      if btnp(0) then
+        self.player_cursor:move_left()
       end
-    end
 
-    self.board:reduce()
-    self.board:drop_gates()
-    self.board:update_gates()
+      if btnp(1) then
+        self.player_cursor:move_right()
+      end
 
-    foreach(self.board:gates_dropped_bottom(), function(each)
-      local x = self.board.left + (each.x - 1) * quantum_gate.size
-      local y = self.board.top + (each.y - 1) * quantum_gate.size
+      if btnp(2) then
+        self.player_cursor:move_up()
+      end
 
-      dropping_particle:create(x + 1, y + 7, 0, colors.white)
-      dropping_particle:create(x + 3, y + 7, 0, colors.white)
-      dropping_particle:create(x + 5, y + 7, 0, colors.white)
-    end)
+      if btnp(3) then
+        self.player_cursor:move_down()
+      end
 
-    foreach(self.board:gates_changing_to_i(), function(each)
-      for x = 0, 7 do
-        for y = 0, 7 do
-          if x % 3 == 0 and y % 3 == 0 then
-            local px = self.board.left + (each.x - 1) * quantum_gate.size + x
-            local py = self.board.top + (each.y - 1) * quantum_gate.size + y
+      if btnp(4) then
+        local swapped = self.board:swap(self.player_cursor.x, self.player_cursor.x + 1, self.player_cursor.y)
+        if swapped == false then
+          self.player_cursor:flash()
+        end
+      end
 
-            dropping_particle:create(px, py, 1, colors.blue)
-            dropping_particle:create(px, py, 0, colors.dark_purple)
+      self.board:reduce()
+      self.board:drop_gates()
+      self.board:update_gates()
+
+      foreach(self.board:gates_dropped_bottom(), function(each)
+        local x = self.board.left + (each.x - 1) * quantum_gate.size
+        local y = self.board.top + (each.y - 1) * quantum_gate.size
+
+        dropping_particle:create(x + 1, y + 7, 0, colors.white)
+        dropping_particle:create(x + 3, y + 7, 0, colors.white)
+        dropping_particle:create(x + 5, y + 7, 0, colors.white)
+      end)
+
+      foreach(self.board:gates_changing_to_i(), function(each)
+        for x = 0, 7 do
+          for y = 0, 7 do
+            if x % 3 == 0 and y % 3 == 0 then
+              local px = self.board.left + (each.x - 1) * quantum_gate.size + x
+              local py = self.board.top + (each.y - 1) * quantum_gate.size + y
+
+              dropping_particle:create(px, py, 1, colors.blue)
+              dropping_particle:create(px, py, 0, colors.dark_purple)
+            end
           end
         end
+      end)
+
+      self.player_cursor:update()
+      local left_gate = self.board.gate[self.player_cursor.x][self.player_cursor.y]
+      local right_gate = self.board.gate[self.player_cursor.x + 1][self.player_cursor.y]
+      if not self.board:is_swappable(left_gate, right_gate) then
+        self.player_cursor:flash()
       end
-    end)
 
-    self.player_cursor:update()
-    local left_gate = self.board.gate[self.player_cursor.x][self.player_cursor.y]
-    local right_gate = self.board.gate[self.player_cursor.x + 1][self.player_cursor.y]
-    if not self.board:is_swappable(left_gate, right_gate) then
-      self.player_cursor:flash()
-    end
-
-    if self.tick == 30 then
-      if #self.board:gates_in_action() == 0 then
-        self.num_raise_gates += 1
-        self.board:raise_one_dot()
-        if self.num_raise_gates == 8 then
-          self.num_raise_gates = 0
-          self.board:insert_gates_at_bottom()
-          self.player_cursor:move_up()
+      if self.tick == 30 then
+        if #self.board:gates_in_action() == 0 then
+          self.num_raise_gates += 1
+          self.board:raise_one_dot()
+          if self.num_raise_gates == 8 then
+            if self.board:is_game_over() then
+              self._state = "game over"
+              cursor(74, 50)
+              color(colors.red)
+              print("game over")
+              cursor(57, 58)
+              color(colors.white)
+              print("press ❎ to replay")
+            else
+              self.num_raise_gates = 0
+              self.board:insert_gates_at_bottom()
+              self.player_cursor:move_up()
+            end
+          end
         end
-      end
 
-      self.tick = 0
+        self.tick = 0
+      end
+    elseif self._state == "game over" then
+      if btnp(5) then
+        self:init()
+      end
+    else
+      assert(false, "unknown state")
     end
   end,
 
@@ -1186,12 +1247,14 @@ game = {
   end,
 
   draw = function(self)
-    cls()
+    if self._state == "solo" then
+      cls()
 
-    self.board:draw()
-    self.player_cursor:draw(self.board.raised_dots)
-    self:draw_stats()
-    dropping_particle:draw()
+      self.board:draw()
+      self.player_cursor:draw(self.board.raised_dots)
+      self:draw_stats()
+      dropping_particle:draw()
+    end
   end,    
 }
 
@@ -1200,7 +1263,6 @@ function _init()
 end
 
 function _update60()
--- function _update()
   game:update()
 end
 
@@ -1209,42 +1271,42 @@ function _draw()
 end
 __gfx__
 066666000066600006666600066666000666660006666600000000000000000007ccc70000c7c00007ccc700077777000c777700077777000000000000000000
-616661600661660061666160611111606611116061111160000000000c101c00c7ccc7c00cc7cc00cc7c7cc0cccc7cc0c7ccccc0ccc7ccc0000000000c101c00
-6166616066616660661616606666166061666660666166600044400001c1c100c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000ccc00001c1c100
-61111160611111606661666066616660661116606661666000444000001c1000c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc000ccc000001c1000
-6166616066616660666166606616666066666160666166600044400001c1c100c7ccc7c0ccc7ccc0ccc7ccc0c77777c0c7777cc0ccc7ccc000ccc00001c1c100
-616661600661660066616660611111606111166066616660000000000c101c00ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc0000000000c101c00
+6166616006616600616661606111116066111160611111600000000003101300c7ccc7c00cc7cc00cc7c7cc0cccc7cc0c7ccccc0ccc7ccc00000000003101300
+6166616066616660661616606666166061666660666166600044400001313100c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000ccc00001313100
+6111116061111160666166606661666066111660666166600044400000131000c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc000ccc00000131000
+6166616066616660666166606616666066666160666166600044400001313100c7ccc7c0ccc7ccc0ccc7ccc0c77777c0c7777cc0ccc7ccc000ccc00001313100
+6166616006616600666166606111116061111660666166600000000003101300ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc00000000003101300
 06666600006660000666660006666600066666000666660000000000000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 06666600006660000666660006666600066666000666660000000000000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc000000000000000000
-666666600666660066666660666666606666666066666660000000000c101c00c7ccc7c00cc7cc00c7ccc7c0c77777c0cc7777c0c77777c0000000000c101c00
-6666666066666660666666606666666066666660666666600044400001c1c100c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc000ccc00001c1c100
-61666160666166606166616061111160661111606111116000444000001c1000c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000ccc000001c1000
-6166616066616660661616606666166061666660666166600044400001c1c100c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc000ccc00001c1c100
-611111600111110066616660661166606611116066616660000000000c101c00c7ccc7c00cc7cc00ccc7ccc0c77777c0c7777cc0ccc7ccc0000000000c101c00
+6666666006666600666666606666666066666660666666600000000003101300c7ccc7c00cc7cc00c7ccc7c0c77777c0cc7777c0c77777c00000000003101300
+6666666066666660666666606666666066666660666666600044400001313100c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc000ccc00001313100
+6166616066616660616661606111116066111160611111600044400000131000c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000ccc00000131000
+6166616066616660661616606666166061666660666166600044400001313100c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc000ccc00001313100
+6111116001111100666166606611666066111160666166600000000003101300c7ccc7c00cc7cc00ccc7ccc0c77777c0c7777cc0ccc7ccc00000000003101300
 01161100006160000661660001111100011111000661660000000000000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 01666100006160000166610001111100061111000111110000000000000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc000000000000000000
-616661600661660066161660666616606166666066616660000000000c101c00ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc0000000000c101c00
-6111116061111160666166606661666066111660666166600044400001c1c100c7ccc7c0ccc7ccc0c7ccc7c0c77777c0cc7777c0c77777c000ccc00001c1c100
-61666160666166606661666066166660666661606661666000444000001c1000c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc000ccc000001c1000
-6166616066616660666166606111116061111660666166600044400001c1c100c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000ccc00001c1c100
-666666600666660066666660666666606666666066666660000000000c101c00c7ccc7c00cc7cc00ccc7ccc0cc7cccc0ccccc7c0ccc7ccc0000000000c101c00
+6166616006616600661616606666166061666660666166600000000003101300ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc00000000003101300
+6111116061111160666166606661666066111660666166600044400001313100c7ccc7c0ccc7ccc0c7ccc7c0c77777c0cc7777c0c77777c000ccc00001313100
+6166616066616660666166606616666066666160666166600044400000131000c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc000ccc00000131000
+6166616066616660666166606111116061111660666166600044400001313100c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000ccc00001313100
+6666666006666600666666606666666066666660666666600000000003101300c7ccc7c00cc7cc00ccc7ccc0cc7cccc0ccccc7c0ccc7ccc00000000003101300
 066666000066600006666600066666000666660006666600000000000000000007ccc70000c7c0000cc7cc000777770007777c000cc7cc000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 01111100001110000661660006616600061116000661660000000000000000000000000000000000000000000000000000000000000000000000000000000000
-616661600661660066616660661666606666616066616660000000000c101c000000000000000000000000000000000000000000000000000000000000000000
-6166616066616660666166606111116061111660666166600044400001c1c1000000000000000000000000000000000000000000000000000000000000000000
-66666660666666606666666066666660666666606666666000444000001c10000000000000000000000000000000000000000000000000000000000000000000
-6666666066666660666666606666666066666660666666600044400001c1c1000000000000000000000000000000000000000000000000000000000000000000
-666666600666660066666660666666606666666066666660000000000c101c000000000000000000000000000000000000000000000000000000000000000000
+61666160066166006661666066166660666661606661666000000000031013000000000000000000000000000000000000000000000000000000000000000000
+61666160666166606661666061111160611116606661666000444000013131000000000000000000000000000000000000000000000000000000000000000000
+66666660666666606666666066666660666666606666666000444000001310000000000000000000000000000000000000000000000000000000000000000000
+66666660666666606666666066666660666666606666666000444000013131000000000000000000000000000000000000000000000000000000000000000000
+66666660066666006666666066666660666666606666666000000000031013000000000000000000000000000000000000000000000000000000000000000000
 06666600006660000666660006666600066666000666660000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 50505050000500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 05050505000500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-50505050000500000033333033333330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-05050505000500000037773037777730000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-50505050000500000037333033373330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-05050505000500000037300000373000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-50505050000500000033300000333000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+505050500005000000ccccc0ccccccc0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+050505050005000000c777c0c77777c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+505050500005000000c7ccc0ccc7ccc0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+050505050005000000c7c00000c7c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+505050500005000000ccc00000ccc000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 05050505000500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
