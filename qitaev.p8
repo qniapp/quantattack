@@ -2,8 +2,10 @@ pico-8 cartridge // http://www.pico-8.com
 version 36
 __lua__
 colors = {
+  ["dark_blue"] = 1,
   ["dark_purple"] = 2,
   ["dark_green"] = 3,
+  ["brown"] = 4,
   ["dark_grey"] = 5,
   ["light_grey"] = 6,
   ["white"] = 7,
@@ -80,64 +82,64 @@ gate_reduction_rules = {
       end    
     end
 
-    if (board:idle_gate_at(x, y).type == "h" and
-        board:idle_gate_at(x, y + 1).type == "h") then
+    if (board:idle_gate_at(x, y):is_h() and
+        board:idle_gate_at(x, y + 1):is_h()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
       }
     end
 
-    if (board:idle_gate_at(x, y).type == "x" and
-        board:idle_gate_at(x, y + 1).type == "x") then
+    if (board:idle_gate_at(x, y):is_x() and
+        board:idle_gate_at(x, y + 1):is_x()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
       }
     end
 
-    if (board:idle_gate_at(x, y).type == "y" and
-        board:idle_gate_at(x, y + 1).type == "y") then
+    if (board:idle_gate_at(x, y):is_y() and
+        board:idle_gate_at(x, y + 1):is_y()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
       }
     end
 
-    if (board:idle_gate_at(x, y).type == "z" and
-        board:idle_gate_at(x, y + 1).type == "z") then
+    if (board:idle_gate_at(x, y):is_z() and
+        board:idle_gate_at(x, y + 1):is_z()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
       }
     end
 
-    if (board:idle_gate_at(x, y).type == "z" and
-        board:idle_gate_at(x, y + 1).type == "x") then
+    if (board:idle_gate_at(x, y):is_z() and
+        board:idle_gate_at(x, y + 1):is_x()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.y() },
       }
     end
 
-    if (board:idle_gate_at(x, y).type == "x" and
-        board:idle_gate_at(x, y + 1).type == "z") then
+    if (board:idle_gate_at(x, y):is_x() and
+        board:idle_gate_at(x, y + 1):is_z()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.y() },
       }
     end
 
-    if (board:idle_gate_at(x, y).type == "s" and
-        board:idle_gate_at(x, y + 1).type == "s") then
+    if (board:idle_gate_at(x, y):is_s() and
+        board:idle_gate_at(x, y + 1):is_s()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.z() },
       }
     end
 
-    if (board:idle_gate_at(x, y).type == "t" and
-        board:idle_gate_at(x, y + 1).type == "t") then
+    if (board:idle_gate_at(x, y):is_t() and
+        board:idle_gate_at(x, y + 1):is_t()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.s() },
@@ -154,9 +156,9 @@ gate_reduction_rules = {
       end    
     end
 
-    if (board:idle_gate_at(x, y).type == "h" and
-        board:idle_gate_at(x, y + 1).type == "x" and
-        board:idle_gate_at(x, y + 2).type == "h") then
+    if (board:idle_gate_at(x, y):is_h() and
+        board:idle_gate_at(x, y + 1):is_x() and
+        board:idle_gate_at(x, y + 2):is_h()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
@@ -164,9 +166,9 @@ gate_reduction_rules = {
       }      
     end 
 
-    if (board:idle_gate_at(x, y).type == "h" and
-        board:idle_gate_at(x, y + 1).type == "z" and
-        board:idle_gate_at(x, y + 2).type == "h") then
+    if (board:idle_gate_at(x, y):is_h() and
+        board:idle_gate_at(x, y + 1):is_z() and
+        board:idle_gate_at(x, y + 2):is_h()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
@@ -174,15 +176,36 @@ gate_reduction_rules = {
       }
     end 
 
-    if (board:idle_gate_at(x, y).type == "s" and
-        board:idle_gate_at(x, y + 1).type == "z" and
-        board:idle_gate_at(x, y + 2).type == "s") then
+    if (board:idle_gate_at(x, y):is_s() and
+        board:idle_gate_at(x, y + 1):is_z() and
+        board:idle_gate_at(x, y + 2):is_s()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
         { ["dx"] = 0, ["dy"] = 2, ["gate"] = gate.z() },
       }      
-    end 
+    end
+
+    -- c -- x   x -- c
+    -- x -- c   c -- x  --> 
+    -- c -- x,  x -- c       swap -- swap
+    if (board:idle_gate_at(x, y):is_c() and
+       (board:idle_gate_at(x, y + 1):is_cnot_x()) and
+        board:idle_gate_at(x, y + 2):is_c() and
+        board:idle_gate_at(board:idle_gate_at(x, y).xx, y + 1):is_c() and
+        board:idle_gate_at(board:idle_gate_at(x, y).xx, y + 2):is_cnot_x()) then
+      local dx = board:idle_gate_at(x, y).xx - x
+      return {
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 2, ["gate"] = gate.swap() }, { ["dx"] = dx, ["dy"] = 2, ["gate"] = gate.swap() },
+      }  
+    end
+
+    -- todo:
+    -- h    h
+    -- c -- x  -->
+    -- h    h       x -- c
 
     return {}
   end,
@@ -192,6 +215,7 @@ board = {
   cols = 6,
   rows = 12,
   next_row = 1,
+  cnot_probability = 0.1,
 
   new = function(self, top, left)
     local b = {
@@ -208,7 +232,7 @@ board = {
           self.gate[x] = {}
           for y = board.rows + board.next_row, 1, -1 do
             if y >= board.rows - 2 or
-               (y < board.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and self.gate[x][y + 1].type ~= "i") then
+               (y < board.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and (not self.gate[x][y + 1]:is_i())) then
               repeat
                 self:set(x, y, self:_random_gate())
               until (#gate_reduction_rules:reduce(self, x, y, true) == 0)
@@ -252,6 +276,7 @@ board = {
             wire:draw(x, y - self.raised_dots)
 
             local gate = self.gate[bx][by]
+
             if gate:is_swapping_with_left() then
               gate:draw(x + 4, y - self.raised_dots)
             elseif gate:is_swapping_with_right() then
@@ -259,9 +284,32 @@ board = {
             else
               gate:draw(x, y - self.raised_dots)
             end
+          end
+        end
+
+        for bx = 1, board.cols do
+          for by = board.rows + board.next_row, 1, -1 do
+            local x = self.left + (bx - 1) * gate.size
+            local y = self.top + (by - 1) * gate.size
+            local gate = self.gate[bx][by]
+
+            -- draw cnot laser
+            if gate:is_c() and rnd(1) > 0.3 then
+              local lx0 = x + 3
+              local ly0 = y + 3 - self.raised_dots
+              local lx1 = self.left + (self.gate[bx][by].xx - 1) * 8 + 3
+              local ly1 = ly0
+
+              line(lx0, ly0, lx1, ly1, colors.yellow)
+            end
+
+            -- draw cnot gates over the cnot laser
+            if gate:is_c() or gate:is_cnot_x() then
+              gate:draw(x, y - self.raised_dots)
+            end
 
             if (by == board.rows + board.next_row) then
-              spr(15, x, y - self.raised_dots)
+              spr(64, x, y - self.raised_dots)
             end
           end
         end
@@ -277,11 +325,52 @@ board = {
           return false
         end
 
-        right_gate:swap_with_left()
         left_gate:swap_with_right()
+        right_gate:swap_with_left()
 
-        self:set(xl, y, right_gate)
         self:set(xr, y, left_gate)
+        self:set(xl, y, right_gate)
+
+        -- c x
+        -- c _ _ x
+        if (left_gate:is_c()) then
+          if left_gate.xx == xr then
+            left_gate.xx = xl
+          end
+          local x_gate = self.gate[left_gate.xx][y]
+          assert(x_gate:is_cnot_x())
+          x_gate.cx = xr
+        end
+        -- _ _ x c
+        -- x _ _ c
+        if (right_gate:is_c()) then
+          if right_gate.xx == xl then
+            right_gate.xx = xr
+          end
+          local x_gate = self.gate[right_gate.xx][y]
+          assert(x_gate:is_cnot_x())
+          x_gate.cx = xl
+        end
+        -- x c
+        -- x _ _ c
+        if (left_gate:is_cnot_x()) then
+          if left_gate.cx == xr then
+            left_gate.cx = xl
+          end
+          local c_gate = self.gate[left_gate.cx][y]
+          assert(c_gate:is_c())
+          c_gate.xx = xr
+        end
+        -- _ _ c x
+        -- c _ _ x
+        if (right_gate:is_cnot_x()) then
+          if right_gate.cx == xl then
+            right_gate.cx = xr
+          end
+          local c_gate = self.gate[right_gate.cx][y]
+          assert(c_gate:is_c())
+          c_gate.xx = xl
+        end        
       end,
 
       is_swappable = function(self, left_gate, right_gate)
@@ -324,7 +413,7 @@ board = {
             local gate = self.gate[x][y]
             local gate_below = self.gate[x][y + 1]
 
-            if (gate.type ~= "i" and
+            if ((not gate:is_i()) and
                 gate:is_dropped() and
                 gate.tick_drop == 0 and
                 (gate_below == nil or (not gate_below:is_dropped()))) then
@@ -359,30 +448,96 @@ board = {
       drop_gates = function(self)
         for x = 1, board.cols do
           for y = board.rows - 1, 1, -1 do
-            local ty = y
-            local gate_below = self.gate[x][ty + 1]
-            while (gate_below ~= nil and
-                   self.gate[x][ty].type != "i" and
-                   self.gate[x][ty]:is_idle() and
-                   gate_below:is_idle() and
-                   gate_below.type == "i") do
-              self.gate[x][ty + 1] = self.gate[x][ty]
-              self.gate[x][ty] = gate.i()
-              ty += 1
-              gate_below = self.gate[x][ty + 1]
+            local tmp_y = y
+
+            while ((not self.gate[x][tmp_y]:is_c()) and
+                   (not self.gate[x][tmp_y]:is_cnot_x()) and
+                    self:is_droppable(x, tmp_y)) do
+              self.gate[x][tmp_y + 1] = self.gate[x][tmp_y]
+              self.gate[x][tmp_y] = gate.i()
+              tmp_y += 1
             end
 
-            if (ty > y) then
-              self.gate[x][ty]:dropped()
+            if (tmp_y > y) then
+              self.gate[x][tmp_y]:dropped()
+            end
+          end
+        end
+
+        -- drop cnot pairs
+        for x = 1, board.cols do
+          for y = board.rows - 1, 1, -1 do
+            local tmp_y = y
+
+            while (self.gate[x][tmp_y]:is_c() and
+                   self.gate[x][tmp_y]:is_idle() and
+                   self:is_droppable(x, tmp_y) and
+                   (not self:overlap_with_cnot(x, tmp_y + 1)) and
+                   self:is_droppable(self.gate[x][tmp_y].xx, tmp_y) and
+                   (not self:overlap_with_cnot(self.gate[x][tmp_y].xx, tmp_y + 1))) do
+              local cnot_c = self.gate[x][tmp_y]
+              local cnot_x = self.gate[cnot_c.xx][tmp_y]
+
+              assert(cnot_x:is_cnot_x())
+
+              self.gate[x][tmp_y + 1] = cnot_c
+              self.gate[x][tmp_y] = gate.i()
+              self.gate[cnot_c.xx][tmp_y + 1] = cnot_x
+              self.gate[cnot_c.xx][tmp_y] = gate.i()
+              tmp_y += 1
+            end
+
+            if (tmp_y > y) then
+              self.gate[x][tmp_y]:dropped()
             end
           end
         end
       end,
 
+      is_droppable = function(self, x, y)
+        local result = false
+        local gate = self.gate[x][y]
+        local gate_below = self.gate[x][y + 1]
+
+        return ((not gate:is_i()) and 
+                 gate:is_idle() and
+                 y + 1 <= board.rows and
+                 gate_below:is_i())
+      end,
+
+      overlap_with_cnot = function(self, x, y)
+        local control_gate = nil
+        local x_gate = nil
+        local control_gate_x = nil
+        local x_gate_x = nil
+
+        for bx = 1, board.cols do
+          if self.gate[bx][y]:is_c() then
+            control_gate = self.gate[bx][y]
+            control_gate_x = bx
+          end
+          if self.gate[bx][y]:is_cnot_x() then
+            x_gate = self.gate[bx][y]
+            x_gate_x = bx
+          end
+        end
+
+        if control_gate == nil and x_gate == nil then
+          return false
+        end
+
+        if (control_gate_x < x and x < x_gate_x) or
+           (x_gate_x < x and x < control_gate_x) then
+          return true
+        end
+
+        return false
+      end,
+
       insert_gates_at_bottom = function(self)
         for x = 1, board.cols do
           for y = 1, board.rows + board.next_row - 1 do
-            if y == 1 and self.gate[x][y].type ~= 'i' then
+            if y == 1 and (not self.gate[x][y]:is_i()) then
               self:game_over()
             else
               self.gate[x][y] = self.gate[x][y + 1]
@@ -395,6 +550,26 @@ board = {
             self:set(x, board.rows + board.next_row, self:_random_gate())
             gate_reduction_rules:reduce(self, x, board.rows - 1, true)
           until (#gate_reduction_rules:reduce(self, x, board.rows, true) == 0)
+        end
+
+        -- maybe add cnot
+        if rnd(1) < board.cnot_probability then
+          local cx = flr(rnd(board.cols)) + 1
+          local xx = nil
+          repeat
+            xx = flr(rnd(board.cols)) + 1
+          until xx ~= cx
+
+          local x_gate = gate.x(cx)
+          local control_gate = gate.c(xx)
+          self:set(xx, board.rows + board.next_row, x_gate)
+          self:set(cx, board.rows + board.next_row, control_gate)
+
+          local cnot_left_x = min(cx, xx)
+          local cnot_right_x = max(cx, xx)
+          for x = cnot_left_x + 1, cnot_right_x - 1 do
+            self:set(x, board.rows + board.next_row, gate.i())
+          end          
         end
       end,
 
@@ -420,12 +595,12 @@ board = {
       -- private
 
       _random_gate = function(self)
-        local non_i_c_gate = nil
+        local g = nil
         repeat
-          non_i_c_gate = gate:new(gate.types[flr(rnd(#gate.types)) + 1])
-        until non_i_c_gate.type ~= "i" and non_i_c_gate.type ~= "c"
+          g = gate:new(gate.types[flr(rnd(#gate.types)) + 1])
+        until ((not g:is_i()) and (not g:is_c()) and (not g:is_swap()))
 
-        return non_i_c_gate
+        return g
       end,
     }
 
@@ -436,7 +611,7 @@ board = {
 }
 
 wire = {
-  _sprite = 14,
+  _sprite = 65,
 
   draw = function(self, x, y)
     spr(self._sprite, x, y)
@@ -444,7 +619,7 @@ wire = {
 }
 
 gate = {
-  types = {"h", "x", "y", "z", "s", "t", "c", "i"},
+  types = {"h", "x", "y", "z", "s", "t", "c", "swap", "i"},
 
   sprites = {
     ["idle"] = {
@@ -455,6 +630,7 @@ gate = {
       ["s"] = 4,
       ["t"] = 5,
       ["c"] = 6,
+      ["swap"] = 7,
     },
     ["dropped"] = {
       ["h"] = 16,
@@ -464,6 +640,7 @@ gate = {
       ["s"] = 20,
       ["t"] = 21,
       ["c"] = 22,
+      ["swap"] = 23,
     },
     ["jumping"] = {
       ["h"] = 48,
@@ -473,6 +650,7 @@ gate = {
       ["s"] = 52,
       ["t"] = 53,
       ["c"] = 54,
+      ["swap"] = 55,
     },
     ["falling"] = {
       ["h"] = 32,
@@ -482,33 +660,37 @@ gate = {
       ["s"] = 36,
       ["t"] = 37,
       ["c"] = 38,
+      ["swap"] = 39,
     },    
     ["match_up"] = {
-      ["h"] = 7,
-      ["x"] = 8,
-      ["y"] = 9,
-      ["z"] = 10,
-      ["s"] = 11,
-      ["t"] = 12,
-      ["c"] = 13,
+      ["h"] = 8,
+      ["x"] = 9,
+      ["y"] = 10,
+      ["z"] = 11,
+      ["s"] = 12,
+      ["t"] = 13,
+      ["c"] = 14,
+      ["swap"] = 15,
     },
     ["match_middle"] = {
-      ["h"] = 23,
-      ["x"] = 24,
-      ["y"] = 25,
-      ["z"] = 26,
-      ["s"] = 27,
-      ["t"] = 28,
-      ["c"] = 29,
+      ["h"] = 24,
+      ["x"] = 25,
+      ["y"] = 26,
+      ["z"] = 27,
+      ["s"] = 28,
+      ["t"] = 29,
+      ["c"] = 30,
+      ["swap"] = 31,
     },     
     ["match_down"] = {
-      ["h"] = 39,
-      ["x"] = 40,
-      ["y"] = 41,
-      ["z"] = 42,
-      ["s"] = 43,
-      ["t"] = 44,
-      ["c"] = 45,
+      ["h"] = 40,
+      ["x"] = 41,
+      ["y"] = 42,
+      ["z"] = 43,
+      ["s"] = 44,
+      ["t"] = 45,
+      ["c"] = 46,
+      ["swap"] = 47,
     },    
   },
 
@@ -524,13 +706,21 @@ gate = {
       _state = "idle",
 
       draw = function(self, x, y)
-        if self.type == "i" then return end
+        if self:is_i() then return end
+
+        if self:is_cnot_x() then
+          pal(colors.light_grey, colors.brown)
+          pal(colors.dark_blue, colors.light_grey)
+        end
 
         spr(self:_sprite(), x, y)
+
+        pal(colors.light_grey, colors.light_grey)
+        pal(colors.dark_blue, colors.dark_blue)
       end,
 
       replace_with = function(self, other)
-        assert(self.type ~= "i")
+        assert(not self:is_i())
         assert(other.type)
 
         if self._state != "idle" then
@@ -623,6 +813,47 @@ gate = {
         return self.tick_match == gate.num_frames_match - 1 and self.replace_with_type == "i"
       end,
 
+      is_h = function(self)
+        return self.type == "h"
+      end,
+
+      is_x = function(self)
+        return self.type == "x" and self.cx == nil
+      end,
+
+      is_cnot_x = function(self)
+        return self.type == "x" and self.cx != nil
+      end,
+
+      is_y = function(self)
+        return self.type == "y"
+      end,
+
+      is_z = function(self)
+        return self.type == "z"
+      end,
+
+      is_s = function(self)
+        return self.type == "s"
+      end,
+
+      is_t = function(self)
+        return self.type == "t"
+      end,
+
+      is_c = function(self)
+        -- assert(self.xx)
+        return self.type == "c"
+      end,
+
+      is_swap = function(self)
+        return self.type == "swap"
+      end,
+
+      is_i = function(self)      
+        return self.type == "i"
+      end,
+
       -- private
 
       _sprite = function(self)
@@ -658,18 +889,37 @@ gate = {
   end,
 }
 
-gate.x = function()
-  return gate:new("x")
+gate.x = function(cx)
+  local x = gate:new("x")
+  if cx ~= nil then
+    x.cx = cx
+  end
+
+  return x
 end
+
 gate.y = function()
   return gate:new("y")
 end
+
 gate.z = function()
   return gate:new("z")
 end
+
 gate.s = function()
   return gate:new("s")
 end
+
+gate.c = function(xx)
+  local c = gate:new("c")
+  c.xx = xx
+  return c
+end
+
+gate.swap = function()
+  return gate:new("swap")
+end
+
 gate.i = function()
   return gate:new("i")
 end
@@ -678,8 +928,8 @@ end
 
 player_cursor = {
   _sprites = {
-    ["corner"] = 30,
-    ["middle"] = 46
+    ["corner"] = 66,
+    ["middle"] = 67
   },
 
   new = function(self, x, y, board)
@@ -950,34 +1200,43 @@ function _draw()
   game:draw()
 end
 __gfx__
-0666660000666000066666000666660004444400022222000000000007ccc70000c7c00007ccc700077777000c77770007777700000000000005000050505050
-61666160066166006166616061111160446666402666662000000000c7ccc7c00cc7cc00cc7c7cc0cccc7cc0c7ccccc0ccc7ccc0000000000005000005050505
-61666160666166606616166066661660464444402226222000dd0000c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000cc00000005000050505050
-6111116061111160666166606661666044666440222622200dddd000c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc00cccc0000005000005050505
-6166616066616660666166606616666044444640222622200dddd000c7ccc7c0ccc7ccc0ccc7ccc0c77777c0c7777cc0ccc7ccc00cccc0000005000050505050
-61666160066166006661666061111160466664402226222000dd0000ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc000cc00000005000005050505
-066666000066600006666600066666000444440002222200000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc00000000000005000050505050
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005000005050505
-066666000066600006666600066666000444440002222200000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc00000000000000000000000000
-66666660066666006666666066666660444444402222222000000000c7ccc7c00cc7cc00c7ccc7c0c77777c0cc7777c0c77777c0000000000000000000000000
-66666660666666606666666066666660444444402222222000dd0000c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc000cc00000033333000000000
-6166616066616660616661606111116044666640266666200dddd000c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc00cccc0000037773000000000
-6166616066616660661616606666166046444440222622200dddd000c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc00cccc0000037333000000000
-61111160011111006661666066116660446666402226222000dd0000c7ccc7c00cc7cc00ccc7ccc0c77777c0c7777cc0ccc7ccc000cc00000037300000000000
-011611000061600006616600011111000666660002262200000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc00000000000033300000000000
+066666000066600006666600066666000444440002222200000000000000000007ccc70000c7c00007ccc700077777000c777700077777000000000000000000
+616661600661660061666160611111604466664026666620000000000c101c00c7ccc7c00cc7cc00cc7c7cc0cccc7cc0c7ccccc0ccc7ccc0000000000c101c00
+6166616066616660661616606666166046444440222622200044400001c1c100c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000ccc00001c1c100
+61111160611111606661666066616660446664402226222000444000001c1000c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc000ccc000001c1000
+6166616066616660666166606616666044444640222622200044400001c1c100c7ccc7c0ccc7ccc0ccc7ccc0c77777c0c7777cc0ccc7ccc000ccc00001c1c100
+616661600661660066616660611111604666644022262220000000000c101c00ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc0000000000c101c00
+06666600006660000666660006666600044444000222220000000000000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-016661000061600001666100011111000466660006666600000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc00000000000000000000000000
-61666160066166006616166066661660464444402226222000000000ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc0000000000000000000000000
-61111160611111606661666066616660446664402226222000dd0000c7ccc7c0ccc7ccc0c7ccc7c0c77777c0cc7777c0c77777c000cc00003333333000000000
-6166616066616660666166606616666044444640222622200dddd000c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc00cccc0003777773000000000
-6166616066616660666166606111116046666440222622200dddd000c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc00cccc0003337333000000000
-66666660066666006666666066666660444444402222222000dd0000c7ccc7c00cc7cc00ccc7ccc0cc7cccc0ccccc7c0ccc7ccc000cc00000037300000000000
-0666660000666000066666000666660004444400022222000000000007ccc70000c7c0000cc7cc000777770007777c000cc7cc00000000000033300000000000
+06666600006660000666660006666600044444000222220000000000000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc000000000000000000
+666666600666660066666660666666604444444022222220000000000c101c00c7ccc7c00cc7cc00c7ccc7c0c77777c0cc7777c0c77777c0000000000c101c00
+6666666066666660666666606666666044444440222222200044400001c1c100c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc000ccc00001c1c100
+61666160666166606166616061111160446666402666662000444000001c1000c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000ccc000001c1000
+6166616066616660661616606666166046444440222622200044400001c1c100c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc000ccc00001c1c100
+611111600111110066616660661166604466664022262220000000000c101c00c7ccc7c00cc7cc00ccc7ccc0c77777c0c7777cc0ccc7ccc0000000000c101c00
+01161100006160000661660001111100066666000226220000000000000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+01666100006160000166610001111100046666000666660000000000000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc000000000000000000
+616661600661660066161660666616604644444022262220000000000c101c00ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc0000000000c101c00
+6111116061111160666166606661666044666440222622200044400001c1c100c7ccc7c0ccc7ccc0c7ccc7c0c77777c0cc7777c0c77777c000ccc00001c1c100
+61666160666166606661666066166660444446402226222000444000001c1000c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc000ccc000001c1000
+6166616066616660666166606111116046666440222622200044400001c1c100c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000ccc00001c1c100
+666666600666660066666660666666604444444022222220000000000c101c00c7ccc7c00cc7cc00ccc7ccc0cc7cccc0ccccc7c0ccc7ccc0000000000c101c00
+066666000066600006666600066666000444440002222200000000000000000007ccc70000c7c0000cc7cc000777770007777c000cc7cc000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 01111100001110000661660006616600046664000226220000000000000000000000000000000000000000000000000000000000000000000000000000000000
-61666160066166006661666066166660444446402226222000000000000000000000000000000000000000000000000000000000000000000000000000000000
-61666160666166606661666061111160466664402226222000dd0000000000000000000000000000000000000000000000000000000000000000000000000000
-6666666066666660666666606666666044444440222222200dddd000000000000000000000000000000000000000000000000000000000000000000000000000
-6666666066666660666666606666666044444440222222200dddd000000000000000000000000000000000000000000000000000000000000000000000000000
-66666660066666006666666066666660444444402222222000dd0000000000000000000000000000000000000000000000000000000000000000000000000000
+616661600661660066616660661666604444464022262220000000000c101c000000000000000000000000000000000000000000000000000000000000000000
+6166616066616660666166606111116046666440222622200044400001c1c1000000000000000000000000000000000000000000000000000000000000000000
+66666660666666606666666066666660444444402222222000444000001c10000000000000000000000000000000000000000000000000000000000000000000
+6666666066666660666666606666666044444440222222200044400001c1c1000000000000000000000000000000000000000000000000000000000000000000
+666666600666660066666660666666604444444022222220000000000c101c000000000000000000000000000000000000000000000000000000000000000000
 06666600006660000666660006666600044444000222220000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+50505050000500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+05050505000500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+50505050000500000033333033333330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+05050505000500000037773037777730000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+50505050000500000037333033373330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+05050505000500000037300000373000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+50505050000500000033300000333000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+05050505000500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
