@@ -85,64 +85,64 @@ gate_reduction_rules = {
     if (board:idle_gate_at(x, y):is_h() and
         board:idle_gate_at(x, y + 1):is_h()) then
       return {
-        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate.i() },
       }
     end
 
     if (board:idle_gate_at(x, y):is_x() and
         board:idle_gate_at(x, y + 1):is_x()) then
       return {
-        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate.i() },
       }
     end
 
     if (board:idle_gate_at(x, y):is_y() and
         board:idle_gate_at(x, y + 1):is_y()) then
       return {
-        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate.i() },
       }
     end
 
     if (board:idle_gate_at(x, y):is_z() and
         board:idle_gate_at(x, y + 1):is_z()) then
       return {
-        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate.i() },
       }
     end
 
     if (board:idle_gate_at(x, y):is_z() and
         board:idle_gate_at(x, y + 1):is_x()) then
       return {
-        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.y() },
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate.y() },
       }
     end
 
     if (board:idle_gate_at(x, y):is_x() and
         board:idle_gate_at(x, y + 1):is_z()) then
       return {
-        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.y() },
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate.y() },
       }
     end
 
     if (board:idle_gate_at(x, y):is_s() and
         board:idle_gate_at(x, y + 1):is_s()) then
       return {
-        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.z() },
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate.z() },
       }
     end
 
     if (board:idle_gate_at(x, y):is_t() and
         board:idle_gate_at(x, y + 1):is_t()) then
       return {
-        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.s() },
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate.s() },
       }
     end
 
@@ -160,9 +160,9 @@ gate_reduction_rules = {
         board:idle_gate_at(x, y + 1):is_x() and
         board:idle_gate_at(x, y + 2):is_h()) then
       return {
-        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 2, ["gate"] = gate.z() },
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate.z() },
       }      
     end 
 
@@ -170,9 +170,9 @@ gate_reduction_rules = {
         board:idle_gate_at(x, y + 1):is_z() and
         board:idle_gate_at(x, y + 2):is_h()) then
       return {
-        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 2, ["gate"] = gate.x() },
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate.x() },
       }
     end 
 
@@ -180,9 +180,9 @@ gate_reduction_rules = {
         board:idle_gate_at(x, y + 1):is_z() and
         board:idle_gate_at(x, y + 2):is_s()) then
       return {
-        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 2, ["gate"] = gate.z() },
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate.z() },
       }      
     end
 
@@ -192,13 +192,13 @@ gate_reduction_rules = {
     if (board:idle_gate_at(x, y):is_c() and
        (board:idle_gate_at(x, y + 1):is_cnot_x()) and
         board:idle_gate_at(x, y + 2):is_c() and
-        board:idle_gate_at(board:idle_gate_at(x, y).xx, y + 1):is_c() and
-        board:idle_gate_at(board:idle_gate_at(x, y).xx, y + 2):is_cnot_x()) then
-      local dx = board:idle_gate_at(x, y).xx - x
+        board:idle_gate_at(board:idle_gate_at(x, y).cnot_x_x, y + 1):is_c() and
+        board:idle_gate_at(board:idle_gate_at(x, y).cnot_x_x, y + 2):is_cnot_x()) then
+      local dx = board:idle_gate_at(x, y).cnot_x_x - x
       return {
-        { ["dx"] = 0, ["dy"] = 0, ["gate"] = gate.i() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 1, ["gate"] = gate.i() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = gate.i() },
-        { ["dx"] = 0, ["dy"] = 2, ["gate"] = gate.swap() }, { ["dx"] = dx, ["dy"] = 2, ["gate"] = gate.swap() },
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate.i() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate.i() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = quantum_gate.i() },
+        { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate.swap() }, { ["dx"] = dx, ["dy"] = 2, ["gate"] = quantum_gate.swap() },
       }  
     end
 
@@ -237,7 +237,7 @@ board = {
                 self:set(x, y, self:_random_gate())
               until (#gate_reduction_rules:reduce(self, x, y, true) == 0)
             else
-              self:set(x, y, gate.i())
+              self:set(x, y, quantum_gate.i())
             end
           end
         end
@@ -250,7 +250,7 @@ board = {
         if self.gate[x][y]:is_idle() then
           return self.gate[x][y]
         else
-          return gate.i()
+          return quantum_gate.i()
         end
       end,
 
@@ -270,8 +270,8 @@ board = {
       draw = function(self)
         for bx = 1, board.cols do
           for by = board.rows + board.next_row, 1, -1 do
-            local x = self.left + (bx - 1) * gate.size
-            local y = self.top + (by - 1) * gate.size
+            local x = self.left + (bx - 1) * quantum_gate.size
+            local y = self.top + (by - 1) * quantum_gate.size
 
             wire:draw(x, y - self.raised_dots)
 
@@ -290,14 +290,14 @@ board = {
         -- draw cnot laser
         for bx = 1, board.cols do
           for by = board.rows + board.next_row, 1, -1 do
-            local x = self.left + (bx - 1) * gate.size
-            local y = self.top + (by - 1) * gate.size
+            local x = self.left + (bx - 1) * quantum_gate.size
+            local y = self.top + (by - 1) * quantum_gate.size
             local gate = self.gate[bx][by]
 
             if gate:is_c() and rnd(1) > 0.3 then
               local lx0 = x + 3
               local ly0 = y + 3 - self.raised_dots
-              local lx1 = self.left + (self.gate[bx][by].xx - 1) * 8 + 3
+              local lx1 = self.left + (self.gate[bx][by].cnot_x_x - 1) * 8 + 3
               local ly1 = ly0
 
               line(lx0, ly0, lx1, ly1, colors.yellow)
@@ -308,8 +308,8 @@ board = {
         -- draw cnot gates over the cnot laser
         for bx = 1, board.cols do
           for by = board.rows + board.next_row, 1, -1 do
-            local x = self.left + (bx - 1) * gate.size
-            local y = self.top + (by - 1) * gate.size
+            local x = self.left + (bx - 1) * quantum_gate.size
+            local y = self.top + (by - 1) * quantum_gate.size
             local gate = self.gate[bx][by]
 
             if gate:is_c() or gate:is_cnot_x() then
@@ -342,42 +342,42 @@ board = {
         -- c x
         -- c _ _ x
         if (left_gate:is_c()) then
-          if left_gate.xx == xr then
-            left_gate.xx = xl
+          if left_gate.cnot_x_x == xr then
+            left_gate.cnot_x_x = xl
           end
-          local x_gate = self.gate[left_gate.xx][y]
+          local x_gate = self.gate[left_gate.cnot_x_x][y]
           assert(x_gate:is_cnot_x())
-          x_gate.cx = xr
+          x_gate.cnot_c_x = xr
         end
         -- _ _ x c
         -- x _ _ c
         if (right_gate:is_c()) then
-          if right_gate.xx == xl then
-            right_gate.xx = xr
+          if right_gate.cnot_x_x == xl then
+            right_gate.cnot_x_x = xr
           end
-          local x_gate = self.gate[right_gate.xx][y]
+          local x_gate = self.gate[right_gate.cnot_x_x][y]
           assert(x_gate:is_cnot_x())
-          x_gate.cx = xl
+          x_gate.cnot_c_x = xl
         end
         -- x c
         -- x _ _ c
         if (left_gate:is_cnot_x()) then
-          if left_gate.cx == xr then
-            left_gate.cx = xl
+          if left_gate.cnot_c_x == xr then
+            left_gate.cnot_c_x = xl
           end
-          local c_gate = self.gate[left_gate.cx][y]
-          assert(c_gate:is_c())
-          c_gate.xx = xr
+          local cnot_c = self.gate[left_gate.cnot_c_x][y]
+          assert(cnot_c:is_c())
+          cnot_c.cnot_x_x = xr
         end
         -- _ _ c x
         -- c _ _ x
         if (right_gate:is_cnot_x()) then
-          if right_gate.cx == xl then
-            right_gate.cx = xr
+          if right_gate.cnot_c_x == xl then
+            right_gate.cnot_c_x = xr
           end
-          local c_gate = self.gate[right_gate.cx][y]
-          assert(c_gate:is_c())
-          c_gate.xx = xl
+          local cnot_c = self.gate[right_gate.cnot_c_x][y]
+          assert(cnot_c:is_c())
+          cnot_c.cnot_x_x = xl
         end        
       end,
 
@@ -462,7 +462,7 @@ board = {
                    (not self.gate[x][tmp_y]:is_cnot_x()) and
                     self:is_droppable(x, tmp_y)) do
               self.gate[x][tmp_y + 1] = self.gate[x][tmp_y]
-              self.gate[x][tmp_y] = gate.i()
+              self.gate[x][tmp_y] = quantum_gate.i()
               tmp_y += 1
             end
 
@@ -476,26 +476,26 @@ board = {
         for x = 1, board.cols do
           for y = board.rows - 1, 1, -1 do
             local tmp_y = y
-            local g = self.gate[x][tmp_y]
+            local gate = self.gate[x][tmp_y]
 
-            while (g:is_c() and
-                   g:is_idle() and
+            while (gate:is_c() and
+                   gate:is_idle() and
                    self:is_droppable(x, tmp_y) and
                    (not self:overlap_with_cnot(x, tmp_y + 1)) and
-                   self:is_droppable(g.xx, tmp_y) and
-                   (not self:overlap_with_cnot(g.xx, tmp_y + 1))) do
-              local cnot_c = g
-              local cnot_x = self.gate[cnot_c.xx][tmp_y]
+                   self:is_droppable(gate.cnot_x_x, tmp_y) and
+                   (not self:overlap_with_cnot(gate.cnot_x_x, tmp_y + 1))) do
+              local cnot_c = gate
+              local cnot_x = self.gate[cnot_c.cnot_x_x][tmp_y]
 
               assert(cnot_x:is_cnot_x())
 
               self.gate[x][tmp_y + 1] = cnot_c
-              self.gate[x][tmp_y] = gate.i()
-              self.gate[cnot_c.xx][tmp_y + 1] = cnot_x
-              self.gate[cnot_c.xx][tmp_y] = gate.i()
+              self.gate[x][tmp_y] = quantum_gate.i()
+              self.gate[cnot_c.cnot_x_x][tmp_y + 1] = cnot_x
+              self.gate[cnot_c.cnot_x_x][tmp_y] = quantum_gate.i()
 
               tmp_y += 1
-              g = self.gate[x][tmp_y]
+              gate = self.gate[x][tmp_y]
             end
 
             if (tmp_y > y) then
@@ -565,21 +565,21 @@ board = {
 
         -- maybe add cnot
         if rnd(1) < board.cnot_probability then
-          local cx = flr(rnd(board.cols)) + 1
-          local xx = nil
+          local cnot_c_x = flr(rnd(board.cols)) + 1
+          local cnot_x_x = nil
           repeat
-            xx = flr(rnd(board.cols)) + 1
-          until xx ~= cx
+            cnot_x_x = flr(rnd(board.cols)) + 1
+          until cnot_x_x ~= cnot_c_x
 
-          local x_gate = gate.x(cx)
-          local control_gate = gate.c(xx)
-          self:set(xx, board.rows + board.next_row, x_gate)
-          self:set(cx, board.rows + board.next_row, control_gate)
+          local x_gate = quantum_gate.x(cnot_c_x)
+          local control_gate = quantum_gate.c(cnot_x_x)
+          self:set(cnot_x_x, board.rows + board.next_row, x_gate)
+          self:set(cnot_c_x, board.rows + board.next_row, control_gate)
 
-          local cnot_left_x = min(cx, xx)
-          local cnot_right_x = max(cx, xx)
+          local cnot_left_x = min(cnot_c_x, cnot_x_x)
+          local cnot_right_x = max(cnot_c_x, cnot_x_x)
           for x = cnot_left_x + 1, cnot_right_x - 1 do
-            self:set(x, board.rows + board.next_row, gate.i())
+            self:set(x, board.rows + board.next_row, quantum_gate.i())
           end          
         end
       end,
@@ -608,7 +608,7 @@ board = {
       _random_gate = function(self)
         local g = nil
         repeat
-          g = gate:new(gate.types[flr(rnd(#gate.types)) + 1])
+          g = quantum_gate:new(quantum_gate.types[flr(rnd(#quantum_gate.types)) + 1])
         until ((not g:is_i()) and (not g:is_c()) and (not g:is_swap()))
 
         return g
@@ -629,7 +629,7 @@ wire = {
   end,
 }
 
-gate = {
+quantum_gate = {
   types = {"h", "x", "y", "z", "s", "t", "c", "swap", "i"},
 
   sprites = {
@@ -767,7 +767,7 @@ gate = {
         elseif self:is_swapping() then
           if self.tick_swap == nil then
             self.tick_swap = 0
-          elseif self.tick_swap < gate.num_frames_swap then
+          elseif self.tick_swap < quantum_gate.num_frames_swap then
             self.tick_swap += 1
           else
             self:change_state("idle")
@@ -775,7 +775,7 @@ gate = {
         elseif self:is_match() then
           if self.tick_match == nil then
             self.tick_match = 0
-          elseif self.tick_match < gate.num_frames_match then
+          elseif self.tick_match < quantum_gate.num_frames_match then
             self.tick_match += 1
           else
             self.type = self.replace_with_type
@@ -821,7 +821,7 @@ gate = {
       end,
 
       is_changing_to_i = function(self)
-        return self.tick_match == gate.num_frames_match - 1 and self.replace_with_type == "i"
+        return self.tick_match == quantum_gate.num_frames_match - 1 and self.replace_with_type == "i"
       end,
 
       is_h = function(self)
@@ -829,11 +829,11 @@ gate = {
       end,
 
       is_x = function(self)
-        return self.type == "x" and self.cx == nil
+        return self.type == "x" and self.cnot_c_x == nil
       end,
 
       is_cnot_x = function(self)
-        return self.type == "x" and self.cx != nil
+        return self.type == "x" and self.cnot_c_x != nil
       end,
 
       is_y = function(self)
@@ -853,7 +853,7 @@ gate = {
       end,
 
       is_c = function(self)
-        -- assert(self.xx)
+        -- assert(self.cnot_x_x)
         return self.type == "c"
       end,
 
@@ -869,29 +869,29 @@ gate = {
 
       _sprite = function(self)
         if self:is_idle() then
-          return gate.sprites.idle[self.type]
+          return quantum_gate.sprites.idle[self.type]
         elseif self:is_swapping() then
-          return gate.sprites.idle[self.type]
+          return quantum_gate.sprites.idle[self.type]
         elseif self:is_match() then
           local icon = self.tick_match % 12
           if icon == 0 or icon == 1 or icon == 2 then
-            return gate.sprites.match_up[self.type]
+            return quantum_gate.sprites.match_up[self.type]
           elseif icon == 3 or icon == 4 or icon == 5 then
-            return gate.sprites.match_middle[self.type]
+            return quantum_gate.sprites.match_middle[self.type]
           elseif icon == 6 or icon == 7 or icon == 8 then
-            return gate.sprites.match_down[self.type]
+            return quantum_gate.sprites.match_down[self.type]
           elseif icon == 9 or icon == 10 or icon == 11 then
-            return gate.sprites.match_middle[self.type]
+            return quantum_gate.sprites.match_middle[self.type]
           end
         elseif self:is_dropped() then
           if self.tick_drop < 5 then
-            return gate.sprites.dropped[self.type]
+            return quantum_gate.sprites.dropped[self.type]
           elseif self.tick_drop < 7 then
-            return gate.sprites.jumping[self.type]
+            return quantum_gate.sprites.jumping[self.type]
           elseif self.tick_drop < 11 then
-            return gate.sprites.falling[self.type]
+            return quantum_gate.sprites.falling[self.type]
           end        
-          return gate.sprites.dropped[self.type]
+          return quantum_gate.sprites.dropped[self.type]
         else
           assert(false, "we should never get here")
         end
@@ -900,39 +900,36 @@ gate = {
   end,
 }
 
-gate.x = function(cx)
-  local x = gate:new("x")
-  if cx ~= nil then
-    x.cx = cx
-  end
-
+quantum_gate.x = function(cnot_c_x)
+  local x = quantum_gate:new("x")
+  x.cnot_c_x = cnot_c_x
   return x
 end
 
-gate.y = function()
-  return gate:new("y")
+quantum_gate.y = function()
+  return quantum_gate:new("y")
 end
 
-gate.z = function()
-  return gate:new("z")
+quantum_gate.z = function()
+  return quantum_gate:new("z")
 end
 
-gate.s = function()
-  return gate:new("s")
+quantum_gate.s = function()
+  return quantum_gate:new("s")
 end
 
-gate.c = function(xx)
-  local c = gate:new("c")
-  c.xx = xx
+quantum_gate.c = function(cnot_x_x)
+  local c = quantum_gate:new("c")
+  c.cnot_x_x = cnot_x_x
   return c
 end
 
-gate.swap = function()
-  return gate:new("swap")
+quantum_gate.swap = function()
+  return quantum_gate:new("swap")
 end
 
-gate.i = function()
-  return gate:new("i")
+quantum_gate.i = function()
+  return quantum_gate:new("i")
 end
 
 -- player's cursor class
@@ -1011,27 +1008,27 @@ player_cursor = {
 
       draw = function(self, raised_dots)
         -- top left
-        local xtl = self.board.left + (self.x - 1) * gate.size - 5
-        local ytl = self.board.top + (self.y - 1) * gate.size - 5
+        local xtl = self.board.left + (self.x - 1) * quantum_gate.size - 5
+        local ytl = self.board.top + (self.y - 1) * quantum_gate.size - 5
 
         -- top right
-        local xtr = self.board.left + self.x * gate.size + 4
+        local xtr = self.board.left + self.x * quantum_gate.size + 4
         local ytr = ytl
 
         -- bottom left
         local xbl = xtl
-        local ybl = self.board.top + self.y * gate.size - 4
+        local ybl = self.board.top + self.y * quantum_gate.size - 4
 
         -- bottom right
-        local xbr = self.board.left + self.x * gate.size + 4
+        local xbr = self.board.left + self.x * quantum_gate.size + 4
         local ybr = ybl
 
         -- top middle
-        local xtm = self.board.left + (self.x - 1) * gate.size + 4
+        local xtm = self.board.left + (self.x - 1) * quantum_gate.size + 4
         local ytm = ytl
 
         -- bottom middle
-        local xbm = self.board.left + (self.x - 1) * gate.size + 4
+        local xbm = self.board.left + (self.x - 1) * quantum_gate.size + 4
         local ybm = ybl
 
         if self:is_shrunk() then
@@ -1137,8 +1134,8 @@ game = {
     self.board:update_gates()
 
     foreach(self.board:gates_dropped_bottom(), function(each)
-      local x = self.board.left + (each.x - 1) * gate.size
-      local y = self.board.top + (each.y - 1) * gate.size
+      local x = self.board.left + (each.x - 1) * quantum_gate.size
+      local y = self.board.top + (each.y - 1) * quantum_gate.size
 
       dropping_particle:create(x + 1, y + 7, 0, colors.white)
       dropping_particle:create(x + 3, y + 7, 0, colors.white)
@@ -1149,8 +1146,8 @@ game = {
       for x = 0, 7 do
         for y = 0, 7 do
           if x % 3 == 0 and y % 3 == 0 then
-            local px = self.board.left + (each.x - 1) * gate.size + x
-            local py = self.board.top + (each.y - 1) * gate.size + y
+            local px = self.board.left + (each.x - 1) * quantum_gate.size + x
+            local py = self.board.top + (each.y - 1) * quantum_gate.size + y
 
             dropping_particle:create(px, py, 1, colors.blue)
             dropping_particle:create(px, py, 0, colors.dark_purple)
