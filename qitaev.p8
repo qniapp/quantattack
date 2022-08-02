@@ -1275,34 +1275,15 @@ game = {
     if self._state == "solo" then
       self:_handle_button_events()
 
+      self.player_cursor:update()
+
       self.board:reduce()
       self.board:drop_gates()
       self.board:update_gates()
 
       self:_create_gate_drop_particles()
+      self:_create_gate_puff_particles()
 
-      foreach(self.board:gates_to_puff(), function(each)
-        local px = self.board.left + (each.x - 1) * quantum_gate.size + 3
-        local py = self.board.top + (each.y - 1) * quantum_gate.size + 3
-
-        puff_particle:create(px, py, 3, colors.blue)
-        puff_particle:create(px, py, 3, colors.blue)
-        puff_particle:create(px, py, 2, colors.blue)
-        puff_particle:create(px, py, 2, colors.blue)
-        puff_particle:create(px, py, 2, colors.blue)
-        puff_particle:create(px, py, 2, colors.blue)
-        puff_particle:create(px, py, 2, colors.blue)
-        puff_particle:create(px, py, 2, colors.white)        
-        puff_particle:create(px, py, 1, colors.blue)
-        puff_particle:create(px, py, 1, colors.blue)
-        puff_particle:create(px, py, 1, colors.white)
-        puff_particle:create(px, py, 1, colors.white)        
-        puff_particle:create(px, py, 0, colors.dark_purple)
-
-        sfx(3)
-      end)
-
-      self.player_cursor:update()
       local left_gate = self.board.gate[self.player_cursor.x][self.player_cursor.y]
       local right_gate = self.board.gate[self.player_cursor.x + 1][self.player_cursor.y]
       if not self.board:is_swappable(left_gate, right_gate) then
@@ -1382,14 +1363,40 @@ game = {
       local x = self.board.left + (each.x - 1) * quantum_gate.size
       local y = self.board.top + (each.y - 1) * quantum_gate.size
 
+      -- todo: rnd(quantum_gate.size) でバラつきを自動的に与える
       dropping_particle:create(x + 1, y + 7, 0, colors.white)
       dropping_particle:create(x + 3, y + 7, 0, colors.white)
       dropping_particle:create(x + 5, y + 7, 0, colors.white)
     end)
 
     if #bottommost_gates > 0 then
+      -- todo: 定数で名前をつける
       sfx(1)
     end  
+  end,
+
+  _create_gate_puff_particles = function(self)
+    foreach(self.board:gates_to_puff(), function(each)
+      local px = self.board.left + (each.x - 1) * quantum_gate.size + 3
+      local py = self.board.top + (each.y - 1) * quantum_gate.size + 3
+
+      puff_particle:create(px, py, 3, colors.blue)
+      puff_particle:create(px, py, 3, colors.blue)
+      puff_particle:create(px, py, 2, colors.blue)
+      puff_particle:create(px, py, 2, colors.blue)
+      puff_particle:create(px, py, 2, colors.blue)
+      puff_particle:create(px, py, 2, colors.blue)
+      puff_particle:create(px, py, 2, colors.blue)
+      puff_particle:create(px, py, 2, colors.white)        
+      puff_particle:create(px, py, 1, colors.blue)
+      puff_particle:create(px, py, 1, colors.blue)
+      puff_particle:create(px, py, 1, colors.white)
+      puff_particle:create(px, py, 1, colors.white)        
+      puff_particle:create(px, py, 0, colors.dark_purple)
+
+      -- todo: 定数で名前をつける
+      sfx(3)
+    end)
   end,
 
   draw_stats = function(self)
