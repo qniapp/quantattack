@@ -16,6 +16,71 @@ colors = {
   ["blue"] = 12,
 }
 
+puff_particle = {
+  all = {},
+
+  create = function(self, x, y, init_size, color)
+    local p = {}
+    local up = false
+    local left = false
+
+    if flr(rnd(2)) == 0 then
+      up = true
+    end
+    if flr(rnd(2)) == 0 then
+      left = true
+    end
+
+    p.x = x
+    p.y = y
+    p.color = color
+    p.width = init_size
+    p.tick = 0
+    p.max_tick = 20 + rnd(10)
+    p.dx = rnd(1.2) * .8
+    p.dy = rnd(1.2) * .8
+
+    p.ddx = -0.03
+    p.ddy = -0.03
+
+    if (up) then
+      p.dy *= -1
+      p.ddy *= -1
+    end
+    if (left) then
+      p.dx *= -1
+      p.ddx *= -1
+    end
+
+    add(puff_particle.all, p)
+
+    return p
+  end,
+
+  update = function(self)
+    foreach(puff_particle.all, function(p)
+      if (p.tick > p.max_tick) then
+        del(puff_particle.all, p)
+      end
+      if (p.tick > p.max_tick - 5) then
+        p.color = colors.dark_grey
+      end
+
+      p.x = p.x + p.dx
+      p.y = p.y + p.dy
+      p.dx = p.dx + p.ddx
+      p.dy = p.dy + p.ddy
+      p.tick = p.tick + 1
+    end)
+  end,
+
+  draw = function(self)
+    foreach(puff_particle.all, function(p)
+      circfill(p.x, p.y, p.width, p.color)
+    end)
+  end  
+}
+
 dropping_particle = {
   all = {},
 
@@ -313,7 +378,7 @@ board = {
             local y = self.top + (by - 1) * quantum_gate.size
             local gate = self.gate[bx][by]
 
-            if gate:is_swap() then
+            if gate:is_swap() and gate:is_idle() then
               local other_x = nil
               for ox = 1, board.cols do
                 if ox ~= bx and self.gate[ox][by]:is_swap() then
@@ -406,7 +471,9 @@ board = {
           local cnot_c = self.gate[right_gate.cnot_c_x][y]
           assert(cnot_c:is_c())
           cnot_c.cnot_x_x = xl
-        end        
+        end
+
+        sfx(2)        
       end,
 
       is_swappable = function(self, left_gate, right_gate)
@@ -419,8 +486,13 @@ board = {
           for y = board.rows - 1, 1, -1 do
             if self.gate[x][y]:is_idle() then
               reduction = gate_reduction_rules:reduce(self, x, y)
+              local disappearance_delay = (#reduction - 1) * 20 + 20
+
               for index, r in pairs(reduction) do
-                self.gate[x + r.dx][y + r.dy]:replace_with(r.gate)
+                sfx(4)
+                local puff_delay = (index - 1) * 20
+                self.gate[x + r.dx][y + r.dy]:replace_with(r.gate, puff_delay, disappearance_delay)
+                puff_delay += 20
               end
             end
           end
@@ -453,6 +525,24 @@ board = {
                 gate:is_dropped() and
                 gate.tick_drop == 0 and
                 (gate_below == nil or (not gate_below:is_dropped()))) then
+              gate.x = x
+              gate.y = y
+              add(gates, gate)
+            end
+          end
+        end
+
+        return gates
+      end,
+
+      gates_to_puff = function(self)
+        local gates = {}
+
+        for x = 1, board.cols do
+          for y = 1, board.rows do
+            local gate = self.gate[x][y]
+
+            if gate:to_puff() then
               gate.x = x
               gate.y = y
               add(gates, gate)
@@ -542,7 +632,8 @@ board = {
         return ((not gate:is_i()) and 
                  gate:is_idle() and
                  y + 1 <= board.rows and
-                 gate_below:is_i())
+                 gate_below:is_i() and
+                 gate_below:is_idle())
       end,
 
       overlap_with_cnot = function(self, x, y)
@@ -769,7 +860,7 @@ quantum_gate = {
         pal(colors.dark_blue, colors.dark_blue)
       end,
 
-      replace_with = function(self, other)
+      replace_with = function(self, other, puff_delay, disappearance_delay)
         assert(not self:is_i())
         assert(other.type)
 
@@ -778,26 +869,22 @@ quantum_gate = {
         end
 
         self.replace_with_type = other.type
-        self:change_state("match")
+        self.puff_delay = puff_delay
+        self.disappearance_delay = disappearance_delay
         self.tick_match = 0
+        self:_change_state("match")
       end,
 
       dropped = function(self)
-        self:change_state("dropped")
-      end,
-
-      change_state = function(self, new_state)
-        assert(new_state)
-
-        self._state = new_state
+        self:_change_state("dropped")
       end,
 
       swap_with_left = function(self)
-        self:change_state("swapping_with_left")
+        self:_change_state("swapping_with_left")
       end,
 
       swap_with_right = function(self)
-        self:change_state("swapping_with_right")
+        self:_change_state("swapping_with_right")
       end,
 
       update = function(self)
@@ -809,16 +896,18 @@ quantum_gate = {
           elseif self.tick_swap < quantum_gate.num_frames_swap then
             self.tick_swap += 1
           else
-            self:change_state("idle")
+            self:_change_state("idle")
           end
         elseif self:is_match() then
+          sfx(4)
+          
           if self.tick_match == nil then
             self.tick_match = 0
           elseif self.tick_match < quantum_gate.num_frames_match then
             self.tick_match += 1
           else
-            self.type = self.replace_with_type
-            self:change_state("idle")
+            self.disappearance_tick = 0
+            self:_change_state("disappear")
           end
         elseif self:is_dropped() then
           if self.tick_drop == nil then
@@ -827,9 +916,27 @@ quantum_gate = {
             self.tick_drop += 1
             if self.tick_drop == 12 then
                self.tick_drop = nil
-               self:change_state("idle")
+               self:_change_state("idle")
             end
           end
+        elseif self:is_disappearing() then
+          self.puff = false
+
+          if self.disappearance_tick == self.puff_delay then
+            self.type = self.replace_with_type
+            self.puff = true            
+            -- self.disappearance_tick = nil
+            -- self:_change_state("idle")
+          end
+
+          if self.disappearance_tick == self.disappearance_delay then
+            -- self.puff_delay = nil
+            -- self.disappearance_delay = nil
+            self:_change_state("idle")
+            return
+          end
+
+          self.disappearance_tick += 1
         else
           assert(false, "we should never get here")
         end
@@ -857,6 +964,14 @@ quantum_gate = {
 
       is_dropped = function(self)
         return self._state == "dropped"
+      end,
+
+      is_disappearing = function(self)
+        return self._state == "disappear"
+      end,
+
+      to_puff = function(self)
+        return self.puff == true -- self._state == "disappear" and self.disappearance_tick == self.puff_delay + 1
       end,
 
       is_changing_to_i = function(self)
@@ -909,6 +1024,29 @@ quantum_gate = {
 
       -- private
 
+      -- todo: フ⌂へヒ✽⬅️ホ▒ほフせめハいはを ascii art ネ▒せヒいまく
+      _change_state = function(self, new_state)
+        assert(new_state == "idle" or
+               new_state == "swapping_with_left" or new_state == "swapping_with_right" or
+               new_state == "dropped" or
+               new_state == "match" or
+               new_state == "disappear")
+
+        if new_state == "idle" then
+          assert(self:is_swapping() or self:is_dropped() or self:is_match() or self:is_disappearing())
+        elseif new_state == "swapping_with_left" then
+          assert(self:is_idle() or self:is_dropped())
+        elseif new_state == "swapping_with_right" then
+          assert(self:is_idle() or self:is_dropped())
+        elseif new_state == "dropped" then
+          assert(self:is_idle())
+        elseif new_state == "match" then
+          assert(self:is_idle())
+        end
+
+        self._state = new_state
+      end,
+
       _sprite = function(self)
         if self:is_idle() then
           return quantum_gate.sprites.idle[self.type]
@@ -934,6 +1072,8 @@ quantum_gate = {
             return quantum_gate.sprites.falling[self.type]
           end        
           return quantum_gate.sprites.dropped[self.type]
+        elseif self:is_disappearing() then
+          return quantum_gate.sprites.idle[self.type]
         else
           assert(false, "we should never get here")
         end
@@ -998,6 +1138,7 @@ player_cursor = {
           self:flash()
         else
           self.x -= 1
+          sfx(0)
         end
       end,
 
@@ -1006,14 +1147,22 @@ player_cursor = {
           self:flash()
         else
           self.x += 1
+          sfx(0)
         end
       end,
 
-      move_up = function(self)
+      move_up = function(self, play_sfx)
+        if play_sfx == nil then
+          play_sfx = true
+        end
+
         if self.y == 1 then
           self:flash()
         else
           self.y -= 1
+          if play_sfx then
+            sfx(0)
+          end
         end
       end,
 
@@ -1022,6 +1171,7 @@ player_cursor = {
           self:flash()
         else
           self.y += 1
+          sfx(0)
         end
       end,
 
@@ -1148,6 +1298,7 @@ game = {
     if self._state == "solo" then
       self.tick += 1
 
+      puff_particle:update()
       dropping_particle:update()
 
       if btnp(0) then
@@ -1185,20 +1336,44 @@ game = {
         dropping_particle:create(x + 3, y + 7, 0, colors.white)
         dropping_particle:create(x + 5, y + 7, 0, colors.white)
       end)
+      if #self.board:gates_dropped_bottom() > 0 then
+        sfx(1)
+      end
 
-      foreach(self.board:gates_changing_to_i(), function(each)
-        for x = 0, 7 do
-          for y = 0, 7 do
-            if x % 3 == 0 and y % 3 == 0 then
-              local px = self.board.left + (each.x - 1) * quantum_gate.size + x
-              local py = self.board.top + (each.y - 1) * quantum_gate.size + y
+      foreach(self.board:gates_to_puff(), function(each)
+        local px = self.board.left + (each.x - 1) * quantum_gate.size + 3
+        local py = self.board.top + (each.y - 1) * quantum_gate.size + 3
 
-              dropping_particle:create(px, py, 1, colors.blue)
-              dropping_particle:create(px, py, 0, colors.dark_purple)
-            end
-          end
-        end
+        puff_particle:create(px, py, 3, colors.blue)
+        puff_particle:create(px, py, 3, colors.blue)
+        puff_particle:create(px, py, 2, colors.blue)
+        puff_particle:create(px, py, 2, colors.blue)
+        puff_particle:create(px, py, 2, colors.blue)
+        puff_particle:create(px, py, 2, colors.blue)
+        puff_particle:create(px, py, 2, colors.blue)
+        puff_particle:create(px, py, 2, colors.white)        
+        puff_particle:create(px, py, 1, colors.blue)
+        puff_particle:create(px, py, 1, colors.blue)
+        puff_particle:create(px, py, 1, colors.white)
+        puff_particle:create(px, py, 1, colors.white)        
+        puff_particle:create(px, py, 0, colors.dark_purple)
+
+        sfx(3)
       end)
+
+      -- foreach(self.board:gates_changing_to_i(), function(each)
+      --   for x = 0, 7 do
+      --     for y = 0, 7 do
+      --       if x % 3 == 0 and y % 3 == 0 then
+      --         local px = self.board.left + (each.x - 1) * quantum_gate.size + x
+      --         local py = self.board.top + (each.y - 1) * quantum_gate.size + y
+
+      --         dropping_particle:create(px, py, 1, colors.blue)
+      --         dropping_particle:create(px, py, 0, colors.dark_purple)
+      --       end
+      --     end
+      --   end
+      -- end)
 
       self.player_cursor:update()
       local left_gate = self.board.gate[self.player_cursor.x][self.player_cursor.y]
@@ -1223,7 +1398,7 @@ game = {
             else
               self.num_raise_gates = 0
               self.board:insert_gates_at_bottom()
-              self.player_cursor:move_up()
+              self.player_cursor:move_up(false)
             end
           end
         end
@@ -1253,6 +1428,7 @@ game = {
       self.board:draw()
       self.player_cursor:draw(self.board.raised_dots)
       self:draw_stats()
+      puff_particle:draw()
       dropping_particle:draw()
     end
   end,    
@@ -1310,3 +1486,9 @@ __gfx__
 050505050005000000c7c00000c7c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 505050500005000000ccc00000ccc000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 05050505000500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+__sfx__
+000100002202000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+010200001003011030110300672007720067200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000100002b0102d01031010336102e0102f0103160000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00010000178201d820248202b8202f83030830328303483035830308302b8301c8301c8301c8301c8301c8301c8301f830238302483029830248301f8201f8201e8201f8202282024830298302e8303382037820
+0004000004b1004b1005b1004b1004b1004b1005b1004b1004b1006b1004b1004b1005b1004b1005b1005b1005b1005b1005b1003b1006b1006b1004b1007b1007b1007b1005b1007b1007b1004b1007b1003b10

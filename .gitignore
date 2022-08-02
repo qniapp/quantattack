@@ -1,1 +1,6 @@
 .DS_Store
+activity_log.txt
+backup
+config.txt
+log.txt
+sdl_controllers.txt
