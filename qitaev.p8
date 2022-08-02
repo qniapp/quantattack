@@ -513,7 +513,7 @@ board = {
         return gates
       end,
 
-      gates_dropped_bottom = function(self)
+      bottommost_gates_of_fallen_gates = function(self)
         local gates = {}
 
         for x = 1, board.cols do
@@ -1279,17 +1279,7 @@ game = {
       self.board:drop_gates()
       self.board:update_gates()
 
-      foreach(self.board:gates_dropped_bottom(), function(each)
-        local x = self.board.left + (each.x - 1) * quantum_gate.size
-        local y = self.board.top + (each.y - 1) * quantum_gate.size
-
-        dropping_particle:create(x + 1, y + 7, 0, colors.white)
-        dropping_particle:create(x + 3, y + 7, 0, colors.white)
-        dropping_particle:create(x + 5, y + 7, 0, colors.white)
-      end)
-      if #self.board:gates_dropped_bottom() > 0 then
-        sfx(1)
-      end
+      self:_create_gate_drop_particles()
 
       foreach(self.board:gates_to_puff(), function(each)
         local px = self.board.left + (each.x - 1) * quantum_gate.size + 3
@@ -1382,6 +1372,24 @@ game = {
         self.player_cursor:flash()
       end
     end
+  end,
+
+  _create_gate_drop_particles = function(self)
+    local bottommost_gates = self.board:bottommost_gates_of_fallen_gates()
+
+    foreach(bottommost_gates, function(each)
+      -- todo: 座標を計算する関数は _game の中にまとめておく
+      local x = self.board.left + (each.x - 1) * quantum_gate.size
+      local y = self.board.top + (each.y - 1) * quantum_gate.size
+
+      dropping_particle:create(x + 1, y + 7, 0, colors.white)
+      dropping_particle:create(x + 3, y + 7, 0, colors.white)
+      dropping_particle:create(x + 5, y + 7, 0, colors.white)
+    end)
+
+    if #bottommost_gates > 0 then
+      sfx(1)
+    end  
   end,
 
   draw_stats = function(self)
