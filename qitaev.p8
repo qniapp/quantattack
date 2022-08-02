@@ -1138,7 +1138,6 @@ player_cursor = {
           self:flash()
         else
           self.x -= 1
-          sfx(0)
         end
       end,
 
@@ -1147,22 +1146,14 @@ player_cursor = {
           self:flash()
         else
           self.x += 1
-          sfx(0)
         end
       end,
 
-      move_up = function(self, play_sfx)
-        if play_sfx == nil then
-          play_sfx = true
-        end
-
+      move_up = function(self)
         if self.y == 1 then
           self:flash()
         else
           self.y -= 1
-          if play_sfx then
-            sfx(0)
-          end
         end
       end,
 
@@ -1171,7 +1162,6 @@ player_cursor = {
           self:flash()
         else
           self.y += 1
-          sfx(0)
         end
       end,
 
@@ -1286,6 +1276,10 @@ player_cursor = {
 }
 
 game = {
+  _sfx = {
+    ["move_cursor"] = 0,
+  },
+
   init = function(self)
     self._state = "solo"
     self.board = board:new(32, 3)
@@ -1303,18 +1297,22 @@ game = {
 
       if btnp(0) then
         self.player_cursor:move_left()
+        sfx(game._sfx.move_cursor)
       end
 
       if btnp(1) then
         self.player_cursor:move_right()
+        sfx(game._sfx.move_cursor)
       end
 
       if btnp(2) then
         self.player_cursor:move_up()
+        sfx(game._sfx.move_cursor)
       end
 
       if btnp(3) then
         self.player_cursor:move_down()
+        sfx(game._sfx.move_cursor)
       end
 
       if btnp(4) then
@@ -1398,7 +1396,7 @@ game = {
             else
               self.num_raise_gates = 0
               self.board:insert_gates_at_bottom()
-              self.player_cursor:move_up(false)
+              self.player_cursor:move_up()
             end
           end
         end
