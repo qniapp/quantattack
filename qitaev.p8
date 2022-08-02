@@ -553,24 +553,6 @@ board = {
         return gates
       end,
 
-      gates_changing_to_i = function(self)
-        local gates = {}
-
-        for x = 1, board.cols do
-          for y = 1, board.rows do
-            local gate = self.gate[x][y]
-
-            if gate:is_changing_to_i() then
-              gate.x = x
-              gate.y = y
-              add(gates, gate)
-            end
-          end
-        end
-
-        return gates
-      end,
-
       drop_gates = function(self)
         for x = 1, board.cols do
           for y = board.rows - 1, 1, -1 do
@@ -925,13 +907,9 @@ quantum_gate = {
           if self.disappearance_tick == self.puff_delay then
             self.type = self.replace_with_type
             self.puff = true            
-            -- self.disappearance_tick = nil
-            -- self:_change_state("idle")
           end
 
           if self.disappearance_tick == self.disappearance_delay then
-            -- self.puff_delay = nil
-            -- self.disappearance_delay = nil
             self:_change_state("idle")
             return
           end
@@ -971,11 +949,7 @@ quantum_gate = {
       end,
 
       to_puff = function(self)
-        return self.puff == true -- self._state == "disappear" and self.disappearance_tick == self.puff_delay + 1
-      end,
-
-      is_changing_to_i = function(self)
-        return self.tick_match == quantum_gate.num_frames_match - 1 and self.replace_with_type == "i"
+        return self.puff == true
       end,
 
       is_h = function(self)
@@ -1276,6 +1250,15 @@ player_cursor = {
 }
 
 game = {
+  _button = {
+    ["left"] = 0,
+    ["right"] = 1,
+    ["up"] = 2,
+    ["down"] = 3,
+    ["x"] = 4,
+    ["o"] = 5,
+  },
+
   _sfx = {
     ["move_cursor"] = 0,
   },
@@ -1290,37 +1273,7 @@ game = {
 
   update = function(self, board)
     if self._state == "solo" then
-      self.tick += 1
-
-      puff_particle:update()
-      dropping_particle:update()
-
-      if btnp(0) then
-        self.player_cursor:move_left()
-        sfx(game._sfx.move_cursor)
-      end
-
-      if btnp(1) then
-        self.player_cursor:move_right()
-        sfx(game._sfx.move_cursor)
-      end
-
-      if btnp(2) then
-        self.player_cursor:move_up()
-        sfx(game._sfx.move_cursor)
-      end
-
-      if btnp(3) then
-        self.player_cursor:move_down()
-        sfx(game._sfx.move_cursor)
-      end
-
-      if btnp(4) then
-        local swapped = self.board:swap(self.player_cursor.x, self.player_cursor.x + 1, self.player_cursor.y)
-        if swapped == false then
-          self.player_cursor:flash()
-        end
-      end
+      self:_handle_button_events()
 
       self.board:reduce()
       self.board:drop_gates()
@@ -1359,20 +1312,6 @@ game = {
         sfx(3)
       end)
 
-      -- foreach(self.board:gates_changing_to_i(), function(each)
-      --   for x = 0, 7 do
-      --     for y = 0, 7 do
-      --       if x % 3 == 0 and y % 3 == 0 then
-      --         local px = self.board.left + (each.x - 1) * quantum_gate.size + x
-      --         local py = self.board.top + (each.y - 1) * quantum_gate.size + y
-
-      --         dropping_particle:create(px, py, 1, colors.blue)
-      --         dropping_particle:create(px, py, 0, colors.dark_purple)
-      --       end
-      --     end
-      --   end
-      -- end)
-
       self.player_cursor:update()
       local left_gate = self.board.gate[self.player_cursor.x][self.player_cursor.y]
       local right_gate = self.board.gate[self.player_cursor.x + 1][self.player_cursor.y]
@@ -1400,15 +1339,48 @@ game = {
             end
           end
         end
-
         self.tick = 0
       end
+
+      puff_particle:update()
+      dropping_particle:update()
+
+      self.tick += 1
     elseif self._state == "game over" then
       if btnp(5) then
         self:init()
       end
     else
       assert(false, "unknown state")
+    end
+  end,
+
+  _handle_button_events = function(self)
+    if btnp(game._button.left) then
+      self.player_cursor:move_left()
+      sfx(game._sfx.move_cursor)
+    end
+
+    if btnp(game._button.right) then
+      self.player_cursor:move_right()
+      sfx(game._sfx.move_cursor)
+    end
+
+    if btnp(game._button.up) then
+      self.player_cursor:move_up()
+      sfx(game._sfx.move_cursor)
+    end
+
+    if btnp(game._button.down) then
+      self.player_cursor:move_down()
+      sfx(game._sfx.move_cursor)
+    end
+
+    if btnp(game._button.x) then
+      local swapped = self.board:swap(self.player_cursor.x, self.player_cursor.x + 1, self.player_cursor.y)
+      if swapped == false then
+        self.player_cursor:flash()
+      end
     end
   end,
 
