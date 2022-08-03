@@ -292,7 +292,7 @@ board = {
   cols = 6,
   rows = 12,
   next_row = 1,
-  cnot_probability = 0.9,
+  cnot_probability = 0.3,
 
   new = function(self, top, left)
     local b = {
