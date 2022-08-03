@@ -734,6 +734,7 @@ board = {
   end,
 }
 
+-- todo: このクラスはなくして line で直接描く
 wire = {
   _sprite = 65,
 
@@ -818,7 +819,7 @@ quantum_gate = {
       ["swap"] = 47,
     },    
   },
-  
+
   _num_frames_swap = 4,
   _num_frames_match = 60,
 
