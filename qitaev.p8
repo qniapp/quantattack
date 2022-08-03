@@ -1333,12 +1333,12 @@ game = {
 
       self:draw_stats()
     elseif self._state == "game over" then
-      cursor(74, 50)
+      cursor(73, 50)
       color(colors.red)
       print("game over")
       cursor(57, 58)
       color(colors.white)
-      print("press ❎ to replay")
+      print("push ❎ to replay")
 
       self.board:draw()
       self.player_cursor:draw(self.board.raised_dots)
