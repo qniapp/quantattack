@@ -149,74 +149,74 @@ gate_reduction_rules = {
       end    
     end
 
-    if (board:idle_gate_at(x, y):is_h() and
-        board:idle_gate_at(x, y + 1):is_h()) then
+    if (board:reducible_gate_at(x, y):is_h() and
+        board:reducible_gate_at(x, y + 1):is_h()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() },
       }
     end
 
-    if (board:idle_gate_at(x, y):is_x() and
-        board:idle_gate_at(x, y + 1):is_x()) then
+    if (board:reducible_gate_at(x, y):is_x() and
+        board:reducible_gate_at(x, y + 1):is_x()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() },
       }
     end
 
-    if (board:idle_gate_at(x, y):is_y() and
-        board:idle_gate_at(x, y + 1):is_y()) then
+    if (board:reducible_gate_at(x, y):is_y() and
+        board:reducible_gate_at(x, y + 1):is_y()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() },
       }
     end
 
-    if (board:idle_gate_at(x, y):is_z() and
-        board:idle_gate_at(x, y + 1):is_z()) then
+    if (board:reducible_gate_at(x, y):is_z() and
+        board:reducible_gate_at(x, y + 1):is_z()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() },
       }
     end
 
-    if (board:idle_gate_at(x, y):is_z() and
-        board:idle_gate_at(x, y + 1):is_x()) then
+    if (board:reducible_gate_at(x, y):is_z() and
+        board:reducible_gate_at(x, y + 1):is_x()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:y() },
       }
     end
 
-    if (board:idle_gate_at(x, y):is_x() and
-        board:idle_gate_at(x, y + 1):is_z()) then
+    if (board:reducible_gate_at(x, y):is_x() and
+        board:reducible_gate_at(x, y + 1):is_z()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:y() },
       }
     end
 
-    if (board:idle_gate_at(x, y):is_s() and
-        board:idle_gate_at(x, y + 1):is_s()) then
+    if (board:reducible_gate_at(x, y):is_s() and
+        board:reducible_gate_at(x, y + 1):is_s()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:z() },
       }
     end
 
-    if (board:idle_gate_at(x, y):is_t() and
-        board:idle_gate_at(x, y + 1):is_t()) then
+    if (board:reducible_gate_at(x, y):is_t() and
+        board:reducible_gate_at(x, y + 1):is_t()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:s() },
       }
     end
 
-    if (board:idle_gate_at(x, y):is_swap() and
-        board:idle_gate_at(x, y + 1):is_swap() and
-        board:idle_gate_at(board:idle_gate_at(x, y).other_x, y + 1):is_swap()) then 
-      local dx = board:idle_gate_at(x, y).other_x - x
+    if (board:reducible_gate_at(x, y):is_swap() and
+        board:reducible_gate_at(x, y + 1):is_swap() and
+        board:reducible_gate_at(board:reducible_gate_at(x, y).other_x, y + 1):is_swap()) then 
+      local dx = board:reducible_gate_at(x, y).other_x - x
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = quantum_gate:i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = quantum_gate:i() },
@@ -233,9 +233,9 @@ gate_reduction_rules = {
       end    
     end
 
-    if (board:idle_gate_at(x, y):is_h() and
-        board:idle_gate_at(x, y + 1):is_x() and
-        board:idle_gate_at(x, y + 2):is_h()) then
+    if (board:reducible_gate_at(x, y):is_h() and
+        board:reducible_gate_at(x, y + 1):is_x() and
+        board:reducible_gate_at(x, y + 2):is_h()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() },
@@ -243,9 +243,9 @@ gate_reduction_rules = {
       }      
     end 
 
-    if (board:idle_gate_at(x, y):is_h() and
-        board:idle_gate_at(x, y + 1):is_z() and
-        board:idle_gate_at(x, y + 2):is_h()) then
+    if (board:reducible_gate_at(x, y):is_h() and
+        board:reducible_gate_at(x, y + 1):is_z() and
+        board:reducible_gate_at(x, y + 2):is_h()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() },
@@ -253,9 +253,9 @@ gate_reduction_rules = {
       }
     end 
 
-    if (board:idle_gate_at(x, y):is_s() and
-        board:idle_gate_at(x, y + 1):is_z() and
-        board:idle_gate_at(x, y + 2):is_s()) then
+    if (board:reducible_gate_at(x, y):is_s() and
+        board:reducible_gate_at(x, y + 1):is_z() and
+        board:reducible_gate_at(x, y + 2):is_s()) then
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() },
@@ -266,12 +266,12 @@ gate_reduction_rules = {
     -- c -- x   x -- c
     -- x -- c   c -- x  --> 
     -- c -- x,  x -- c       swap -- swap
-    if (board:idle_gate_at(x, y):is_c() and
-       (board:idle_gate_at(x, y + 1):is_cnot_x()) and
-        board:idle_gate_at(x, y + 2):is_c() and
-        board:idle_gate_at(board:idle_gate_at(x, y).cnot_x_x, y + 1):is_c() and
-        board:idle_gate_at(board:idle_gate_at(x, y).cnot_x_x, y + 2):is_cnot_x()) then
-      local dx = board:idle_gate_at(x, y).cnot_x_x - x
+    if (board:reducible_gate_at(x, y):is_c() and
+       (board:reducible_gate_at(x, y + 1):is_cnot_x()) and
+        board:reducible_gate_at(x, y + 2):is_c() and
+        board:reducible_gate_at(board:reducible_gate_at(x, y).cnot_x_x, y + 1):is_c() and
+        board:reducible_gate_at(board:reducible_gate_at(x, y).cnot_x_x, y + 2):is_cnot_x()) then
+      local dx = board:reducible_gate_at(x, y).cnot_x_x - x
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = quantum_gate:i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = quantum_gate:i() },
@@ -346,11 +346,11 @@ board = {
         return self.top + (board_y - 1) * quantum_gate.size
       end,
 
-      idle_gate_at = function(self, x, y)
+      reducible_gate_at = function(self, x, y)
         assert(x >= 1 and x <= board.cols)
         assert(y >= 1 and y <= board.rows + board.next_row)
 
-        if self.gate[x][y]:is_idle() then
+        if self.gate[x][y]:is_idle() or self.gate[x][y]:is_dropped() then
           return self.gate[x][y]
         else
           return quantum_gate:i()
@@ -1121,6 +1121,10 @@ quantum_gate = {
         return self._state == "idle"
       end,
 
+      is_reducible = function(self)
+        return self:is_idle() or self:is_dropped()
+      end,
+
       is_swapping = function(self)
         return self:is_swapping_with_left() or self:is_swapping_with_right()
       end,
@@ -1211,7 +1215,7 @@ quantum_gate = {
         elseif new_state == "dropped" then
           assert(self:is_idle())
         elseif new_state == "match" then
-          assert(self:is_idle() or self:is_dropped())
+          assert(self:is_reducible())
         end
 
         self._state = new_state
