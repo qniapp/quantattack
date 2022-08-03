@@ -1096,20 +1096,22 @@ player_cursor = {
     ["middle"] = 67
   },
 
+  _color = colors.dark_green,
+
   new = function(self, x, y, board)
     local c = {
       init = function(self, x, y, board)
         self.x = x
         self.y = y
         self.board = board
-        self._color = colors.dark_green
         self._tick = 0
+        self.warn = false
         self:_change_state("idle")
       end,
 
       move_left = function(self)
         if self.x == 1 then
-          self:flash()
+          self.warn = true
         else
           self.x -= 1
         end
@@ -1117,7 +1119,7 @@ player_cursor = {
 
       move_right = function(self)
         if self.x == board.cols - 1 then
-          self:flash()
+          self.warn = true
         else
           self.x += 1
         end
@@ -1125,7 +1127,7 @@ player_cursor = {
 
       move_up = function(self)
         if self.y == 1 then
-          self:flash()
+          self.warn = true
         else
           self.y -= 1
         end
@@ -1133,14 +1135,10 @@ player_cursor = {
 
       move_down = function(self)
         if self.y == board.rows then
-          self:flash()
+          self.warn = true
         else
           self.y += 1
         end
-      end,
-
-      flash = function(self)
-        self:_change_state("flash")
       end,
 
       update = function(self)
@@ -1200,8 +1198,8 @@ player_cursor = {
           ybm -= 1
         end
 
-        if self:is_flash() then
-          pal(self._color, colors.red)
+        if self.warn then
+          pal(player_cursor._color, colors.red)
         end
 
         spr(player_cursor._sprites.corner, xtl, ytl - raised_dots)
@@ -1211,15 +1209,11 @@ player_cursor = {
         spr(player_cursor._sprites.middle, xtm, ytm - raised_dots)
         spr(player_cursor._sprites.middle, xbm, ybm - raised_dots, 1, 1, false, true)
 
-        pal(self._color, self._color)
+        pal(player_cursor._color, player_cursor._color)
       end,
 
       is_idle = function(self)
         return self._state == "idle"
-      end,
-
-      is_flash = function(self)
-        return self._state == "flash"
       end,
 
       is_shrunk = function(self)
@@ -1230,13 +1224,13 @@ player_cursor = {
 
       _change_state = function(self, new_state)
         assert(new_state)
-        assert(new_state == "idle" or new_state == "shrunk" or new_state == "flash")
+        assert(new_state == "idle" or new_state == "shrunk")
 
         if new_state == "idle" then
-          assert(self._state == nil or self:is_shrunk() or self:is_flash())
+          assert(self._state == nil or self:is_shrunk())
         end
         if new_state == "shrunk" then
-          assert(self:is_idle() or self:is_flash())
+          assert(self:is_idle())
         end
 
         self._state = new_state
@@ -1261,6 +1255,7 @@ game = {
 
   _sfx = {
     ["move_cursor"] = 0,
+    ["puff"] = 3,
   },
 
   init = function(self)
@@ -1268,14 +1263,13 @@ game = {
     self.board = board:new(32, 3)
     self.player_cursor = player_cursor:new(1, 1, self.board)
     self.tick = 0
-    self.num_raise_gates = 0
+    self.dots_gates_raised = 0
+    self.duration_raise_gates = 30 -- 0.5 seconds
   end,
 
   update = function(self, board)
     if self._state == "solo" then
       self:_handle_button_events()
-
-      self.player_cursor:update()
 
       self.board:reduce()
       self.board:drop_gates()
@@ -1284,34 +1278,10 @@ game = {
       self:_create_gate_drop_particles()
       self:_create_gate_puff_particles()
 
-      local left_gate = self.board.gate[self.player_cursor.x][self.player_cursor.y]
-      local right_gate = self.board.gate[self.player_cursor.x + 1][self.player_cursor.y]
-      if not self.board:is_swappable(left_gate, right_gate) then
-        self.player_cursor:flash()
-      end
+      self:_maybe_change_cursor_color()
+      self.player_cursor:update()
 
-      if self.tick == 30 then
-        if #self.board:gates_in_action() == 0 then
-          self.num_raise_gates += 1
-          self.board:raise_one_dot()
-          if self.num_raise_gates == 8 then
-            if self.board:is_game_over() then
-              self._state = "game over"
-              cursor(74, 50)
-              color(colors.red)
-              print("game over")
-              cursor(57, 58)
-              color(colors.white)
-              print("press ❎ to replay")
-            else
-              self.num_raise_gates = 0
-              self.board:insert_gates_at_bottom()
-              self.player_cursor:move_up()
-            end
-          end
-        end
-        self.tick = 0
-      end
+      self:_maybe_raise_gates()
 
       puff_particle:update()
       dropping_particle:update()
@@ -1350,52 +1320,91 @@ game = {
     if btnp(game._button.x) then
       local swapped = self.board:swap(self.player_cursor.x, self.player_cursor.x + 1, self.player_cursor.y)
       if swapped == false then
-        self.player_cursor:flash()
+        self.player_cursor.warn = true
       end
     end
+  end,
+
+  _maybe_change_cursor_color = function(self)
+    local left_gate = self.board.gate[self.player_cursor.x][self.player_cursor.y]
+    local right_gate = self.board.gate[self.player_cursor.x + 1][self.player_cursor.y]
+
+    self.player_cursor.warn = not self.board:is_swappable(left_gate, right_gate)
+  end,
+
+  _maybe_raise_gates = function(self)
+    if self.tick == self.duration_raise_gates then
+      if #self.board:gates_in_action() == 0 then
+        self.dots_gates_raised += 1
+        self.board:raise_one_dot()
+
+        if self.dots_gates_raised == quantum_gate.size then
+          if self.board:is_game_over() then
+            self._state = "game over"
+            cursor(74, 50)
+            color(colors.red)
+            print("game over")
+            cursor(57, 58)
+            color(colors.white)
+            print("press ❎ to replay")
+          else
+            self.dots_gates_raised = 0
+            self.board:insert_gates_at_bottom()
+            self.player_cursor:move_up()
+          end
+        end
+      end
+      self.tick = 0
+    end
+  end,
+
+  _screen_x = function(self, board_x)
+    return self.board.left + (board_x - 1) * quantum_gate.size
+  end,
+
+  _screen_y = function(self, board_y)
+    return self.board.top + (board_y - 1) * quantum_gate.size
   end,
 
   _create_gate_drop_particles = function(self)
     local bottommost_gates = self.board:bottommost_gates_of_fallen_gates()
 
     foreach(bottommost_gates, function(each)
-      -- todo: 座標を計算する関数は _game の中にまとめておく
-      local x = self.board.left + (each.x - 1) * quantum_gate.size
-      local y = self.board.top + (each.y - 1) * quantum_gate.size
+      local x = self:_screen_x(each.x)
+      local y = self:_screen_y(each.y)
 
-      -- todo: rnd(quantum_gate.size) でバラつきを自動的に与える
-      dropping_particle:create(x + 1, y + 7, 0, colors.white)
-      dropping_particle:create(x + 3, y + 7, 0, colors.white)
-      dropping_particle:create(x + 5, y + 7, 0, colors.white)
+      -- todo: ちっちゃい煙を出すように変更
+      dropping_particle:create(x + flr(rnd(quantum_gate.size)), y + quantum_gate.size, 0, colors.white)
+      dropping_particle:create(x + flr(rnd(quantum_gate.size)), y + quantum_gate.size, 0, colors.white)
+      dropping_particle:create(x + flr(rnd(quantum_gate.size)), y + quantum_gate.size, 0, colors.white)
     end)
 
     if #bottommost_gates > 0 then
-      -- todo: 定数で名前をつける
+      -- todo: ハなあヒˇぬネ▒せハ…♪ハ웃♪をつける
       sfx(1)
     end  
   end,
 
   _create_gate_puff_particles = function(self)
     foreach(self.board:gates_to_puff(), function(each)
-      local px = self.board.left + (each.x - 1) * quantum_gate.size + 3
-      local py = self.board.top + (each.y - 1) * quantum_gate.size + 3
+      local x = self:_screen_x(each.x) + 3
+      local y = self:_screen_y(each.y) + 3
 
-      puff_particle:create(px, py, 3, colors.blue)
-      puff_particle:create(px, py, 3, colors.blue)
-      puff_particle:create(px, py, 2, colors.blue)
-      puff_particle:create(px, py, 2, colors.blue)
-      puff_particle:create(px, py, 2, colors.blue)
-      puff_particle:create(px, py, 2, colors.blue)
-      puff_particle:create(px, py, 2, colors.blue)
-      puff_particle:create(px, py, 2, colors.white)        
-      puff_particle:create(px, py, 1, colors.blue)
-      puff_particle:create(px, py, 1, colors.blue)
-      puff_particle:create(px, py, 1, colors.white)
-      puff_particle:create(px, py, 1, colors.white)        
-      puff_particle:create(px, py, 0, colors.dark_purple)
+      puff_particle:create(x, y, 3, colors.blue)
+      puff_particle:create(x, y, 3, colors.blue)
+      puff_particle:create(x, y, 2, colors.blue)
+      puff_particle:create(x, y, 2, colors.blue)
+      puff_particle:create(x, y, 2, colors.blue)
+      puff_particle:create(x, y, 2, colors.blue)
+      puff_particle:create(x, y, 2, colors.blue)
+      puff_particle:create(x, y, 2, colors.light_grey)
+      puff_particle:create(x, y, 1, colors.blue)
+      puff_particle:create(x, y, 1, colors.blue)
+      puff_particle:create(x, y, 1, colors.light_grey)
+      puff_particle:create(x, y, 1, colors.light_grey)
+      puff_particle:create(x, y, 0, colors.dark_purple)
 
-      -- todo: 定数で名前をつける
-      sfx(3)
+      sfx(self._sfx.puff)
     end)
   end,
 
@@ -1465,11 +1474,11 @@ __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 50505050000500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 05050505000500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-505050500005000000ccccc0ccccccc0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-050505050005000000c777c0c77777c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-505050500005000000c7ccc0ccc7ccc0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-050505050005000000c7c00000c7c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-505050500005000000ccc00000ccc000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+50505050000500000033333033333330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+05050505000500000037773037777730000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+50505050000500000037333033373330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+05050505000500000037300000373000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+50505050000500000033300000333000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 05050505000500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
 000100002202000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
