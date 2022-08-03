@@ -1353,7 +1353,6 @@ board = {
         for x = 1, board.cols do
           repeat
             self:set(x, board.rows + board.next_row, self:_random_gate())
-            gate_reduction_rules:reduce(self, x, board.rows - 1, true)
           until (#gate_reduction_rules:reduce(self, x, board.rows, true) == 0)
         end
 
