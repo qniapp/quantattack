@@ -265,7 +265,7 @@ gate_reduction_rules = {
       return {
         { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = quantum_gate:i() },
         { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = quantum_gate:i() },
-        { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:swap() }, { ["dx"] = dx, ["dy"] = 2, ["gate"] = quantum_gate:swap() },
+        { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:swap(x + dx) }, { ["dx"] = dx, ["dy"] = 2, ["gate"] = quantum_gate:swap(x) },
       }  
     end
 
@@ -308,6 +308,14 @@ board = {
             end
           end
         end
+      end,
+
+      screen_x = function(self, board_x)
+        return self.left + (board_x - 1) * quantum_gate.size
+      end,
+
+      screen_y = function(self, board_y)
+        return self.top + (board_y - 1) * quantum_gate.size
       end,
 
       idle_gate_at = function(self, x, y)
@@ -362,44 +370,49 @@ board = {
         -- draw cnot laser
         for bx = 1, board.cols do
           for by = board.rows + board.next_row, 1, -1 do
-            local x = self.left + (bx - 1) * quantum_gate.size
-            local y = self.top + (by - 1) * quantum_gate.size
             local gate = self.gate[bx][by]
 
-            if gate:is_c() and rnd(1) > 0.3 then
-              local lx0 = x + 3
-              local ly0 = y + 3 - self.raised_dots
-              local lx1 = self.left + (self.gate[bx][by].cnot_x_x - 1) * 8 + 3
-              local ly1 = ly0
+            if gate:is_c() then
+              if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
+                local lx0 = self:screen_x(bx) + 3
+                local ly0 = self:screen_y(by) + 3 - self.raised_dots
+                local lx1 = self:screen_x(self.gate[bx][by].cnot_x_x) + 3
+                local ly1 = ly0
+                local laser_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
 
-              line(lx0, ly0, lx1, ly1, colors.yellow)
+                line(lx0, ly0, lx1, ly1, laser_color)
+              end
             end
           end
         end
 
-        -- draw swap line
+        -- draw swap laser
         for bx = 1, board.cols do
           for by = board.rows, 1, -1 do
             local x = self.left + (bx - 1) * quantum_gate.size
             local y = self.top + (by - 1) * quantum_gate.size
             local gate = self.gate[bx][by]
 
-            if gate:is_swap() and gate:is_idle() then
-              local other_x = nil
-              for ox = 1, board.cols do
-                if ox ~= bx and self.gate[ox][by]:is_swap() then
-                  other_x = ox
-                  break
+            if gate:is_swap() then
+              if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
+                local other_x = nil
+                for ox = 1, board.cols do
+                  if ox ~= bx and self.gate[ox][by]:is_swap() then
+                    other_x = ox
+                    break
+                  end
+                end
+
+                if (other_x) then
+                  local lx0 = x + 3
+                  local ly0 = y + 3 - self.raised_dots
+                  local lx1 = self.left + (other_x - 1) * 8 + 3
+                  local ly1 = ly0
+                  local laser_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
+
+                  line(lx0, ly0, lx1, ly1, laser_color)
                 end
               end
-              assert(other_x)
-
-              local lx0 = x + 3
-              local ly0 = y + 3 - self.raised_dots
-              local lx1 = self.left + (other_x - 1) * 8 + 3
-              local ly1 = ly0
-
-              line(lx0, ly0, lx1, ly1, colors.yellow)
             end
           end
         end        
@@ -493,6 +506,54 @@ board = {
           local cnot_c = self.gate[right_gate.cnot_c_x][y]
           assert(cnot_c:is_c())
           cnot_c.cnot_x_x = xl
+        end
+
+        if (left_gate:is_swap()) then
+          assert(left_gate.other_x)
+        end
+        if (right_gate:is_swap()) then
+          assert(right_gate.other_x)
+        end
+
+        -- s s
+        -- s _ _ s
+        if (left_gate:is_swap()) then
+          if left_gate.other_x == xr then
+            left_gate.other_x = xl
+          end
+          local swap_gate = self.gate[left_gate.other_x][y]
+          assert(swap_gate:is_swap())
+          swap_gate.other_x = xr
+        end
+        -- _ _ s s
+        -- s _ _ s
+        if (right_gate:is_swap()) then
+          if right_gate.other_x == xl then
+            right_gate.other_x = xr
+          end
+          local swap_gate = self.gate[right_gate.other_x][y]
+          assert(swap_gate:is_swap())
+          swap_gate.other_x = xl
+        end
+        -- s s
+        -- s _ _ s
+        if (left_gate:is_swap()) then
+          if left_gate.other_x == xr then
+            left_gate.other_x = xl
+          end
+          local swap_gate = self.gate[left_gate.other_x][y]
+          assert(swap_gate:is_swap())
+          swap_gate.other_x = xr
+        end
+        -- _ _ s s
+        -- s _ _ s
+        if (right_gate:is_swap()) then
+          if right_gate.other_x == xl then
+            right_gate.other_x = xr
+          end
+          local swap_gate = self.gate[right_gate.other_x][y]
+          assert(swap_gate:is_swap())
+          swap_gate.other_x = xl
         end
 
         sfx(2)        
@@ -626,6 +687,38 @@ board = {
             end
           end
         end
+
+        -- drop swap pairs
+        for x = 1, board.cols do
+          for y = board.rows - 1, 1, -1 do
+            local tmp_y = y
+            local gate = self.gate[x][tmp_y]
+
+            while (gate:is_swap() and
+                   gate:is_idle() and
+                   self:is_droppable(x, tmp_y) and
+                   (not self:overlap_with_cnot(x, tmp_y + 1)) and
+                   self:is_droppable(gate.other_x, tmp_y) and
+                   (not self:overlap_with_cnot(gate.other_x, tmp_y + 1))) do
+              local swap_a = gate
+              local swap_b = self.gate[swap_a.other_x][tmp_y]
+
+              assert(swap_b:is_swap())
+
+              self.gate[x][tmp_y + 1] = swap_a
+              self.gate[x][tmp_y] = quantum_gate:i()
+              self.gate[swap_a.other_x][tmp_y + 1] = swap_b
+              self.gate[swap_a.other_x][tmp_y] = quantum_gate:i()
+
+              tmp_y += 1
+              gate = self.gate[x][tmp_y]
+            end
+
+            if (tmp_y > y) then
+              self.gate[x][tmp_y]:dropped()
+            end
+          end
+        end
       end,
 
       is_droppable = function(self, x, y)
@@ -657,7 +750,7 @@ board = {
           end
         end
 
-        if control_gate == nil and x_gate == nil then
+        if control_gate == nil or x_gate == nil then
           return false
         end
 
@@ -720,7 +813,7 @@ board = {
 
       update_gates = function(self)
         for x = 1, board.cols do
-          for y = 1, board.rows do
+          for y = 1, board.rows + board.next_row do
             self.gate[x][y]:update()
           end
         end
@@ -860,8 +953,11 @@ quantum_gate = {
     return c
   end,
 
-  swap = function(self)
-    return self:new("swap")
+  swap = function(self, other_x)
+    assert(other_x)
+    local swap = self:new("swap")
+    swap.other_x = other_x
+    return swap
   end,
 
   i = function(self)
@@ -901,6 +997,7 @@ quantum_gate = {
         end
 
         self.replace_with_type = other.type
+        self.other_x = other.other_x -- swap
         self.puff_delay = puff_delay
         self.disappearance_delay = disappearance_delay
         self.tick_match = 0
@@ -920,6 +1017,26 @@ quantum_gate = {
       end,
 
       update = function(self)
+        -- gate specific updates
+        if self:is_c() or self:is_swap() then
+          if self.tick_laser == nil then
+            self.tick_laser = 0
+            if self.laser == nil then
+              self.laser = flr(rnd(2)) == 0
+            end
+            if self.laser then
+              self.laser_duration = flr(rnd(5)) * 30
+            else
+              self.laser_duration = flr(rnd(5)) + 5
+            end
+          elseif self.tick_laser == self.laser_duration then
+            self.tick_laser = nil
+            self.laser = not self.laser
+          else
+            self.tick_laser += 1
+          end
+        end
+
         if self:is_idle() then
           return
         elseif self:is_swapping() then
@@ -1409,20 +1526,12 @@ game = {
     end
   end,
 
-  _screen_x = function(self, board_x)
-    return self.board.left + (board_x - 1) * quantum_gate.size
-  end,
-
-  _screen_y = function(self, board_y)
-    return self.board.top + (board_y - 1) * quantum_gate.size
-  end,
-
   _create_gate_drop_particles = function(self)
     local bottommost_gates = self.board:bottommost_gates_of_fallen_gates()
 
     foreach(bottommost_gates, function(each)
-      local x = self:_screen_x(each.x)
-      local y = self:_screen_y(each.y)
+      local x = self.board:screen_x(each.x)
+      local y = self.board:screen_y(each.y)
 
       dropping_particle:create(x + flr(rnd(quantum_gate.size)), y + quantum_gate.size, 0, colors.white)
       dropping_particle:create(x + flr(rnd(quantum_gate.size)), y + quantum_gate.size, 0, colors.white)
@@ -1436,8 +1545,8 @@ game = {
 
   _create_gate_puff_particles = function(self)
     foreach(self.board:gates_to_puff(), function(each)
-      local x = self:_screen_x(each.x) + 3
-      local y = self:_screen_y(each.y) + 3
+      local x = self.board:screen_x(each.x) + 3
+      local y = self.board:screen_y(each.y) + 3
 
       puff_particle:create(x, y, 3, colors.blue)
       puff_particle:create(x, y, 3, colors.blue)
@@ -1492,25 +1601,25 @@ __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 06666600006660000666660006666600066666000666660000000000000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc000000000000000000
 666666600666660066666660666666606666666066666660000000000b101b00c7ccc7c00cc7cc00c7ccc7c0c77777c0cc7777c0c77777c0000000000b101b00
-6666666066666660666666606666666066666660666666600044400001b1b100c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc000ccc00001b1b100
-61666160666166606166616061111160661111606111116000444000001b1000c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000ccc000001b1000
+6666666066666660666666606666666066666660666666600000000001b1b100c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc000ccc00001b1b100
+61666160666166606166616061111160661111606111116000555000001b1000c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000ccc000001b1000
 6166616066616660661616606666166061666660666166600044400001b1b100c7ccc7c0ccc7ccc0ccc7ccc0cc7cccc0ccccc7c0ccc7ccc000ccc00001b1b100
-611111600111110066616660661166606611116066616660000000000b101b00c7ccc7c00cc7cc00ccc7ccc0c77777c0c7777cc0ccc7ccc0000000000b101b00
+611111600111110066616660661166606611116066616660004440000b101b00c7ccc7c00cc7cc00ccc7ccc0c77777c0c7777cc0ccc7ccc0000000000b101b00
 01161100006160000661660001111100011111000661660000000000000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 01666100006160000166610001111100061111000111110000000000000000000ccccc0000ccc0000ccccc000ccccc000ccccc000ccccc000000000000000000
-616661600661660066161660666616606166666066616660000000000b101b00ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc0000000000b101b00
+616661600661660066161660666616606166666066616660004440000b101b00ccccccc00ccccc00ccccccc0ccccccc0ccccccc0ccccccc0000000000b101b00
 6111116061111160666166606661666066111660666166600044400001b1b100c7ccc7c0ccc7ccc0c7ccc7c0c77777c0cc7777c0c77777c00011100001b1b100
 61666160666166606661666066166660666661606661666000444000001b1000c7ccc7c0ccc7ccc0cc7c7cc0cccc7cc0c7ccccc0ccc7ccc000ccc000001b1000
-6166616066616660666166606111116061111660666166600044400001b1b100c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000ccc00001b1b100
+6166616066616660666166606111116061111660666166600000000001b1b100c77777c0c77777c0ccc7ccc0ccc7ccc0cc777cc0ccc7ccc000ccc00001b1b100
 666666600666660066666660666666606666666066666660000000000b101b00c7ccc7c00cc7cc00ccc7ccc0cc7cccc0ccccc7c0ccc7ccc0000000000b101b00
 066666000066600006666600066666000666660006666600000000000000000007ccc70000c7c0000cc7cc000777770007777c000cc7cc000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-01111100001110000661660006616600061116000661660000000000000000000000000000000000000000000000000000000000000000000000000000000000
-616661600661660066616660661666606666616066616660000000000b101b000000000000000000000000000000000000000000000000000000000000000000
+01111100001110000661660006616600061116000661660000444000000000000000000000000000000000000000000000000000000000000000000000000000
+616661600661660066616660661666606666616066616660004440000b101b000000000000000000000000000000000000000000000000000000000000000000
 6166616066616660666166606111116061111660666166600044400001b1b1000000000000000000000000000000000000000000000000000000000000000000
-66666660666666606666666066666660666666606666666000444000001b10000000000000000000000000000000000000000000000000000000000000000000
-6666666066666660666666606666666066666660666666600044400001b1b1000000000000000000000000000000000000000000000000000000000000000000
+66666660666666606666666066666660666666606666666000000000001b10000000000000000000000000000000000000000000000000000000000000000000
+6666666066666660666666606666666066666660666666600000000001b1b1000000000000000000000000000000000000000000000000000000000000000000
 666666600666660066666660666666606666666066666660000000000b101b000000000000000000000000000000000000000000000000000000000000000000
 06666600006660000666660006666600066666000666660000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
