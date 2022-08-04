@@ -73,7 +73,7 @@ test('board', function(desc,it)
 
       for x = 1, player_board.cols do
         for y = 1, player_board.rows_plus_next_rows do
-          result = result and player_board.gate[x][y]:is_i()
+          result = result and player_board:gate_at(x, y):is_i()
         end
       end
 
