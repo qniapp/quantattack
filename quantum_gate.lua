@@ -77,7 +77,7 @@ quantum_gate = {
   },
 
   _num_frames_swap = 4,
-  _num_frames_match = 60,
+  _num_frames_match = 45,
 
   h = function(self)
     return self:new("h")
