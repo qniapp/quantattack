@@ -208,8 +208,6 @@ quantum_gate = {
             self:_change_state("idle")
           end
         elseif self:is_match() then
-          sfx(4)
-          
           if self.tick_match == nil then
             self.tick_match = 0
           elseif self.tick_match < quantum_gate._num_frames_match then

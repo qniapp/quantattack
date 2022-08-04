@@ -552,7 +552,12 @@ board = {
       update_gates = function(self)
         for x = 1, self.cols do
           for y = 1, self.rows_plus_next_rows do
-            self:gate_at(x, y):update()
+            local gate= self:gate_at(x, y)
+            gate:update()
+
+            if gate:is_match() and gate.tick_match == 0 then
+              sfx(4)
+            end
           end
         end
       end,
