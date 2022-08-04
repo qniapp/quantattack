@@ -111,7 +111,7 @@ board = {
           for by = self.rows_plus_next_rows, 1, -1 do
             local gate = self:gate_at(bx, by)
 
-            if gate:is_c() then
+            if gate:is_control() then
               if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
                 local lx0 = self:screen_x(bx) + 3
                 local ly0 = self:screen_y(by) + 3
@@ -163,7 +163,7 @@ board = {
             local y = self.top + (by - 1) * quantum_gate.size
             local gate = self:gate_at(bx, by)
 
-            if gate:is_c() or gate:is_cnot_x() or gate:is_swap() then
+            if gate:is_control() or gate:is_cnot_x() or gate:is_swap() then
               gate:draw(x, y - self._raised_dots)
             end
 
@@ -206,7 +206,7 @@ board = {
 
         -- c x
         -- c _ _ x
-        if (left_gate:is_c()) then
+        if (left_gate:is_control()) then
           if left_gate.cnot_x_x == xr then
             left_gate.cnot_x_x = xl
           end
@@ -216,7 +216,7 @@ board = {
         end
         -- _ _ x c
         -- x _ _ c
-        if (right_gate:is_c()) then
+        if (right_gate:is_control()) then
           if right_gate.cnot_x_x == xl then
             right_gate.cnot_x_x = xr
           end
@@ -231,7 +231,7 @@ board = {
             left_gate.cnot_c_x = xl
           end
           local cnot_c = self:gate_at(left_gate.cnot_c_x, y)
-          assert(cnot_c:is_c())
+          assert(cnot_c:is_control())
           cnot_c.cnot_x_x = xr
         end
         -- _ _ c x
@@ -241,7 +241,7 @@ board = {
             right_gate.cnot_c_x = xr
           end
           local cnot_c = self:gate_at(right_gate.cnot_c_x, y)
-          assert(cnot_c:is_c())
+          assert(cnot_c:is_control())
           cnot_c.cnot_x_x = xl
         end
 
@@ -380,7 +380,7 @@ board = {
             local tmp_y = y
             local gate = self:gate_at(x, tmp_y)
 
-            while ((not gate:is_c()) and
+            while ((not gate:is_control()) and
                    (not gate:is_cnot_x()) and
                    (not gate:is_swap()) and
                     self:is_droppable(x, tmp_y)) do
@@ -401,7 +401,7 @@ board = {
             local tmp_y = y
             local gate = self:gate_at(x, tmp_y)
 
-            while (gate:is_c() and
+            while (gate:is_control() and
                    gate:is_idle() and
                    self:is_droppable(x, tmp_y) and
                    (not self:overlap_with_cnot(x, tmp_y + 1)) and
@@ -479,7 +479,7 @@ board = {
         local x_gate_x = nil
 
         for bx = 1, self.cols do
-          if self:gate_at(bx, y):is_c() then
+          if self:gate_at(bx, y):is_control() then
             control_gate = self:gate_at(bx, y)
             control_gate_x = bx
           end
@@ -537,7 +537,7 @@ board = {
           until cnot_x_x ~= cnot_c_x
 
           local x_gate = quantum_gate:x(cnot_c_x)
-          local control_gate = quantum_gate:c(cnot_x_x)
+          local control_gate = quantum_gate:control(cnot_x_x)
           self:put(cnot_x_x, self.rows_plus_next_rows, x_gate)
           self:put(cnot_c_x, self.rows_plus_next_rows, control_gate)
 
@@ -575,7 +575,7 @@ board = {
 
         repeat
           gate = quantum_gate:random()
-        until ((not gate:is_i()) and (gate.type ~= "c") and (gate.type ~= "swap"))
+        until ((not gate:is_i()) and (not gate:is_control()) and (not gate:is_swap()))
 
         return gate
       end,
