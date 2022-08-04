@@ -4,7 +4,7 @@ gate_reduction_rules = {
     include_next = include_next or false
 
     if include_next then
-      if y + 1 > board.rows + board.next_row then
+      if y + 1 > board.rows_plus_next_rows then
         return {}
       end
     else
@@ -88,7 +88,7 @@ gate_reduction_rules = {
     end
 
     if include_next then
-      if y + 2 > board.rows + board.next_row then
+      if y + 2 > board.rows_plus_next_rows then
         return {}
       end       
     else

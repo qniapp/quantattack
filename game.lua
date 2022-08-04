@@ -17,6 +17,7 @@ game = {
   init = function(self)
     self._state = "solo"
     self.board = board:new(18, 3)
+    self.board:initialize_with_random_gates()
     self.player_cursor = player_cursor:new(1, 1, self.board)
     self.tick = 0
     self.dots_gates_raised = 0
@@ -59,7 +60,7 @@ game = {
 
     if self._state == "solo" then
       self.board:draw()
-      self.player_cursor:draw(self.board.raised_dots)
+      self.player_cursor:draw()
 
       puff_particle:draw()
       dropping_particle:draw()
@@ -74,7 +75,7 @@ game = {
       print("push ❎ to replay")
 
       self.board:draw()
-      self.player_cursor:draw(self.board.raised_dots)
+      self.player_cursor:draw()
 
       puff_particle:draw()
       dropping_particle:draw()

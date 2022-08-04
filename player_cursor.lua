@@ -69,29 +69,33 @@ player_cursor = {
         end
       end,
 
-      draw = function(self, raised_dots)
+      draw = function(self)
+        local x_left = self.board:screen_x(self.x)
+        local x_right = self.board:screen_x(self.x + 1)
+        local y = self.board:screen_y(self.y)
+
         -- top left
-        local xtl = self.board.left + (self.x - 1) * quantum_gate.size - 5
-        local ytl = self.board.top + (self.y - 1) * quantum_gate.size - 5
+        local xtl = x_left - 5
+        local ytl = y - 5
 
         -- top right
-        local xtr = self.board.left + self.x * quantum_gate.size + 4
+        local xtr = x_right + 4
         local ytr = ytl
 
         -- bottom left
         local xbl = xtl
-        local ybl = self.board.top + self.y * quantum_gate.size - 4
+        local ybl = y + quantum_gate.size - 4
 
         -- bottom right
-        local xbr = self.board.left + self.x * quantum_gate.size + 4
+        local xbr = xtr
         local ybr = ybl
 
         -- top middle
-        local xtm = self.board.left + (self.x - 1) * quantum_gate.size + 4
+        local xtm = x_left + quantum_gate.size - 4
         local ytm = ytl
 
         -- bottom middle
-        local xbm = self.board.left + (self.x - 1) * quantum_gate.size + 4
+        local xbm = xtm
         local ybm = ybl
 
         if self:is_shrunk() then
@@ -114,12 +118,12 @@ player_cursor = {
           pal(player_cursor._color, colors.dark_grey)
         end
 
-        spr(player_cursor._sprites.corner, xtl, ytl - raised_dots)
-        spr(player_cursor._sprites.corner, xtr, ytr - raised_dots, 1, 1, true, false)
-        spr(player_cursor._sprites.corner, xbl, ybl - raised_dots, 1, 1, false, true)
-        spr(player_cursor._sprites.corner, xbr, ybr - raised_dots, 1, 1, true, true)
-        spr(player_cursor._sprites.middle, xtm, ytm - raised_dots)
-        spr(player_cursor._sprites.middle, xbm, ybm - raised_dots, 1, 1, false, true)
+        spr(player_cursor._sprites.corner, xtl, ytl)
+        spr(player_cursor._sprites.corner, xtr, ytr, 1, 1, true, false)
+        spr(player_cursor._sprites.corner, xbl, ybl, 1, 1, false, true)
+        spr(player_cursor._sprites.corner, xbr, ybr, 1, 1, true, true)
+        spr(player_cursor._sprites.middle, xtm, ytm)
+        spr(player_cursor._sprites.middle, xbm, ybm, 1, 1, false, true)
 
         pal(player_cursor._color, player_cursor._color)
       end,
