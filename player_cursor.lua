@@ -27,7 +27,7 @@ player_cursor = {
       end,
 
       move_right = function(self)
-        if self.x == board.cols - 1 then
+        if self.x == self.board.cols - 1 then
           self.warn = true
         else
           self.x += 1
@@ -43,7 +43,7 @@ player_cursor = {
       end,
 
       move_down = function(self)
-        if self.y == board.rows then
+        if self.y == self.board.rows then
           self.warn = true
         else
           self.y += 1
