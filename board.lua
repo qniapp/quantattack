@@ -43,9 +43,8 @@ board = {
       end,
 
       gate_at = function(self, x, y)
-        -- too slow
-        -- assert(x >= 1 and x <= self.cols)
-        -- assert(y >= 1 and y <= self.rows_plus_next_rows)
+        assert(x >= 1 and x <= self.cols)
+        assert(y >= 1 and y <= self.rows_plus_next_rows)
 
         local gate = self.gate[x][y]
         assert(gate)
@@ -305,7 +304,7 @@ board = {
       reduce = function(self)
         for x = 1, board.cols do
           for y = board.rows - 1, 1, -1 do
-            if self:gate_at(x, y):is_idle() then
+            if (not self:gate_at(x, y):is_i()) and self:gate_at(x, y):is_idle() then
               reduction = gate_reduction_rules:reduce(self, x, y)
               local disappearance_delay = (#reduction - 1) * 20 + 20
 
