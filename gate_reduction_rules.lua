@@ -135,10 +135,10 @@ gate_reduction_rules = {
     -- c -- x   x -- c
     -- x -- c   c -- x  --> 
     -- c -- x,  x -- c       swap -- swap
-    if (gate:is_c() and
+    if (gate:is_control() and
        (gate_y1:is_cnot_x()) and
-        gate_y2:is_c() and
-        board:reducible_gate_at(gate.cnot_x_x, y + 1):is_c() and
+        gate_y2:is_control() and
+        board:reducible_gate_at(gate.cnot_x_x, y + 1):is_control() and
         board:reducible_gate_at(gate.cnot_x_x, y + 2):is_cnot_x()) then
       local dx = gate.cnot_x_x - x
       return {
