@@ -298,21 +298,21 @@ board = {
 
       is_swappable = function(self, left_gate, right_gate)
         return (left_gate:is_idle() or left_gate:is_dropped()) and
-                 (right_gate:is_idle() or right_gate:is_dropped())
+               (right_gate:is_idle() or right_gate:is_dropped())
       end,
 
       reduce = function(self)
         for x = 1, self.cols do
           for y = self.rows - 1, 1, -1 do
-            if (not self:gate_at(x, y):is_i()) and self:gate_at(x, y):is_idle() then
+            if self:gate_at(x, y):is_reducible() then
               reduction = gate_reduction_rules:reduce(self, x, y)
-              local disappearance_delay = (#reduction - 1) * 20 + 20
+              local delay_disappear = (#reduction - 1) * 20 + 20
 
               for index, r in pairs(reduction) do
                 sfx(4)
-                local puff_delay = (index - 1) * 20
-                self:gate_at(x + r.dx, y + r.dy):replace_with(r.gate, puff_delay, disappearance_delay)
-                puff_delay += 20
+                local delay_puff = (index - 1) * 20
+                self:gate_at(x + r.dx, y + r.dy):replace_with(r.gate, delay_puff, delay_disappear)
+                delay_puff += 20
               end
             end
           end
@@ -363,7 +363,7 @@ board = {
           for y = 1, self.rows do
             local gate = self:gate_at(x, y)
 
-            if gate:to_puff() then
+            if gate.puff then
               gate.x = x
               gate.y = y
               add(gates, gate)

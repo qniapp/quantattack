@@ -132,7 +132,7 @@ quantum_gate = {
   new = function(self, type)
     return {
       _type = type,
-      replace_with_type = nil,
+      _replace_with_type = nil,
       _state = "idle",
 
       draw = function(self, x, y)
@@ -149,19 +149,20 @@ quantum_gate = {
         pal(colors.dark_blue, colors.dark_blue)
       end,
 
-      replace_with = function(self, other, puff_delay, disappearance_delay)
-        assert(not self:is_i())
+      replace_with = function(self, other, delay_puff, delay_disappear)
+        assert(self:is_reducible())
         assert(other._type)
+        assert(delay_puff)
+        assert(delay_disappear)
 
-        if self._state ~= "idle" and self._state ~= "dropped" then
-          return
-        end
-
-        self.replace_with_type = other._type
+        self._replace_with_type = other._type
         self.other_x = other.other_x -- swap
-        self.puff_delay = puff_delay
-        self.disappearance_delay = disappearance_delay
-        self.tick_match = 0
+        -- self.cnot_c_x = other.cnot_c_x -- cnot x
+        -- self.cnot_x_x = other.cnot_x_x -- cnot c
+
+        self.delay_puff = delay_puff
+        self.delay_disappear = delay_disappear
+
         self:_change_state("match")
       end,
 
@@ -211,11 +212,12 @@ quantum_gate = {
         elseif self:is_match() then
           sfx(4)
           
-          if self.tick_match < quantum_gate._num_frames_match then
+          if self.tick_match == nil then
+            self.tick_match = 0
+          elseif self.tick_match < quantum_gate._num_frames_match then
             self.tick_match += 1
           else
             self.tick_match = nil
-            self.tick_disappearance = 0
             self:_change_state("disappear")
           end
         elseif self:is_dropped() then
@@ -231,20 +233,27 @@ quantum_gate = {
         elseif self:is_disappearing() then
           self.puff = false
 
-          if self.tick_disappearance == self.puff_delay then
-            self._type = self.replace_with_type
-            self.replace_with_type = nil
+          if self.tick_disappear == nil then
+            self.tick_disappear = 0
+          end
+
+          if self.tick_disappear == self.delay_puff then
+            self._type = self._replace_with_type
+            self._replace_with_type = nil
             self.puff = true            
           end
 
-          if self.tick_disappearance == self.disappearance_delay then
-            self.puff = nil
-            self.tick_disappearance = nil
+          if self.tick_disappear > self.delay_puff then
+            self.puff = false
+          end
+
+          if self.tick_disappear == self.delay_disappear then
+            self.tick_disappear = nil
             self:_change_state("idle")
             return
           end
 
-          self.tick_disappearance += 1
+          self.tick_disappear += 1
         else
           assert(false, "we should never get here")
         end
@@ -255,7 +264,7 @@ quantum_gate = {
       end,
 
       is_reducible = function(self)
-        return self:is_idle() or self:is_dropped()
+        return (not self:is_i()) and self:is_idle() or self:is_dropped()
       end,
 
       is_swapping = function(self)
@@ -280,10 +289,6 @@ quantum_gate = {
 
       is_disappearing = function(self)
         return self._state == "disappear"
-      end,
-
-      to_puff = function(self)
-        return self.puff == true
       end,
 
       is_h = function(self)
