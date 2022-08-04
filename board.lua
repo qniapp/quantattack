@@ -41,7 +41,6 @@ board = {
       end,
 
       gate_at = function(self, x, y)
-        -- too slow!
         assert(x >= 1 and x <= self.cols)
         assert(y >= 1 and y <= self.rows_plus_next_rows)
 
