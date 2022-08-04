@@ -157,8 +157,6 @@ quantum_gate = {
 
         self._replace_with_type = other._type
         self.other_x = other.other_x -- swap
-        -- self.cnot_c_x = other.cnot_c_x -- cnot x
-        -- self.cnot_x_x = other.cnot_x_x -- cnot c
 
         self.delay_puff = delay_puff
         self.delay_disappear = delay_disappear
