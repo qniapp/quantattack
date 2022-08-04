@@ -70,4 +70,20 @@ test('quantum_gate', function(desc, it)
       return gate:is_swap()
     end)
   end)
+
+  desc('random', function()
+    it('should create a random gate', function ()
+      local gate = quantum_gate:random()
+
+      return gate:is_i() or
+             gate:is_h() or
+             gate:is_x() or
+             gate:is_y() or
+             gate:is_z() or
+             gate:is_s() or
+             gate:is_t() or
+             gate:is_control() or
+             gate:is_swap()
+    end)
+  end)
 end)
