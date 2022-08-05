@@ -217,31 +217,70 @@ board = {
           return false
         end
 
-        -- c i  or  c-x
+        -- i c
+        if left_gate:is_i() and right_gate:is_control() then
+          return true
+        end
+
+        -- i x
+        if left_gate:is_i() and right_gate:is_cnot_x() then
+          return true
+        end        
+
+        -- c ?
         if left_gate:is_control() then
-          return right_gate:is_i() or
-                 (right_gate:is_cnot_x() and (right_gate.cnot_c_x + 1 == left_gate.cnot_x_x))
+          if right_gate:is_i() then -- c i
+            return true
+          elseif not right_gate:is_cnot_x() then -- c-?-..-x
+            return false             
+          end
         end
 
-        -- x i  or  x-c
-        if left_gate:is_cnot_x() then
-          return right_gate:is_i() or
-                 (right_gate:is_control() and (right_gate.cnot_x_x + 1 == left_gate.cnot_c_x))
-        end
-
-        -- i c  or  x-c
+        -- ? c
         if right_gate:is_control() then
-          return left_gate:is_i() or
-                 (left_gate:is_cnot_x() and (right_gate.cnot_c_x + 1 == left_gate.cnot_x_x))
+          if left_gate:is_i() then -- i c
+            return true
+          elseif not left_gate:is_cnot_x() then -- x-?- .. -c
+            return false
+          end
         end
 
-        -- i x  or  c-x
+        -- x ?
+        if left_gate:is_cnot_x() then
+          if right_gate:is_i() then -- x i          
+            return true
+          elseif not right_gate:is_control() then -- x-?-..-c
+            return false
+          end
+        end
+
+        -- ? x
         if right_gate:is_cnot_x() then
-          return left_gate:is_i() or
-                 (left_gate:is_control() and (right_gate.cnot_c_x + 1 == left_gate.cnot_x_x))
+          if left_gate:is_i() then -- i x
+            return true
+          elseif not left_gate:is_control() then -- c-?-..-x
+            return false
+          end
         end
 
-        return true
+        -- c-x
+        if left_gate:is_control() and right_gate:is_cnot_x() and
+           (left_gate.cnot_x_x == right_gate.cnot_c_x + 1) then
+          return true
+        end
+
+        -- x-c
+        if left_gate:is_cnot_x() and right_gate:is_control() and 
+           (left_gate.cnot_c_x == right_gate.cnot_x_x + 1) then
+          return true
+        end
+
+        if (right_gate:is_idle() or right_gate:is_dropped()) and 
+           (left_gate:is_idle() or left_gate:is_dropped()) then
+          return true
+        end
+
+        return false
       end,
 
       reduce = function(self)
@@ -517,7 +556,7 @@ board = {
               add(gates_to_swap, { ["gate"] = gate, ["y"] = y })
 
               if gate:is_control() then
-                if gate.cnot_x_x == gate.swap_new_x and gate.swap_new_x + 1 == y then
+                if gate.cnot_x_x == gate.swap_new_x and gate.swap_new_x + 1 == x then
                   -- c swapped with left x
                   --    x - c (swap)
                   -- -> c - x
@@ -543,7 +582,7 @@ board = {
               end
 
               if gate:is_cnot_x() then
-                if gate.cnot_c_x == gate.swap_new_x and gate.swap_new_x + 1 == y then
+                if gate.cnot_c_x == gate.swap_new_x and gate.swap_new_x + 1 == x then
                   -- x swapped with left c
                   --    c - x (swap)
                   -- -> x - c
