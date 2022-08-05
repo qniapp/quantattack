@@ -362,7 +362,8 @@ board = {
             local tmp_y = y
             local gate = self:gate_at(x, tmp_y)
 
-            while ((not gate:is_control()) and
+            while ((not gate:is_i()) and
+                   (not gate:is_control()) and
                    (not gate:is_cnot_x()) and
                    (not gate:is_swap()) and
                     self:is_droppable(x, tmp_y)) do
@@ -378,17 +379,13 @@ board = {
         end
 
         -- drop cnot pairs
+        -- todo: cnot の間にゲートが入らないようにする
         for x = 1, self.cols do
           for y = self.rows - 1, 1, -1 do
             local tmp_y = y
             local gate = self:gate_at(x, tmp_y)
 
-            while (gate:is_control() and
-                   gate:is_idle() and
-                   self:is_droppable(x, tmp_y) and
-                   (not self:overlap_with_cnot(x, tmp_y + 1)) and
-                   self:is_droppable(gate.cnot_x_x, tmp_y) and
-                   (not self:overlap_with_cnot(gate.cnot_x_x, tmp_y + 1))) do
+            while self:_is_control_gate_part_of_droppable_cnot(gate, x, tmp_y) do
               local cnot_c = gate
               local cnot_x = self:gate_at(cnot_c.cnot_x_x, tmp_y)
 
@@ -418,9 +415,9 @@ board = {
             while (gate:is_swap() and
                    gate:is_idle() and
                    self:is_droppable(x, tmp_y) and
-                   (not self:overlap_with_cnot(x, tmp_y + 1)) and
+                   (not self:_overlap_with_cnot(x, tmp_y + 1)) and
                    self:is_droppable(gate.other_x, tmp_y) and
-                   (not self:overlap_with_cnot(gate.other_x, tmp_y + 1))) do
+                   (not self:_overlap_with_cnot(gate.other_x, tmp_y + 1))) do
               local swap_a = gate
               local swap_b = self:gate_at(swap_a.other_x, tmp_y)
 
@@ -443,19 +440,58 @@ board = {
       end,
 
       is_droppable = function(self, x, y)
+        if y > self.rows - 1 then
+          return false
+        end
+
         local result = false
         local gate = self:gate_at(x, y)
         local gate_below = self:gate_at(x, y + 1)
 
-        return ((not gate:is_i()) and 
-                 gate:is_idle() and
-                 y + 1 <= self.rows and
-                 gate_below:is_i() and
-                 gate_below:is_idle() and
-                 (not self:overlap_with_cnot(x, y + 1)))
+        return ((gate:is_idle() or gate:is_dropped()) and
+                gate_below:is_i() and
+                gate_below:is_idle() and
+                (not self:_overlap_with_cnot(x, y + 1)) and
+                (not self:_overlap_with_swap(x, y + 1)))
       end,
 
-      overlap_with_cnot = function(self, x, y)
+      -- checks if
+      --   - gate is a control gate and
+      --   - the entire cnot including the gate can be dropped down
+      --
+      --  c---x
+      -- x______  returns true
+      --
+      --  c---x
+      -- __x____  returns false
+      --
+      --   c-x
+      -- c-----x  returns false
+      --
+      --   c-x
+      -- s-----s  returns false
+      --
+      _is_control_gate_part_of_droppable_cnot = function(self, gate, x, y)
+        if (not gate:is_control()) return false
+        if (not gate:is_idle()) return false
+        if (y > self.rows - 1) return false
+
+        local min_x = min(x, gate.cnot_x_x)
+        local max_x = max(x, gate.cnot_x_x)
+
+        for cnot_x = min_x, max_x do
+          local gate = self:gate_at(cnot_x, y)
+          local gate_below = self:gate_at(cnot_x, y + 1)
+
+          if (not self:is_droppable(cnot_x, y)) then
+            return false
+          end
+        end
+
+        return true
+      end,
+
+      _overlap_with_cnot = function(self, x, y)
         local control_gate = nil
         local x_gate = nil
 
@@ -479,11 +515,44 @@ board = {
           return false
         end
 
-        -- assert(control_gate.cnot_x_x == x_gate_x)
-        -- assert(x_gate.cnot_c_x == control_gate_x)
+        assert(control_gate.cnot_x_x == x_gate_x)
+        assert(x_gate.cnot_c_x == control_gate_x)
 
         if (control_gate_x < x and x < x_gate_x) or
            (x_gate_x < x and x < control_gate_x) then
+          return true
+        end
+
+        return false
+      end,
+
+      _overlap_with_swap = function(self, x, y)
+        local swap_a = nil
+        local swap_b = nil
+
+        local swap_a_x = nil
+        local swap_b_x = nil
+
+        for bx = 1, self.cols do
+          local gate = self:gate_at(bx, y)
+
+          if gate:is_swap() and (not gate:is_match()) then
+            swap_a = gate
+            swap_a_x = bx
+            swap_b = self:gate_at(swap_a.other_x, y)
+            swap_b_x = swap_a.other_x
+          end
+        end
+
+        if swap_a == nil or swap_b == nil then
+          return false
+        end
+
+        assert(swap_a.other_x == swap_b_x)
+        assert(swap_b.other_x == swap_a_x)
+
+        if (swap_a_x < x and x < swap_b_x) or
+           (swap_b_x < x and x < swap_a_x) then
           return true
         end
 

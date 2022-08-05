@@ -263,7 +263,7 @@ quantum_gate = {
       end,
 
       is_reducible = function(self)
-        return (not self:is_i()) and self:is_idle() or self:is_dropped()
+        return (not self:is_i()) and (not self:is_swapping()) and self:is_idle() or self:is_dropped()
       end,
 
       is_swapping = function(self)

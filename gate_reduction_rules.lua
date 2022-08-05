@@ -148,7 +148,7 @@ gate_reduction_rules = {
       }  
     end
 
-    -- todo:
+    -- todo
     -- h    h
     -- c -- x  -->
     -- h    h       x -- c
