@@ -366,7 +366,7 @@ board = {
                    (not gate:is_control()) and
                    (not gate:is_cnot_x()) and
                    (not gate:is_swap()) and
-                    self:is_droppable(x, tmp_y)) do
+                    self:_is_droppable(x, tmp_y)) do
               self:put(x, tmp_y + 1, gate)
               self:put(x, tmp_y, quantum_gate:i())
               tmp_y += 1
@@ -414,9 +414,9 @@ board = {
 
             while (gate:is_swap() and
                    gate:is_idle() and
-                   self:is_droppable(x, tmp_y) and
+                   self:_is_droppable(x, tmp_y) and
                    (not self:_overlap_with_cnot(x, tmp_y + 1)) and
-                   self:is_droppable(gate.other_x, tmp_y) and
+                   self:_is_droppable(gate.other_x, tmp_y) and
                    (not self:_overlap_with_cnot(gate.other_x, tmp_y + 1))) do
               local swap_a = gate
               local swap_b = self:gate_at(swap_a.other_x, tmp_y)
@@ -439,12 +439,25 @@ board = {
         end
       end,
 
-      is_droppable = function(self, x, y)
+      -- checks if the gate at (x,y) can be dropped down
+      --
+      --  x
+      -- y___  returns true
+      --
+      --  x
+      -- _y__  returns false
+      --
+      --  x
+      -- c--x  returns false
+      --
+      --  x
+      -- s--s  returns false
+      --
+      _is_droppable = function(self, x, y)
         if y > self.rows - 1 then
           return false
         end
 
-        local result = false
         local gate = self:gate_at(x, y)
         local gate_below = self:gate_at(x, y + 1)
 
@@ -483,7 +496,7 @@ board = {
           local gate = self:gate_at(cnot_x, y)
           local gate_below = self:gate_at(cnot_x, y + 1)
 
-          if (not self:is_droppable(cnot_x, y)) then
+          if (not self:_is_droppable(cnot_x, y)) then
             return false
           end
         end
