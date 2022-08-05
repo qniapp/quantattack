@@ -379,7 +379,6 @@ board = {
         end
 
         -- drop cnot pairs
-        -- todo: cnot の間にゲートが入らないようにする
         for x = 1, self.cols do
           for y = self.rows - 1, 1, -1 do
             local tmp_y = y
@@ -486,17 +485,45 @@ board = {
       --
       _is_control_gate_part_of_droppable_cnot = function(self, gate, x, y)
         if (not gate:is_control()) return false
-        if (not gate:is_idle()) return false
         if (y > self.rows - 1) return false
 
         local min_x = min(x, gate.cnot_x_x)
         local max_x = max(x, gate.cnot_x_x)
 
         for cnot_x = min_x, max_x do
-          local gate = self:gate_at(cnot_x, y)
-          local gate_below = self:gate_at(cnot_x, y + 1)
-
           if (not self:_is_droppable(cnot_x, y)) then
+            return false
+          end
+        end
+
+        return true
+      end,
+
+      -- checks if
+      --   - gate is a swap gate and
+      --   - the entire swap pair including the gate can be dropped down
+      --
+      --  s---s
+      -- x______  returns true
+      --
+      --  s---s
+      -- __x____  returns false
+      --
+      --   s-s
+      -- c-----x  returns false
+      --
+      --   s-s
+      -- s-----s  returns false
+      --
+      _is_swap_gate_part_of_droppable_swap_pair = function(self, gate, x, y)
+        if (not gate:is_swap()) return false
+        if (y > self.rows - 1) return false
+
+        local min_x = min(x, gate.other_x)
+        local max_x = max(x, gate.other_x)
+
+        for swap_x = min_x, max_x do
+          if (not self:_is_droppable(swap_x, y)) then
             return false
           end
         end
