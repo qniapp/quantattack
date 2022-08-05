@@ -168,11 +168,13 @@ quantum_gate = {
         self:_change_state("dropped")
       end,
 
-      swap_with_left = function(self)
+      start_swap_with_left = function(self, swap_new_x)
+        self.swap_new_x = swap_new_x
         self:_change_state("swapping_with_left")
       end,
 
-      swap_with_right = function(self)
+      start_swap_with_right = function(self, swap_new_x)
+        self.swap_new_x = swap_new_x
         self:_change_state("swapping_with_right")
       end,
 
@@ -205,6 +207,7 @@ quantum_gate = {
           elseif self.tick_swap < quantum_gate._num_frames_swap then
             self.tick_swap += 1
           else
+            self.tick_swap = nil
             self:_change_state("idle")
           end
         elseif self:is_match() then
