@@ -62,9 +62,8 @@ board = {
       end,      
 
       put = function(self, x, y, gate)
-        assert(x >= 1)
-        assert(x <= self.cols)
-        assert(y >= 1 and y <= self.rows_plus_next_rows)
+        assert(x and x >= 1 and x <= self.cols)
+        assert(y and y >= 1 and y <= self.rows_plus_next_rows)
 
         self._gate[x][y] = gate
       end,
