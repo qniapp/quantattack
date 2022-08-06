@@ -628,7 +628,7 @@ board = {
         end
 
         -- maybe add cnot
-        if rnd(1) < board.cnot_probability then
+        if rnd(1) < player:cnot_probability() then
           local cnot_c_x = flr(rnd(self.cols)) + 1
           local cnot_x_x = nil
           repeat

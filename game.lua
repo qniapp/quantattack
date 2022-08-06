@@ -1,5 +1,8 @@
 player = {
   ["steps"] = 0,
+  cnot_probability = function(self)
+    return self.steps / 50 + 0.3
+  end,
 }
 
 game = {
