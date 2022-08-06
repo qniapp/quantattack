@@ -156,7 +156,9 @@ quantum_gate = {
         assert(delay_disappear)
 
         self._replace_with_type = other._type
-        self.other_x = other.other_x -- swap
+        if other:is_swap() then
+          self.other_x = other.other_x -- swap
+        end
 
         self.delay_puff = delay_puff
         self.delay_disappear = delay_disappear

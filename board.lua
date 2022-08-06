@@ -542,6 +542,8 @@ board = {
         if (not gate:is_swap()) return false
         if (y > self.rows - 1) return false
 
+        assert(gate.other_x)
+
         local min_x = min(x, gate.other_x)
         local max_x = max(x, gate.other_x)
 

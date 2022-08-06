@@ -45,6 +45,27 @@ test('board', function(desc,it)
     end)      
   end)
 
+  desc('reduce', function ()
+    --
+    --  s-s  reduce
+    --  s-s  ----->  i-i
+    --
+    it('should reduce swap pairs in the same columns', function ()
+      local player_board = board:new()
+      player_board:put(1, 11, quantum_gate:swap(3))
+      player_board:put(3, 11, quantum_gate:swap(1))
+      player_board:put(1, 12, quantum_gate:swap(3))
+      player_board:put(3, 12, quantum_gate:swap(1))
+
+      player_board:reduce()
+
+      return player_board:gate_at(1, 11)._replace_with_type == "i",
+             player_board:gate_at(3, 11)._replace_with_type == "i",
+             player_board:gate_at(1, 12)._replace_with_type == "i",
+             player_board:gate_at(3, 12)._replace_with_type == "i"
+    end)
+  end)
+
   desc('drop_gates', function ()
     --
     --  x  drop_gates
