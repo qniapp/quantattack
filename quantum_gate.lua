@@ -136,17 +136,17 @@ quantum_gate = {
       _state = "idle",
 
       draw = function(self, x, y)
-        if self:is_i() then return end
+        if (self:is_i()) return
 
-        if self:is_cnot_x() then
+        if self:is_cnot_x() and (not self:is_match()) then
+          pal(colors.white, colors.orange)
           pal(colors.light_grey, colors.brown)
-          pal(colors.dark_blue, colors.light_grey)
         end
 
         spr(self:_sprite(), x, y)
 
+        pal(colors.white, colors.white)
         pal(colors.light_grey, colors.light_grey)
-        pal(colors.dark_blue, colors.dark_blue)
       end,
 
       replace_with = function(self, other, delay_puff, delay_disappear)
