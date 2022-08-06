@@ -132,7 +132,7 @@ quantum_gate = {
   new = function(self, type)
     return {
       _type = type,
-      _replace_with_type = nil,
+      _reduce_to = nil,
       _state = "idle",
 
       draw = function(self, x, y)
@@ -150,12 +150,12 @@ quantum_gate = {
       end,
 
       replace_with = function(self, other, delay_puff, delay_disappear)
-        assert(self:is_reducible())
+        -- assert(self:is_reducible())
         assert(other._type)
         assert(delay_puff)
         assert(delay_disappear)
 
-        self._replace_with_type = other._type
+        self._reduce_to = other._type
         if other:is_swap() then
           self.other_x = other.other_x -- swap
         end
@@ -239,8 +239,8 @@ quantum_gate = {
           end
 
           if self.tick_disappear == self.delay_puff then
-            self._type = self._replace_with_type
-            self._replace_with_type = nil
+            self._type = self._reduce_to
+            self._reduce_to = nil
             self.puff = true            
           end
 
