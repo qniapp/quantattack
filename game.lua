@@ -1,3 +1,7 @@
+player = {
+  ["steps"] = 0,
+}
+
 game = {
   _button = {
     ["left"] = 0,
@@ -65,6 +69,7 @@ game = {
       puff_particle:draw()
       dropping_particle:draw()
 
+      self:draw_scores()
       self:draw_stats()
     elseif self._state == "game over" then
       cursor(73, 50)
@@ -80,6 +85,7 @@ game = {
       puff_particle:draw()
       dropping_particle:draw()
 
+      self:draw_scores()
       self:draw_stats()
     end
   end,    
@@ -136,6 +142,7 @@ game = {
             self.dots_gates_raised = 0
             self.board:insert_gates_at_bottom()
             self.player_cursor:move_up()
+            player.steps += 1
           end
         end
       end
@@ -181,6 +188,12 @@ game = {
 
       sfx(self._sfx.puff)
     end)
+  end,
+
+  draw_scores = function(self)
+    cursor(60, 17)
+    color(colors.white)
+    print(player.steps .. " steps")
   end,
 
   draw_stats = function(self)

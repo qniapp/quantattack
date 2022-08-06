@@ -251,15 +251,13 @@ board = {
         end
 
         -- c-x
-        if left_gate:is_control() and right_gate:is_cnot_x() and
-           (left_gate.cnot_x_x == right_gate.cnot_c_x + 1) then
-          return true
+        if left_gate:is_control() and right_gate:is_cnot_x() then
+          return left_gate.cnot_x_x == right_gate.cnot_c_x + 1
         end
 
         -- x-c
-        if left_gate:is_cnot_x() and right_gate:is_control() and 
-           (left_gate.cnot_c_x == right_gate.cnot_x_x + 1) then
-          return true
+        if left_gate:is_cnot_x() and right_gate:is_control() then
+          return left_gate.cnot_c_x == right_gate.cnot_x_x + 1
         end
 
         -- i s
