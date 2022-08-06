@@ -150,7 +150,7 @@ quantum_gate = {
       end,
 
       replace_with = function(self, other, delay_puff, delay_disappear)
-        -- assert(self:is_reducible())
+        assert(self:is_reducible())
         assert(other._type)
         assert(delay_puff)
         assert(delay_disappear)
@@ -348,7 +348,7 @@ quantum_gate = {
         elseif new_state == "swapping_with_right" then
           assert(self:is_idle() or self:is_dropped())
         elseif new_state == "dropped" then
-          assert(self:is_idle())
+          assert(self:is_idle() or self:is_dropped())
         elseif new_state == "match" then
           assert(self:is_reducible())
         end

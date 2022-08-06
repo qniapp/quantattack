@@ -578,8 +578,8 @@ board = {
           return false
         end
 
-        assert(control_gate.cnot_x_x == x_gate_x)
-        assert(x_gate.cnot_c_x == control_gate_x)
+        -- assert(control_gate.cnot_x_x == x_gate_x)
+        -- assert(x_gate.cnot_c_x == control_gate_x)
 
         if (control_gate_x < x and x < x_gate_x) or
            (x_gate_x < x and x < control_gate_x) then
@@ -611,8 +611,8 @@ board = {
           return false
         end
 
-        assert(swap_a.other_x == swap_b_x)
-        assert(swap_b.other_x == swap_a_x)
+        -- assert(swap_a.other_x == swap_b_x)
+        -- assert(swap_b.other_x == swap_a_x)
 
         if (swap_a_x < x and x < swap_b_x) or
            (swap_b_x < x and x < swap_a_x) then
