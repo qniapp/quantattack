@@ -244,7 +244,45 @@ test('board', function(desc,it)
       return board:gate_at(1, 10)._reduce_to == "i", board:gate_at(3, 10)._reduce_to == "i",      
              board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",
              board:gate_at(1, 12)._reduce_to == "swap", board:gate_at(3, 12)._reduce_to == "swap"
-    end)              
+    end)
+
+    -- h h  reduce
+    -- c-x  ----->
+    -- h h          x-c   
+    it('should reduce hh cx hh', function ()
+      local board = board:new()
+      board:put(1, 10, quantum_gate:h())
+      board:put(3, 10, quantum_gate:h())
+      board:put(1, 11, quantum_gate:control(3))
+      board:put(3, 11, quantum_gate:x(1))
+      board:put(1, 12, quantum_gate:h())
+      board:put(3, 12, quantum_gate:h())
+
+      board:reduce()
+
+      return board:gate_at(1, 10)._reduce_to == "i", board:gate_at(3, 10)._reduce_to == "i",
+             board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",
+             board:gate_at(1, 12)._reduce_to == "x", board:gate_at(3, 12)._reduce_to == "control"
+    end)                   
+
+    -- h h  reduce
+    -- x-c  ----->
+    -- h h          c-x
+    it('should reduce hh xc hh', function ()
+      local board = board:new()
+      board:put(1, 10, quantum_gate:h())
+      board:put(3, 10, quantum_gate:h())
+      board:put(1, 11, quantum_gate:x(3))
+      board:put(3, 11, quantum_gate:control(1))
+      board:put(1, 12, quantum_gate:h())
+      board:put(3, 12, quantum_gate:h())
+
+      board:reduce()
+
+      return board:gate_at(1, 10)._reduce_to == "i", board:gate_at(3, 10)._reduce_to == "i",
+             board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",
+             board:gate_at(1, 12)._reduce_to == "control", board:gate_at(3, 12)._reduce_to == "x"
+    end)        
   end)
 
   desc('drop_gates', function ()

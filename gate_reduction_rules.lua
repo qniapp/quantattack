@@ -131,9 +131,9 @@ gate_reduction_rules = {
       }      
     end
 
-    -- c -- x   x -- c
-    -- x -- c   c -- x  --> 
-    -- c -- x,  x -- c       swap -- swap
+    -- c-x   x-c
+    -- x-c   c-x  --> 
+    -- c-x,  x-c       s-s
     if (gate:is_control() and board:reducible_gate_at(gate.cnot_x_x, y):is_cnot_x() and
         gate_y1:is_cnot_x() and board:reducible_gate_at(gate.cnot_x_x, y + 1):is_control() and
         gate_y2:is_control() and board:reducible_gate_at(gate.cnot_x_x, y + 2):is_cnot_x()) then
@@ -145,10 +145,19 @@ gate_reduction_rules = {
       }  
     end
 
-    -- todo
-    -- h    h
-    -- c -- x  -->
-    -- h    h       x -- c
+    -- h h
+    -- c-x  -->
+    -- h h       x-c
+    if (gate:is_h() and gate_y1:is_control() and board:reducible_gate_at(gate_y1.cnot_x_x, y):is_h() and
+        board:reducible_gate_at(gate_y1.cnot_x_x, y + 1):is_cnot_x() and
+        gate_y2:is_h() and board:reducible_gate_at(gate_y1.cnot_x_x, y + 2):is_h()) then
+      local dx = gate_y1.cnot_x_x - x
+      return {
+        { ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = quantum_gate:i() },
+        { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = quantum_gate:i() },
+        { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:x(x + dx) }, { ["dx"] = dx, ["dy"] = 2, ["gate"] = quantum_gate:control(x) },
+      }  
+    end
 
     return {}
   end,

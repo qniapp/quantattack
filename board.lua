@@ -2,8 +2,6 @@ board = {
   default_cols = 6,
   default_rows = 12,
   default_next_rows = 1,
-  -- cnot_probability = 0.3,
-  cnot_probability = 1,
 
   new = function(self, top, left)
     local b = {
@@ -42,6 +40,7 @@ board = {
       end,
 
       gate_at = function(self, x, y)
+        assert(x)
         assert(x and x >= 1 and x <= self.cols)
         assert(y and y >= 1 and y <= self.rows_plus_next_rows)
 
