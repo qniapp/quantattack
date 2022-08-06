@@ -553,19 +553,14 @@ board = {
           if gate:is_control() and (not gate:is_match()) then
             control_gate = gate
             control_gate_x = bx
-          end
-          if gate:is_cnot_x() and (not gate:is_match()) then
-            x_gate = gate
-            x_gate_x = bx
+            x_gate = self:gate_at(control_gate.cnot_x_x, y)
+            x_gate_x = control_gate.cnot_x_x
           end
         end
 
-        if control_gate == nil or x_gate == nil then
+        if control_gate == nil then
           return false
         end
-
-        -- assert(control_gate.cnot_x_x == x_gate_x)
-        -- assert(x_gate.cnot_c_x == control_gate_x)
 
         if (control_gate_x < x and x < x_gate_x) or
            (x_gate_x < x and x < control_gate_x) then
@@ -593,12 +588,9 @@ board = {
           end
         end
 
-        if swap_a == nil or swap_b == nil then
+        if swap_a == nil then
           return false
         end
-
-        -- assert(swap_a.other_x == swap_b_x)
-        -- assert(swap_b.other_x == swap_a_x)
 
         if (swap_a_x < x and x < swap_b_x) or
            (swap_b_x < x and x < swap_a_x) then
