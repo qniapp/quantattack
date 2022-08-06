@@ -129,29 +129,17 @@ board = {
         -- draw swap laser
         for bx = 1, self.cols do
           for by = self.rows, 1, -1 do
-            local x = self.left + (bx - 1) * quantum_gate.size
-            local y = self.top + (by - 1) * quantum_gate.size
             local gate = self:gate_at(bx, by)
 
             if gate:is_swap() then
               if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
-                local other_x = nil
-                for ox = 1, self.cols do
-                  if ox ~= bx and self:gate_at(ox, by):is_swap() then
-                    other_x = ox
-                    break
-                  end
-                end
+                local lx0 = self:screen_x(bx) + 3
+                local ly0 = self:screen_y(by) + 3
+                local lx1 = self:screen_x(gate.other_x) + 3
+                local ly1 = ly0
+                local laser_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
 
-                if (other_x) then
-                  local lx0 = x + 3
-                  local ly0 = y + 3 - self._raised_dots
-                  local lx1 = self.left + (other_x - 1) * 8 + 3
-                  local ly1 = ly0
-                  local laser_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
-
-                  line(lx0, ly0, lx1, ly1, laser_color)
-                end
+                line(lx0, ly0, lx1, ly1, laser_color)
               end
             end
           end
