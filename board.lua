@@ -42,8 +42,8 @@ board = {
       end,
 
       gate_at = function(self, x, y)
-        assert(x >= 1 and x <= self.cols)
-        assert(y >= 1 and y <= self.rows_plus_next_rows)
+        assert(x and x >= 1 and x <= self.cols)
+        assert(y and y >= 1 and y <= self.rows_plus_next_rows)
 
         local gate = self._gate[x][y]
         assert(gate)
@@ -394,6 +394,7 @@ board = {
                    (not gate:is_control()) and
                    (not gate:is_cnot_x()) and
                    (not gate:is_swap()) and
+                   (tmp_y < self.rows) and
                     self:_is_droppable(x, tmp_y)) do
               self:put(x, tmp_y + 1, gate)
               self:put(x, tmp_y, quantum_gate:i())
@@ -476,6 +477,9 @@ board = {
       -- s--s  returns false
       --
       _is_droppable = function(self, x, y)
+        assert(x and x >= 1 and x <= self.cols)
+        assert(y and y >= 1 and y <= self.rows - 1)
+
         if (y > self.rows - 1) return false
 
         local gate = self:gate_at(x, y)
@@ -730,6 +734,32 @@ board = {
                   -- -> c - x _
                   assert(self:gate_at(gate.cnot_c_x, y):is_control())
                   self:gate_at(gate.cnot_c_x, y).cnot_x_x = gate.swap_new_x
+                end
+              end
+
+              if gate:is_swap() then
+                if gate.other_x == gate.swap_new_x and gate.other_x + 1 == x then
+                  -- s swapped with left s
+                  --    s - s (swap)
+                  -- -> s - s
+                  gate.other_x = gate.swap_new_x + 1
+                elseif gate.other_x == gate.swap_new_x and x + 1 == gate.swap_new_x then
+                  -- s swapped with right s
+                  --    s - s (swap)
+                  -- -> s - s
+                  gate.other_x = gate.swap_new_x - 1
+                elseif gate.swap_new_x < gate.other_x then
+                  -- s swapped with right gate (not s)
+                  --    s ? - s (swap)
+                  -- -> ? s - s
+                  assert(self:gate_at(gate.other_x, y):is_swap())
+                  self:gate_at(gate.other_x, y).other_x = gate.swap_new_x
+                elseif gate.other_x < gate.swap_new_x then
+                  -- s swapped with left gate (not s)
+                  --    s - ? s (swap)
+                  -- -> s _ s ?
+                  assert(self:gate_at(gate.other_x, y):is_swap())
+                  self:gate_at(gate.other_x, y).other_x = gate.swap_new_x
                 end
               end
             end
