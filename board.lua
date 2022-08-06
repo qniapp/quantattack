@@ -275,6 +275,35 @@ board = {
           return true
         end
 
+        -- i s
+        if left_gate:is_i() and right_gate:is_swap() then
+          return true
+        end
+
+        -- s ?
+        if left_gate:is_swap() then
+          if right_gate:is_i() then -- s i
+            return true
+          elseif not right_gate:is_swap() then -- s-?-..-s
+            return false             
+          end
+        end
+
+        -- ? s
+        if right_gate:is_swap() then
+          if left_gate:is_i() then -- i s
+            return true
+          elseif not left_gate:is_swap() then -- s-?- .. -s
+            return false
+          end
+        end
+
+        -- s-s
+        if left_gate:is_swap() and right_gate:is_swap() and
+           (left_gate.other_x == right_gate.other_x + 1) then
+          return true
+        end
+
         if (right_gate:is_idle() or right_gate:is_dropped()) and 
            (left_gate:is_idle() or left_gate:is_dropped()) then
           return true
@@ -411,12 +440,7 @@ board = {
             local tmp_y = y
             local gate = self:gate_at(x, tmp_y)
 
-            while (gate:is_swap() and
-                   gate:is_idle() and
-                   self:_is_droppable(x, tmp_y) and
-                   (not self:_overlap_with_cnot(x, tmp_y + 1)) and
-                   self:_is_droppable(gate.other_x, tmp_y) and
-                   (not self:_overlap_with_cnot(gate.other_x, tmp_y + 1))) do
+            while self:_is_swap_gate_part_of_droppable_swap_pair(gate, x, tmp_y) do
               local swap_a = gate
               local swap_b = self:gate_at(swap_a.other_x, tmp_y)
 
@@ -453,9 +477,7 @@ board = {
       -- s--s  returns false
       --
       _is_droppable = function(self, x, y)
-        if y > self.rows - 1 then
-          return false
-        end
+        if (y > self.rows - 1) return false
 
         local gate = self:gate_at(x, y)
         local gate_below = self:gate_at(x, y + 1)
@@ -491,9 +513,7 @@ board = {
         local max_x = max(x, gate.cnot_x_x)
 
         for cnot_x = min_x, max_x do
-          if (not self:_is_droppable(cnot_x, y)) then
-            return false
-          end
+          if (not self:_is_droppable(cnot_x, y)) return false
         end
 
         return true
@@ -523,9 +543,7 @@ board = {
         local max_x = max(x, gate.other_x)
 
         for swap_x = min_x, max_x do
-          if (not self:_is_droppable(swap_x, y)) then
-            return false
-          end
+          if (not self:_is_droppable(swap_x, y)) return false
         end
 
         return true
