@@ -2,7 +2,8 @@ board = {
   default_cols = 6,
   default_rows = 12,
   default_next_rows = 1,
-  cnot_probability = 0.3,
+  -- cnot_probability = 0.3,
+  cnot_probability = 1,
 
   new = function(self, top, left)
     local b = {
@@ -41,8 +42,8 @@ board = {
       end,
 
       gate_at = function(self, x, y)
-        assert(x >= 1 and x <= self.cols)
-        assert(y >= 1 and y <= self.rows_plus_next_rows)
+        assert(x and x >= 1 and x <= self.cols)
+        assert(y and y >= 1 and y <= self.rows_plus_next_rows)
 
         local gate = self._gate[x][y]
         assert(gate)
@@ -61,8 +62,8 @@ board = {
       end,      
 
       put = function(self, x, y, gate)
-        assert(x >= 1 and x <= self.cols)
-        assert(y >= 1 and y <= self.rows_plus_next_rows)
+        assert(x and x >= 1 and x <= self.cols)
+        assert(y and y >= 1 and y <= self.rows_plus_next_rows)
 
         self._gate[x][y] = gate
       end,
@@ -190,115 +191,124 @@ board = {
              self.left + self.cols * quantum_gate.size, self.top + self.rows * quantum_gate.size, colors.white)
       end,
 
-      swap = function(self, xl, xr, y)
-        local left_gate = self:gate_at(xl, y)
-        local right_gate = self:gate_at(xr, y)
+      swap = function(self, x_left, x_right, y)
+        local left_gate = self:gate_at(x_left, y)
+        local right_gate = self:gate_at(x_right, y)
 
         if not self:is_swappable(left_gate, right_gate) then
           return false
         end
 
-        left_gate:swap_with_right()
-        right_gate:swap_with_left()
-
-        self:put(xr, y, left_gate)
-        self:put(xl, y, right_gate)
-
-        -- c x
-        -- c _ _ x
-        if (left_gate:is_control()) then
-          if left_gate.cnot_x_x == xr then
-            left_gate.cnot_x_x = xl
-          end
-          local x_gate = self:gate_at(left_gate.cnot_x_x, y)
-          assert(x_gate:is_cnot_x())
-          x_gate.cnot_c_x = xr
-        end
-        -- _ _ x c
-        -- x _ _ c
-        if (right_gate:is_control()) then
-          if right_gate.cnot_x_x == xl then
-            right_gate.cnot_x_x = xr
-          end
-          local x_gate = self:gate_at(right_gate.cnot_x_x, y)
-          assert(x_gate:is_cnot_x())
-          x_gate.cnot_c_x = xl
-        end
-        -- x c
-        -- x _ _ c
-        if (left_gate:is_cnot_x()) then
-          if left_gate.cnot_c_x == xr then
-            left_gate.cnot_c_x = xl
-          end
-          local cnot_c = self:gate_at(left_gate.cnot_c_x, y)
-          assert(cnot_c:is_control())
-          cnot_c.cnot_x_x = xr
-        end
-        -- _ _ c x
-        -- c _ _ x
-        if (right_gate:is_cnot_x()) then
-          if right_gate.cnot_c_x == xl then
-            right_gate.cnot_c_x = xr
-          end
-          local cnot_c = self:gate_at(right_gate.cnot_c_x, y)
-          assert(cnot_c:is_control())
-          cnot_c.cnot_x_x = xl
-        end
-
-        if (left_gate:is_swap()) then
-          assert(left_gate.other_x)
-        end
-        if (right_gate:is_swap()) then
-          assert(right_gate.other_x)
-        end
-
-        -- s s
-        -- s _ _ s
-        if (left_gate:is_swap()) then
-          if left_gate.other_x == xr then
-            left_gate.other_x = xl
-          end
-          local swap_gate = self:gate_at(left_gate.other_x, y)
-          assert(swap_gate:is_swap())
-          swap_gate.other_x = xr
-        end
-        -- _ _ s s
-        -- s _ _ s
-        if (right_gate:is_swap()) then
-          if right_gate.other_x == xl then
-            right_gate.other_x = xr
-          end
-          local swap_gate = self:gate_at(right_gate.other_x, y)
-          assert(swap_gate:is_swap())
-          swap_gate.other_x = xl
-        end
-        -- s s
-        -- s _ _ s
-        if (left_gate:is_swap()) then
-          if left_gate.other_x == xr then
-            left_gate.other_x = xl
-          end
-          local swap_gate = self:gate_at(left_gate.other_x, y)
-          assert(swap_gate:is_swap())
-          swap_gate.other_x = xr
-        end
-        -- _ _ s s
-        -- s _ _ s
-        if (right_gate:is_swap()) then
-          if right_gate.other_x == xl then
-            right_gate.other_x = xr
-          end
-          local swap_gate = self:gate_at(right_gate.other_x, y)
-          assert(swap_gate:is_swap())
-          swap_gate.other_x = xl
-        end
+        left_gate:start_swap_with_right(x_right)
+        right_gate:start_swap_with_left(x_left)
 
         sfx(2)        
       end,
 
       is_swappable = function(self, left_gate, right_gate)
-        return (left_gate:is_idle() or left_gate:is_dropped()) and
-               (right_gate:is_idle() or right_gate:is_dropped())
+        if not (left_gate:is_idle() or left_gate:is_dropped()) then
+          return false
+        end
+        if not (right_gate:is_idle() or right_gate:is_dropped()) then
+          return false
+        end
+        if left_gate:is_swapping() or right_gate:is_swapping() then
+          return false
+        end
+
+        -- i c
+        if left_gate:is_i() and right_gate:is_control() then
+          return true
+        end
+
+        -- i x
+        if left_gate:is_i() and right_gate:is_cnot_x() then
+          return true
+        end        
+
+        -- c ?
+        if left_gate:is_control() then
+          if right_gate:is_i() then -- c i
+            return true
+          elseif not right_gate:is_cnot_x() then -- c-?-..-x
+            return false             
+          end
+        end
+
+        -- ? c
+        if right_gate:is_control() then
+          if left_gate:is_i() then -- i c
+            return true
+          elseif not left_gate:is_cnot_x() then -- x-?- .. -c
+            return false
+          end
+        end
+
+        -- x ?
+        if left_gate:is_cnot_x() then
+          if right_gate:is_i() then -- x i          
+            return true
+          elseif not right_gate:is_control() then -- x-?-..-c
+            return false
+          end
+        end
+
+        -- ? x
+        if right_gate:is_cnot_x() then
+          if left_gate:is_i() then -- i x
+            return true
+          elseif not left_gate:is_control() then -- c-?-..-x
+            return false
+          end
+        end
+
+        -- c-x
+        if left_gate:is_control() and right_gate:is_cnot_x() and
+           (left_gate.cnot_x_x == right_gate.cnot_c_x + 1) then
+          return true
+        end
+
+        -- x-c
+        if left_gate:is_cnot_x() and right_gate:is_control() and 
+           (left_gate.cnot_c_x == right_gate.cnot_x_x + 1) then
+          return true
+        end
+
+        -- i s
+        if left_gate:is_i() and right_gate:is_swap() then
+          return true
+        end
+
+        -- s ?
+        if left_gate:is_swap() then
+          if right_gate:is_i() then -- s i
+            return true
+          elseif not right_gate:is_swap() then -- s-?-..-s
+            return false             
+          end
+        end
+
+        -- ? s
+        if right_gate:is_swap() then
+          if left_gate:is_i() then -- i s
+            return true
+          elseif not left_gate:is_swap() then -- s-?- .. -s
+            return false
+          end
+        end
+
+        -- s-s
+        if left_gate:is_swap() and right_gate:is_swap() and
+           (left_gate.other_x == right_gate.other_x + 1) then
+          return true
+        end
+
+        if (right_gate:is_idle() or right_gate:is_dropped()) and 
+           (left_gate:is_idle() or left_gate:is_dropped()) then
+          return true
+        end
+
+        return false
       end,
 
       reduce = function(self)
@@ -380,10 +390,12 @@ board = {
             local tmp_y = y
             local gate = self:gate_at(x, tmp_y)
 
-            while ((not gate:is_control()) and
+            while ((not gate:is_i()) and
+                   (not gate:is_control()) and
                    (not gate:is_cnot_x()) and
                    (not gate:is_swap()) and
-                    self:is_droppable(x, tmp_y)) do
+                   (tmp_y < self.rows) and
+                    self:_is_droppable(x, tmp_y)) do
               self:put(x, tmp_y + 1, gate)
               self:put(x, tmp_y, quantum_gate:i())
               tmp_y += 1
@@ -401,12 +413,7 @@ board = {
             local tmp_y = y
             local gate = self:gate_at(x, tmp_y)
 
-            while (gate:is_control() and
-                   gate:is_idle() and
-                   self:is_droppable(x, tmp_y) and
-                   (not self:overlap_with_cnot(x, tmp_y + 1)) and
-                   self:is_droppable(gate.cnot_x_x, tmp_y) and
-                   (not self:overlap_with_cnot(gate.cnot_x_x, tmp_y + 1))) do
+            while self:_is_control_gate_part_of_droppable_cnot(gate, x, tmp_y) do
               local cnot_c = gate
               local cnot_x = self:gate_at(cnot_c.cnot_x_x, tmp_y)
 
@@ -433,12 +440,7 @@ board = {
             local tmp_y = y
             local gate = self:gate_at(x, tmp_y)
 
-            while (gate:is_swap() and
-                   gate:is_idle() and
-                   self:is_droppable(x, tmp_y) and
-                   (not self:overlap_with_cnot(x, tmp_y + 1)) and
-                   self:is_droppable(gate.other_x, tmp_y) and
-                   (not self:overlap_with_cnot(gate.other_x, tmp_y + 1))) do
+            while self:_is_swap_gate_part_of_droppable_swap_pair(gate, x, tmp_y) do
               local swap_a = gate
               local swap_b = self:gate_at(swap_a.other_x, tmp_y)
 
@@ -460,31 +462,114 @@ board = {
         end
       end,
 
-      is_droppable = function(self, x, y)
-        local result = false
+      -- checks if the gate at (x,y) can be dropped down
+      --
+      --  x
+      -- y___  returns true
+      --
+      --  x
+      -- _y__  returns false
+      --
+      --  x
+      -- c--x  returns false
+      --
+      --  x
+      -- s--s  returns false
+      --
+      _is_droppable = function(self, x, y)
+        assert(x and x >= 1 and x <= self.cols)
+        assert(y and y >= 1 and y <= self.rows - 1)
+
+        if (y > self.rows - 1) return false
+
         local gate = self:gate_at(x, y)
         local gate_below = self:gate_at(x, y + 1)
 
-        return ((not gate:is_i()) and 
-                 gate:is_idle() and
-                 y + 1 <= self.rows and
-                 gate_below:is_i() and
-                 gate_below:is_idle())
+        return ((gate:is_idle() or gate:is_dropped()) and
+                gate_below:is_i() and
+                gate_below:is_idle() and
+                (not self:_overlap_with_cnot(x, y + 1)) and
+                (not self:_overlap_with_swap(x, y + 1)))
       end,
 
-      overlap_with_cnot = function(self, x, y)
+      -- checks if
+      --   - gate is a control gate and
+      --   - the entire cnot including the gate can be dropped down
+      --
+      --  c---x
+      -- x______  returns true
+      --
+      --  c---x
+      -- __x____  returns false
+      --
+      --   c-x
+      -- c-----x  returns false
+      --
+      --   c-x
+      -- s-----s  returns false
+      --
+      _is_control_gate_part_of_droppable_cnot = function(self, gate, x, y)
+        if (not gate:is_control()) return false
+        if (y > self.rows - 1) return false
+
+        local min_x = min(x, gate.cnot_x_x)
+        local max_x = max(x, gate.cnot_x_x)
+
+        for cnot_x = min_x, max_x do
+          if (not self:_is_droppable(cnot_x, y)) return false
+        end
+
+        return true
+      end,
+
+      -- checks if
+      --   - gate is a swap gate and
+      --   - the entire swap pair including the gate can be dropped down
+      --
+      --  s---s
+      -- x______  returns true
+      --
+      --  s---s
+      -- __x____  returns false
+      --
+      --   s-s
+      -- c-----x  returns false
+      --
+      --   s-s
+      -- s-----s  returns false
+      --
+      _is_swap_gate_part_of_droppable_swap_pair = function(self, gate, x, y)
+        if (not gate:is_swap()) return false
+        if (y > self.rows - 1) return false
+
+        assert(gate.other_x)
+
+        local min_x = min(x, gate.other_x)
+        local max_x = max(x, gate.other_x)
+
+        for swap_x = min_x, max_x do
+          if (not self:_is_droppable(swap_x, y)) return false
+        end
+
+        return true
+      end,
+
+      _overlap_with_cnot = function(self, x, y)
         local control_gate = nil
         local x_gate = nil
+
         local control_gate_x = nil
         local x_gate_x = nil
 
         for bx = 1, self.cols do
-          if self:gate_at(bx, y):is_control() then
-            control_gate = self:gate_at(bx, y)
+          local gate = self:gate_at(bx, y)
+
+          if gate:is_control() and (not gate:is_match()) then
+            control_gate = gate
             control_gate_x = bx
           end
-          if self:gate_at(bx, y):is_cnot_x() then
-            x_gate = self:gate_at(bx, y)
+          if gate:is_cnot_x() and (not gate:is_match()) then
+            x_gate = gate
             x_gate_x = bx
           end
         end
@@ -493,8 +578,44 @@ board = {
           return false
         end
 
+        assert(control_gate.cnot_x_x == x_gate_x)
+        assert(x_gate.cnot_c_x == control_gate_x)
+
         if (control_gate_x < x and x < x_gate_x) or
            (x_gate_x < x and x < control_gate_x) then
+          return true
+        end
+
+        return false
+      end,
+
+      _overlap_with_swap = function(self, x, y)
+        local swap_a = nil
+        local swap_b = nil
+
+        local swap_a_x = nil
+        local swap_b_x = nil
+
+        for bx = 1, self.cols do
+          local gate = self:gate_at(bx, y)
+
+          if gate:is_swap() and (not gate:is_match()) then
+            swap_a = gate
+            swap_a_x = bx
+            swap_b = self:gate_at(swap_a.other_x, y)
+            swap_b_x = swap_a.other_x
+          end
+        end
+
+        if swap_a == nil or swap_b == nil then
+          return false
+        end
+
+        assert(swap_a.other_x == swap_b_x)
+        assert(swap_b.other_x == swap_a_x)
+
+        if (swap_a_x < x and x < swap_b_x) or
+           (swap_b_x < x and x < swap_a_x) then
           return true
         end
 
@@ -550,16 +671,106 @@ board = {
       end,
 
       update_gates = function(self)
+        local gates_to_swap = {}
+
         for x = 1, self.cols do
           for y = 1, self.rows_plus_next_rows do
-            local gate= self:gate_at(x, y)
+            local gate = self:gate_at(x, y)
             gate:update()
 
+            -- match
             if gate:is_match() and gate.tick_match == 0 then
               sfx(4)
             end
+
+            -- update paired gates (cnot and swap) properly
+            if gate:is_swapping() and gate.tick_swap == quantum_gate._num_frames_swap then
+              add(gates_to_swap, { ["gate"] = gate, ["y"] = y })
+
+              if gate:is_control() then
+                if gate.cnot_x_x == gate.swap_new_x and gate.swap_new_x + 1 == x then
+                  -- c swapped with left x
+                  --    x - c (swap)
+                  -- -> c - x
+                  gate.cnot_x_x = gate.swap_new_x + 1
+                elseif gate.cnot_x_x == gate.swap_new_x and x + 1 == gate.swap_new_x then
+                  -- c swapped with right x
+                  --    c - x (swap)
+                  -- -> x - c
+                  gate.cnot_x_x = gate.swap_new_x - 1
+                elseif gate.swap_new_x < gate.cnot_x_x then
+                  -- c swapped with right gate (not x)
+                  --    c - - x (swap)
+                  -- -> _ c - x
+                  assert(self:gate_at(gate.cnot_x_x, y):is_cnot_x())
+                  self:gate_at(gate.cnot_x_x, y).cnot_c_x = gate.swap_new_x
+                elseif gate.cnot_x_x < gate.swap_new_x then
+                  -- c swapped with left gate (not x)
+                  --    x - - c (swap)
+                  -- -> x _ c _
+                  assert(self:gate_at(gate.cnot_x_x, y):is_cnot_x())
+                  self:gate_at(gate.cnot_x_x, y).cnot_c_x = gate.swap_new_x
+                end
+              end
+
+              if gate:is_cnot_x() then
+                if gate.cnot_c_x == gate.swap_new_x and gate.swap_new_x + 1 == x then
+                  -- x swapped with left c
+                  --    c - x (swap)
+                  -- -> x - c
+                  gate.cnot_c_x = gate.swap_new_x + 1
+                elseif gate.cnot_c_x == gate.swap_new_x and x + 1 == gate.swap_new_x then
+                  -- x swapped with right c
+                  --    x - c (swap)
+                  -- -> c - x
+                  gate.cnot_c_x = gate.swap_new_x - 1
+                elseif gate.swap_new_x < gate.cnot_c_x then
+                  -- x swapped with right gate (not c)
+                  --    x - - c (swap)
+                  -- -> _ x - c
+                  assert(self:gate_at(gate.cnot_c_x, y):is_control())
+                  self:gate_at(gate.cnot_c_x, y).cnot_x_x = gate.swap_new_x
+                elseif gate.cnot_c_x < gate.swap_new_x then
+                  -- x swapped with left gate (not c)
+                  --    c - - x (swap)
+                  -- -> c - x _
+                  assert(self:gate_at(gate.cnot_c_x, y):is_control())
+                  self:gate_at(gate.cnot_c_x, y).cnot_x_x = gate.swap_new_x
+                end
+              end
+
+              if gate:is_swap() then
+                if gate.other_x == gate.swap_new_x and gate.other_x + 1 == x then
+                  -- s swapped with left s
+                  --    s - s (swap)
+                  -- -> s - s
+                  gate.other_x = gate.swap_new_x + 1
+                elseif gate.other_x == gate.swap_new_x and x + 1 == gate.swap_new_x then
+                  -- s swapped with right s
+                  --    s - s (swap)
+                  -- -> s - s
+                  gate.other_x = gate.swap_new_x - 1
+                elseif gate.swap_new_x < gate.other_x then
+                  -- s swapped with right gate (not s)
+                  --    s ? - s (swap)
+                  -- -> ? s - s
+                  assert(self:gate_at(gate.other_x, y):is_swap())
+                  self:gate_at(gate.other_x, y).other_x = gate.swap_new_x
+                elseif gate.other_x < gate.swap_new_x then
+                  -- s swapped with left gate (not s)
+                  --    s - ? s (swap)
+                  -- -> s _ s ?
+                  assert(self:gate_at(gate.other_x, y):is_swap())
+                  self:gate_at(gate.other_x, y).other_x = gate.swap_new_x
+                end
+              end
+            end
           end
         end
+
+        foreach(gates_to_swap, function(each)
+          self:put(each.gate.swap_new_x, each.y, each.gate)
+        end)        
       end,
 
       raise_one_dot = function(self)

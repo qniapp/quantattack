@@ -43,5 +43,114 @@ test('board', function(desc,it)
 
       return result
     end)      
+  end)
+
+  desc('reduce', function ()
+    --
+    --  s-s  reduce
+    --  s-s  ----->  i-i
+    --
+    it('should reduce swap pairs in the same columns', function ()
+      local player_board = board:new()
+      player_board:put(1, 11, quantum_gate:swap(3))
+      player_board:put(3, 11, quantum_gate:swap(1))
+      player_board:put(1, 12, quantum_gate:swap(3))
+      player_board:put(3, 12, quantum_gate:swap(1))
+
+      player_board:reduce()
+
+      return player_board:gate_at(1, 11)._replace_with_type == "i",
+             player_board:gate_at(3, 11)._replace_with_type == "i",
+             player_board:gate_at(1, 12)._replace_with_type == "i",
+             player_board:gate_at(3, 12)._replace_with_type == "i"
+    end)
+  end)
+
+  desc('drop_gates', function ()
+    --
+    --  x  drop_gates
+    --     --------->  x
+    --  _              _
+    --
+    it('should drop gates', function ()
+      local player_board = board:new()
+      player_board:put(1, 10, quantum_gate:x())
+
+      player_board:drop_gates()
+
+      return player_board:gate_at(1, 12):is_x()
+    end)
+
+    --
+    --     drop_gates
+    --  x  --------->  x
+    --  _              _
+    --
+    it('should stop dropping gate when it reaches the ground', function ()
+      local player_board = board:new()
+      player_board:put(1, player_board.rows, quantum_gate:x())
+
+      player_board:drop_gates()
+
+      return player_board:gate_at(1, player_board.rows):is_x()
+    end)
+
+    --  x    drop_gates  
+    --       --------->  x
+    -- c-x              c-x
+    it('should drop gate until it stops at cnot', function ()
+      local player_board = board:new()
+      player_board:put(2, 1, quantum_gate:x())
+      player_board:put(1, player_board.rows, quantum_gate:control(3))
+      player_board:put(3, player_board.rows, quantum_gate:x(1))
+
+      player_board:drop_gates()
+
+      return player_board:gate_at(2, player_board.rows - 1):is_x()
+    end)
+
+    --  x    drop_gates  
+    --       --------->  x
+    -- s-s              s-s
+    it('should drop gate until it stops at swap', function ()
+      local player_board = board:new()
+      player_board:put(2, 1, quantum_gate:x())
+      player_board:put(1, player_board.rows, quantum_gate:swap(3))
+      player_board:put(3, player_board.rows, quantum_gate:swap(1))
+
+      player_board:drop_gates()
+
+      return player_board:gate_at(2, player_board.rows - 1):is_x()
+    end)
+
+    -- c-x  drop_gates
+    --      --------->  c-x
+    -- _x_              _x_
+    it('should drop cnot pair until it stops at another gate', function ()
+      local player_board = board:new()
+      player_board:put(1, 1, quantum_gate:control(3))
+      player_board:put(3, 1, quantum_gate:x(1))
+      player_board:put(2, player_board.rows, quantum_gate:x())
+
+      player_board:drop_gates()
+
+      return player_board:gate_at(1, player_board.rows - 1):is_control(),
+             player_board:gate_at(3, player_board.rows - 1):is_cnot_x()
+    end)
+
+    -- s-s  drop_gates
+    --      --------->  s-s
+    -- _x_              _x_
+    it('should drop swap pair until it stops at another gate', function ()
+      local player_board = board:new()
+      player_board:put(1, 1, quantum_gate:swap(3))
+      player_board:put(3, 1, quantum_gate:swap(1))
+      player_board:put(2, player_board.rows, quantum_gate:x())
+
+      player_board:drop_gates()
+
+      return player_board:gate_at(1, player_board.rows - 1):is_swap(),
+             player_board:gate_at(3, player_board.rows - 1):is_swap()
+    end)
   end)  
 end)
