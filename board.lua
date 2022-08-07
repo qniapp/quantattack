@@ -42,8 +42,8 @@ board = {
       gate_at = function(self, x, y)
         -- the following asserts are insanely slow!
         -- !!! comment out at the time of release !!!
-        assert(x >= 1 and x <= self.cols)
-        assert(y >= 1 and y <= self.rows_plus_next_rows)
+        -- assert(x >= 1 and x <= self.cols)
+        -- assert(y >= 1 and y <= self.rows_plus_next_rows)
 
         local gate = self._gate[x][y]
         assert(gate)
@@ -321,7 +321,8 @@ board = {
         for x = 1, self.cols do
           for y = 1, self.rows do
             local gate = self:gate_at(x, y)
-            if not gate:is_idle() then
+            if (not gate:is_i()) and
+                not (gate:is_idle() or gate:is_dropped()) then
               add(gates, gate)
             end
           end
