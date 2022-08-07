@@ -1,4 +1,3 @@
-
 gate_reduction_rules = {
   reduce = function(self, board, x, y, include_next)
     include_next = include_next or false

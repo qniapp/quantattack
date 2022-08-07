@@ -40,9 +40,10 @@ board = {
       end,
 
       gate_at = function(self, x, y)
-        assert(x)
-        assert(x and x >= 1 and x <= self.cols)
-        assert(y and y >= 1 and y <= self.rows_plus_next_rows)
+        -- the following asserts are insanely slow!
+        -- !!! comment out at the time of release !!!
+        assert(x >= 1 and x <= self.cols)
+        assert(y >= 1 and y <= self.rows_plus_next_rows)
 
         local gate = self._gate[x][y]
         assert(gate)
