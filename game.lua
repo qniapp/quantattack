@@ -200,6 +200,12 @@ game = {
   end,
 
   draw_stats = function(self)
+    local cpu_usage = stat(1)
+    local cpu_usage_color = colors.green
+    if cpu_usage >= 1 then
+      cpu_usage_color = colors.red
+    end
+
     local fps = stat(7)
     local fps_color = colors.green
     if fps < 60 then
@@ -209,5 +215,9 @@ game = {
     cursor(2, 116)
     color(fps_color)
     print("fps: " .. fps .. "/60")
+
+    cursor(50, 116)
+    color(cpu_usage_color)
+    print("cpu: " .. cpu_usage)
   end, 
 }

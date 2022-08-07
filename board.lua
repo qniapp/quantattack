@@ -300,7 +300,7 @@ board = {
         for x = 1, self.cols do
           for y = self.rows - 1, 1, -1 do
             if self:gate_at(x, y):is_reducible() then
-              reduction = gate_reduction_rules:reduce(self, x, y)
+              local reduction = gate_reduction_rules:reduce(self, x, y)
               local delay_disappear = (#reduction - 1) * 20 + 20
 
               for index, r in pairs(reduction) do
