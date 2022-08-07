@@ -308,6 +308,12 @@ board = {
                 sfx(4)
                 local delay_puff = (index - 1) * 20
                 self:gate_at(x + r.dx, y + r.dy):replace_with(r.gate, reduction.type, delay_puff, delay_disappear)
+
+                if (r.dx == 0 and r.dy == 0) then
+                  player.score += reduction.score / 100
+                  score_popup:create(self:screen_x(x) - 2, self:screen_y(y), tostr(reduction.score))
+                end
+
                 delay_puff += 20
               end
             end

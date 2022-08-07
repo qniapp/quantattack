@@ -22,6 +22,7 @@ gate_reduction_rules = {
       -- h       i        
       return {
         ["type"] = "hh",
+        ["score"] = 100,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }},
       }
@@ -31,6 +32,7 @@ gate_reduction_rules = {
         -- x       i        
         return {
           ["type"] = "xx",
+          ["score"] = 100,
           ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
                     { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }},
         }
@@ -40,6 +42,7 @@ gate_reduction_rules = {
         -- z       y        
         return {
           ["type"] = "xz",
+          ["score"] = 200,
           ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
                     { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:y() }},
         }
@@ -50,6 +53,7 @@ gate_reduction_rules = {
       -- y       i           
       return {
         ["type"] = "yy",
+        ["score"] = 100,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }},
       }
@@ -59,6 +63,7 @@ gate_reduction_rules = {
         -- z       i        
         return {
           ["type"] = "zz",
+          ["score"] = 100,
           ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
                     { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }},
         }
@@ -67,6 +72,7 @@ gate_reduction_rules = {
         -- x       y        
         return {
           ["type"] = "zx",
+          ["score"] = 200,
           ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
                     { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:y() }},
         }
@@ -77,6 +83,7 @@ gate_reduction_rules = {
       -- s       z        
       return {
         ["type"] = "ss",
+        ["score"] = 200,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:z() }},
       }
@@ -86,6 +93,7 @@ gate_reduction_rules = {
       -- t       s        
       return {
         ["type"] = "tt",
+        ["score"] = 200,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:s() }},
       }
@@ -96,6 +104,7 @@ gate_reduction_rules = {
       local dx = gate.other_x - x
       return {
         ["type"] = "swap swap",
+        ["score"] = 600,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = quantum_gate:i() }},
       }  
@@ -119,6 +128,7 @@ gate_reduction_rules = {
         gate_y2:is_h()) then
       return {
         ["type"] = "hxh",
+        ["score"] = 400,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:z() }},
@@ -130,6 +140,7 @@ gate_reduction_rules = {
         gate_y2:is_h()) then
       return {
         ["type"] = "hzh",
+        ["score"] = 400,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:x() }},
@@ -141,6 +152,7 @@ gate_reduction_rules = {
         gate_y2:is_s()) then
       return {
         ["type"] = "szs",
+        ["score"] = 400,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:z() }},
@@ -156,6 +168,7 @@ gate_reduction_rules = {
       local dx = gate.cnot_x_x - x
       return {
         ["type"] = "cnot x3",
+        ["score"] = 800,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:swap(x + dx) }, { ["dx"] = dx, ["dy"] = 2, ["gate"] = quantum_gate:swap(x) }},
@@ -170,7 +183,8 @@ gate_reduction_rules = {
         gate_y2:is_h() and board:reducible_gate_at(gate_y1.cnot_x_x, y + 2):is_h()) then
       local dx = gate_y1.cnot_x_x - x
       return {
-        ["type"] = "",
+        ["type"] = "hh cnot hh",
+        ["score"] = 800,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = quantum_gate:i() },
                   { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:x(x + dx) }, { ["dx"] = dx, ["dy"] = 2, ["gate"] = quantum_gate:control(x) }},

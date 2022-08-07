@@ -1,5 +1,6 @@
 player = {
   ["steps"] = 0,
+  ["score"] = 0,
   cnot_probability = function(self)
     return self.steps / 50 + 0.3
   end,
@@ -48,6 +49,7 @@ game = {
 
       puff_particle:update()
       dropping_particle:update()
+      score_popup:update()
 
       self.tick += 1
     elseif self._state == "game over" then
@@ -71,6 +73,7 @@ game = {
 
       puff_particle:draw()
       dropping_particle:draw()
+      score_popup:draw()
 
       self:draw_scores()
       self:draw_stats()
@@ -202,6 +205,14 @@ game = {
     cursor(60, 17)
     color(colors.white)
     print(player.steps .. " steps")
+
+    cursor(60, 25)
+    color(colors.white)
+    if player.score == 0 then
+      print("score " .. player.score)
+    else
+      print("score " .. player.score .. "00")
+    end
   end,
 
   draw_stats = function(self)
