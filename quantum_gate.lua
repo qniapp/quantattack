@@ -139,7 +139,7 @@ quantum_gate = {
         if (self:is_i()) return
 
         if self:is_cnot_x() and (not self:is_match()) then
-          pal(colors.white, colors.orange)
+          pal(colors.blue, colors.orange)
           pal(colors.light_grey, colors.brown)
         end
 
@@ -165,7 +165,7 @@ quantum_gate = {
           pal(colors.blue, colors.blue)
         end
 
-        pal(colors.white, colors.white)
+        pal(colors.blue, colors.blue)
         pal(colors.light_grey, colors.light_grey)
       end,
 
