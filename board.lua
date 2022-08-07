@@ -31,7 +31,7 @@ board = {
                (y < self.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and (not self:gate_at(x, y + 1):is_i())) then
               repeat
                 self:put(x, y, self:_random_gate())
-              until (#gate_reduction_rules:reduce(self, x, y, true) == 0)
+              until (#gate_reduction_rules:reduce(self, x, y, true).to == 0)
             else
               self:put(x, y, quantum_gate:i())
             end
@@ -302,12 +302,12 @@ board = {
           for y = self.rows - 1, 1, -1 do
             if self:gate_at(x, y):is_reducible() then
               local reduction = gate_reduction_rules:reduce(self, x, y)
-              local delay_disappear = (#reduction - 1) * 20 + 20
+              local delay_disappear = (#reduction.to - 1) * 20 + 20
 
-              for index, r in pairs(reduction) do
+              for index, r in pairs(reduction.to) do
                 sfx(4)
                 local delay_puff = (index - 1) * 20
-                self:gate_at(x + r.dx, y + r.dy):replace_with(r.gate, delay_puff, delay_disappear)
+                self:gate_at(x + r.dx, y + r.dy):replace_with(r.gate, reduction.type, delay_puff, delay_disappear)
                 delay_puff += 20
               end
             end
@@ -624,7 +624,7 @@ board = {
         for x = 1, self.cols do
           repeat
             self:put(x, self.rows_plus_next_rows, self:_random_gate())
-          until (#gate_reduction_rules:reduce(self, x, self.rows, true) == 0)
+          until (#gate_reduction_rules:reduce(self, x, self.rows, true).to == 0)
         end
 
         -- maybe add cnot

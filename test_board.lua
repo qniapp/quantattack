@@ -45,6 +45,7 @@ test('board', function(desc,it)
   end)
 
   desc('reduce', function ()
+    --
     --  h  reduce
     --  h  ----->  i
     --

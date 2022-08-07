@@ -143,15 +143,36 @@ quantum_gate = {
           pal(colors.light_grey, colors.brown)
         end
 
+        if self:is_match() and (not self:is_match_type_i()) then
+          pal(colors.blue, colors.pink)
+        end
+
+        if self:is_disappearing() then
+          if self:is_match_type_i() then
+            pal(colors.white, colors.light_grey)
+          else
+            pal(colors.white, colors.pink)
+          end
+        end
+
         spr(self:_sprite(), x, y)
+
+        if self:is_disappearing() then
+          pal(colors.white, colors.white)
+        end
+
+        if self:is_match() and (not self:is_match_type_i()) then
+          pal(colors.blue, colors.blue)
+        end
 
         pal(colors.white, colors.white)
         pal(colors.light_grey, colors.light_grey)
       end,
 
-      replace_with = function(self, other, delay_puff, delay_disappear)
+      replace_with = function(self, other, match_type, delay_puff, delay_disappear)
         assert(self:is_reducible())
         assert(other._type)
+        assert(match_type)
         assert(delay_puff)
         assert(delay_disappear)
 
@@ -159,7 +180,7 @@ quantum_gate = {
         if other:is_swap() then
           self.other_x = other.other_x -- swap
         end
-
+        self.match_type = match_type
         self.delay_puff = delay_puff
         self.delay_disappear = delay_disappear
 
@@ -330,6 +351,10 @@ quantum_gate = {
 
       is_i = function(self)      
         return self._type == "i"
+      end,
+
+      is_match_type_i = function(self)
+        return self.match_type == "hh" or self.match_type == "xx" or self.match_type == "yy" or self.match_type == "zz" or self.match_type == "swap swap"
       end,
 
       -- private

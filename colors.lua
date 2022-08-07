@@ -12,4 +12,5 @@ colors = {
   ["yellow"] = 10,
   ["green"] = 11,
   ["blue"] = 12,
+  ["pink"] = 14,
 }

@@ -174,17 +174,22 @@ game = {
     foreach(self.board:gates_to_puff(), function(each)
       local x = self.board:screen_x(each.x) + 3
       local y = self.board:screen_y(each.y) + 3
+      local puff_color = colors.blue
 
-      puff_particle:create(x, y, 3, colors.blue)
-      puff_particle:create(x, y, 3, colors.blue)
-      puff_particle:create(x, y, 2, colors.blue)
-      puff_particle:create(x, y, 2, colors.blue)
-      puff_particle:create(x, y, 2, colors.blue)
-      puff_particle:create(x, y, 2, colors.blue)
-      puff_particle:create(x, y, 2, colors.blue)
+      if (not each:is_match_type_i()) then
+        puff_color = colors.pink
+      end
+
+      puff_particle:create(x, y, 3, puff_color)
+      puff_particle:create(x, y, 3, puff_color)
+      puff_particle:create(x, y, 2, puff_color)
+      puff_particle:create(x, y, 2, puff_color)
+      puff_particle:create(x, y, 2, puff_color)
+      puff_particle:create(x, y, 2, puff_color)
+      puff_particle:create(x, y, 2, puff_color)
       puff_particle:create(x, y, 2, colors.light_grey)
-      puff_particle:create(x, y, 1, colors.blue)
-      puff_particle:create(x, y, 1, colors.blue)
+      puff_particle:create(x, y, 1, puff_color)
+      puff_particle:create(x, y, 1, puff_color)
       puff_particle:create(x, y, 1, colors.light_grey)
       puff_particle:create(x, y, 1, colors.light_grey)
       puff_particle:create(x, y, 0, colors.dark_purple)
