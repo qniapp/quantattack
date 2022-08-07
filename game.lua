@@ -27,7 +27,6 @@ game = {
     self.board:initialize_with_random_gates()
     self.player_cursor = player_cursor:new(1, 1, self.board)
     self.tick = 0
-    self.dots_gates_raised = 0
     self.duration_raise_gates = 30 -- 0.5 seconds
   end,
 
@@ -132,25 +131,24 @@ game = {
   end,
 
   _maybe_raise_gates = function(self)
-    if self.tick == self.duration_raise_gates then
-      if #self.board:gates_in_action() == 0 then
-        self.dots_gates_raised += 1
-        self.board:raise_one_dot()
+    if (self.tick ~= self.duration_raise_gates) return
+    if (#self.board:gates_in_action() > 0) return
 
-        if self.dots_gates_raised == quantum_gate.size then
-          if self.board:is_game_over() then
-            self._state = "game over"
-            self.player_cursor.game_over = true
-          else
-            self.dots_gates_raised = 0
-            self.board:insert_gates_at_bottom()
-            self.player_cursor:move_up()
-            player.steps += 1
-          end
-        end
+    self.board.raised_dots += 1
+
+    if self.board.raised_dots == quantum_gate.size then
+      if self.board:is_game_over() then
+        self._state = "game over"
+        self.player_cursor.game_over = true
+      else
+        self.board.raised_dots = 0
+        self.board:insert_gates_at_bottom()
+        self.player_cursor:move_up()
+        player.steps += 1
       end
-      self.tick = 0
     end
+
+    self.tick = 0
   end,
 
   _create_gate_drop_particles = function(self)

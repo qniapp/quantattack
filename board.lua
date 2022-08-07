@@ -12,7 +12,7 @@ board = {
         self.rows = board.default_rows
         self.rows_plus_next_rows = self.rows + board.default_next_rows
         self._gate = {}
-        self._raised_dots = 0
+        self.raised_dots = 0
 
         for x = 1, self.cols do
           self._gate[x] = {}
@@ -73,7 +73,7 @@ board = {
       end,
 
       screen_y = function(self, board_y)
-        return self.top + (board_y - 1) * quantum_gate.size - self._raised_dots
+        return self.top + (board_y - 1) * quantum_gate.size - self.raised_dots
       end,
 
       update = function(self)
@@ -98,11 +98,11 @@ board = {
             local gate = self:gate_at(bx, by)
 
             if gate:is_swapping_with_left() then
-              gate:draw(x + 4, y - self._raised_dots)
+              gate:draw(x + 4, y - self.raised_dots)
             elseif gate:is_swapping_with_right() then
-              gate:draw(x - 4, y - self._raised_dots)
+              gate:draw(x - 4, y - self.raised_dots)
             else
-              gate:draw(x, y - self._raised_dots)
+              gate:draw(x, y - self.raised_dots)
             end
           end
         end
@@ -153,11 +153,11 @@ board = {
             local gate = self:gate_at(bx, by)
 
             if gate:is_control() or gate:is_cnot_x() or gate:is_swap() then
-              gate:draw(x, y - self._raised_dots)
+              gate:draw(x, y - self.raised_dots)
             end
 
             if (by == self.rows_plus_next_rows) then
-              spr(64, x, y - self._raised_dots)
+              spr(64, x, y - self.raised_dots)
             end
           end
         end
@@ -602,9 +602,7 @@ board = {
 
       is_game_over = function(self)
         for x = 1, self.cols do
-          if not self:gate_at(x, 1):is_i() then
-            return true
-          end
+          if (not self:gate_at(x, 1):is_i()) return true
         end
 
         return false
@@ -624,7 +622,7 @@ board = {
         for x = 1, self.cols do
           repeat
             self:put(x, self.rows_plus_next_rows, self:_random_gate())
-          until (#gate_reduction_rules:reduce(self, x, self.rows, true).to == 0)
+          until #gate_reduction_rules:reduce(self, x, self.rows, true).to == 0
         end
 
         -- maybe add cnot
@@ -749,13 +747,6 @@ board = {
         foreach(gates_to_swap, function(each)
           self:put(each.gate.swap_new_x, each.y, each.gate)
         end)        
-      end,
-
-      raise_one_dot = function(self)
-        self._raised_dots += 1
-        if self._raised_dots == 8 then
-          self._raised_dots = 0
-        end
       end,
 
       game_over = function(self)
