@@ -227,6 +227,38 @@ test('board', function(desc,it)
              board:gate_at(1, 12)._reduce_to == "z"
     end)
 
+    --  c-x  reduce
+    --  c-x  ----->  i i
+    --
+    it('should reduce cnot x2', function ()
+      local board = board:new()
+      board:put(1, 11, quantum_gate:control(3))
+      board:put(3, 11, quantum_gate:x(1))
+      board:put(1, 12, quantum_gate:control(3))
+      board:put(3, 12, quantum_gate:x(1))
+
+      board:reduce()
+
+      return board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",      
+             board:gate_at(1, 12)._reduce_to == "i", board:gate_at(3, 12)._reduce_to == "i"
+    end)
+
+    --  x-c  reduce
+    --  x-c  ----->  i i
+    --
+    it('should reduce cnot x2', function ()
+      local board = board:new()
+      board:put(1, 11, quantum_gate:x(3))
+      board:put(3, 11, quantum_gate:control(1))
+      board:put(1, 12, quantum_gate:x(3))
+      board:put(3, 12, quantum_gate:control(1))
+
+      board:reduce()
+
+      return board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",      
+             board:gate_at(1, 12)._reduce_to == "i", board:gate_at(3, 12)._reduce_to == "i"
+    end)    
+
     --  c-x
     --  x-c  reduce
     --  c-x  ----->  s-s

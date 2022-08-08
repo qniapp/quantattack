@@ -9,10 +9,12 @@ __lua__
 #include board.lua
 -- #include puff_particle.lua
 #include gate_reduction_rules.lua
+#include player.lua
+#include score_popup.lua
 
 -- tests
 #include test_helper.lua
-#include test_quantum_gate.lua
+-- #include test_quantum_gate.lua
 #include test_board.lua
 
 __gfx__

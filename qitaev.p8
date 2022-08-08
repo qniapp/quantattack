@@ -10,6 +10,7 @@ __lua__
 #include puff_particle.lua
 #include gate_reduction_rules.lua
 #include score_popup.lua
+#include player.lua
 
 function _init()
   game:init()
