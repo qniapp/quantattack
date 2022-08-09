@@ -11,6 +11,7 @@ __lua__
 #include gate_reduction_rules.lua
 #include score_popup.lua
 #include player.lua
+#include state_machine.lua
 
 function _init()
   game:init()
