@@ -18,7 +18,7 @@ game = {
     self._state = "solo"
     self.board = board:new(18, 3)
     self.board:initialize_with_random_gates()
-    self.player_cursor = player_cursor:new(1, 1, self.board)
+    self.player_cursor = player_cursor:new(self.board)
     self.tick = 0
     self.duration_raise_gates = 30 -- 0.5 seconds
   end,
