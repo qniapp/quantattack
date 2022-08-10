@@ -82,84 +82,53 @@ board = {
       draw = function(self)
         -- wires
         for i = 1, 6 do
-          line(self.left + 3 + (i - 1) * quantum_gate.size, self.top - 1,
-               self.left + 3 + (i - 1) * quantum_gate.size, self.top - 1 + self.rows * quantum_gate.size,
+          line(self:screen_x(i) + 3, self.top - 1,
+               self:screen_x(i) + 3, self.top - 1 + self.rows * quantum_gate.size,
                colors.dark_grey)
         end
 
-        -- gates
         for bx = 1, self.cols do
-          for by = self.rows_plus_next_rows, 1, -1 do
+          for by = 1, self.rows_plus_next_rows do
             local x = self:screen_x(bx)
-            local y = self:screen_y(by) - self.raised_dots
+            local y = self:screen_y(by)
             local gate = self:gate_at(bx, by)
 
+            -- draw cnot laser
+            if gate:is_control() then
+              if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
+                local lx0 = x + 3
+                local lx1 = self:screen_x(gate.cnot_x_x) + 3
+                local ly = y + 3
+                local laser_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
+
+                line(lx0, ly, lx1, ly, laser_color)
+              end
+            end            
+
+            -- draw swap laser
+            if gate:is_swap() then
+              if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
+                local lx0 = x + 3
+                local lx1 = self:screen_x(gate.other_x) + 3
+                local ly = self:screen_y(by) + 3
+                local laser_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
+
+                line(lx0, ly, lx1, ly, laser_color)
+              end
+            end            
+
+            -- draw gates
             if gate:is_swapping_with_left() then
               gate:draw(x + 4, y)
             elseif gate:is_swapping_with_right() then
               gate:draw(x - 4, y)
             else
               gate:draw(x, y)
-            end
+            end            
           end
         end
 
-        -- draw cnot laser
-        for bx = 1, self.cols do
-          for by = self.rows_plus_next_rows, 1, -1 do
-            local gate = self:gate_at(bx, by)
-
-            if gate:is_control() then
-              if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
-                local lx0 = self:screen_x(bx) + 3
-                local ly0 = self:screen_y(by) + 3
-                local lx1 = self:screen_x(gate.cnot_x_x) + 3
-                local ly1 = ly0
-                local laser_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
-
-                line(lx0, ly0, lx1, ly1, laser_color)
-              end
-            end
-          end
-        end
-
-        -- draw swap laser
-        for bx = 1, self.cols do
-          for by = self.rows, 1, -1 do
-            local gate = self:gate_at(bx, by)
-
-            if gate:is_swap() then
-              if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
-                local lx0 = self:screen_x(bx) + 3
-                local ly0 = self:screen_y(by) + 3
-                local lx1 = self:screen_x(gate.other_x) + 3
-                local ly1 = ly0
-                local laser_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
-
-                line(lx0, ly0, lx1, ly1, laser_color)
-              end
-            end
-          end
-        end        
-
-        -- draw cnot and swap gates over the cnot and swap laser
-        for bx = 1, self.cols do
-          for by = self.rows_plus_next_rows, 1, -1 do
-            local x = self.left + (bx - 1) * quantum_gate.size
-            local y = self.top + (by - 1) * quantum_gate.size
-            local gate = self:gate_at(bx, by)
-
-            if gate:is_control() or gate:is_cnot_x() or gate:is_swap() then
-              gate:draw(x, y - self.raised_dots)
-            end
-
-            if (by == self.rows_plus_next_rows) then
-              spr(64, x, y - self.raised_dots)
-            end
-          end
-        end
-
-        -- mask next row outside the border
+        -- mask next row outside the bottom border
         rectfill(self.left - 1, self.top + self.rows * quantum_gate.size,
                  self.left + self.cols * quantum_gate.size - 1, self.top + (self.rows + 1) * quantum_gate.size,
                  colors.black)
