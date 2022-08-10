@@ -121,7 +121,7 @@ player_cursor = {
       end,
 
       _screen_xr = function(self)
-        return self.board:screen_x(self.x + 1) + 3
+        return self.board:screen_x(self.x + 1) + 4
       end,
 
       _screen_yt = function(self)
