@@ -299,8 +299,7 @@ board = {
         for x = 1, self.cols do
           for y = 1, self.rows do
             local gate = self:gate_at(x, y)
-            if (not gate:is_i()) and
-                not (gate:is_idle() or gate:is_dropped()) then
+            if (not gate:is_i()) and gate:is_busy() then
               add(gates, gate)
             end
           end
@@ -318,9 +317,8 @@ board = {
             local gate_below = self:gate_at(x, y + 1)
 
             if ((not gate:is_i()) and
-                gate:is_dropped() and
-                gate.tick_drop == 0 and
-                (gate_below == nil or (not gate_below:is_dropped()))) then
+                gate:is_dropped() and gate.tick_drop == 0 and
+                (not gate_below:is_dropped())) then
               gate.x = x
               gate.y = y
               add(gates, gate)

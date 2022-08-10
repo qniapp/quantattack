@@ -282,9 +282,7 @@ quantum_gate = {
       end,
 
       is_reducible = function(self)
-        return (not self:is_i()) and
-               (not self:is_swapping()) and
-               (self:is_idle() or self:is_dropped())
+        return (not self:is_i()) and (not self:is_busy())
       end,
 
       is_swapping = function(self)
@@ -309,6 +307,10 @@ quantum_gate = {
 
       is_disappearing = function(self)
         return self._state == "disappear"
+      end,
+
+      is_busy = function(self)
+        return not (self:is_idle() or self:is_dropped())
       end,
 
       -- gate types
