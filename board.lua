@@ -54,10 +54,7 @@ board = {
       reducible_gate_at = function(self, x, y)
         local gate = self:gate_at(x, y)
 
-        if gate:is_reducible() then
-          return gate
-        end
-        
+        if (gate:is_reducible()) return gate
         return quantum_gate:i()
       end,      
 
@@ -93,16 +90,16 @@ board = {
         -- gates
         for bx = 1, self.cols do
           for by = self.rows_plus_next_rows, 1, -1 do
-            local x = self.left + (bx - 1) * quantum_gate.size
-            local y = self.top + (by - 1) * quantum_gate.size
+            local x = self:screen_x(bx)
+            local y = self:screen_y(by) - self.raised_dots
             local gate = self:gate_at(bx, by)
 
             if gate:is_swapping_with_left() then
-              gate:draw(x + 4, y - self.raised_dots)
+              gate:draw(x + 4, y)
             elseif gate:is_swapping_with_right() then
-              gate:draw(x - 4, y - self.raised_dots)
+              gate:draw(x - 4, y)
             else
-              gate:draw(x, y - self.raised_dots)
+              gate:draw(x, y)
             end
           end
         end
