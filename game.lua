@@ -80,9 +80,7 @@ game = {
   
       -- update function
       function(g)
-        if btnp(5) then
-          g:init()
-        end
+        if (btnp(game._button.o)) g:init()
 
         g.player_cursor.game_over = true
         g.board:update_gates()
