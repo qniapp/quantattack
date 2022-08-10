@@ -118,6 +118,14 @@ board = {
                 line(lx0, ly, lx1, ly, laser_color)
               end
             end            
+          end
+        end
+
+        for bx = 1, self.cols do
+          for by = 1, self.rows_plus_next_rows do
+            local x = self:screen_x(bx)
+            local y = self:screen_y(by)
+            local gate = self:gate_at(bx, by)
 
             -- draw gates
             if gate:is_swapping_with_left() then
