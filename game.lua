@@ -141,7 +141,6 @@ game = {
         else
           self.board.raised_dots = 0
           self.board:insert_gates_at_bottom()
-          self.player_cursor:move_up()
           player.steps += 1
         end
       end
