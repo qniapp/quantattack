@@ -337,7 +337,7 @@ board = {
         return gates
       end,
 
-      bottommost_gates_of_fallen_gates = function(self)
+      bottommost_gates_of_dropped_gates = function(self)
         local gates = {}
 
         for x = 1, self.cols do

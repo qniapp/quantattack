@@ -50,7 +50,7 @@ game = {
         g:_maybe_raise_gates()
 
         puff_particle:update()
-        dropping_particle:update()
+        drop_particle:update()
         score_popup:update()
 
         g.tick += 1      
@@ -62,7 +62,7 @@ game = {
         g.player_cursor:draw()
 
         puff_particle:draw()
-        dropping_particle:draw()
+        drop_particle:draw()
         score_popup:draw()
 
         g:draw_scores()
@@ -100,7 +100,7 @@ game = {
         g.player_cursor:draw()
 
         puff_particle:draw()
-        dropping_particle:draw()
+        drop_particle:draw()
 
         g:draw_scores()
         g:draw_stats()      
@@ -176,15 +176,15 @@ game = {
   end,
 
   _create_gate_drop_particles = function(self)
-    local bottommost_gates = self.board:bottommost_gates_of_fallen_gates()
+    local bottommost_gates = self.board:bottommost_gates_of_dropped_gates()
 
     foreach(bottommost_gates, function(each)
       local x = self.board:screen_x(each.x)
       local y = self.board:screen_y(each.y)
 
-      dropping_particle:create(x + flr(rnd(quantum_gate.size)), y + quantum_gate.size, 1, colors.white)
-      dropping_particle:create(x + flr(rnd(quantum_gate.size)), y + quantum_gate.size, 1, colors.white)
-      dropping_particle:create(x + flr(rnd(quantum_gate.size)), y + quantum_gate.size, 1, colors.white)
+      drop_particle:create(x + flr(rnd(quantum_gate.size)), y + quantum_gate.size, 1, colors.white)
+      drop_particle:create(x + flr(rnd(quantum_gate.size)), y + quantum_gate.size, 1, colors.white)
+      drop_particle:create(x + flr(rnd(quantum_gate.size)), y + quantum_gate.size, 1, colors.white)
     end)
 
     if (#bottommost_gates > 0) sfx(self._sfx.gate_drop)

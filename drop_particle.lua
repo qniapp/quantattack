@@ -1,4 +1,4 @@
-dropping_particle = {
+drop_particle = {
   _all = {},
 
   create = function(self, x, y, size, color)
@@ -19,15 +19,15 @@ dropping_particle = {
       p.dx *= -1
     end
 
-    add(dropping_particle._all, p)
+    add(drop_particle._all, p)
 
     return p
   end,
 
   update = function(self)
-    foreach(dropping_particle._all, function(each)
+    foreach(drop_particle._all, function(each)
       if (each.tick > each.max_tick) then
-        del(dropping_particle._all, each)
+        del(drop_particle._all, each)
       end
       if (each.tick > each.max_tick - 5) then
         each.color = colors.dark_grey
@@ -41,7 +41,7 @@ dropping_particle = {
   end,
 
   draw = function(self)
-    foreach(dropping_particle._all, function(each)
+    foreach(drop_particle._all, function(each)
       circfill(each.x, each.y, each.width, each.color)
     end)
   end
