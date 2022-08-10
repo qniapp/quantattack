@@ -1,13 +1,13 @@
 puff_particle = {
   _all = {},
 
-  create = function(self, x, y, size, color)
+  create = function(self, x, y, radius, color)
     local p = {}
 
     p.x = x
     p.y = y
     p.color = color
-    p.width = size
+    p.radius = radius
     p.tick = 0
     p.max_tick = 20 + rnd(10)
     p.dx = rnd(1.2) * .8
@@ -52,7 +52,7 @@ puff_particle = {
 
   draw = function(self)
     foreach(puff_particle._all, function(each)
-      circfill(each.x, each.y, each.width, each.color)
+      circfill(each.x, each.y, each.radius, each.color)
     end)
   end  
 }
