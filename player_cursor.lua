@@ -6,14 +6,62 @@ player_cursor = {
   color = colors.dark_green,
 }
 
+-- todo: 引数を board, x, y の順にする (x と y にデフォルト値をつけたい)
+-- todo: 全体を player_cursor = { ... } の中に入れる
 function player_cursor:new(x, y, board)
   local c = {
-    x = x,
-    y = y,
-    board = board,
-    tick = 0,
-    warn = false,
-    state_machine = state_machine:new(),
+    init = function(self)
+      self.x = x
+      self.y = y
+      self.board = board
+      self.tick = 0
+      self.warn = false
+      self.state_machine = state_machine:new()
+
+      self.state_machine:add_state(
+        "idle",
+        -- transition function
+        function(pc)
+          if (pc.tick >= 15) return "shrunk"
+          return "idle"
+        end,
+  
+        -- update function
+        function(pc)
+          pc:_advance_tick()
+        end,
+
+        -- draw function
+        function(pc)
+          pc:_draw_sprites(pc:_screen_xl(),
+                           pc:_screen_xr(),
+                           pc:_screen_yt(),
+                           pc:_screen_yb())    
+        end    
+      )
+      self.state_machine:add_state(
+        "shrunk",
+        -- transition function
+        function(pc)
+          if (pc.tick <= 14) return "idle"
+          return "shrunk"    
+        end,
+  
+        -- update function
+        function(pc)
+          pc:_advance_tick()
+        end,
+
+        -- draw function
+        function(pc)
+          pc:_draw_sprites(pc:_screen_xl() + 1,
+                           pc:_screen_xr() - 1,
+                           pc:_screen_yt() + 1,
+                           pc:_screen_yb() - 1)       
+        end
+      )
+      self.state_machine:set_state("idle")
+    end,
 
     move_left = function(self)
       if self.x == 1 then
@@ -103,50 +151,7 @@ function player_cursor:new(x, y, board)
     end
   }
 
-  c.state_machine:add_state(
-    "idle",
-    -- transition function
-    function(pc)
-      if (pc.tick >= 15) return "shrunk"
-      return "idle"
-    end,
-  
-    -- update function
-    function(pc)
-      pc:_advance_tick()
-    end,
-
-    -- draw function
-    function(pc)
-      pc:_draw_sprites(pc:_screen_xl(),
-                       pc:_screen_xr(),
-                       pc:_screen_yt(),
-                       pc:_screen_yb())    
-    end    
-  )
-
-  c.state_machine:add_state(
-    "shrunk",
-    -- transition function
-    function(pc)
-      if (pc.tick <= 14) return "idle"
-      return "shrunk"    
-    end,
-  
-    -- update function
-    function(pc)
-      pc:_advance_tick()
-    end,
-
-    -- draw function
-    function(pc)
-      pc:_draw_sprites(pc:_screen_xl() + 1,
-                       pc:_screen_xr() - 1,
-                       pc:_screen_yt() + 1,
-                       pc:_screen_yb() - 1)       
-    end
-  )  
-  c.state_machine:set_state("idle")
+  c:init()
 
   return c
 end
