@@ -4,7 +4,7 @@ __lua__
 #include colors.lua
 -- #include dropping_particle.lua
 -- #include game.lua
-#include player_cursor.lua
+-- #include player_cursor.lua
 #include quantum_gate.lua
 #include board.lua
 -- #include puff_particle.lua
@@ -14,7 +14,7 @@ __lua__
 
 -- tests
 #include test_helper.lua
--- #include test_quantum_gate.lua
+#include test_quantum_gate.lua
 #include test_board.lua
 
 __gfx__
