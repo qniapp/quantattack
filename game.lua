@@ -1,91 +1,124 @@
 game = {
   _button = {
-    ["left"] = 0,
-    ["right"] = 1,
-    ["up"] = 2,
-    ["down"] = 3,
-    ["x"] = 4,
-    ["o"] = 5,
+    left = 0,
+    right = 1,
+    up = 2,
+    down = 3,
+    x = 4,
+    o = 5,
   },
 
   _sfx = {
-    ["move_cursor"] = 0,
-    ["gate_drop"] = 1,
-    ["puff"] = 3,
+    move_cursor = 0,
+    gate_drop = 1,
+    puff = 3,
   },
 
   init = function(self)
-    self._state = "solo"
+    self.state_machine = state_machine:new()
     self.board = board:new(18, 3)
     self.board:initialize_with_random_gates()
     self.player_cursor = player_cursor:new(self.board)
     self.tick = 0
     self.duration_raise_gates = 30 -- 0.5 seconds
+
+    self.state_machine:add_state(
+      "solo",
+
+      -- transition function
+      function(g)
+        if (g.board.raised_dots == quantum_gate.size) and g.board:is_game_over() then
+          return "game over"
+        end
+        return "solo"
+      end,
+  
+      -- update function
+      function(g)
+        g:_handle_button_events()
+
+        g.board:reduce()
+        g.board:drop_gates()
+        g.board:update_gates()
+
+        g:_create_gate_drop_particles()
+        g:_create_gate_puff_particles()
+
+        g:_maybe_change_cursor_color()
+        g.player_cursor:update()
+
+        g:_maybe_raise_gates()
+
+        puff_particle:update()
+        dropping_particle:update()
+        score_popup:update()
+
+        g.tick += 1      
+      end,
+
+      -- draw function
+      function(g)
+        g.board:draw()
+        g.player_cursor:draw()
+
+        puff_particle:draw()
+        dropping_particle:draw()
+        score_popup:draw()
+
+        g:draw_scores()
+        g:draw_stats()      
+      end    
+    )
+
+    self.state_machine:add_state(
+      "game over",
+
+      -- transition function
+      function()
+        return "game over"
+      end,
+  
+      -- update function
+      function(g)
+        if btnp(5) then
+          g:init()
+        end
+
+        g.player_cursor.game_over = true
+        g.board:update_gates()
+        g.player_cursor:update()
+      end,
+
+      -- draw function
+      function(g)
+        cursor(73, 50)
+        color(colors.red)
+        print("game over")
+        cursor(57, 58)
+        color(colors.white)
+        print("push ❎ to replay")
+
+        g.board:draw()
+        g.player_cursor:draw()
+
+        puff_particle:draw()
+        dropping_particle:draw()
+
+        g:draw_scores()
+        g:draw_stats()      
+      end
+    )
+
+    self.state_machine:set_state("solo")
   end,
 
   update = function(self, board)
-    if self._state == "solo" then
-      self:_handle_button_events()
-
-      self.board:reduce()
-      self.board:drop_gates()
-      self.board:update_gates()
-
-      self:_create_gate_drop_particles()
-      self:_create_gate_puff_particles()
-
-      self:_maybe_change_cursor_color()
-      self.player_cursor:update()
-
-      self:_maybe_raise_gates()
-
-      puff_particle:update()
-      dropping_particle:update()
-      score_popup:update()
-
-      self.tick += 1
-    elseif self._state == "game over" then
-      if btnp(5) then
-        self:init()
-      end
-
-      self.board:update_gates()
-      self.player_cursor:update()
-    else
-      assert(false, "unknown state")
-    end
+    self.state_machine:update(self)
   end,
 
   draw = function(self)
     cls()
-
-    if self._state == "solo" then
-      self.board:draw()
-      self.player_cursor:draw()
-
-      puff_particle:draw()
-      dropping_particle:draw()
-      score_popup:draw()
-
-      self:draw_scores()
-      self:draw_stats()
-    elseif self._state == "game over" then
-      cursor(73, 50)
-      color(colors.red)
-      print("game over")
-      cursor(57, 58)
-      color(colors.white)
-      print("push ❎ to replay")
-
-      self.board:draw()
-      self.player_cursor:draw()
-
-      puff_particle:draw()
-      dropping_particle:draw()
-
-      self:draw_scores()
-      self:draw_stats()
-    end
+    self.state_machine:draw(self)
   end,    
 
   -- private
@@ -127,24 +160,20 @@ game = {
   end,
 
   _maybe_raise_gates = function(self)
-    if self.tick == self.duration_raise_gates then
-      self.tick = 0
+    if (self.tick ~= self.duration_raise_gates) return
 
-      if (#self.board:gates_in_action() > 0) return
+    self.tick = 0
 
-      self.board.raised_dots += 1
+    if (#self.board:gates_in_action() > 0) return
 
-      if self.board.raised_dots == quantum_gate.size then
-        if self.board:is_game_over() then
-          self._state = "game over"
-          self.player_cursor.game_over = true
-        else
-          self.board.raised_dots = 0
-          self.board:insert_gates_at_bottom()
-          self.player_cursor:move_up()
-          player.steps += 1
-        end
-      end
+    self.board.raised_dots += 1
+
+    if (self.board.raised_dots == quantum_gate.size) and
+       (not self.board:is_game_over()) then
+      self.board.raised_dots = 0
+      self.board:insert_gates_at_bottom()
+      self.player_cursor:move_up()
+      player.steps += 1
     end
   end,
 
@@ -160,9 +189,7 @@ game = {
       dropping_particle:create(x + flr(rnd(quantum_gate.size)), y + quantum_gate.size, 1, colors.white)
     end)
 
-    if #bottommost_gates > 0 then
-      sfx(self._sfx.gate_drop)
-    end  
+    if (#bottommost_gates > 0) sfx(self._sfx.gate_drop)
   end,
 
   _create_gate_puff_particles = function(self)
@@ -205,15 +232,11 @@ game = {
   draw_stats = function(self)
     local cpu_usage = stat(1)
     local cpu_usage_color = colors.green
-    if cpu_usage >= 1 then
-      cpu_usage_color = colors.red
-    end
+    if (cpu_usage >= 1) cpu_usage_color = colors.red
 
     local fps = stat(7)
     local fps_color = colors.green
-    if fps < 60 then
-      fps_color = colors.red
-    end
+    if (fps < 60) fps_color = colors.red
 
     cursor(2, 116)
     color(fps_color)
