@@ -106,7 +106,7 @@ board = {
             end            
 
             -- draw swap laser
-            if gate:is_swap() then
+            if gate:is_swap() and bx < gate.other_x then
               if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
                 local lx0 = x + 3
                 local lx1 = self:screen_x(gate.other_x) + 3
@@ -125,6 +125,10 @@ board = {
             else
               gate:draw(x, y)
             end            
+
+            if (by == self.rows_plus_next_rows) then
+              spr(64, x, y)
+            end
           end
         end
 
