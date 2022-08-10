@@ -4,75 +4,75 @@ quantum_gate = {
 
   _types = {"h", "x", "y", "z", "s", "t", "control", "swap", "i"},
   _sprites = {
-    ["idle"] = {
-      ["h"] = 0,
-      ["x"] = 1,
-      ["y"] = 2,
-      ["z"] = 3,
-      ["s"] = 4,
-      ["t"] = 5,
-      ["control"] = 6,
-      ["swap"] = 7,
+    idle = {
+      h = 0,
+      x = 1,
+      y = 2,
+      z = 3,
+      s = 4,
+      t = 5,
+      control = 6,
+      swap = 7,
     },
-    ["dropped"] = {
-      ["h"] = 16,
-      ["x"] = 17,
-      ["y"] = 18,
-      ["z"] = 19,
-      ["s"] = 20,
-      ["t"] = 21,
-      ["control"] = 22,
-      ["swap"] = 23,
+    dropped = {
+      h = 16,
+      x = 17,
+      y = 18,
+      z = 19,
+      s = 20,
+      t = 21,
+      control = 22,
+      swap = 23,
     },
-    ["jumping"] = {
-      ["h"] = 48,
-      ["x"] = 49,
-      ["y"] = 50,
-      ["z"] = 51,
-      ["s"] = 52,
-      ["t"] = 53,
-      ["control"] = 54,
-      ["swap"] = 55,
+    jumping = {
+      h = 48,
+      x = 49,
+      y = 50,
+      z = 51,
+      s = 52,
+      t = 53,
+      control = 54,
+      swap = 55,
     },
-    ["falling"] = {
-      ["h"] = 32,
-      ["x"] = 33,
-      ["y"] = 34,
-      ["z"] = 35,
-      ["s"] = 36,
-      ["t"] = 37,
-      ["control"] = 38,
-      ["swap"] = 39,
+    falling = {
+      h = 32,
+      x = 33,
+      y = 34,
+      z = 35,
+      s = 36,
+      t = 37,
+      control = 38,
+      swap = 39,
     },    
-    ["match_up"] = {
-      ["h"] = 8,
-      ["x"] = 9,
-      ["y"] = 10,
-      ["z"] = 11,
-      ["s"] = 12,
-      ["t"] = 13,
-      ["control"] = 14,
-      ["swap"] = 15,
+    match_up = {
+      h = 8,
+      x = 9,
+      y = 10,
+      z = 11,
+      s = 12,
+      t = 13,
+      control = 14,
+      swap = 15,
     },
-    ["match_middle"] = {
-      ["h"] = 24,
-      ["x"] = 25,
-      ["y"] = 26,
-      ["z"] = 27,
-      ["s"] = 28,
-      ["t"] = 29,
-      ["control"] = 30,
-      ["swap"] = 31,
+    match_middle = {
+      h = 24,
+      x = 25,
+      y = 26,
+      z = 27,
+      s = 28,
+      t = 29,
+      control = 30,
+      swap = 31,
     },     
-    ["match_down"] = {
-      ["h"] = 40,
-      ["x"] = 41,
-      ["y"] = 42,
-      ["z"] = 43,
-      ["s"] = 44,
-      ["t"] = 45,
-      ["control"] = 46,
-      ["swap"] = 47,
+    match_down = {
+      h = 40,
+      x = 41,
+      y = 42,
+      z = 43,
+      s = 44,
+      t = 45,
+      control = 46,
+      swap = 47,
     },    
   },
 
@@ -134,72 +134,6 @@ quantum_gate = {
       _type = type,
       _reduce_to = nil,
       _state = "idle",
-
-      draw = function(self, x, y)
-        if (self:is_i()) return
-
-        if self:is_cnot_x() and (not self:is_match()) then
-          pal(colors.blue, colors.orange)
-          pal(colors.light_grey, colors.brown)
-        end
-
-        if self:is_match() and (not self:is_match_type_i()) then
-          pal(colors.blue, colors.pink)
-        end
-
-        if self:is_disappearing() then
-          if self:is_match_type_i() then
-            pal(colors.white, colors.light_grey)
-          else
-            pal(colors.white, colors.pink)
-          end
-        end
-
-        spr(self:_sprite(), x, y)
-
-        if self:is_disappearing() then
-          pal(colors.white, colors.white)
-        end
-
-        if self:is_match() and (not self:is_match_type_i()) then
-          pal(colors.blue, colors.blue)
-        end
-
-        pal(colors.blue, colors.blue)
-        pal(colors.light_grey, colors.light_grey)
-      end,
-
-      replace_with = function(self, other, match_type, delay_puff, delay_disappear)
-        assert(self:is_reducible())
-        assert(other._type)
-        assert(match_type)
-        assert(delay_puff)
-        assert(delay_disappear)
-
-        self._reduce_to = other._type
-        if other:is_swap() then
-          self.other_x = other.other_x -- swap
-        end
-        self.match_type = match_type
-        self.delay_puff = delay_puff
-        self.delay_disappear = delay_disappear
-
-        self:_change_state("match")
-      end,
-
-      dropped = function(self)
-        self:_change_state("dropped")
-      end,
-
-      start_swap_with_left = function(self, swap_new_x)
-        self.swap_new_x = swap_new_x
-        self:_change_state("swapping_with_left")
-      end,
-
-      start_swap_with_right = function(self, swap_new_x)
-        self.swap_new_x = swap_new_x
-        self:_change_state("swapping_with_right")
-      end,
 
       update = function(self)
         -- gate specific updates
@@ -281,12 +215,76 @@ quantum_gate = {
         end
       end,
 
+      draw = function(self, x, y)
+        if (self:is_i()) return
+
+        if self:is_cnot_x() and (not self:is_match()) then
+          pal(colors.blue, colors.orange)
+          pal(colors.light_grey, colors.brown)
+        end
+
+        if self:is_match() and (not self:is_match_type_i()) then
+          pal(colors.lavender, colors.white)
+        end
+
+        if self:is_disappearing() then
+          if self:is_match_type_i() then
+            pal(colors.white, colors.light_grey)
+          else
+            pal(colors.white, colors.pink)
+          end
+        end
+
+        spr(self:_sprite(), x, y)
+
+        pal(colors.white, colors.white)
+        pal(colors.blue, colors.blue)
+        pal(colors.light_grey, colors.light_grey)
+        pal(colors.lavender, colors.lavender)
+      end,
+
+      replace_with = function(self, other, match_type, delay_puff, delay_disappear)
+        assert(self:is_reducible())
+        assert(other._type)
+        assert(match_type)
+        assert(delay_puff)
+        assert(delay_disappear)
+
+        self._reduce_to = other._type
+        if other:is_swap() then
+          self.other_x = other.other_x -- swap
+        end
+        self.match_type = match_type
+        self.delay_puff = delay_puff
+        self.delay_disappear = delay_disappear
+
+        self:_change_state("match")
+      end,
+
+      dropped = function(self)
+        self:_change_state("dropped")
+      end,
+
+      start_swap_with_left = function(self, swap_new_x)
+        self.swap_new_x = swap_new_x
+        self:_change_state("swapping_with_left")
+      end,
+
+      start_swap_with_right = function(self, swap_new_x)
+        self.swap_new_x = swap_new_x
+        self:_change_state("swapping_with_right")
+      end,
+
+      -- gate states
+
       is_idle = function(self)
         return self._state == "idle"
       end,
 
       is_reducible = function(self)
-        return (not self:is_i()) and (not self:is_swapping()) and self:is_idle() or self:is_dropped()
+        return (not self:is_i()) and
+               (not self:is_swapping()) and
+               (self:is_idle() or self:is_dropped())
       end,
 
       is_swapping = function(self)
@@ -312,6 +310,8 @@ quantum_gate = {
       is_disappearing = function(self)
         return self._state == "disappear"
       end,
+
+      -- gate types
 
       is_h = function(self)
         return self._type == "h"
