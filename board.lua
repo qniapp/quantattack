@@ -638,7 +638,7 @@ board = {
           local cnot_x_x = nil
           repeat
             cnot_x_x = flr(rnd(self.cols)) + 1
-          until cnot_x_x ~= cnot_c_x
+          until cnot_x_x != cnot_c_x
 
           local x_gate = quantum_gate:x(cnot_c_x)
           local control_gate = quantum_gate:control(cnot_x_x)

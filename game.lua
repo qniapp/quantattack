@@ -158,7 +158,7 @@ game = {
   end,
 
   _maybe_raise_gates = function(self)
-    if (self.tick ~= self.duration_raise_gates) return
+    if (self.tick != self.duration_raise_gates) return
 
     self.tick = 0
 
