@@ -1,9 +1,9 @@
 player_cursor = {
-  sprites = {
+  _sprites = {
     corner = 65,
     middle = 66,
   },
-  color = colors.dark_green,
+  _color = colors.dark_green,
 
   new = function(self, board, x, y)
     local c = {
@@ -12,14 +12,15 @@ player_cursor = {
         self.y = y or 6
         self.board = board
         self.tick = 0
-        self.warn = false
+        self.idle_and_shurnk_frames = 14
+        self.cannot_swap = false
         self.state_machine = state_machine:new()
 
         self.state_machine:add_state(
           "idle",
           -- transition function
           function(pc)
-            if (pc.tick >= 15) return "shrunk"
+            if (pc.tick > self.idle_and_shurnk_frames) return "shrunk"
             return "idle"
           end,
   
@@ -40,7 +41,7 @@ player_cursor = {
           "shrunk",
           -- transition function
           function(pc)
-            if (pc.tick <= 14) return "idle"
+            if (pc.tick <= self.idle_and_shurnk_frames) return "idle"
             return "shrunk"    
           end,
   
@@ -61,35 +62,19 @@ player_cursor = {
       end,
 
       move_left = function(self)
-        if self.x == 1 then
-          self.warn = true
-        else
-          self.x -= 1
-        end
+        if (self.x > 1) self.x -= 1
       end,
 
       move_right = function(self)
-        if self.x == self.board.cols - 1 then
-          self.warn = true
-        else
-          self.x += 1
-        end
+        if (self.x < self.board.cols - 1) self.x += 1
       end,
 
       move_up = function(self)
-        if self.y == 1 then
-          self.warn = true
-        else
-          self.y -= 1
-        end
+        if (self.y > 1) self.y -= 1
       end,
 
       move_down = function(self)
-        if self.y == self.board.rows then
-          self.warn = true
-        else
-          self.y += 1
-        end
+        if (self.y < self.board.rows) self.y += 1
       end,  
 
       update = function(self)
@@ -103,28 +88,28 @@ player_cursor = {
       -- private
 
       _advance_tick = function(self)
-        assert(self.tick >= 0 and self.tick < 30)
+        assert(self.tick >= 0 and self.tick <= self.idle_and_shurnk_frames * 2)
 
         self.tick += 1
-        if (self.tick == 30) self.tick = 0
+        if (self.tick == self.idle_and_shurnk_frames * 2) self.tick = 0
       end,
 
       _draw_sprites = function(self, xl, xr, yt, yb)
-        if self.warn then
-          pal(player_cursor.color, colors.red)
+        if self.cannot_swap then
+          pal(player_cursor._color, colors.red)
         end
         if self.game_over then
-          pal(player_cursor.color, colors.dark_grey)
+          pal(player_cursor._color, colors.dark_grey)
         end
 
-        spr(player_cursor.sprites.corner, xl, yt)
-        spr(player_cursor.sprites.middle, self:_screen_xm(), yt)
-        spr(player_cursor.sprites.corner, xr, yt, 1, 1, true, false)
-        spr(player_cursor.sprites.corner, xl, yb, 1, 1, false, true)
-        spr(player_cursor.sprites.middle, self:_screen_xm(), yb, 1, 1, false, true)
-        spr(player_cursor.sprites.corner, xr, yb, 1, 1, true, true)
+        spr(player_cursor._sprites.corner, xl, yt)
+        spr(player_cursor._sprites.middle, self:_screen_xm(), yt)
+        spr(player_cursor._sprites.corner, xr, yt, 1, 1, true, false)
+        spr(player_cursor._sprites.corner, xl, yb, 1, 1, false, true)
+        spr(player_cursor._sprites.middle, self:_screen_xm(), yb, 1, 1, false, true)
+        spr(player_cursor._sprites.corner, xr, yb, 1, 1, true, true)
 
-        pal(player_cursor.color, player_cursor.color)
+        pal(player_cursor._color, player_cursor._color)
       end,
 
       _screen_xl = function(self)

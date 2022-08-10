@@ -114,7 +114,7 @@ game = {
     if btnp(game._button.x) then
       local swapped = self.board:swap(self.player_cursor.x, self.player_cursor.x + 1, self.player_cursor.y)
       if swapped == false then
-        self.player_cursor.warn = true
+        self.player_cursor.cannot_swap = true
       end
     end
   end,
@@ -123,7 +123,7 @@ game = {
     local left_gate = self.board:gate_at(self.player_cursor.x, self.player_cursor.y)
     local right_gate = self.board:gate_at(self.player_cursor.x + 1, self.player_cursor.y)
 
-    self.player_cursor.warn = not self.board:is_swappable(left_gate, right_gate)
+    self.player_cursor.cannot_swap = not self.board:is_swappable(left_gate, right_gate)
   end,
 
   _maybe_raise_gates = function(self)
@@ -141,6 +141,7 @@ game = {
         else
           self.board.raised_dots = 0
           self.board:insert_gates_at_bottom()
+          self.player_cursor:move_up()
           player.steps += 1
         end
       end
