@@ -11,6 +11,8 @@ board = {
         self.cols = board.default_cols
         self.rows = board.default_rows
         self.rows_plus_next_rows = self.rows + board.default_next_rows
+        self.width = self.cols * quantum_gate.size
+        self.height = self.rows * quantum_gate.size
         self._gate = {}
         self.raised_dots = 0
 
@@ -83,7 +85,7 @@ board = {
         -- wires
         for i = 1, 6 do
           line(self:screen_x(i) + 3, self.top - 1,
-               self:screen_x(i) + 3, self.top - 1 + self.rows * quantum_gate.size,
+               self:screen_x(i) + 3, self.top - 1 + self.height,
                colors.dark_grey)
         end
 
@@ -132,21 +134,21 @@ board = {
           end
         end
 
-        -- mask next row outside the bottom border
-        rectfill(self.left - 1, self.top + self.rows * quantum_gate.size,
-                 self.left + self.cols * quantum_gate.size - 1, self.top + (self.rows + 1) * quantum_gate.size,
+        -- mask next row below the bottom border
+        rectfill(self.left - 1, self.top + self.height,
+                 self.left + self.width, self.top + (self.rows + 1) * quantum_gate.size,
                  colors.black)
 
         -- border left
         line(self.left - 2, self.top - 1,
-             self.left - 2, self.top + self.rows * quantum_gate.size,
+             self.left - 2, self.top + self.height,
              colors.white)
         -- border bottom
-        line(self.left - 2, self.top + self.rows * quantum_gate.size,
-             self.left + self.cols * quantum_gate.size, self.top + self.rows * quantum_gate.size, colors.white)
+        line(self.left - 2, self.top + self.height,
+             self.left + self.width, self.top + self.height, colors.white)
         -- border right
-        line(self.left + self.cols * quantum_gate.size, self.top - 1,
-             self.left + self.cols * quantum_gate.size, self.top + self.rows * quantum_gate.size, colors.white)
+        line(self.left + self.width, self.top - 1,
+             self.left + self.width, self.top + self.height, colors.white)
       end,
 
       swap = function(self, x_left, x_right, y)
@@ -197,7 +199,7 @@ board = {
         if right_gate:is_control() then
           if left_gate:is_i() then -- i c
             return true
-          elseif not left_gate:is_cnot_x() then -- x-?- .. -c
+          elseif not left_gate:is_cnot_x() then -- x-..?-c
             return false
           end
         end
@@ -215,7 +217,7 @@ board = {
         if right_gate:is_cnot_x() then
           if left_gate:is_i() then -- i x
             return true
-          elseif not left_gate:is_control() then -- c-?-..-x
+          elseif not left_gate:is_control() then -- c-..?-x
             return false
           end
         end
@@ -248,7 +250,7 @@ board = {
         if right_gate:is_swap() then
           if left_gate:is_i() then -- i s
             return true
-          elseif not left_gate:is_swap() then -- s-?- .. -s
+          elseif not left_gate:is_swap() then -- s-..?-s
             return false
           end
         end
@@ -269,7 +271,7 @@ board = {
 
       reduce = function(self)
         for x = 1, self.cols do
-          for y = self.rows - 1, 1, -1 do
+          for y = 1, self.rows - 1 do
             if self:gate_at(x, y):is_reducible() then
               local reduction = gate_reduction_rules:reduce(self, x, y)
               local delay_disappear = (#reduction.to - 1) * 20 + 20
@@ -291,7 +293,7 @@ board = {
         end
       end,
 
-      gates_in_action = function(self)
+      gates_busy = function(self)
         local gates = {}
 
         for x = 1, self.cols do

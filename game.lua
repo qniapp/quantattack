@@ -162,7 +162,7 @@ game = {
 
     self.tick = 0
 
-    if (#self.board:gates_in_action() > 0) return
+    if (#self.board:gates_busy() > 0) return
 
     self.board.raised_dots += 1
 
