@@ -30,14 +30,10 @@ score_popup = {
 
   draw = function(self)
     foreach(score_popup._all, function(each)
-      local color = self._colors[flr(rnd(#self._colors)) + 1]
-      self:p4bonus(each.string, each.x, each.y, color, colors.dark_blue)
+      local c = self._colors[flr(rnd(#self._colors)) + 1]
+      color(colors.dark_blue)
+      ?'\-f' .. each.string .. '\^g\-h' .. each.string .. '\^g\|f' .. each.string .. '\^g\|h' .. each.string, each.x, each.y
+      ?each.string, each.x, each.y, c
     end)
   end,
-
-  p4bonus = function(self, s, x, y, c, o) -- 34 tokens, 5.7 seconds
-    color(o)
-    ?'\-f'..s..'\^g\-h'..s..'\^g\|f'..s..'\^g\|h'..s,x,y
-    ?s,x,y,c
-  end
 }
