@@ -16,7 +16,7 @@ __lua__
 #include t_gate.lua
 #include control_gate.lua
 #include swap_gate.lua
-#include random_gate.lua
+#include quantum_gate_types.lua
 
 -- tests
 #include test_helper.lua
