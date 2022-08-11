@@ -94,10 +94,7 @@ quantum_gate = {
       draw = function(self, x, y)
         if (self:is_i()) return
 
-        if self:is_cnot_x() and (not self:is_match()) then
-          pal(colors.blue, colors.orange)
-          pal(colors.light_grey, colors.brown)
-        end
+        if (self.draw_setup) self:draw_setup()
 
         if self:is_match() and (not self:is_match_type_i()) then
           pal(colors.lavender, colors.white)
@@ -114,9 +111,9 @@ quantum_gate = {
         spr(self:_sprite(), x, y)
 
         pal(colors.white, colors.white)
-        pal(colors.blue, colors.blue)
-        pal(colors.light_grey, colors.light_grey)
         pal(colors.lavender, colors.lavender)
+
+        if (self.draw_teardown) self:draw_teardown()
       end,
 
       replace_with = function(self, other, match_type, delay_puff, delay_disappear)

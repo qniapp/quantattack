@@ -14,6 +14,18 @@ cnot_x_gate = {
       match_down = 41,
     }
 
+    cnot_x.draw_setup = function(self)
+      if (self:is_match()) return
+
+      pal(colors.blue, colors.orange)
+      pal(colors.light_grey, colors.brown)
+    end
+
+    cnot_x.draw_teardown = function(self)
+      pal(colors.blue, colors.blue)
+      pal(colors.light_grey, colors.light_grey)
+    end
+
     return cnot_x
   end
 }
