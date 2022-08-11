@@ -46,7 +46,7 @@ gate_reduction_rules = {
           ["type"] = "xz",
           ["score"] = 200,
           ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
-                    { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:y() }},
+                    { ["dx"] = 0, ["dy"] = 1, ["gate"] = y_gate:new() }},
         }
       end
     end
@@ -80,7 +80,7 @@ gate_reduction_rules = {
           ["type"] = "zx",
           ["score"] = 200,
           ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
-                    { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:y() }},
+                    { ["dx"] = 0, ["dy"] = 1, ["gate"] = y_gate:new() }},
         }
       end
     end
