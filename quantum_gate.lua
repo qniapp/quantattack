@@ -195,11 +195,11 @@ quantum_gate = {
       end,
 
       is_x = function(self)
-        return self._type == "x" and self.cnot_c_x == nil
+        return self._type == "x"
       end,
 
       is_cnot_x = function(self)
-        return self._type == "x" and self.cnot_c_x != nil
+        return self._type == "cnot_x"
       end,
 
       is_y = function(self)
