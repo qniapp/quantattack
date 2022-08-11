@@ -9,7 +9,7 @@ test('quantum_gate', function(desc, it)
 
   desc('h', function()
     it('should create a hadamard gate', function ()
-      local gate = quantum_gate:h()
+      local gate = h_gate:new()
 
       return gate:is_h()
     end)

@@ -51,8 +51,8 @@ test('board', function(desc,it)
     --
     it('should reduce hh', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:h())
-      board:put(1, 12, quantum_gate:h())
+      board:put(1, 11, h_gate:new())
+      board:put(1, 12, h_gate:new())
 
       board:reduce()
 
@@ -182,9 +182,9 @@ test('board', function(desc,it)
     --
     it('should reduce hxh', function ()
       local board = board:new()
-      board:put(1, 10, quantum_gate:h())
+      board:put(1, 10, h_gate:new())
       board:put(1, 11, quantum_gate:x())
-      board:put(1, 12, quantum_gate:h())
+      board:put(1, 12, h_gate:new())
 
       board:reduce()
 
@@ -199,9 +199,9 @@ test('board', function(desc,it)
     --
     it('should reduce hzh', function ()
       local board = board:new()
-      board:put(1, 10, quantum_gate:h())
+      board:put(1, 10, h_gate:new())
       board:put(1, 11, quantum_gate:z())
-      board:put(1, 12, quantum_gate:h())
+      board:put(1, 12, h_gate:new())
 
       board:reduce()
 
@@ -284,12 +284,12 @@ test('board', function(desc,it)
     -- h h          x-c   
     it('should reduce hh cx hh', function ()
       local board = board:new()
-      board:put(1, 10, quantum_gate:h())
-      board:put(3, 10, quantum_gate:h())
+      board:put(1, 10, h_gate:new())
+      board:put(3, 10, h_gate:new())
       board:put(1, 11, quantum_gate:control(3))
       board:put(3, 11, quantum_gate:x(1))
-      board:put(1, 12, quantum_gate:h())
-      board:put(3, 12, quantum_gate:h())
+      board:put(1, 12, h_gate:new())
+      board:put(3, 12, h_gate:new())
 
       board:reduce()
 
@@ -303,12 +303,12 @@ test('board', function(desc,it)
     -- h h          c-x
     it('should reduce hh xc hh', function ()
       local board = board:new()
-      board:put(1, 10, quantum_gate:h())
-      board:put(3, 10, quantum_gate:h())
+      board:put(1, 10, h_gate:new())
+      board:put(3, 10, h_gate:new())
       board:put(1, 11, quantum_gate:x(3))
       board:put(3, 11, quantum_gate:control(1))
-      board:put(1, 12, quantum_gate:h())
-      board:put(3, 12, quantum_gate:h())
+      board:put(1, 12, h_gate:new())
+      board:put(3, 12, h_gate:new())
 
       board:reduce()
 

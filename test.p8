@@ -12,6 +12,7 @@ __lua__
 #include player.lua
 #include score_popup.lua
 #include i_gate.lua
+#include h_gate.lua
 
 -- tests
 #include test_helper.lua

@@ -13,6 +13,7 @@ __lua__
 #include player.lua
 #include state_machine.lua
 #include i_gate.lua
+#include h_gate.lua
 
 function _init()
   game:init()
