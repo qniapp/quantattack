@@ -33,7 +33,8 @@ board = {
                (y < self.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and (not self:gate_at(x, y + 1):is_i())) then
               repeat
                 self:put(x, y, random_gate())
-              until (#gate_reduction_rules:reduce(self, x, y, true).to == 0)
+              until (#gate_reduction_rules:reduce(self, x, y, true).to == 0) and
+                    (#gate_reduction_rules:reduce(self, x, y - 1, true).to == 0)                   
             else
               self:put(x, y, i_gate:new())
             end
@@ -607,7 +608,8 @@ board = {
         for x = 1, self.cols do
           repeat
             self:put(x, self.rows_plus_next_rows, random_gate())
-          until #gate_reduction_rules:reduce(self, x, self.rows, true).to == 0
+          until (#gate_reduction_rules:reduce(self, x, self.rows, true).to == 0) and
+                (#gate_reduction_rules:reduce(self, x, self.rows - 1, true).to == 0)                   
         end
 
         -- maybe add cnot
