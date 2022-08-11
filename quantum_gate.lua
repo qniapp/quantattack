@@ -121,10 +121,6 @@ quantum_gate = {
     return swap
   end,
 
-  i = function(self)
-    return self:new("i")
-  end,
-
   random = function(self)
     return self:new(self._types[flr(rnd(#self._types)) + 1])
   end,

@@ -11,6 +11,7 @@ __lua__
 #include gate_reduction_rules.lua
 #include player.lua
 #include score_popup.lua
+#include i_gate.lua
 
 -- tests
 #include test_helper.lua

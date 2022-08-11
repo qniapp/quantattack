@@ -19,7 +19,7 @@ board = {
         for x = 1, self.cols do
           self._gate[x] = {}
           for y = self.rows_plus_next_rows, 1, -1 do
-            self:put(x, y, quantum_gate:i())
+            self:put(x, y, i_gate:new())
           end
         end
 
@@ -35,7 +35,7 @@ board = {
                 self:put(x, y, self:_random_gate())
               until (#gate_reduction_rules:reduce(self, x, y, true).to == 0)
             else
-              self:put(x, y, quantum_gate:i())
+              self:put(x, y, i_gate:new())
             end
           end
         end      
@@ -57,7 +57,7 @@ board = {
         local gate = self:gate_at(x, y)
 
         if (gate:is_reducible()) return gate
-        return quantum_gate:i()
+        return i_gate:new()
       end,      
 
       put = function(self, x, y, gate)
@@ -368,7 +368,7 @@ board = {
                    (tmp_y < self.rows) and
                     self:_is_droppable(x, tmp_y)) do
               self:put(x, tmp_y + 1, gate)
-              self:put(x, tmp_y, quantum_gate:i())
+              self:put(x, tmp_y, i_gate:new())
               tmp_y += 1
             end
 
@@ -391,9 +391,9 @@ board = {
               assert(cnot_x:is_cnot_x())
 
               self:put(x, tmp_y + 1, cnot_c)
-              self:put(x, tmp_y, quantum_gate:i())
+              self:put(x, tmp_y, i_gate:new())
               self:put(cnot_c.cnot_x_x, tmp_y + 1, cnot_x)
-              self:put(cnot_c.cnot_x_x, tmp_y, quantum_gate:i())
+              self:put(cnot_c.cnot_x_x, tmp_y, i_gate:new())
 
               tmp_y += 1
               gate = self:gate_at(x, tmp_y)
@@ -418,9 +418,9 @@ board = {
               assert(swap_b:is_swap())
 
               self:put(x, tmp_y + 1, swap_a)
-              self:put(x, tmp_y, quantum_gate:i())
+              self:put(x, tmp_y, i_gate:new())
               self:put(swap_a.other_x, tmp_y + 1, swap_b)
-              self:put(swap_a.other_x, tmp_y, quantum_gate:i())
+              self:put(swap_a.other_x, tmp_y, i_gate:new())
 
               tmp_y += 1
               gate = self:gate_at(x, tmp_y)
@@ -626,7 +626,7 @@ board = {
           local cnot_left_x = min(cnot_c_x, cnot_x_x)
           local cnot_right_x = max(cnot_c_x, cnot_x_x)
           for x = cnot_left_x + 1, cnot_right_x - 1 do
-            self:put(x, self.rows_plus_next_rows, quantum_gate:i())
+            self:put(x, self.rows_plus_next_rows, i_gate:new())
           end          
         end
       end,
