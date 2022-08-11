@@ -211,7 +211,11 @@ quantum_gate = {
       end,
 
       is_match_type_i = function(self)
-        return self.match_type == "hh" or self.match_type == "xx" or self.match_type == "yy" or self.match_type == "zz" or self.match_type == "swap swap"
+        return self.match_type == "hh" or
+               self.match_type == "xx" or
+               self.match_type == "yy" or
+               self.match_type == "zz" or
+               self.match_type == "swap swap"
       end,
 
       -- private
