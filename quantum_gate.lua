@@ -79,16 +79,6 @@ quantum_gate = {
   _num_frames_swap = 4,
   _num_frames_match = 45,
 
-  h = function(self)
-    return self:new("h")
-  end,
-
-  x = function(self, cnot_c_x)
-    local x = self:new("x")
-    x.cnot_c_x = cnot_c_x
-    return x
-  end,
-
   y = function(self)
     return self:new("y")
   end,

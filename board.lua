@@ -618,7 +618,7 @@ board = {
             cnot_x_x = flr(rnd(self.cols)) + 1
           until cnot_x_x != cnot_c_x
 
-          local x_gate = quantum_gate:x(cnot_c_x)
+          local x_gate = x_gate:new(cnot_c_x)
           local control_gate = quantum_gate:control(cnot_x_x)
           self:put(cnot_x_x, self.rows_plus_next_rows, x_gate)
           self:put(cnot_c_x, self.rows_plus_next_rows, control_gate)
