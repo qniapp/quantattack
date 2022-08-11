@@ -32,7 +32,7 @@ board = {
             if y >= self.rows - 2 or
                (y < self.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and (not self:gate_at(x, y + 1):is_i())) then
               repeat
-                self:put(x, y, self:_random_gate())
+                self:put(x, y, random_gate())
               until (#gate_reduction_rules:reduce(self, x, y, true).to == 0)
             else
               self:put(x, y, i_gate:new())
@@ -736,18 +736,6 @@ board = {
 
       game_over = function(self)
         self._state = "game over"
-      end,
-
-      -- private
-
-      _random_gate = function(self)
-        local gate = nil
-
-        repeat
-          gate = quantum_gate:random()
-        until ((not gate:is_i()) and (not gate:is_control()) and (not gate:is_swap()))
-
-        return gate
       end,
     }
 

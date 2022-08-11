@@ -2,7 +2,6 @@
 quantum_gate = {
   size = 8,
 
-  _types = {"h", "x", "y", "z", "s", "t", "control", "swap", "i"},
   _sprites = {
     idle = {
       h = 0,
@@ -78,10 +77,6 @@ quantum_gate = {
 
   _num_frames_swap = 4,
   _num_frames_match = 45,
-
-  random = function(self)
-    return self:new(self._types[flr(rnd(#self._types)) + 1])
-  end,
 
   new = function(self, type)
     return {
