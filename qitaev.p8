@@ -16,6 +16,7 @@ __lua__
 #include h_gate.lua
 #include x_gate.lua
 #include y_gate.lua
+#include z_gate.lua
 
 function _init()
   game:init()

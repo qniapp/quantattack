@@ -33,7 +33,7 @@ test('quantum_gate', function(desc, it)
 
   desc('z', function()
     it('should create a z gate', function ()
-      local gate = quantum_gate:z()
+      local gate = z_gate:new()
 
       return gate:is_z()
     end)

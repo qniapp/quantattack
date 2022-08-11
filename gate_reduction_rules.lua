@@ -93,7 +93,7 @@ gate_reduction_rules = {
         ["type"] = "ss",
         ["score"] = 200,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
-                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:z() }},
+                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = z_gate:new() }},
       }
     end
 
@@ -156,7 +156,7 @@ gate_reduction_rules = {
         ["score"] = 400,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
                   { ["dx"] = 0, ["dy"] = 1, ["gate"] = i_gate:new() },
-                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:z() }},
+                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = z_gate:new() }},
       }      
     end 
 
@@ -180,7 +180,7 @@ gate_reduction_rules = {
         ["score"] = 400,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
                   { ["dx"] = 0, ["dy"] = 1, ["gate"] = i_gate:new() },
-                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:z() }},
+                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = z_gate:new() }},
       }      
     end
 

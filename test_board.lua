@@ -93,8 +93,8 @@ test('board', function(desc,it)
     --
     it('should reduce zz', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:z())
-      board:put(1, 12, quantum_gate:z())
+      board:put(1, 11, z_gate:new())
+      board:put(1, 12, z_gate:new())
 
       board:reduce()
 
@@ -107,7 +107,7 @@ test('board', function(desc,it)
     --
     it('should reduce zx', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:z())
+      board:put(1, 11, z_gate:new())
       board:put(1, 12, x_gate:new())
 
       board:reduce()
@@ -122,7 +122,7 @@ test('board', function(desc,it)
     it('should reduce xz', function ()
       local board = board:new()
       board:put(1, 11, x_gate:new())
-      board:put(1, 12, quantum_gate:z())
+      board:put(1, 12, z_gate:new())
 
       board:reduce()
 
@@ -200,7 +200,7 @@ test('board', function(desc,it)
     it('should reduce hzh', function ()
       local board = board:new()
       board:put(1, 10, h_gate:new())
-      board:put(1, 11, quantum_gate:z())
+      board:put(1, 11, z_gate:new())
       board:put(1, 12, h_gate:new())
 
       board:reduce()
@@ -217,7 +217,7 @@ test('board', function(desc,it)
     it('should reduce szs', function ()
       local board = board:new()
       board:put(1, 10, quantum_gate:s())
-      board:put(1, 11, quantum_gate:z())
+      board:put(1, 11, z_gate:new())
       board:put(1, 12, quantum_gate:s())
 
       board:reduce()
