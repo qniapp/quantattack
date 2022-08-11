@@ -149,8 +149,8 @@ test('board', function(desc,it)
     --
     it('should reduce tt', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:t())
-      board:put(1, 12, quantum_gate:t())
+      board:put(1, 11, t_gate:new())
+      board:put(1, 12, t_gate:new())
 
       board:reduce()
 

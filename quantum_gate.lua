@@ -79,10 +79,6 @@ quantum_gate = {
   _num_frames_swap = 4,
   _num_frames_match = 45,
 
-  t = function(self)
-    return self:new("t")
-  end,
-
   control = function(self, cnot_x_x)
     assert(cnot_x_x)
 

@@ -49,7 +49,7 @@ test('quantum_gate', function(desc, it)
 
   desc('t', function()
     it('should create a t gate', function ()
-      local gate = quantum_gate:t()
+      local gate = t_gate:new()
 
       return gate:is_t()
     end)
