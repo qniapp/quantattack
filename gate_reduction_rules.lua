@@ -105,7 +105,7 @@ gate_reduction_rules = {
         ["type"] = "tt",
         ["score"] = 200,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
-                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:s() }},
+                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = s_gate:new() }},
       }
     end
 

@@ -135,8 +135,8 @@ test('board', function(desc,it)
     --
     it('should reduce ss', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:s())
-      board:put(1, 12, quantum_gate:s())
+      board:put(1, 11, s_gate:new())
+      board:put(1, 12, s_gate:new())
 
       board:reduce()
 
@@ -216,9 +216,9 @@ test('board', function(desc,it)
     --
     it('should reduce szs', function ()
       local board = board:new()
-      board:put(1, 10, quantum_gate:s())
+      board:put(1, 10, s_gate:new())
       board:put(1, 11, z_gate:new())
-      board:put(1, 12, quantum_gate:s())
+      board:put(1, 12, s_gate:new())
 
       board:reduce()
 

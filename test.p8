@@ -16,6 +16,7 @@ __lua__
 #include x_gate.lua
 #include y_gate.lua
 #include z_gate.lua
+#include s_gate.lua
 
 -- tests
 #include test_helper.lua
