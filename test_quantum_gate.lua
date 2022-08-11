@@ -65,7 +65,7 @@ test('quantum_gate', function(desc, it)
 
   desc('swap', function()
     it('should create a swap gate', function ()
-      local gate = quantum_gate:swap(1)
+      local gate = swap_gate:new(1)
 
       return gate:is_swap()
     end)

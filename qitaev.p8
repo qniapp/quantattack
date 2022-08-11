@@ -20,6 +20,7 @@ __lua__
 #include s_gate.lua
 #include t_gate.lua
 #include control_gate.lua
+#include swap_gate.lua
 
 function _init()
   game:init()

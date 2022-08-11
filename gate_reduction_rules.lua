@@ -196,7 +196,7 @@ gate_reduction_rules = {
         ["score"] = 800,
         ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = i_gate:new() },
                   { ["dx"] = 0, ["dy"] = 1, ["gate"] = i_gate:new() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = i_gate:new() },
-                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:swap(x + dx) }, { ["dx"] = dx, ["dy"] = 2, ["gate"] = quantum_gate:swap(x) }},
+                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = swap_gate:new(x + dx) }, { ["dx"] = dx, ["dy"] = 2, ["gate"] = swap_gate:new(x) }},
       }  
     end
 

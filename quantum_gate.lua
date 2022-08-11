@@ -79,14 +79,6 @@ quantum_gate = {
   _num_frames_swap = 4,
   _num_frames_match = 45,
 
-  swap = function(self, other_x)
-    assert(other_x)
-
-    local swap = self:new("swap")
-    swap.other_x = other_x
-    return swap
-  end,
-
   random = function(self)
     return self:new(self._types[flr(rnd(#self._types)) + 1])
   end,

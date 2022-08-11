@@ -163,10 +163,10 @@ test('board', function(desc,it)
     --
     it('should reduce swap pairs in the same columns', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:swap(3))
-      board:put(3, 11, quantum_gate:swap(1))
-      board:put(1, 12, quantum_gate:swap(3))
-      board:put(3, 12, quantum_gate:swap(1))
+      board:put(1, 11, swap_gate:new(3))
+      board:put(3, 11, swap_gate:new(1))
+      board:put(1, 12, swap_gate:new(3))
+      board:put(3, 12, swap_gate:new(1))
 
       board:reduce()
 
@@ -365,8 +365,8 @@ test('board', function(desc,it)
     it('should drop gate until it stops at swap', function ()
       local board = board:new()
       board:put(2, 1, x_gate:new())
-      board:put(1, board.rows, quantum_gate:swap(3))
-      board:put(3, board.rows, quantum_gate:swap(1))
+      board:put(1, board.rows, swap_gate:new(3))
+      board:put(3, board.rows, swap_gate:new(1))
 
       board:drop_gates()
 
@@ -393,8 +393,8 @@ test('board', function(desc,it)
     -- _x_              _x_
     it('should drop swap pair until it stops at another gate', function ()
       local board = board:new()
-      board:put(1, 1, quantum_gate:swap(3))
-      board:put(3, 1, quantum_gate:swap(1))
+      board:put(1, 1, swap_gate:new(3))
+      board:put(3, 1, swap_gate:new(1))
       board:put(2, board.rows, x_gate:new())
 
       board:drop_gates()
