@@ -1,7 +1,7 @@
 test('quantum_gate', function(desc, it)
   desc('i', function()
     it('should create an id gate', function ()
-      local gate = quantum_gate:i()
+      local gate = i_gate:new()
 
       return gate:is_i()
     end)
@@ -9,7 +9,7 @@ test('quantum_gate', function(desc, it)
 
   desc('h', function()
     it('should create a hadamard gate', function ()
-      local gate = quantum_gate:h()
+      local gate = h_gate:new()
 
       return gate:is_h()
     end)
@@ -17,7 +17,7 @@ test('quantum_gate', function(desc, it)
 
   desc('x', function()
     it('should create an x gate', function ()
-      local gate = quantum_gate:x()
+      local gate = x_gate:new()
 
       return gate:is_x()
     end)
@@ -25,7 +25,7 @@ test('quantum_gate', function(desc, it)
 
   desc('y', function()
     it('should create a y gate', function ()
-      local gate = quantum_gate:y()
+      local gate = y_gate:new()
 
       return gate:is_y()
     end)
@@ -33,7 +33,7 @@ test('quantum_gate', function(desc, it)
 
   desc('z', function()
     it('should create a z gate', function ()
-      local gate = quantum_gate:z()
+      local gate = z_gate:new()
 
       return gate:is_z()
     end)
@@ -41,7 +41,7 @@ test('quantum_gate', function(desc, it)
 
   desc('s', function()
     it('should create an s gate', function ()
-      local gate = quantum_gate:s()
+      local gate = s_gate:new()
 
       return gate:is_s()
     end)
@@ -49,7 +49,7 @@ test('quantum_gate', function(desc, it)
 
   desc('t', function()
     it('should create a t gate', function ()
-      local gate = quantum_gate:t()
+      local gate = t_gate:new()
 
       return gate:is_t()
     end)
@@ -57,7 +57,7 @@ test('quantum_gate', function(desc, it)
 
   desc('control', function()
     it('should create a control gate', function ()
-      local gate = quantum_gate:control(1)
+      local gate = control_gate:new(1)
 
       return gate:is_control()
     end)
@@ -65,25 +65,9 @@ test('quantum_gate', function(desc, it)
 
   desc('swap', function()
     it('should create a swap gate', function ()
-      local gate = quantum_gate:swap(1)
+      local gate = swap_gate:new(1)
 
       return gate:is_swap()
-    end)
-  end)
-
-  desc('random', function()
-    it('should create a random gate', function ()
-      local gate = quantum_gate:random()
-
-      return gate:is_i() or
-             gate:is_h() or
-             gate:is_x() or
-             gate:is_y() or
-             gate:is_z() or
-             gate:is_s() or
-             gate:is_t() or
-             gate:is_control() or
-             gate:is_swap()
     end)
   end)
 end)

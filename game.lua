@@ -158,11 +158,11 @@ game = {
   end,
 
   _maybe_raise_gates = function(self)
-    if (self.tick ~= self.duration_raise_gates) return
+    if (self.tick != self.duration_raise_gates) return
 
     self.tick = 0
 
-    if (#self.board:gates_in_action() > 0) return
+    if (#self.board:gates_busy() > 0) return
 
     self.board.raised_dots += 1
 

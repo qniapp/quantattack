@@ -11,13 +11,15 @@ board = {
         self.cols = board.default_cols
         self.rows = board.default_rows
         self.rows_plus_next_rows = self.rows + board.default_next_rows
+        self.width = self.cols * quantum_gate.size
+        self.height = self.rows * quantum_gate.size
         self._gate = {}
         self.raised_dots = 0
 
         for x = 1, self.cols do
           self._gate[x] = {}
           for y = self.rows_plus_next_rows, 1, -1 do
-            self:put(x, y, quantum_gate:i())
+            self:put(x, y, i_gate:new())
           end
         end
 
@@ -30,10 +32,11 @@ board = {
             if y >= self.rows - 2 or
                (y < self.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and (not self:gate_at(x, y + 1):is_i())) then
               repeat
-                self:put(x, y, self:_random_gate())
-              until (#gate_reduction_rules:reduce(self, x, y, true).to == 0)
+                self:put(x, y, random_gate())
+              until (#gate_reduction_rules:reduce(self, x, y, true).to == 0) and
+                    (#gate_reduction_rules:reduce(self, x, y - 1, true).to == 0)                   
             else
-              self:put(x, y, quantum_gate:i())
+              self:put(x, y, i_gate:new())
             end
           end
         end      
@@ -54,11 +57,8 @@ board = {
       reducible_gate_at = function(self, x, y)
         local gate = self:gate_at(x, y)
 
-        if gate:is_reducible() then
-          return gate
-        end
-        
-        return quantum_gate:i()
+        if (gate:is_reducible()) return gate
+        return i_gate:new()
       end,      
 
       put = function(self, x, y, gate)
@@ -85,98 +85,79 @@ board = {
       draw = function(self)
         -- wires
         for i = 1, 6 do
-          line(self.left + 3 + (i - 1) * quantum_gate.size, self.top - 1,
-               self.left + 3 + (i - 1) * quantum_gate.size, self.top - 1 + self.rows * quantum_gate.size,
+          line(self:screen_x(i) + 3, self.top - 1,
+               self:screen_x(i) + 3, self.top - 1 + self.height,
                colors.dark_grey)
         end
 
-        -- gates
         for bx = 1, self.cols do
-          for by = self.rows_plus_next_rows, 1, -1 do
-            local x = self.left + (bx - 1) * quantum_gate.size
-            local y = self.top + (by - 1) * quantum_gate.size
+          for by = 1, self.rows_plus_next_rows do
+            local x = self:screen_x(bx)
+            local y = self:screen_y(by)
             local gate = self:gate_at(bx, by)
 
-            if gate:is_swapping_with_left() then
-              gate:draw(x + 4, y - self.raised_dots)
-            elseif gate:is_swapping_with_right() then
-              gate:draw(x - 4, y - self.raised_dots)
-            else
-              gate:draw(x, y - self.raised_dots)
-            end
-          end
-        end
-
-        -- draw cnot laser
-        for bx = 1, self.cols do
-          for by = self.rows_plus_next_rows, 1, -1 do
-            local gate = self:gate_at(bx, by)
-
+            -- draw cnot laser
             if gate:is_control() then
               if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
-                local lx0 = self:screen_x(bx) + 3
-                local ly0 = self:screen_y(by) + 3
+                local lx0 = x + 3
                 local lx1 = self:screen_x(gate.cnot_x_x) + 3
-                local ly1 = ly0
+                local ly = y + 3
                 local laser_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
 
-                line(lx0, ly0, lx1, ly1, laser_color)
+                line(lx0, ly, lx1, ly, laser_color)
               end
-            end
+            end            
+
+            -- draw swap laser
+            if gate:is_swap() and bx < gate.other_x then
+              if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
+                local lx0 = x + 3
+                local lx1 = self:screen_x(gate.other_x) + 3
+                local ly = self:screen_y(by) + 3
+                local laser_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
+
+                line(lx0, ly, lx1, ly, laser_color)
+              end
+            end            
           end
         end
 
-        -- draw swap laser
         for bx = 1, self.cols do
-          for by = self.rows, 1, -1 do
+          for by = 1, self.rows_plus_next_rows do
+            local x = self:screen_x(bx)
+            local y = self:screen_y(by)
             local gate = self:gate_at(bx, by)
 
-            if gate:is_swap() then
-              if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
-                local lx0 = self:screen_x(bx) + 3
-                local ly0 = self:screen_y(by) + 3
-                local lx1 = self:screen_x(gate.other_x) + 3
-                local ly1 = ly0
-                local laser_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
-
-                line(lx0, ly0, lx1, ly1, laser_color)
-              end
-            end
-          end
-        end        
-
-        -- draw cnot and swap gates over the cnot and swap laser
-        for bx = 1, self.cols do
-          for by = self.rows_plus_next_rows, 1, -1 do
-            local x = self.left + (bx - 1) * quantum_gate.size
-            local y = self.top + (by - 1) * quantum_gate.size
-            local gate = self:gate_at(bx, by)
-
-            if gate:is_control() or gate:is_cnot_x() or gate:is_swap() then
-              gate:draw(x, y - self.raised_dots)
-            end
+            -- draw gates
+            if gate:is_swapping_with_left() then
+              gate:draw(x + 4, y)
+            elseif gate:is_swapping_with_right() then
+              gate:draw(x - 4, y)
+            else
+              gate:draw(x, y)
+            end            
 
             if (by == self.rows_plus_next_rows) then
-              spr(64, x, y - self.raised_dots)
+              spr(64, x, y)
             end
           end
         end
 
-        -- mask next row outside the border
-        rectfill(self.left - 1, self.top + self.rows * quantum_gate.size,
-                 self.left + self.cols * quantum_gate.size - 1, self.top + (self.rows + 1) * quantum_gate.size,
+        -- mask next row below the bottom border
+        rectfill(self.left - 1, self.top + self.height,
+                 self.left + self.width, self.top + (self.rows + 1) * quantum_gate.size,
                  colors.black)
 
         -- border left
         line(self.left - 2, self.top - 1,
-             self.left - 2, self.top + self.rows * quantum_gate.size,
+             self.left - 2, self.top + self.height,
              colors.white)
         -- border bottom
-        line(self.left - 2, self.top + self.rows * quantum_gate.size,
-             self.left + self.cols * quantum_gate.size, self.top + self.rows * quantum_gate.size, colors.white)
+        line(self.left - 2, self.top + self.height,
+             self.left + self.width, self.top + self.height, colors.white)
         -- border right
-        line(self.left + self.cols * quantum_gate.size, self.top - 1,
-             self.left + self.cols * quantum_gate.size, self.top + self.rows * quantum_gate.size, colors.white)
+        line(self.left + self.width, self.top - 1,
+             self.left + self.width, self.top + self.height, colors.white)
       end,
 
       swap = function(self, x_left, x_right, y)
@@ -227,7 +208,7 @@ board = {
         if right_gate:is_control() then
           if left_gate:is_i() then -- i c
             return true
-          elseif not left_gate:is_cnot_x() then -- x-?- .. -c
+          elseif not left_gate:is_cnot_x() then -- x-..?-c
             return false
           end
         end
@@ -245,7 +226,7 @@ board = {
         if right_gate:is_cnot_x() then
           if left_gate:is_i() then -- i x
             return true
-          elseif not left_gate:is_control() then -- c-?-..-x
+          elseif not left_gate:is_control() then -- c-..?-x
             return false
           end
         end
@@ -278,7 +259,7 @@ board = {
         if right_gate:is_swap() then
           if left_gate:is_i() then -- i s
             return true
-          elseif not left_gate:is_swap() then -- s-?- .. -s
+          elseif not left_gate:is_swap() then -- s-..?-s
             return false
           end
         end
@@ -299,7 +280,7 @@ board = {
 
       reduce = function(self)
         for x = 1, self.cols do
-          for y = self.rows - 1, 1, -1 do
+          for y = 1, self.rows - 1 do
             if self:gate_at(x, y):is_reducible() then
               local reduction = gate_reduction_rules:reduce(self, x, y)
               local delay_disappear = (#reduction.to - 1) * 20 + 20
@@ -321,14 +302,13 @@ board = {
         end
       end,
 
-      gates_in_action = function(self)
+      gates_busy = function(self)
         local gates = {}
 
         for x = 1, self.cols do
           for y = 1, self.rows do
             local gate = self:gate_at(x, y)
-            if (not gate:is_i()) and
-                not (gate:is_idle() or gate:is_dropped()) then
+            if (not gate:is_i()) and gate:is_busy() then
               add(gates, gate)
             end
           end
@@ -346,9 +326,8 @@ board = {
             local gate_below = self:gate_at(x, y + 1)
 
             if ((not gate:is_i()) and
-                gate:is_dropped() and
-                gate.tick_drop == 0 and
-                (gate_below == nil or (not gate_below:is_dropped()))) then
+                gate:is_dropped() and gate.tick_drop == 0 and
+                (not gate_below:is_dropped())) then
               gate.x = x
               gate.y = y
               add(gates, gate)
@@ -390,7 +369,7 @@ board = {
                    (tmp_y < self.rows) and
                     self:_is_droppable(x, tmp_y)) do
               self:put(x, tmp_y + 1, gate)
-              self:put(x, tmp_y, quantum_gate:i())
+              self:put(x, tmp_y, i_gate:new())
               tmp_y += 1
             end
 
@@ -413,9 +392,9 @@ board = {
               assert(cnot_x:is_cnot_x())
 
               self:put(x, tmp_y + 1, cnot_c)
-              self:put(x, tmp_y, quantum_gate:i())
+              self:put(x, tmp_y, i_gate:new())
               self:put(cnot_c.cnot_x_x, tmp_y + 1, cnot_x)
-              self:put(cnot_c.cnot_x_x, tmp_y, quantum_gate:i())
+              self:put(cnot_c.cnot_x_x, tmp_y, i_gate:new())
 
               tmp_y += 1
               gate = self:gate_at(x, tmp_y)
@@ -440,9 +419,9 @@ board = {
               assert(swap_b:is_swap())
 
               self:put(x, tmp_y + 1, swap_a)
-              self:put(x, tmp_y, quantum_gate:i())
+              self:put(x, tmp_y, i_gate:new())
               self:put(swap_a.other_x, tmp_y + 1, swap_b)
-              self:put(swap_a.other_x, tmp_y, quantum_gate:i())
+              self:put(swap_a.other_x, tmp_y, i_gate:new())
 
               tmp_y += 1
               gate = self:gate_at(x, tmp_y)
@@ -628,8 +607,9 @@ board = {
 
         for x = 1, self.cols do
           repeat
-            self:put(x, self.rows_plus_next_rows, self:_random_gate())
-          until #gate_reduction_rules:reduce(self, x, self.rows, true).to == 0
+            self:put(x, self.rows_plus_next_rows, random_gate())
+          until (#gate_reduction_rules:reduce(self, x, self.rows, true).to == 0) and
+                (#gate_reduction_rules:reduce(self, x, self.rows - 1, true).to == 0)                   
         end
 
         -- maybe add cnot
@@ -638,17 +618,17 @@ board = {
           local cnot_x_x = nil
           repeat
             cnot_x_x = flr(rnd(self.cols)) + 1
-          until cnot_x_x ~= cnot_c_x
+          until cnot_x_x != cnot_c_x
 
-          local x_gate = quantum_gate:x(cnot_c_x)
-          local control_gate = quantum_gate:control(cnot_x_x)
+          local x_gate = cnot_x_gate:new(cnot_c_x)
+          local control_gate = control_gate:new(cnot_x_x)
           self:put(cnot_x_x, self.rows_plus_next_rows, x_gate)
           self:put(cnot_c_x, self.rows_plus_next_rows, control_gate)
 
           local cnot_left_x = min(cnot_c_x, cnot_x_x)
           local cnot_right_x = max(cnot_c_x, cnot_x_x)
           for x = cnot_left_x + 1, cnot_right_x - 1 do
-            self:put(x, self.rows_plus_next_rows, quantum_gate:i())
+            self:put(x, self.rows_plus_next_rows, i_gate:new())
           end          
         end
       end,
@@ -758,18 +738,6 @@ board = {
 
       game_over = function(self)
         self._state = "game over"
-      end,
-
-      -- private
-
-      _random_gate = function(self)
-        local gate = nil
-
-        repeat
-          gate = quantum_gate:random()
-        until ((not gate:is_i()) and (not gate:is_control()) and (not gate:is_swap()))
-
-        return gate
       end,
     }
 

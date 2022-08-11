@@ -51,13 +51,13 @@ test('board', function(desc,it)
     --
     it('should reduce hh', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:h())
-      board:put(1, 12, quantum_gate:h())
+      board:put(1, 11, h_gate:new())
+      board:put(1, 12, h_gate:new())
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "i"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "i"
     end)
 
     --  x  reduce
@@ -65,13 +65,13 @@ test('board', function(desc,it)
     --
     it('should reduce xx', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:x())
-      board:put(1, 12, quantum_gate:x())
+      board:put(1, 11, x_gate:new())
+      board:put(1, 12, x_gate:new())
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "i"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "i"
     end)
 
     --  y  reduce
@@ -79,13 +79,13 @@ test('board', function(desc,it)
     --
     it('should reduce yy', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:y())
-      board:put(1, 12, quantum_gate:y())
+      board:put(1, 11, y_gate:new())
+      board:put(1, 12, y_gate:new())
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "i"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "i"
     end)
 
     --  z  reduce
@@ -93,13 +93,13 @@ test('board', function(desc,it)
     --
     it('should reduce zz', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:z())
-      board:put(1, 12, quantum_gate:z())
+      board:put(1, 11, z_gate:new())
+      board:put(1, 12, z_gate:new())
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "i"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "i"
     end)
 
     --  z  reduce
@@ -107,13 +107,13 @@ test('board', function(desc,it)
     --
     it('should reduce zx', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:z())
-      board:put(1, 12, quantum_gate:x())
+      board:put(1, 11, z_gate:new())
+      board:put(1, 12, x_gate:new())
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "y"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "y"
     end)
 
     --  x  reduce
@@ -121,13 +121,13 @@ test('board', function(desc,it)
     --
     it('should reduce xz', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:x())
-      board:put(1, 12, quantum_gate:z())
+      board:put(1, 11, x_gate:new())
+      board:put(1, 12, z_gate:new())
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "y"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "y"
     end)
 
     --  s  reduce
@@ -135,13 +135,13 @@ test('board', function(desc,it)
     --
     it('should reduce ss', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:s())
-      board:put(1, 12, quantum_gate:s())
+      board:put(1, 11, s_gate:new())
+      board:put(1, 12, s_gate:new())
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "z"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "z"
     end)
 
     --  t  reduce
@@ -149,13 +149,13 @@ test('board', function(desc,it)
     --
     it('should reduce tt', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:t())
-      board:put(1, 12, quantum_gate:t())
+      board:put(1, 11, t_gate:new())
+      board:put(1, 12, t_gate:new())
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "s"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "s"
     end)
 
     --  s-s  reduce
@@ -163,17 +163,17 @@ test('board', function(desc,it)
     --
     it('should reduce swap pairs in the same columns', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:swap(3))
-      board:put(3, 11, quantum_gate:swap(1))
-      board:put(1, 12, quantum_gate:swap(3))
-      board:put(3, 12, quantum_gate:swap(1))
+      board:put(1, 11, swap_gate:new(3))
+      board:put(3, 11, swap_gate:new(1))
+      board:put(1, 12, swap_gate:new(3))
+      board:put(3, 12, swap_gate:new(1))
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(3, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "i",
-             board:gate_at(3, 12)._reduce_to == "i"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(3, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "i",
+             board:gate_at(3, 12)._reduce_to._type == "i"
     end)
 
     --  h
@@ -182,15 +182,15 @@ test('board', function(desc,it)
     --
     it('should reduce hxh', function ()
       local board = board:new()
-      board:put(1, 10, quantum_gate:h())
-      board:put(1, 11, quantum_gate:x())
-      board:put(1, 12, quantum_gate:h())
+      board:put(1, 10, h_gate:new())
+      board:put(1, 11, x_gate:new())
+      board:put(1, 12, h_gate:new())
 
       board:reduce()
 
-      return board:gate_at(1, 10)._reduce_to == "i",
-             board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "z"
+      return board:gate_at(1, 10)._reduce_to._type == "i",
+             board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "z"
     end)
 
     --  h
@@ -199,15 +199,15 @@ test('board', function(desc,it)
     --
     it('should reduce hzh', function ()
       local board = board:new()
-      board:put(1, 10, quantum_gate:h())
-      board:put(1, 11, quantum_gate:z())
-      board:put(1, 12, quantum_gate:h())
+      board:put(1, 10, h_gate:new())
+      board:put(1, 11, z_gate:new())
+      board:put(1, 12, h_gate:new())
 
       board:reduce()
 
-      return board:gate_at(1, 10)._reduce_to == "i",
-             board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "x"
+      return board:gate_at(1, 10)._reduce_to._type == "i",
+             board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "x"
     end)
 
     --  s
@@ -216,15 +216,15 @@ test('board', function(desc,it)
     --
     it('should reduce szs', function ()
       local board = board:new()
-      board:put(1, 10, quantum_gate:s())
-      board:put(1, 11, quantum_gate:z())
-      board:put(1, 12, quantum_gate:s())
+      board:put(1, 10, s_gate:new())
+      board:put(1, 11, z_gate:new())
+      board:put(1, 12, s_gate:new())
 
       board:reduce()
 
-      return board:gate_at(1, 10)._reduce_to == "i",
-             board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "z"
+      return board:gate_at(1, 10)._reduce_to._type == "i",
+             board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "z"
     end)
 
     --  c-x  reduce
@@ -232,15 +232,15 @@ test('board', function(desc,it)
     --
     it('should reduce cnot x2', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:control(3))
-      board:put(3, 11, quantum_gate:x(1))
-      board:put(1, 12, quantum_gate:control(3))
-      board:put(3, 12, quantum_gate:x(1))
+      board:put(1, 11, control_gate:new(3))
+      board:put(3, 11, cnot_x_gate:new(1))
+      board:put(1, 12, control_gate:new(3))
+      board:put(3, 12, cnot_x_gate:new(1))
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",      
-             board:gate_at(1, 12)._reduce_to == "i", board:gate_at(3, 12)._reduce_to == "i"
+      return board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",      
+             board:gate_at(1, 12)._reduce_to._type == "i", board:gate_at(3, 12)._reduce_to._type == "i"
     end)
 
     --  x-c  reduce
@@ -248,15 +248,15 @@ test('board', function(desc,it)
     --
     it('should reduce cnot x2', function ()
       local board = board:new()
-      board:put(1, 11, quantum_gate:x(3))
-      board:put(3, 11, quantum_gate:control(1))
-      board:put(1, 12, quantum_gate:x(3))
-      board:put(3, 12, quantum_gate:control(1))
+      board:put(1, 11, cnot_x_gate:new(3))
+      board:put(3, 11, control_gate:new(1))
+      board:put(1, 12, cnot_x_gate:new(3))
+      board:put(3, 12, control_gate:new(1))
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",      
-             board:gate_at(1, 12)._reduce_to == "i", board:gate_at(3, 12)._reduce_to == "i"
+      return board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",      
+             board:gate_at(1, 12)._reduce_to._type == "i", board:gate_at(3, 12)._reduce_to._type == "i"
     end)    
 
     --  c-x
@@ -265,18 +265,18 @@ test('board', function(desc,it)
     --
     it('should reduce cnotx3', function ()
       local board = board:new()
-      board:put(1, 10, quantum_gate:control(3))
-      board:put(3, 10, quantum_gate:x(1))
-      board:put(1, 11, quantum_gate:x(3))
-      board:put(3, 11, quantum_gate:control(1))
-      board:put(1, 12, quantum_gate:control(3))
-      board:put(3, 12, quantum_gate:x(1))
+      board:put(1, 10, control_gate:new(3))
+      board:put(3, 10, cnot_x_gate:new(1))
+      board:put(1, 11, cnot_x_gate:new(3))
+      board:put(3, 11, control_gate:new(1))
+      board:put(1, 12, control_gate:new(3))
+      board:put(3, 12, cnot_x_gate:new(1))
 
       board:reduce()
 
-      return board:gate_at(1, 10)._reduce_to == "i", board:gate_at(3, 10)._reduce_to == "i",      
-             board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "swap", board:gate_at(3, 12)._reduce_to == "swap"
+      return board:gate_at(1, 10)._reduce_to._type == "i", board:gate_at(3, 10)._reduce_to._type == "i",      
+             board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "swap", board:gate_at(3, 12)._reduce_to._type == "swap"
     end)
 
     -- h h  reduce
@@ -284,18 +284,18 @@ test('board', function(desc,it)
     -- h h          x-c   
     it('should reduce hh cx hh', function ()
       local board = board:new()
-      board:put(1, 10, quantum_gate:h())
-      board:put(3, 10, quantum_gate:h())
-      board:put(1, 11, quantum_gate:control(3))
-      board:put(3, 11, quantum_gate:x(1))
-      board:put(1, 12, quantum_gate:h())
-      board:put(3, 12, quantum_gate:h())
+      board:put(1, 10, h_gate:new())
+      board:put(3, 10, h_gate:new())
+      board:put(1, 11, control_gate:new(3))
+      board:put(3, 11, cnot_x_gate:new(1))
+      board:put(1, 12, h_gate:new())
+      board:put(3, 12, h_gate:new())
 
       board:reduce()
 
-      return board:gate_at(1, 10)._reduce_to == "i", board:gate_at(3, 10)._reduce_to == "i",
-             board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "x", board:gate_at(3, 12)._reduce_to == "control"
+      return board:gate_at(1, 10)._reduce_to._type == "i", board:gate_at(3, 10)._reduce_to._type == "i",
+             board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "cnot_x", board:gate_at(3, 12)._reduce_to._type == "control"
     end)                   
 
     -- h h  reduce
@@ -303,18 +303,18 @@ test('board', function(desc,it)
     -- h h          c-x
     it('should reduce hh xc hh', function ()
       local board = board:new()
-      board:put(1, 10, quantum_gate:h())
-      board:put(3, 10, quantum_gate:h())
-      board:put(1, 11, quantum_gate:x(3))
-      board:put(3, 11, quantum_gate:control(1))
-      board:put(1, 12, quantum_gate:h())
-      board:put(3, 12, quantum_gate:h())
+      board:put(1, 10, h_gate:new())
+      board:put(3, 10, h_gate:new())
+      board:put(1, 11, cnot_x_gate:new(3))
+      board:put(3, 11, control_gate:new(1))
+      board:put(1, 12, h_gate:new())
+      board:put(3, 12, h_gate:new())
 
       board:reduce()
 
-      return board:gate_at(1, 10)._reduce_to == "i", board:gate_at(3, 10)._reduce_to == "i",
-             board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "control", board:gate_at(3, 12)._reduce_to == "x"
+      return board:gate_at(1, 10)._reduce_to._type == "i", board:gate_at(3, 10)._reduce_to._type == "i",
+             board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "control", board:gate_at(3, 12)._reduce_to._type == "cnot_x"
     end)        
   end)
 
@@ -325,7 +325,7 @@ test('board', function(desc,it)
     --
     it('should drop gates', function ()
       local board = board:new()
-      board:put(1, 10, quantum_gate:x())
+      board:put(1, 10, x_gate:new())
 
       board:drop_gates()
 
@@ -338,7 +338,7 @@ test('board', function(desc,it)
     --
     it('should stop dropping gate when it reaches the ground', function ()
       local board = board:new()
-      board:put(1, board.rows, quantum_gate:x())
+      board:put(1, board.rows, x_gate:new())
 
       board:drop_gates()
 
@@ -350,9 +350,9 @@ test('board', function(desc,it)
     -- c-x              c-x
     it('should drop gate until it stops at cnot', function ()
       local board = board:new()
-      board:put(2, 1, quantum_gate:x())
-      board:put(1, board.rows, quantum_gate:control(3))
-      board:put(3, board.rows, quantum_gate:x(1))
+      board:put(2, 1, x_gate:new())
+      board:put(1, board.rows, control_gate:new(3))
+      board:put(3, board.rows, cnot_x_gate:new(1))
 
       board:drop_gates()
 
@@ -364,9 +364,9 @@ test('board', function(desc,it)
     -- s-s              s-s
     it('should drop gate until it stops at swap', function ()
       local board = board:new()
-      board:put(2, 1, quantum_gate:x())
-      board:put(1, board.rows, quantum_gate:swap(3))
-      board:put(3, board.rows, quantum_gate:swap(1))
+      board:put(2, 1, x_gate:new())
+      board:put(1, board.rows, swap_gate:new(3))
+      board:put(3, board.rows, swap_gate:new(1))
 
       board:drop_gates()
 
@@ -378,9 +378,9 @@ test('board', function(desc,it)
     -- _x_              _x_
     it('should drop cnot pair until it stops at another gate', function ()
       local board = board:new()
-      board:put(1, 1, quantum_gate:control(3))
-      board:put(3, 1, quantum_gate:x(1))
-      board:put(2, board.rows, quantum_gate:x())
+      board:put(1, 1, control_gate:new(3))
+      board:put(3, 1, cnot_x_gate:new(1))
+      board:put(2, board.rows, x_gate:new())
 
       board:drop_gates()
 
@@ -393,9 +393,9 @@ test('board', function(desc,it)
     -- _x_              _x_
     it('should drop swap pair until it stops at another gate', function ()
       local board = board:new()
-      board:put(1, 1, quantum_gate:swap(3))
-      board:put(3, 1, quantum_gate:swap(1))
-      board:put(2, board.rows, quantum_gate:x())
+      board:put(1, 1, swap_gate:new(3))
+      board:put(3, 1, swap_gate:new(1))
+      board:put(2, board.rows, x_gate:new())
 
       board:drop_gates()
 

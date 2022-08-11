@@ -12,6 +12,17 @@ __lua__
 #include score_popup.lua
 #include player.lua
 #include state_machine.lua
+#include i_gate.lua
+#include h_gate.lua
+#include x_gate.lua
+#include y_gate.lua
+#include z_gate.lua
+#include s_gate.lua
+#include t_gate.lua
+#include control_gate.lua
+#include cnot_x_gate.lua
+#include swap_gate.lua
+#include quantum_gate_types.lua
 
 function _init()
   game:init()

@@ -23,8 +23,8 @@ gate_reduction_rules = {
       return {
         ["type"] = "hh",
         ["score"] = 100,
-        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }},
+        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = i_gate:new() }},
       }
     end
 
@@ -35,8 +35,8 @@ gate_reduction_rules = {
         return {
           ["type"] = "xx",
           ["score"] = 100,
-          ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                    { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }},
+          ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
+                    { ["dx"] = 0, ["dy"] = 1, ["gate"] = i_gate:new() }},
         }
       end
       if gate_y1:is_z() then
@@ -45,8 +45,8 @@ gate_reduction_rules = {
         return {
           ["type"] = "xz",
           ["score"] = 200,
-          ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                    { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:y() }},
+          ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
+                    { ["dx"] = 0, ["dy"] = 1, ["gate"] = y_gate:new() }},
         }
       end
     end
@@ -58,8 +58,8 @@ gate_reduction_rules = {
       return {
         ["type"] = "yy",
         ["score"] = 100,
-        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }},
+        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = i_gate:new() }},
       }
     end
 
@@ -70,8 +70,8 @@ gate_reduction_rules = {
         return {
           ["type"] = "zz",
           ["score"] = 100,
-          ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                    { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }},
+          ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
+                    { ["dx"] = 0, ["dy"] = 1, ["gate"] = i_gate:new() }},
         }
       elseif gate_y1:is_x() then
         -- z  -->  
@@ -79,8 +79,8 @@ gate_reduction_rules = {
         return {
           ["type"] = "zx",
           ["score"] = 200,
-          ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                    { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:y() }},
+          ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
+                    { ["dx"] = 0, ["dy"] = 1, ["gate"] = y_gate:new() }},
         }
       end
     end
@@ -92,8 +92,8 @@ gate_reduction_rules = {
       return {
         ["type"] = "ss",
         ["score"] = 200,
-        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:z() }},
+        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = z_gate:new() }},
       }
     end
 
@@ -104,8 +104,8 @@ gate_reduction_rules = {
       return {
         ["type"] = "tt",
         ["score"] = 200,
-        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:s() }},
+        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = s_gate:new() }},
       }
     end
 
@@ -117,8 +117,8 @@ gate_reduction_rules = {
       return {
         ["type"] = "swap swap",
         ["score"] = 600,
-        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = quantum_gate:i() }},
+        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = i_gate:new() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = i_gate:new() }},
       }  
     end
 
@@ -130,8 +130,8 @@ gate_reduction_rules = {
       return {
         ["type"] = "cnot x2",
         ["score"] = 200,
-        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = quantum_gate:i() }},
+        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = i_gate:new() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = i_gate:new() }},
       }  
     end
 
@@ -154,9 +154,9 @@ gate_reduction_rules = {
       return {
         ["type"] = "hxh",
         ["score"] = 400,
-        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:z() }},
+        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = z_gate:new() }},
       }      
     end 
 
@@ -166,9 +166,9 @@ gate_reduction_rules = {
       return {
         ["type"] = "hzh",
         ["score"] = 400,
-        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:x() }},
+        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = x_gate:new() }},
       }
     end 
 
@@ -178,9 +178,9 @@ gate_reduction_rules = {
       return {
         ["type"] = "szs",
         ["score"] = 400,
-        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:z() }},
+        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = z_gate:new() }},
       }      
     end
 
@@ -194,9 +194,9 @@ gate_reduction_rules = {
       return {
         ["type"] = "cnot x3",
         ["score"] = 800,
-        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:swap(x + dx) }, { ["dx"] = dx, ["dy"] = 2, ["gate"] = quantum_gate:swap(x) }},
+        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = i_gate:new() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = swap_gate:new(x + dx) }, { ["dx"] = dx, ["dy"] = 2, ["gate"] = swap_gate:new(x) }},
       }  
     end
 
@@ -210,9 +210,9 @@ gate_reduction_rules = {
       return {
         ["type"] = "hh cnot hh",
         ["score"] = 800,
-        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = quantum_gate:i() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = quantum_gate:i() },
-                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = quantum_gate:x(x + dx) }, { ["dx"] = dx, ["dy"] = 2, ["gate"] = quantum_gate:control(x) }},
+        ["to"] = {{ ["dx"] = 0, ["dy"] = 0, ["gate"] = i_gate:new() }, { ["dx"] = dx, ["dy"] = 0, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 1, ["gate"] = i_gate:new() }, { ["dx"] = dx, ["dy"] = 1, ["gate"] = i_gate:new() },
+                  { ["dx"] = 0, ["dy"] = 2, ["gate"] = cnot_x_gate:new(x + dx) }, { ["dx"] = dx, ["dy"] = 2, ["gate"] = control_gate:new(x) }},
       }  
     end
 
