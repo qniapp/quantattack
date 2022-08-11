@@ -56,8 +56,8 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "i"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "i"
     end)
 
     --  x  reduce
@@ -70,8 +70,8 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "i"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "i"
     end)
 
     --  y  reduce
@@ -84,8 +84,8 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "i"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "i"
     end)
 
     --  z  reduce
@@ -98,8 +98,8 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "i"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "i"
     end)
 
     --  z  reduce
@@ -112,8 +112,8 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "y"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "y"
     end)
 
     --  x  reduce
@@ -126,8 +126,8 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "y"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "y"
     end)
 
     --  s  reduce
@@ -140,8 +140,8 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "z"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "z"
     end)
 
     --  t  reduce
@@ -154,8 +154,8 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "s"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "s"
     end)
 
     --  s-s  reduce
@@ -170,10 +170,10 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(3, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "i",
-             board:gate_at(3, 12)._reduce_to == "i"
+      return board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(3, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "i",
+             board:gate_at(3, 12)._reduce_to._type == "i"
     end)
 
     --  h
@@ -188,9 +188,9 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 10)._reduce_to == "i",
-             board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "z"
+      return board:gate_at(1, 10)._reduce_to._type == "i",
+             board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "z"
     end)
 
     --  h
@@ -205,9 +205,9 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 10)._reduce_to == "i",
-             board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "x"
+      return board:gate_at(1, 10)._reduce_to._type == "i",
+             board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "x"
     end)
 
     --  s
@@ -222,9 +222,9 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 10)._reduce_to == "i",
-             board:gate_at(1, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "z"
+      return board:gate_at(1, 10)._reduce_to._type == "i",
+             board:gate_at(1, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "z"
     end)
 
     --  c-x  reduce
@@ -239,8 +239,8 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",      
-             board:gate_at(1, 12)._reduce_to == "i", board:gate_at(3, 12)._reduce_to == "i"
+      return board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",      
+             board:gate_at(1, 12)._reduce_to._type == "i", board:gate_at(3, 12)._reduce_to._type == "i"
     end)
 
     --  x-c  reduce
@@ -255,8 +255,8 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",      
-             board:gate_at(1, 12)._reduce_to == "i", board:gate_at(3, 12)._reduce_to == "i"
+      return board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",      
+             board:gate_at(1, 12)._reduce_to._type == "i", board:gate_at(3, 12)._reduce_to._type == "i"
     end)    
 
     --  c-x
@@ -274,9 +274,9 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 10)._reduce_to == "i", board:gate_at(3, 10)._reduce_to == "i",      
-             board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "swap", board:gate_at(3, 12)._reduce_to == "swap"
+      return board:gate_at(1, 10)._reduce_to._type == "i", board:gate_at(3, 10)._reduce_to._type == "i",      
+             board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "swap", board:gate_at(3, 12)._reduce_to._type == "swap"
     end)
 
     -- h h  reduce
@@ -293,9 +293,9 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 10)._reduce_to == "i", board:gate_at(3, 10)._reduce_to == "i",
-             board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "x", board:gate_at(3, 12)._reduce_to == "control"
+      return board:gate_at(1, 10)._reduce_to._type == "i", board:gate_at(3, 10)._reduce_to._type == "i",
+             board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "x", board:gate_at(3, 12)._reduce_to._type == "control"
     end)                   
 
     -- h h  reduce
@@ -312,9 +312,9 @@ test('board', function(desc,it)
 
       board:reduce()
 
-      return board:gate_at(1, 10)._reduce_to == "i", board:gate_at(3, 10)._reduce_to == "i",
-             board:gate_at(1, 11)._reduce_to == "i", board:gate_at(3, 11)._reduce_to == "i",
-             board:gate_at(1, 12)._reduce_to == "control", board:gate_at(3, 12)._reduce_to == "x"
+      return board:gate_at(1, 10)._reduce_to._type == "i", board:gate_at(3, 10)._reduce_to._type == "i",
+             board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",
+             board:gate_at(1, 12)._reduce_to._type == "control", board:gate_at(3, 12)._reduce_to._type == "x"
     end)        
   end)
 

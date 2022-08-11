@@ -606,7 +606,7 @@ board = {
 
         for x = 1, self.cols do
           repeat
-            self:put(x, self.rows_plus_next_rows, self:_random_gate())
+            self:put(x, self.rows_plus_next_rows, random_gate())
           until #gate_reduction_rules:reduce(self, x, self.rows, true).to == 0
         end
 

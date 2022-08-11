@@ -1,79 +1,5 @@
-
 quantum_gate = {
   size = 8,
-
-  _sprites = {
-    idle = {
-      h = 0,
-      x = 1,
-      y = 2,
-      z = 3,
-      s = 4,
-      t = 5,
-      control = 6,
-      swap = 7,
-    },
-    dropped = {
-      h = 16,
-      x = 17,
-      y = 18,
-      z = 19,
-      s = 20,
-      t = 21,
-      control = 22,
-      swap = 23,
-    },
-    jumping = {
-      h = 48,
-      x = 49,
-      y = 50,
-      z = 51,
-      s = 52,
-      t = 53,
-      control = 54,
-      swap = 55,
-    },
-    falling = {
-      h = 32,
-      x = 33,
-      y = 34,
-      z = 35,
-      s = 36,
-      t = 37,
-      control = 38,
-      swap = 39,
-    },    
-    match_up = {
-      h = 8,
-      x = 9,
-      y = 10,
-      z = 11,
-      s = 12,
-      t = 13,
-      control = 14,
-      swap = 15,
-    },
-    match_middle = {
-      h = 24,
-      x = 25,
-      y = 26,
-      z = 27,
-      s = 28,
-      t = 29,
-      control = 30,
-      swap = 31,
-    },     
-    match_down = {
-      h = 40,
-      x = 41,
-      y = 42,
-      z = 43,
-      s = 44,
-      t = 45,
-      control = 46,
-      swap = 47,
-    },    
-  },
 
   _num_frames_swap = 4,
   _num_frames_match = 45,
@@ -143,7 +69,8 @@ quantum_gate = {
           end
 
           if self.tick_disappear == self.delay_puff then
-            self._type = self._reduce_to
+            self._type = self._reduce_to._type
+            self._sprites = self._reduce_to._sprites
             self._reduce_to = nil
             self.puff = true            
           end
@@ -194,12 +121,11 @@ quantum_gate = {
 
       replace_with = function(self, other, match_type, delay_puff, delay_disappear)
         assert(self:is_reducible())
-        assert(other._type)
         assert(match_type)
         assert(delay_puff)
         assert(delay_disappear)
 
-        self._reduce_to = other._type
+        self._reduce_to = other
         if other:is_swap() then
           self.other_x = other.other_x -- swap
         end
@@ -334,31 +260,31 @@ quantum_gate = {
 
       _sprite = function(self)
         if self:is_idle() then
-          return quantum_gate._sprites.idle[self._type]
+          return self._sprites.idle
         elseif self:is_swapping() then
-          return quantum_gate._sprites.idle[self._type]
+          return self._sprites.idle
         elseif self:is_match() then
           local icon = self.tick_match % 12
           if icon == 0 or icon == 1 or icon == 2 then
-            return quantum_gate._sprites.match_up[self._type]
+            return self._sprites.match_up
           elseif icon == 3 or icon == 4 or icon == 5 then
-            return quantum_gate._sprites.match_middle[self._type]
+            return self._sprites.match_middle
           elseif icon == 6 or icon == 7 or icon == 8 then
-            return quantum_gate._sprites.match_down[self._type]
+            return self._sprites.match_down
           elseif icon == 9 or icon == 10 or icon == 11 then
-            return quantum_gate._sprites.match_middle[self._type]
+            return self._sprites.match_middle
           end
         elseif self:is_dropped() then
           if self.tick_drop < 5 then
-            return quantum_gate._sprites.dropped[self._type]
+            return self._sprites.dropped
           elseif self.tick_drop < 7 then
-            return quantum_gate._sprites.jumping[self._type]
+            return self._sprites.jumping
           elseif self.tick_drop < 11 then
-            return quantum_gate._sprites.falling[self._type]
+            return self._sprites.falling
           end        
-          return quantum_gate._sprites.dropped[self._type]
+          return self._sprites.dropped
         elseif self:is_disappearing() then
-          return quantum_gate._sprites.idle[self._type]
+          return self._sprites.idle
         else
           assert(false, "we should never get here")
         end
