@@ -79,14 +79,6 @@ quantum_gate = {
   _num_frames_swap = 4,
   _num_frames_match = 45,
 
-  control = function(self, cnot_x_x)
-    assert(cnot_x_x)
-
-    local c = self:new("control")
-    c.cnot_x_x = cnot_x_x
-    return c
-  end,
-
   swap = function(self, other_x)
     assert(other_x)
 

@@ -2,12 +2,8 @@ pico-8 cartridge // http://www.pico-8.com
 version 36
 __lua__
 #include colors.lua
--- #include dropping_particle.lua
--- #include game.lua
--- #include player_cursor.lua
 #include quantum_gate.lua
 #include board.lua
--- #include puff_particle.lua
 #include gate_reduction_rules.lua
 #include player.lua
 #include score_popup.lua
@@ -18,6 +14,7 @@ __lua__
 #include z_gate.lua
 #include s_gate.lua
 #include t_gate.lua
+#include control_gate.lua
 
 -- tests
 #include test_helper.lua
