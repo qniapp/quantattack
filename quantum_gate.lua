@@ -12,24 +12,7 @@ quantum_gate = {
 
       update = function(self)
         -- gate specific updates
-        if self:is_control() or self:is_swap() then
-          if self.tick_laser == nil then
-            self.tick_laser = 0
-            if self.laser == nil then
-              self.laser = flr(rnd(2)) == 0
-            end
-            if self.laser then
-              self.laser_duration = flr(rnd(5)) * 30
-            else
-              self.laser_duration = flr(rnd(5)) + 5
-            end
-          elseif self.tick_laser == self.laser_duration then
-            self.tick_laser = nil
-            self.laser = not self.laser
-          else
-            self.tick_laser += 1
-          end
-        end
+        if (self.before_update) self:before_update()
 
         if self:is_idle() then
           return
