@@ -484,7 +484,8 @@ board = {
                 is_i(gate_below) and
                 is_idle(gate_below) and
                 (not self:_overlap_with_cnot(x, y + 1)) and
-                (not self:_overlap_with_swap(x, y + 1)))
+                (not self:_overlap_with_swap(x, y + 1)) and
+                (not self:_overlap_with_garbage_unitary(x, y + 1)))
       end,
 
       -- checks if
@@ -644,6 +645,33 @@ board = {
 
         if (swap_a_x < x and x < swap_b_x) or
            (swap_b_x < x and x < swap_a_x) then
+          return true
+        end
+
+        return false
+      end,
+
+      _overlap_with_garbage_unitary = function(self, x, y)
+        local garbage_unitary_start = nil
+        local garbage_unitary_end = nil
+
+        local garbage_unitary_start_x = nil
+        local garbage_unitary_end_x = nil
+
+        for bx = 1, self.cols do
+          local gate = self:gate_at(bx, y)
+
+          if is_garbage_unitary(gate) then
+            garbage_unitary_start = gate
+            garbage_unitary_start_x = bx
+            garbage_unitary_end = self:gate_at(bx + 1, y)
+            garbage_unitary_end_x = bx + 1
+          end
+        end
+
+        if (garbage_unitary_start == nil) return false
+
+        if (garbage_unitary_start_x <= x and x <= garbage_unitary_end_x) then
           return true
         end
 
