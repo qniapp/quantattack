@@ -650,8 +650,6 @@ board = {
 
       _overlap_with_garbage_unitary = function(self, x, y)
         local garbage_unitary_start = nil
-        local garbage_unitary_end = nil
-
         local garbage_unitary_start_x = nil
         local garbage_unitary_end_x = nil
 
@@ -662,13 +660,8 @@ board = {
             garbage_unitary_start = gate
             garbage_unitary_start_x = bx
             garbage_unitary_end_x = bx + garbage_unitary_start._width - 1
+            return garbage_unitary_start_x <= x and x <= garbage_unitary_end_x
           end
-        end
-
-        if (garbage_unitary_start == nil) return false
-
-        if (garbage_unitary_start_x <= x and x <= garbage_unitary_end_x) then
-          return true
         end
 
         return false
@@ -825,8 +818,10 @@ board = {
 
       -- todo: game から条件に応じて足す
       add_garbage_unitary = function(self)
-        local garbage = garbage_unitary:new(3)
-        self:put(1, 1, garbage)
+        local width = flr(rnd(self.cols - 1)) + 2
+        local x = flr(rnd(self.cols - width + 1)) + 1
+        local garbage = garbage_unitary:new(width)
+        self:put(x, 1, garbage)
       end,
 
       game_over = function(self)
