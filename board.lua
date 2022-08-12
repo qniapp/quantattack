@@ -609,9 +609,10 @@ board = {
         if control_gate == nil then
           return false
         end
+        assert(x_gate)
 
-        if (control_gate_x < x and x < x_gate_x) or
-           (x_gate_x < x and x < control_gate_x) then
+        if (control_gate_x <= x and x <= x_gate_x) or
+           (x_gate_x <= x and x <= control_gate_x) then
           return true
         end
 
