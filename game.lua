@@ -36,10 +36,7 @@ game = {
       -- update function
       function(g)
         g:_handle_button_events()
-
-        g.board:reduce()
-        g.board:drop_gates()
-        g.board:update_gates()
+        g.board:update()
 
         g:_create_gate_drop_particles()
         g:_create_gate_puff_particles()
@@ -47,7 +44,9 @@ game = {
         g:_maybe_change_cursor_color()
         g.player_cursor:update()
 
-        g:_maybe_raise_gates()
+        if (g:_maybe_raise_gates()) then
+          g:_maybe_add_garbage_unitary()
+        end
 
         puff_particle:update()
         drop_particle:update()
@@ -158,11 +157,11 @@ game = {
   end,
 
   _maybe_raise_gates = function(self)
-    if (self.tick != self.duration_raise_gates) return
+    if (self.tick != self.duration_raise_gates) return false
 
     self.tick = 0
 
-    if (#self.board:gates_busy() > 0) return
+    if (#self.board:gates_busy() > 0) return false
 
     self.board.raised_dots += 1
 
@@ -173,6 +172,14 @@ game = {
       self.player_cursor:move_up()
       player.steps += 1
     end
+
+    return true
+  end,
+
+  _maybe_add_garbage_unitary = function(self)
+    if (rnd(1) >= 0.05) return
+
+    self.board:add_garbage_unitary()
   end,
 
   _create_gate_drop_particles = function(self)

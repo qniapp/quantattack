@@ -3,7 +3,7 @@ test('quantum_gate', function(desc, it)
     it('should create an id gate', function ()
       local gate = i_gate:new()
 
-      return gate:is_i()
+      return is_i(gate)
     end)
   end)
 
@@ -11,7 +11,7 @@ test('quantum_gate', function(desc, it)
     it('should create a hadamard gate', function ()
       local gate = h_gate:new()
 
-      return gate:is_h()
+      return is_h(gate)
     end)
   end)
 
@@ -19,7 +19,7 @@ test('quantum_gate', function(desc, it)
     it('should create an x gate', function ()
       local gate = x_gate:new()
 
-      return gate:is_x()
+      return is_x(gate)
     end)
   end)
 
@@ -27,7 +27,7 @@ test('quantum_gate', function(desc, it)
     it('should create a y gate', function ()
       local gate = y_gate:new()
 
-      return gate:is_y()
+      return is_y(gate)
     end)
   end)
 
@@ -35,7 +35,7 @@ test('quantum_gate', function(desc, it)
     it('should create a z gate', function ()
       local gate = z_gate:new()
 
-      return gate:is_z()
+      return is_z(gate)
     end)
   end)
 
@@ -43,7 +43,7 @@ test('quantum_gate', function(desc, it)
     it('should create an s gate', function ()
       local gate = s_gate:new()
 
-      return gate:is_s()
+      return is_s(gate)
     end)
   end)  
 
@@ -51,7 +51,7 @@ test('quantum_gate', function(desc, it)
     it('should create a t gate', function ()
       local gate = t_gate:new()
 
-      return gate:is_t()
+      return is_t(gate)
     end)
   end)
 
@@ -59,7 +59,7 @@ test('quantum_gate', function(desc, it)
     it('should create a control gate', function ()
       local gate = control_gate:new(1)
 
-      return gate:is_control()
+      return is_control(gate)
     end)
   end)  
 
@@ -67,7 +67,7 @@ test('quantum_gate', function(desc, it)
     it('should create a swap gate', function ()
       local gate = swap_gate:new(1)
 
-      return gate:is_swap()
+      return is_swap(gate)
     end)
   end)
 end)

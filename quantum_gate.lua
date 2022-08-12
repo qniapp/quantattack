@@ -14,9 +14,9 @@ quantum_gate = {
         -- gate specific updates
         if (self.before_update) self:before_update()
 
-        if self:is_idle() then
+        if is_idle(self) then
           return
-        elseif self:is_swapping() then
+        elseif is_swapping(self) then
           if self.tick_swap == nil then
             self.tick_swap = 0
           elseif self.tick_swap < quantum_gate._num_frames_swap then
@@ -25,7 +25,7 @@ quantum_gate = {
             self.tick_swap = nil
             self:_change_state("idle")
           end
-        elseif self:is_match() then
+        elseif is_match(self) then
           if self.tick_match == nil then
             self.tick_match = 0
           elseif self.tick_match < quantum_gate._num_frames_match then
@@ -34,7 +34,7 @@ quantum_gate = {
             self.tick_match = nil
             self:_change_state("disappear")
           end
-        elseif self:is_dropped() then
+        elseif is_dropped(self) then
           if self.tick_drop == nil then
             self.tick_drop = 0
           else
@@ -44,7 +44,7 @@ quantum_gate = {
                self:_change_state("idle")
             end
           end
-        elseif self:is_disappearing() then
+        elseif is_disappearing(self) then
           self.puff = false
 
           if self.tick_disappear == nil then
@@ -75,16 +75,16 @@ quantum_gate = {
       end,
 
       draw = function(self, x, y)
-        if (self:is_i()) return
+        if (is_i(self)) return
 
         if (self.draw_setup) self:draw_setup()
 
-        if self:is_match() and (not self:is_match_type_i()) then
+        if is_match(self) and (not is_match_type_i(self)) then
           pal(colors.lavender, colors.white)
         end
 
-        if self:is_disappearing() then
-          if self:is_match_type_i() then
+        if is_disappearing(self) then
+          if is_match_type_i(self) then
             pal(colors.white, colors.light_grey)
           else
             pal(colors.white, colors.pink)
@@ -100,13 +100,13 @@ quantum_gate = {
       end,
 
       replace_with = function(self, other, match_type, delay_puff, delay_disappear)
-        assert(self:is_reducible())
+        assert(is_reducible(self))
         assert(match_type)
         assert(delay_puff)
         assert(delay_disappear)
 
         self._reduce_to = other
-        if other:is_swap() then
+        if is_swap(other) then
           self.other_x = other.other_x -- swap
         end
         self.match_type = match_type
@@ -130,94 +130,6 @@ quantum_gate = {
         self:_change_state("swapping_with_right")
       end,
 
-      -- gate states
-
-      is_idle = function(self)
-        return self._state == "idle"
-      end,
-
-      is_reducible = function(self)
-        return (not self:is_i()) and (not self:is_busy())
-      end,
-
-      is_swapping = function(self)
-        return self:is_swapping_with_left() or self:is_swapping_with_right()
-      end,
-
-      is_swapping_with_left = function(self)
-        return self._state == "swapping_with_left"
-      end,
-
-      is_swapping_with_right = function(self)
-        return self._state == "swapping_with_right"
-      end,
-
-      is_match = function(self)
-        return self._state == "match"
-      end,
-
-      is_dropped = function(self)
-        return self._state == "dropped"
-      end,
-
-      is_disappearing = function(self)
-        return self._state == "disappear"
-      end,
-
-      is_busy = function(self)
-        return not (self:is_idle() or self:is_dropped())
-      end,
-
-      -- gate types
-
-      is_h = function(self)
-        return self._type == "h"
-      end,
-
-      is_x = function(self)
-        return self._type == "x"
-      end,
-
-      is_cnot_x = function(self)
-        return self._type == "cnot_x"
-      end,
-
-      is_y = function(self)
-        return self._type == "y"
-      end,
-
-      is_z = function(self)
-        return self._type == "z"
-      end,
-
-      is_s = function(self)
-        return self._type == "s"
-      end,
-
-      is_t = function(self)
-        return self._type == "t"
-      end,
-
-      is_control = function(self)
-        return self._type == "control"
-      end,
-
-      is_swap = function(self)
-        return self._type == "swap"
-      end,
-
-      is_i = function(self)      
-        return self._type == "i"
-      end,
-
-      is_match_type_i = function(self)
-        return self.match_type == "hh" or
-               self.match_type == "xx" or
-               self.match_type == "yy" or
-               self.match_type == "zz" or
-               self.match_type == "swap swap"
-      end,
-
       -- private
 
       _change_state = function(self, new_state)
@@ -228,26 +140,26 @@ quantum_gate = {
                new_state == "disappear")
 
         if new_state == "idle" then
-          assert(self:is_swapping() or self:is_dropped() or self:is_match() or self:is_disappearing())
+          assert(is_swapping(self) or is_dropped(self) or is_match(self) or is_disappearing(self))
         elseif new_state == "swapping_with_left" then
-          assert(self:is_idle() or self:is_dropped())
+          assert(is_idle(self)or is_dropped(self))
         elseif new_state == "swapping_with_right" then
-          assert(self:is_idle() or self:is_dropped())
+          assert(is_idle(self) or is_dropped(self))
         elseif new_state == "dropped" then
-          assert(self:is_idle() or self:is_dropped())
+          assert(is_idle(self)or is_dropped(self))
         elseif new_state == "match" then
-          assert(self:is_reducible())
+          assert(is_reducible(self))
         end
 
         self._state = new_state
       end,
 
       _sprite = function(self)
-        if self:is_idle() then
+        if is_idle(self) then
           return self._sprites.idle
-        elseif self:is_swapping() then
+        elseif is_swapping(self) then
           return self._sprites.idle
-        elseif self:is_match() then
+        elseif is_match(self) then
           local icon = self.tick_match % 12
           if icon == 0 or icon == 1 or icon == 2 then
             return self._sprites.match_up
@@ -258,7 +170,7 @@ quantum_gate = {
           elseif icon == 9 or icon == 10 or icon == 11 then
             return self._sprites.match_middle
           end
-        elseif self:is_dropped() then
+        elseif is_dropped(self) then
           if self.tick_drop < 5 then
             return self._sprites.dropped
           elseif self.tick_drop < 7 then
@@ -267,7 +179,7 @@ quantum_gate = {
             return self._sprites.falling
           end        
           return self._sprites.dropped
-        elseif self:is_disappearing() then
+        elseif is_disappearing(self) then
           return self._sprites.idle
         else
           assert(false, "we should never get here")

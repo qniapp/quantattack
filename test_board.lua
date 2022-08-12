@@ -36,7 +36,7 @@ test('board', function(desc,it)
 
       for x = 1, board.cols do
         for y = 1, board.rows_plus_next_rows do
-          result = result and board:gate_at(x, y):is_i()
+          result = result and is_i(board:gate_at(x, y))
         end
       end
 
@@ -329,7 +329,7 @@ test('board', function(desc,it)
 
       board:drop_gates()
 
-      return board:gate_at(1, 12):is_x()
+      return is_x(board:gate_at(1, 12))
     end)
 
     --     drop_gates
@@ -342,7 +342,7 @@ test('board', function(desc,it)
 
       board:drop_gates()
 
-      return board:gate_at(1, board.rows):is_x()
+      return is_x(board:gate_at(1, board.rows))
     end)
 
     --  x    drop_gates  
@@ -356,7 +356,7 @@ test('board', function(desc,it)
 
       board:drop_gates()
 
-      return board:gate_at(2, board.rows - 1):is_x()
+      return is_x(board:gate_at(2, board.rows - 1))
     end)
 
     --  x    drop_gates  
@@ -370,7 +370,7 @@ test('board', function(desc,it)
 
       board:drop_gates()
 
-      return board:gate_at(2, board.rows - 1):is_x()
+      return is_x(board:gate_at(2, board.rows - 1))
     end)
 
     -- c-x  drop_gates
@@ -384,8 +384,8 @@ test('board', function(desc,it)
 
       board:drop_gates()
 
-      return board:gate_at(1, board.rows - 1):is_control(),
-             board:gate_at(3, board.rows - 1):is_cnot_x()
+      return is_control(board:gate_at(1, board.rows - 1)),
+             is_cnot_x(board:gate_at(3, board.rows - 1))
     end)
 
     -- s-s  drop_gates
@@ -399,8 +399,8 @@ test('board', function(desc,it)
 
       board:drop_gates()
 
-      return board:gate_at(1, board.rows - 1):is_swap(),
-             board:gate_at(3, board.rows - 1):is_swap()
+      return is_swap(board:gate_at(1, board.rows - 1)),
+             is_swap(board:gate_at(3, board.rows - 1))
     end)
   end)  
 end)

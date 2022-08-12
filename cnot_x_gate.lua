@@ -15,7 +15,7 @@ cnot_x_gate = {
     }
 
     cnot_x.draw_setup = function(self)
-      if (self:is_match()) return
+      if (is_match(self)) return
 
       pal(colors.blue, colors.orange)
       pal(colors.light_grey, colors.brown)
