@@ -442,7 +442,7 @@ board = {
             local tmp_y = y
             local gate = self:gate_at(x, tmp_y)
 
-            while self:_is_part_of_garbage_unitary(gate, x, tmp_y) do
+            while self:_is_part_of_droppable_garbage_unitary(gate, x, tmp_y) do
               self:put(x, tmp_y + 1, gate)
               self:put(x, tmp_y, i_gate:new())
 
@@ -566,25 +566,22 @@ board = {
       --   g-g
       -- s-----s  returns false
       --
-      _is_part_of_garbage_unitary = function(self, gate, x, y)
+      _is_part_of_droppable_garbage_unitary = function(self, gate, x, y)
         if (y > self.rows - 1) return false
 
+        local garbage_unitary_start = nil
         local garbage_start_x = nil
-        local garbage_end_x = nil
 
-        if is_garbage_unitary(gate) then
-          garbage_start_x = x
-          garbage_end_x = x + 1
+        for tmp_x = 1, self.cols do
+          if is_garbage_unitary(self:gate_at(tmp_x, y)) then
+            garbage_unitary_start = self:gate_at(tmp_x, y)
+            garbage_start_x = tmp_x
+          end
         end
 
-        if (x > 1) and is_garbage_unitary(self:gate_at(x - 1, y)) then
-          garbage_start_x = x - 1
-          garbage_end_x = x
-        end
+        if (garbage_unitary_start == nil) return false
 
-        if (garbage_start_x == nil) return false
-
-        for garbage_x = garbage_start_x, garbage_end_x do
+        for garbage_x = garbage_start_x, garbage_start_x + garbage_unitary_start._width - 1 do
           if (not self:_is_droppable(garbage_x, y)) return false
         end
 
@@ -664,8 +661,7 @@ board = {
           if is_garbage_unitary(gate) then
             garbage_unitary_start = gate
             garbage_unitary_start_x = bx
-            garbage_unitary_end = self:gate_at(bx + 1, y)
-            garbage_unitary_end_x = bx + 1
+            garbage_unitary_end_x = bx + garbage_unitary_start._width - 1
           end
         end
 
@@ -829,7 +825,7 @@ board = {
 
       -- todo: game から条件に応じて足す
       add_garbage_unitary = function(self)
-        local garbage = garbage_unitary:new()
+        local garbage = garbage_unitary:new(3)
         self:put(1, 1, garbage)
       end,
 
