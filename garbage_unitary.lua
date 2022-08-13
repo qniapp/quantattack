@@ -25,6 +25,21 @@ garbage_unitary = {
 
       dropped = function(self)
       end,
+
+      replace_with = function(self, other, match_type, delay_puff, delay_disappear)
+        -- assert(is_reducible(self))
+        assert(match_type)
+        assert(delay_puff)
+        assert(delay_disappear)
+
+        self._reduce_to = other
+        self.match_type = match_type
+        self.delay_puff = delay_puff
+        self.delay_disappear = delay_disappear
+
+        -- self:_change_state("match")
+        self._state = "match"
+      end,
     }
   end,
 }
