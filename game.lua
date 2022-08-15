@@ -177,9 +177,9 @@ game = {
   end,
 
   _maybe_add_garbage_unitary = function(self)
-    if (rnd(1) >= 0.05) return
+    if (rnd(1) >= 0.08) return
 
-    self.board:add_garbage_unitary()
+    -- self.board:add_garbage_unitary()
   end,
 
   _create_gate_drop_particles = function(self)

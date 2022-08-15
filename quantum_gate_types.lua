@@ -51,7 +51,8 @@ function is_idle(gate)
 end
 
 function is_reducible(gate)
-  return (not is_i(gate)) and (not is_busy(gate))
+  return is_garbage_unitary(gate) or
+         ((not is_i(gate)) and (not is_busy(gate)))
 end
 
 function is_swapping(gate)

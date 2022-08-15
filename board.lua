@@ -53,6 +53,16 @@ board = {
         return gate
       end,
 
+      row = function(self, y)
+        local r = {}
+
+        for x = 1, self.cols do
+          add(r, self:gate_at(x, y))
+        end
+
+        return r
+      end,
+
       reducible_gate_at = function(self, x, y)
         local gate = self:gate_at(x, y)
 
@@ -284,7 +294,7 @@ board = {
         -- reduce non-garbage gates
         for x = 1, self.cols do
           for y = 1, self.rows - 1 do
-            if is_reducible(self:gate_at(x, y)) then
+            if is_reducible(self:gate_at(x, y)) and (not is_garbage_unitary(self:gate_at(x, y))) then
               local reduction = gate_reduction_rules:reduce(self, x, y)
               local delay_disappear = (#reduction.to - 1) * 20 + 20
 
@@ -652,34 +662,17 @@ board = {
       end,
 
       _overlap_with_cnot = function(self, x, y)
-        local control_gate = nil
-        local x_gate = nil
+        local row = self:row(y)
+        local control_gate_x = find_index(row, function(each)
+          return is_control(each) and (not is_match(each))
+        end)
+        if (control_gate_x == nil) return false
 
-        local control_gate_x = nil
-        local x_gate_x = nil
+        local control_gate = row[control_gate_x]
+        local x_gate_x = control_gate.cnot_x_x
 
-        for bx = 1, self.cols do
-          local gate = self:gate_at(bx, y)
-
-          if is_control(gate) and (not is_match(gate)) then
-            control_gate = gate
-            control_gate_x = bx
-            x_gate = self:gate_at(control_gate.cnot_x_x, y)
-            x_gate_x = control_gate.cnot_x_x
-          end
-        end
-
-        if control_gate == nil then
-          return false
-        end
-        assert(x_gate)
-
-        if (control_gate_x <= x and x <= x_gate_x) or
-           (x_gate_x <= x and x <= control_gate_x) then
-          return true
-        end
-
-        return false
+        return (control_gate_x <= x and x <= x_gate_x) or
+               (x_gate_x <= x and x <= control_gate_x)
       end,
 
       _overlap_with_swap = function(self, x, y)
@@ -742,10 +735,6 @@ board = {
       insert_gates_at_bottom = function(self)
         for x = 1, self.cols do
           for y = 1, self.rows_plus_next_rows - 1 do
-            if y == 1 then
-              assert(is_i(self:gate_at(x, 1)))
-            end
-
             self:put(x, y, self:gate_at(x, y + 1))
           end
         end
@@ -792,7 +781,7 @@ board = {
 
             -- update paired gates (cnot and swap) properly
             if is_swapping(gate) and gate.tick_swap == quantum_gate._num_frames_swap then
-              add(gates_to_swap, { ["gate"] = gate, ["y"] = y })
+              add(gates_to_swap, { gate = gate, y = y })
 
               if is_control(gate) then
                 if gate.cnot_x_x == gate.swap_new_x and gate.swap_new_x + 1 == x then
@@ -885,7 +874,12 @@ board = {
         local width = flr(rnd(self.cols - 2)) + 3
         local x = flr(rnd(self.cols - width + 1)) + 1
         local garbage = garbage_unitary:new(width)
-        self:put(x, 1, garbage)
+        local next = garbage:next()
+
+        while next != nil do
+          self:put(x + garbage.dx, 1, next)
+          next = garbage:next()
+        end
       end,
 
       game_over = function(self)

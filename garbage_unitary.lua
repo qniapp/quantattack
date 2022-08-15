@@ -1,45 +1,74 @@
 garbage_unitary = {
   new = function(self, width)
-    return {
-      _type = "garbage",
-      _state = "idle",
-      _width = width,
-      _sprites = {
-        left = 67,
-        body = 68,
-        right = 69,
-      },
-
-      update = function(self)
-      end,
-
-      draw = function(self, screen_x, screen_y)
-        spr(self._sprites.left, screen_x, screen_y)
-
-        for body_index = 1, self._width - 2 do
-          spr(self._sprites.body, screen_x + quantum_gate.size * body_index, screen_y)
-        end
-
-        spr(self._sprites.right, screen_x + quantum_gate.size * (self._width - 1), screen_y)
-      end,
-
-      dropped = function(self)
-      end,
-
-      replace_with = function(self, other, match_type, delay_puff, delay_disappear)
-        -- assert(is_reducible(self))
-        assert(match_type)
-        assert(delay_puff)
-        assert(delay_disappear)
-
-        self._reduce_to = other
-        self.match_type = match_type
-        self.delay_puff = delay_puff
-        self.delay_disappear = delay_disappear
-
-        -- self:_change_state("match")
-        self._state = "match"
-      end,
-    }
+    self._width = width
+    self.dx = 0
+    return self
   end,
+
+  next = function(self)
+    if self.dx == 0 then
+      self.dx += 1
+      return garbage_unitary_left:new()
+    elseif self.dx < self._width then
+      self.dx += 1
+      return garbage_unitary_body:new()
+    else
+      return nil
+    end
+  end,
+}
+
+garbage_unitary_left = {
+  new = function(self)
+    local g = quantum_gate:new("garbage_unitary_left")
+
+    g._width = width
+    g._sprites = {
+      idle = 67,
+      dropped = 67,
+      jumping = 48,
+      falling = 32,
+      match_up = 8,
+      match_middle = 24,
+      match_down = 40
+    }
+
+    return g
+  end
+}
+
+garbage_unitary_body = {
+  new = function(self)
+    local g = quantum_gate:new("garbage_unitary_body")
+
+    g._width = width
+    g._sprites = {
+      idle = 68,
+      dropped = 67,
+      jumping = 48,
+      falling = 32,
+      match_up = 8,
+      match_middle = 24,
+      match_down = 40
+    }
+
+    return g
+  end
+}
+
+garbage_unitary_right = {
+  new = function(self)
+    local g = quantum_gate:new("garbage_unitary_right")
+    g._sprites = {
+      idle = 67,
+      dropped = 67,
+      jumping = 48,
+      falling = 32,
+      match_up = 8,
+      match_middle = 24,
+      match_down = 40
+    }
+
+    return g
+  end
 }
