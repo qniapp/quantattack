@@ -676,33 +676,16 @@ board = {
       end,
 
       _overlap_with_swap = function(self, x, y)
-        local swap_a = nil
-        local swap_b = nil
+        local row = self:row(y)
+        local swap_a_x = find_index(row, function(each)
+          return is_swap(each) and (not is_match(each))
+        end)
+        if (swap_a_x == nil) return false
+        local swap_a = row[swap_a_x]
+        local swap_b_x = swap_a.other_x
 
-        local swap_a_x = nil
-        local swap_b_x = nil
-
-        for bx = 1, self.cols do
-          local gate = self:gate_at(bx, y)
-
-          if is_swap(gate) and (not is_match(gate)) then
-            swap_a = gate
-            swap_a_x = bx
-            swap_b = self:gate_at(swap_a.other_x, y)
-            swap_b_x = swap_a.other_x
-          end
-        end
-
-        if swap_a == nil then
-          return false
-        end
-
-        if (swap_a_x < x and x < swap_b_x) or
-           (swap_b_x < x and x < swap_a_x) then
-          return true
-        end
-
-        return false
+        return (swap_a_x <= x and x <= swap_b_x) or
+               (swap_b_x <= x and x <= swap_a_x)
       end,
 
       _overlap_with_garbage_unitary = function(self, x, y)
