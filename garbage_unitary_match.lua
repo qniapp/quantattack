@@ -2,7 +2,7 @@ garbage_unitary_match = {
   new = function(self, width)
     local gate = quantum_gate:new("garbage_unitary_match")
 
-    gate._state = "match"
+    gate._state = "idle"
     gate._width = width
     gate._sprites = {
       idle = 70,

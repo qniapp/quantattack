@@ -127,11 +127,11 @@ quantum_gate = {
         if new_state == "idle" then
           assert(is_swapping(self) or is_dropped(self) or is_match(self) or is_disappearing(self))
         elseif new_state == "swapping_with_left" then
-          assert(is_idle(self)or is_dropped(self))
+          assert(is_idle(self) or is_dropped(self))
         elseif new_state == "swapping_with_right" then
           assert(is_idle(self) or is_dropped(self))
         elseif new_state == "dropped" then
-          assert(is_idle(self)or is_dropped(self))
+          assert(is_idle(self) or is_dropped(self))
         elseif new_state == "match" then
           -- assert(is_reducible(self))
         end

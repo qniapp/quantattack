@@ -16,9 +16,9 @@ board = {
         self._gate = {}
         self.raised_dots = 0
 
-        for x = 1, self.cols do
-          self._gate[x] = {}
-          for y = self.rows_plus_next_rows, 1, -1 do
+        for y = 1, self.rows_plus_next_rows do
+          self._gate[y] = {}
+          for x = 1, self.cols do
             self:put(x, y, i_gate:new())
           end
         end
@@ -50,20 +50,14 @@ board = {
         -- assert(y >= 1)
         -- assert(y <= self.rows_plus_next_rows)
 
-        local gate = self._gate[x][y]
+        local gate = self._gate[y][x]
         assert(gate)
 
         return gate
       end,
 
       row = function(self, y)
-        local r = {}
-
-        for x = 1, self.cols do
-          add(r, self:gate_at(x, y))
-        end
-
-        return r
+        return self._gate[y]
       end,
 
       reducible_gate_at = function(self, x, y)
@@ -78,7 +72,7 @@ board = {
         assert(y and y >= 1 and y <= self.rows_plus_next_rows)
         assert(gate._type)
 
-        self._gate[x][y] = gate
+        self._gate[y][x] = gate
       end,
       
       screen_x = function(self, board_x)
