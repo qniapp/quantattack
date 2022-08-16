@@ -174,12 +174,12 @@ board = {
       end,
 
       swap = function(self, x_left, x_right, y)
-        local left_gate = self:gate_at(x_left, y)
-        local right_gate = self:gate_at(x_right, y)
-
-        if not self:is_swappable(left_gate, right_gate) then
+        if not self:is_swappable(x_left, x_right, y) then
           return false
         end
+
+        local left_gate = self:gate_at(x_left, y)
+        local right_gate = self:gate_at(x_right, y)
 
         left_gate:start_swap_with_right(x_right)
         right_gate:start_swap_with_left(x_left)
@@ -187,8 +187,16 @@ board = {
         sfx(2)        
       end,
 
-      is_swappable = function(self, left_gate, right_gate)
-        if (is_garbage_unitary(left_gate) or is_garbage_unitary(right_gate)) return false
+      is_swappable = function(self, x_left, x_right, y)
+        if self:_overlap_with_garbage_unitary(x_left, y) or
+           self:_overlap_with_garbage_unitary(x_right, y) then
+          return false
+        end
+
+        local left_gate = self:gate_at(x_left, y)
+        local right_gate = self:gate_at(x_right, y)
+
+        -- if (is_garbage_unitary(left_gate) or is_garbage_unitary(right_gate)) return false
 
         if not (is_idle(left_gate) or is_dropped(left_gate)) then
           return false

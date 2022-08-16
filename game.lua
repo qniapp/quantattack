@@ -150,10 +150,7 @@ game = {
   end,
 
   _maybe_change_cursor_color = function(self)
-    local left_gate = self.board:gate_at(self.player_cursor.x, self.player_cursor.y)
-    local right_gate = self.board:gate_at(self.player_cursor.x + 1, self.player_cursor.y)
-
-    self.player_cursor.cannot_swap = not self.board:is_swappable(left_gate, right_gate)
+    self.player_cursor.cannot_swap = not self.board:is_swappable(self.player_cursor.x, self.player_cursor.x + 1, self.player_cursor.y)
   end,
 
   _maybe_raise_gates = function(self)
