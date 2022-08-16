@@ -126,7 +126,7 @@ board = {
               if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
                 local lx0 = x + 3
                 local lx1 = self:screen_x(gate.other_x) + 3
-                local ly = self:screen_y(by) + 3
+                local ly = y + 3
                 local laser_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
 
                 line(lx0, ly, lx1, ly, laser_color)
