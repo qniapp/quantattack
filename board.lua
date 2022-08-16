@@ -44,8 +44,11 @@ board = {
       gate_at = function(self, x, y)
         -- the following asserts are insanely slow!
         -- !!! comment out at the time of release !!!
-        -- assert(x >= 1 and x <= self.cols)
-        -- assert(y >= 1 and y <= self.rows_plus_next_rows)
+        
+        -- assert(x >= 1)
+        -- assert(x <= self.cols)
+        -- assert(y >= 1)
+        -- assert(y <= self.rows_plus_next_rows)
 
         local gate = self._gate[x][y]
         assert(gate)
@@ -328,7 +331,7 @@ board = {
               --
               if y > 1 then
                 for gx = x, x + gate._width - 1 do
-                  if is_match(self:gate_at(gx, y - 1)) then
+                  if gx <= self.cols and is_match(self:gate_at(gx, y - 1)) and (not is_garbage_unitary_match(self:gate_at(gx, y + 1))) then
                     match = true
                   end
                 end
@@ -341,7 +344,7 @@ board = {
               --
               if y < self.rows then
                 for gx = x, x + gate._width - 1 do
-                  if is_match(self:gate_at(gx, y + 1)) then
+                  if gx <= self.cols and is_match(self:gate_at(gx, y + 1)) and (not is_garbage_unitary_match(self:gate_at(gx, y + 1))) then
                     match = true
                   end
                 end
@@ -349,29 +352,15 @@ board = {
 
               if match then
                 local delay_disappear = (gate._width - 1) * 20 + 20
-
+                
                 for dx = 0, gate._width - 1 do
                   local delay_puff = dx * 20
+
+                  self:put(x + dx, y, garbage_unitary_match:new(gate._width))
                   self:gate_at(x + dx, y):replace_with(random_gate(), "garbage", delay_puff, delay_disappear)
                   delay_puff += 20
                 end
               end              
-
-              -- local reduction = gate_reduction_rules:reduce(self, x, y)
-              -- local delay_disappear = (#reduction.to - 1) * 20 + 20
-
-              -- for index, r in pairs(reduction.to) do
-              --   sfx(4)
-              --   local delay_puff = (index - 1) * 20
-              --   self:gate_at(x + r.dx, y + r.dy):replace_with(r.gate, reduction.type, delay_puff, delay_disappear)
-              --
-              --   if (r.dx == 0 and r.dy == 0) then
-              --     player.score += reduction.score / 100
-              --     score_popup:create(self:screen_x(x) - 2, self:screen_y(y), tostr(reduction.score))
-              --   end
-              --
-              --   delay_puff += 20
-              -- end
             end
           end
         end
@@ -855,7 +844,7 @@ board = {
 
       -- todo: game から条件に応じて足す
       add_garbage_unitary = function(self)
-        local width = flr(rnd(self.cols - 2)) + 3
+        local width = flr(rnd(self.cols - 2)) + 3 -- 3, 4, 5, 6
         local x = flr(rnd(self.cols - width + 1)) + 1
         local garbage = garbage_unitary:new(width)
         

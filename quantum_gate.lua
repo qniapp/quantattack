@@ -80,14 +80,14 @@ quantum_gate = {
         if (self.draw_setup) self:draw_setup()
 
         if is_match(self) and (not is_match_type_i(self)) then
-          pal(colors.lavender, colors.white)
+          -- pal(colors.lavender, colors.white)
         end
 
         if is_disappearing(self) then
           if is_match_type_i(self) then
             pal(colors.white, colors.light_grey)
           else
-            pal(colors.white, colors.pink)
+            -- pal(colors.white, colors.pink)
           end
         end
 

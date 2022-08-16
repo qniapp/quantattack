@@ -1,24 +1,28 @@
 garbage_unitary = {
   new = function(self, width)
-    self._type = "garbage_unitary"
-    self._width = width
-    self._state = "idle"
-    return self
-  end,
+    assert(3 <= width)
+    assert(width <= 6)
 
-  update = function(self)
-  end,
+    return {
+      _type = "garbage_unitary",
+      _width = width,
+      _state = "idle",
 
-  draw = function(self, screen_x, screen_y)
-    spr(67, screen_x, screen_y)
+      update = function(self)  
+      end,
 
-    for dx = 1, self._width - 2 do
-      spr(68, screen_x + quantum_gate.size * dx, screen_y)
-    end
+      draw = function(self, screen_x, screen_y)
+        spr(67, screen_x, screen_y)
 
-    spr(69, screen_x + quantum_gate.size * (self._width - 1), screen_y)
-  end,
+        for dx = 1, self._width - 2 do
+          spr(68, screen_x + quantum_gate.size * dx, screen_y)
+        end
 
-  dropped = function(self)
+        spr(69, screen_x + quantum_gate.size * (self._width - 1), screen_y)
+      end,
+
+      dropped = function(self)
+      end,
+    }
   end,
 }

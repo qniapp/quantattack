@@ -44,6 +44,10 @@ function is_garbage_unitary(gate)
   return gate._type == "garbage_unitary"
 end
 
+function is_garbage_unitary_match(gate)
+  return gate._type == "garbage_unitary_match"
+end
+
 -- gate states
 
 function is_idle(gate)
