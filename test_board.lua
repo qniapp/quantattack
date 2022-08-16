@@ -373,6 +373,19 @@ test('board', function(desc,it)
       return is_x(board:gate_at(2, board.rows - 1))
     end)
 
+    --  x   drop_gates  
+    --      --------->   x
+    -- ggg              ggg
+    it('should drop gate until it stops at garbage unitary', function ()
+      local board = board:new()
+      board:put(2, 1, x_gate:new())
+      board:put(1, board.rows, garbage_unitary:new(3))
+
+      board:drop_gates()
+
+      return is_x(board:gate_at(2, board.rows - 1))
+    end)
+
     -- c-x  drop_gates
     --      --------->  c-x
     -- _x_              _x_

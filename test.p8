@@ -19,6 +19,7 @@ __lua__
 #include cnot_x_gate.lua
 #include swap_gate.lua
 #include quantum_gate_types.lua
+#include garbage_unitary.lua
 
 -- tests
 #include test_helper.lua

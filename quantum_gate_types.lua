@@ -41,7 +41,7 @@ function is_swap(gate)
 end
 
 function is_garbage_unitary(gate)
-  return gate._type == "garbage"
+  return gate._type == "garbage_unitary"
 end
 
 -- gate states

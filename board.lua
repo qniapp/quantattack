@@ -515,7 +515,7 @@ board = {
             local tmp_y = y
             local gate = self:gate_at(x, tmp_y)
 
-            while self:_is_part_of_droppable_garbage_unitary(gate, x, tmp_y) do
+            while self:_is_droppable_garbage_unitary_start(gate, x, tmp_y) do
               self:put(x, tmp_y + 1, gate)
               self:put(x, tmp_y, i_gate:new())
 
@@ -627,19 +627,19 @@ board = {
       --   - gate is a garbage unitary and
       --   - the entire garbage unitary including the gate can be dropped down
       --
-      --  g---g
+      --  ggggg
       -- x______  returns true
       --
-      --  g---g
+      --  ggggg
       -- __x____  returns false
       --
-      --   g-g
+      --   ggg
       -- c-----x  returns false
       --
-      --   g-g
+      --   ggg
       -- s-----s  returns false
       --
-      _is_part_of_droppable_garbage_unitary = function(self, gate, x, y)
+      _is_droppable_garbage_unitary_start = function(self, gate, x, y)
         if (y > self.rows - 1) return false
 
         local garbage_unitary_start = nil
@@ -655,7 +655,15 @@ board = {
         if (garbage_unitary_start == nil) return false
 
         for garbage_x = garbage_start_x, garbage_start_x + garbage_unitary_start._width - 1 do
-          if (not self:_is_droppable(garbage_x, y)) return false
+          local gate_below = self:gate_at(garbage_x, y + 1)
+
+          if not (is_i(gate_below) and
+                  is_idle(gate_below) and
+                  (not self:_overlap_with_cnot(garbage_x, y + 1)) and
+                  (not self:_overlap_with_swap(garbage_x, y + 1)) and
+                  (not self:_overlap_with_garbage_unitary(garbage_x, y + 1))) then
+            return false
+          end
         end
 
         return true
@@ -689,22 +697,15 @@ board = {
       end,
 
       _overlap_with_garbage_unitary = function(self, x, y)
-        local garbage_unitary_start = nil
-        local garbage_unitary_start_x = nil
-        local garbage_unitary_end_x = nil
+        local row = self:row(y)
+        local garbage_unitary_start_x = find_index(row, function(each)
+          return is_garbage_unitary(each) and (not is_match(each))
+        end)
+        if (garbage_unitary_start_x == nil) return false
+        local garbage_unitary = row[garbage_unitary_start_x]
+        local garbage_unitary_end_x = garbage_unitary_start_x + garbage_unitary._width - 1
 
-        for bx = 1, self.cols do
-          local gate = self:gate_at(bx, y)
-
-          if is_garbage_unitary(gate) then
-            garbage_unitary_start = gate
-            garbage_unitary_start_x = bx
-            garbage_unitary_end_x = bx + garbage_unitary_start._width - 1
-            return garbage_unitary_start_x <= x and x <= garbage_unitary_end_x
-          end
-        end
-
-        return false
+        return garbage_unitary_start_x <= x and x <= garbage_unitary_end_x
       end,
 
       is_game_over = function(self)
@@ -857,12 +858,8 @@ board = {
         local width = flr(rnd(self.cols - 2)) + 3
         local x = flr(rnd(self.cols - width + 1)) + 1
         local garbage = garbage_unitary:new(width)
-        local next = garbage:next()
-
-        while next != nil do
-          self:put(x + garbage.dx, 1, next)
-          next = garbage:next()
-        end
+        
+        self:put(x, 1, garbage)
       end,
 
       game_over = function(self)
