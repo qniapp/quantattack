@@ -90,14 +90,12 @@ board = {
       end,
 
       draw = function(self)
-        -- wires
-        for i = 1, 6 do
-          line(self:screen_x(i) + 3, self.top - 1,
-               self:screen_x(i) + 3, self.top - 1 + self.height,
-               colors.dark_grey)
-        end
-
         for bx = 1, self.cols do
+          -- draw wires
+          line(self:screen_x(bx) + 3, self.top - 1,
+               self:screen_x(bx) + 3, self.top - 1 + self.height,
+               colors.dark_grey)
+
           for by = 1, self.rows_plus_next_rows do
             local x = self:screen_x(bx)
             local y = self:screen_y(by)
@@ -125,7 +123,7 @@ board = {
 
                 line(lx0, ly, lx1, ly, laser_color)
               end
-            end            
+            end
           end
         end
 
@@ -146,7 +144,7 @@ board = {
 
             if (by == self.rows_plus_next_rows) then
               spr(64, x, y)
-            end
+            end              
           end
         end
 
@@ -189,8 +187,6 @@ board = {
 
         local left_gate = self:gate_at(x_left, y)
         local right_gate = self:gate_at(x_right, y)
-
-        -- if (is_garbage_unitary(left_gate) or is_garbage_unitary(right_gate)) return false
 
         if not (is_idle(left_gate) or is_dropped(left_gate)) then
           return false
@@ -326,19 +322,6 @@ board = {
             local match = false
 
             if is_garbage_unitary(gate) then
-              -- おじゃまユニタリの上の行のいずれかがマッチしている場合 
-              --
-              -- ?????
-              -- ggggg
-              --
-              if y > 1 then
-                for gx = x, x + gate._width - 1 do
-                  if gx <= self.cols and is_match(self:gate_at(gx, y - 1)) and (not is_garbage_unitary_match(self:gate_at(gx, y + 1))) then
-                    match = true
-                  end
-                end
-              end
-
               -- おじゃまユニタリの下の行のいずれかがマッチしている場合 
               --
               -- ggggg
