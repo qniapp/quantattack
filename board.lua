@@ -842,13 +842,15 @@ board = {
         end)        
       end,
 
-      -- todo: game から条件に応じて足す
       add_garbage_unitary = function(self)
         local width = flr(rnd(self.cols - 2)) + 3 -- 3, 4, 5, 6
         local x = flr(rnd(self.cols - width + 1)) + 1
-        local garbage = garbage_unitary:new(width)
-        
-        self:put(x, 1, garbage)
+
+        for dx = 0, width - 1 do
+          if (self:_overlap_with_garbage_unitary(x + dx, 1)) return
+        end
+
+        self:put(x, 1, garbage_unitary:new(width))
       end,
 
       game_over = function(self)
