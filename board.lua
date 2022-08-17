@@ -90,38 +90,37 @@ board = {
       end,
 
       draw = function(self)
-        for bx = 1, self.cols do
-          -- draw wires
-          line(self:screen_x(bx) + 3, self.top - 1,
-               self:screen_x(bx) + 3, self.top - 1 + self.height,
+        -- draw wires
+        for x = 1, self.cols do
+          local screen_x = self:screen_x(x) + 3
+          local screen_y_top = self.top - 1
+          line(screen_x, screen_y_top,
+               screen_x, screen_y_top + self.height,
                colors.dark_grey)
+        end
 
-          for by = 1, self.rows_plus_next_rows do
-            local x = self:screen_x(bx)
-            local y = self:screen_y(by)
-            local gate = self:gate_at(bx, by)
+        -- draw cnot and swap connections over wires
+        for x = 1, self.cols do
+          for y = 1, self.rows_plus_next_rows do
+            local gate = self:gate_at(x, y)
+            local connection_start_x = self:screen_x(x) + 3
+            local connection_y = self:screen_y(y) + 3
 
-            -- draw cnot laser
+            -- cnot
             if is_control(gate) then
-              if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
-                local lx0 = x + 3
-                local lx1 = self:screen_x(gate.cnot_x_x) + 3
-                local ly = y + 3
-                local laser_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
-
-                line(lx0, ly, lx1, ly, laser_color)
+              if gate.connection and gate.tick_connection and (gate.tick_connection % 4 == 0 or gate.tick_connection % 4 == 1) then
+                local connection_end_x = self:screen_x(gate.cnot_x_x) + 3
+                local connection_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
+                line(connection_start_x, connection_y, connection_end_x, connection_y, connection_color)
               end
             end            
 
-            -- draw swap laser
-            if is_swap(gate) and bx < gate.other_x then
-              if gate.laser and gate.tick_laser and (gate.tick_laser % 4 == 0 or gate.tick_laser % 4 == 1) then
-                local lx0 = x + 3
-                local lx1 = self:screen_x(gate.other_x) + 3
-                local ly = y + 3
-                local laser_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
-
-                line(lx0, ly, lx1, ly, laser_color)
+            -- swap
+            if is_swap(gate) then
+              if gate.connection and gate.tick_connection and (gate.tick_connection % 4 == 0 or gate.tick_connection % 4 == 1) then
+                local connection_end_x = self:screen_x(gate.other_x) + 3
+                local connection_color = flr(rnd(5)) == 0 and colors.dark_purple or colors.yellow
+                line(connection_start_x, connection_y, connection_end_x, connection_y, connection_color)
               end
             end
           end
