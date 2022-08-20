@@ -14,6 +14,7 @@ game = {
     swap = 2,
     puff = 3,
     match = 4,
+    garbage_drop = 5,
   },
 
   init = function(self)
@@ -23,17 +24,21 @@ game = {
     self.player_cursor = player_cursor:new(self.board)
     self.tick = 0
     self.duration_raise_gates = 30 -- 0.5 seconds
+    self.z_pushed = false
 
     self.state_machine:add_state(
       "start",
 
       -- transition function
       function(g)
-        if (btn(game._button.x)) then
+        if btn(game._button.x) then
+          g.z_pushed = true
+        elseif self.z_pushed then
+          g.z_pushed = false
           return "solo"
-        else 
-          return "start"
         end
+
+        return "start"
       end,
   
       -- update function

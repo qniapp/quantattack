@@ -1,4 +1,4 @@
-garbage_unitary = {
+ garbage_unitary = {
   new = function(self, width)
     assert(3 <= width)
     assert(width <= 6)
@@ -7,6 +7,7 @@ garbage_unitary = {
       _type = "garbage_unitary",
       _width = width,
       _state = "idle",
+      _first_drop = true,
 
       update = function(self)  
       end,
@@ -22,6 +23,10 @@ garbage_unitary = {
       end,
 
       dropped = function(self)
+        if (self._first_drop) then
+          sfx(game.sfx.garbage_drop)
+        end
+        self._first_drop = false
       end,
     }
   end,
