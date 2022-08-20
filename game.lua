@@ -23,6 +23,31 @@ game = {
     self.duration_raise_gates = 30 -- 0.5 seconds
 
     self.state_machine:add_state(
+      "start",
+
+      -- transition function
+      function(g)
+        if (btn(game._button.x)) then
+          return "solo"
+        else 
+          return "start"
+        end
+      end,
+  
+      -- update function
+      function(g)
+        -- nop
+      end,
+
+      -- draw function
+      function(g)
+        cls()
+        print("qitaev", 50, 40, colors.white)
+        print("push ❎ or z to start", 24, 70, colors.green)
+      end    
+    )
+
+    self.state_machine:add_state(
       "solo",
 
       -- transition function
@@ -88,12 +113,6 @@ game = {
 
       -- draw function
       function(g)
-        cursor(73, 50)
-        color(colors.red)
-        print("game over")
-        cursor(57, 58)
-        color(colors.white)
-        print("push ❎ to replay")
 
         g.board:draw()
         g.player_cursor:draw()
@@ -102,11 +121,16 @@ game = {
         drop_particle:draw()
 
         g:draw_scores()
-        g:draw_stats()      
+
+        rectfill(10, 47, 117, 70, colors.white)
+        print("game over", 47, 52, colors.red)
+        print("push 🅾️ or x to replay", 21, 62, colors.black)
+
+        g:draw_stats()
       end
     )
 
-    self.state_machine:set_state("solo")
+    self.state_machine:set_state("start")
   end,
 
   update = function(self, board)

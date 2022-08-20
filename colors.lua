@@ -14,4 +14,5 @@ colors = {
   blue = 12,
   lavender = 13,
   pink = 14,
+  light_peach = 15,
 }
