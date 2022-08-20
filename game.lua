@@ -8,10 +8,12 @@ game = {
     o = 5,
   },
 
-  _sfx = {
+  sfx = {
     move_cursor = 0,
     gate_drop = 1,
+    swap = 2,
     puff = 3,
+    match = 4,
   },
 
   init = function(self)
@@ -147,22 +149,22 @@ game = {
   _handle_button_events = function(self)
     if btnp(game._button.left) then
       self.player_cursor:move_left()
-      sfx(game._sfx.move_cursor)
+      sfx(game.sfx.move_cursor)
     end
 
     if btnp(game._button.right) then
       self.player_cursor:move_right()
-      sfx(game._sfx.move_cursor)
+      sfx(game.sfx.move_cursor)
     end
 
     if btnp(game._button.up) then
       self.player_cursor:move_up()
-      sfx(game._sfx.move_cursor)
+      sfx(game.sfx.move_cursor)
     end
 
     if btnp(game._button.down) then
       self.player_cursor:move_down()
-      sfx(game._sfx.move_cursor)
+      sfx(game.sfx.move_cursor)
     end
 
     if btnp(game._button.x) then
@@ -215,7 +217,7 @@ game = {
       drop_particle:create(x + flr(rnd(quantum_gate.size)), y + quantum_gate.size, 1, colors.white)
     end)
 
-    if (#bottommost_gates > 0) sfx(self._sfx.gate_drop)
+    if (#bottommost_gates > 0) sfx(self.sfx.gate_drop)
   end,
 
   _create_gate_puff_particles = function(self)
@@ -237,7 +239,7 @@ game = {
       puff_particle:create(x, y, 1, colors.light_grey)
       puff_particle:create(x, y, 0, colors.dark_purple)
 
-      sfx(self._sfx.puff)
+      sfx(self.sfx.puff)
     end)
   end,
 

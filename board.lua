@@ -175,7 +175,7 @@ board = {
         left_gate:start_swap_with_right(x_right)
         right_gate:start_swap_with_left(x_left)
 
-        sfx(2)        
+        sfx(game.sfx.swap)        
       end,
 
       is_swappable = function(self, x_left, x_right, y)
@@ -299,7 +299,6 @@ board = {
               local delay_disappear = (#reduction.to - 1) * 20 + 20
 
               for index, r in pairs(reduction.to) do
-                sfx(4)
                 local delay_puff = (index - 1) * 20
                 self:gate_at(x + r.dx, y + r.dy):replace_with(r.gate, reduction.type, delay_puff, delay_disappear)
 
@@ -733,7 +732,7 @@ board = {
 
             -- match
             if is_match(gate) and gate.tick_match == 0 then
-              sfx(4)
+              sfx(game.sfx.match)
             end
 
             -- update paired gates (cnot and swap) properly
