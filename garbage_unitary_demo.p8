@@ -9,33 +9,41 @@ board_class = {
       cols = 6,
       rows = 12,
       _gates = {},
+      _garbages = {},
       _offset_x = 10,
       _offset_y = 10,
 
       update = function(self)
-        if (self.garbage == nil) return
+        foreach(self._garbages, function(each)
+          local y = self:y(each._stop_y)
 
-        if self.garbage.state == "idle" then
-          self.garbage = nil
-          local y = self:gate_top_y() - 1
-          for x = 1, self.cols do
-            self:put_gate("g", x, y)
+          if each.state == "hit gate" then
+            for x = 1, self.cols do
+              self:put_gate("?", x, y)
+            end
           end
-          return
-        end
-        self.garbage:update()
+
+          if each.state == "idle" then
+            del(self._garbages, each)
+            for x = 1, self.cols do
+              self:put_gate("g", x, y)
+            end
+          end
+
+          each:update()
+        end)
       end,
 
       draw = function(self)
-        -- draw garbage unitary
-        if (self.garbage != nil) then
+        -- draw garbage unitaries
+        foreach(self._garbages, function(each)
           for x = 1, self.cols do
             local spr_id = 1
             if (x == 1) spr_id = 0
             if (x == self.cols) spr_id = 2
-            spr(spr_id, self:screen_x(x), self.garbage.y)
+            spr(spr_id, self:screen_x(x), each.y)
           end
-        end
+        end)
 
         -- draw gates
         for x = 1, self.cols do
@@ -77,7 +85,9 @@ board_class = {
       end,
 
       _dy = function(self)
-        if (self.garbage) return self.garbage:dy()
+        if (#self._garbages != 0) then
+          return self._garbages[#self._garbages]:dy()
+        end
         return 0
       end,
 
@@ -87,6 +97,10 @@ board_class = {
  
       screen_y = function(self, y)
         return self._offset_y + (y - 1) * sprite_size
+      end,
+
+      y = function(self, screen_y)
+        return (screen_y - self._offset_y) / sprite_size + 1
       end,
 
       gate_at = function(self, x, y)
@@ -99,12 +113,27 @@ board_class = {
 
       put_garbage = function(self)
         local start_y = self:screen_y(1)
-        local stop_y = self:screen_y(self:gate_top_y() - 1)
-        self.garbage = garbage_class:new(start_y, stop_y)
-        return self.garbage
+        -- local stop_y = self:screen_y(self:gate_top_y() - 1)
+        local stop_y = self:screen_y(self:gate_and_placeholder_top_y() - 1)
+
+        add(self._garbages, garbage_class:new(start_y, stop_y))
       end,
 
       gate_top_y = function(self)
+        for y = self.rows, 1, -1 do
+          local gate_found = false
+          for x = 1, self.cols do
+            local gate = self._gates[x][y]
+            if gate and gate != "?" then
+              gate_found = true
+            end
+          end
+          if (not gate_found) return y + 1
+        end
+        return 1
+      end,
+
+      gate_and_placeholder_top_y = function(self)
         for y = self.rows, 1, -1 do
           local gate_found = false
           for x = 1, self.cols do
@@ -115,7 +144,7 @@ board_class = {
           if (not gate_found) return y + 1
         end
         return 1
-      end,
+      end,      
     }
 
     -- initialize the board
@@ -171,7 +200,7 @@ garbage_class = {
       end,
 
       _update_state = function(self)
-        if self.state ~= "bounce" then
+        if self.state != "bounce" then
           if self._dy < 0.1 then
             self:_change_state("bounce")
             self._dy = -7
@@ -204,11 +233,10 @@ garbage_class = {
 
       _change_state = function(self, new_state)
         self.state = new_state
-        printh(new_state)
       end,
 
       _update_dy = function(self)
-        if (self.state ~= "bounce") return
+        if (self.state != "bounce") return
         self._dy += self._ddy
       end,
     }
@@ -220,7 +248,7 @@ function _init()
 end
 
 function _update60()
-  if btnp(4) and game.board.garbage == nil then
+  if btnp(4) then
     game.board:put_garbage()
   end
   game.board:update()
