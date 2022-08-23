@@ -8,12 +8,35 @@ board_class = {
     local board = {
       cols = 6,
       rows = 12,
-      gates = {},
-      offset_x = 10,
-      offset_y = 10,
-      dy = 0,
+      _gates = {},
+      _offset_x = 10,
+      _offset_y = 10,
+
+      update = function(self)
+        if (self.garbage == nil) return
+
+        if self.garbage.state == "idle" then
+          self.garbage = nil
+          local y = self:gate_top_y() - 1
+          for x = 1, self.cols do
+            self:put_gate("g", x, y)
+          end
+          return
+        end
+        self.garbage:update()
+      end,
 
       draw = function(self)
+        -- draw garbage unitary
+        if (self.garbage != nil) then
+          for x = 1, self.cols do
+            local spr_id = 1
+            if (x == 1) spr_id = 0
+            if (x == self.cols) spr_id = 2
+            spr(spr_id, self:screen_x(x), self.garbage.y)
+          end
+        end
+
         -- draw gates
         for x = 1, self.cols do
           for y = 1, self.rows do
@@ -32,54 +55,60 @@ board_class = {
         end
 
         -- border left
-        line(self.offset_x - 2, self.offset_y,
-             self.offset_x - 2, self:screen_y(self.rows + 1),
+        line(self._offset_x - 2, self._offset_y,
+             self._offset_x - 2, self:screen_y(self.rows + 1),
              colors.white)
         -- border bottom
-        line(self.offset_x - 1, self:screen_y(self.rows + 1),
-             self.offset_x + self.cols * sprite_size - 1, self:screen_y(self.rows + 1),
+        line(self._offset_x - 1, self:screen_y(self.rows + 1),
+             self._offset_x + self.cols * sprite_size - 1, self:screen_y(self.rows + 1),
              colors.white)
         -- border right
-        line(self.offset_x + self.cols * sprite_size, self.offset_y,
-             self.offset_x + self.cols * sprite_size, self:screen_y(self.rows + 1),
+        line(self._offset_x + self.cols * sprite_size, self._offset_y,
+             self._offset_x + self.cols * sprite_size, self:screen_y(self.rows + 1),
              colors.white)
-        -- gate mask
-        rectfill(self.offset_x - 1, self:screen_y(self.rows + 1) + 1,
-                 self.offset_x + self.cols * sprite_size - 1, 127,
+        -- mask under the border bottom
+        rectfill(self._offset_x - 1, self:screen_y(self.rows + 1) + 1,
+                 self._offset_x + self.cols * sprite_size - 1, 127,
                  colors.black)
       end,
 
       _draw_gate = function(self, spr_id, x, y)
-        spr(spr_id, self:screen_x(x), self:screen_y(y) + self.dy)
+        spr(spr_id, self:screen_x(x), self:screen_y(y) + self:_dy())
+      end,
+
+      _dy = function(self)
+        if (self.garbage) return self.garbage:dy()
+        return 0
       end,
 
       screen_x = function(self, x)
-        return self.offset_x + (x - 1) * sprite_size
+        return self._offset_x + (x - 1) * sprite_size
       end,
  
       screen_y = function(self, y)
-        return self.offset_y + (y - 1) * sprite_size
+        return self._offset_y + (y - 1) * sprite_size
       end,
 
       gate_at = function(self, x, y)
-        return self.gates[x][y]
+        return self._gates[x][y]
       end,
 
       put_gate = function(self, gate_type, x, y)
-        self.gates[x][y] = gate_type
+        self._gates[x][y] = gate_type
       end,
 
-      put_garbage_unitary = function(self)
+      put_garbage = function(self)
         local start_y = self:screen_y(1)
         local stop_y = self:screen_y(self:gate_top_y() - 1)
-        return garbage_class:new(start_y, stop_y)
+        self.garbage = garbage_class:new(start_y, stop_y)
+        return self.garbage
       end,
 
       gate_top_y = function(self)
         for y = self.rows, 1, -1 do
           local gate_found = false
           for x = 1, self.cols do
-            if self.gates[x][y] then
+            if self._gates[x][y] then
               gate_found = true
             end
           end
@@ -91,17 +120,17 @@ board_class = {
 
     -- initialize the board
     for x = 1, board.cols do
-      board.gates[x] = {}
+      board._gates[x] = {}
     end  
-    board.gates[1][12] = "*"
-    board.gates[2][11] = "*"
-    board.gates[2][12] = "*"
-    board.gates[4][12] = "*"
-    board.gates[4][11] = "*"
-    board.gates[4][10] = "*"
-    board.gates[5][11] = "*"
-    board.gates[5][12] = "*"
-    board.gates[6][12] = "*"    
+    board._gates[1][12] = "*"
+    board._gates[2][11] = "*"
+    board._gates[2][12] = "*"
+    board._gates[4][12] = "*"
+    board._gates[4][11] = "*"
+    board._gates[4][10] = "*"
+    board._gates[5][11] = "*"
+    board._gates[5][12] = "*"
+    board._gates[6][12] = "*"    
 
     return board
   end
@@ -111,22 +140,16 @@ game = {
  board = board_class:new()
 }
 
-function _init()
- sprite_size = 8
-end
-
 garbage_class = {
   new = function(self, start_y, stop_y)
     return {
       y = start_y,
-      stop_y = stop_y,
-      gate_top_y = stop_y + sprite_size,
-      sink_y = stop_y + sprite_size * 2,
-      dy = 16,
-      ddy = 0.98,
-      dy_loss = 0.5,
-      hit_gate = false,
-      hit_bottom = false,
+      state = "fall",
+      _stop_y = stop_y,
+      _gate_top_y = stop_y + sprite_size,
+      _sink_y = stop_y + sprite_size * 2,
+      _dy = 16,
+      _ddy = 0.98,
 
       update = function(self)
         self:_update_y()
@@ -134,90 +157,78 @@ garbage_class = {
         self:_update_dy()
       end,
 
+      dy = function(self)
+        if self.state == "sink" or self.state == "bounce" then
+          return self.y - self._stop_y
+        else
+          return 0
+        end
+      end,
+
       _update_y = function(self)
         self.y_prev = self.y
-        self.y += self.dy
+        self.y += self._dy
       end,
 
       _update_state = function(self)
-        if not self.hit_bottom then
-          if self.dy < 0.1 then
-            self.hit_bottom = true
-            self.dy = -8
+        if self.state ~= "bounce" then
+          if self._dy < 0.1 then
+            self:_change_state("bounce")
+            self._dy = -7
           end
 
-          if self.y > self.gate_top_y and self.dy > 0 then
-            if (not self.hit_gate) sfx(0)
-            if (self.y > self.sink_y) self.y = self.sink_y
-            self.hit_gate = true
-            self.dy = self.dy * 0.2
+          if self.y > self._gate_top_y and self._dy > 0 then
+            if (self.y > self._sink_y) self.y = self._sink_y
+            self._dy = self._dy * 0.2
+
+            if (self.state == "fall") then 
+              self:_change_state("hit gate")
+              sfx(0)
+            else
+              self:_change_state("sink")
+            end
           end
         else
-          if self.y > self.stop_y and self.dy > 0 then
-            self.y = self.stop_y
-            self.dy = -self.dy * self.dy_loss
+          -- bounce
+          if self.y > self._stop_y and self._dy > 0 then
+            self.y = self._stop_y
+            self._dy = -self._dy * 0.6
           end
-        end      
+        end
+
+        if (self.y == self._stop_y and
+            self.y == self.y_prev) then
+          self:_change_state("idle")
+        end
+      end,
+
+      _change_state = function(self, new_state)
+        self.state = new_state
+        printh(new_state)
       end,
 
       _update_dy = function(self)
-        if (not self.hit_bottom) return
-        self.dy += self.ddy
-      end,
-
-      is_dropped = function(self)
-        return self.y == self.stop_y and
-               self.y == self.y_prev
+        if (self.state ~= "bounce") return
+        self._dy += self._ddy
       end,
     }
   end,
 }
 
+function _init()
+ sprite_size = 8
+end
+
 function _update60()
- if btnp(4) and garbage == nil then
-  garbage = game.board:put_garbage_unitary()
+ if btnp(4) and game.board.garbage == nil then
+  game.board:put_garbage()
  end
-
- if (garbage == nil) return
-
- if garbage:is_dropped() then
-  garbage = nil
-  local y = game.board:gate_top_y() - 1
-  for x = 1, game.board.cols do
-   game.board:put_gate("g", x, y)
-  end
-  return
- end
-
- garbage:update()
-
- if garbage.hit_gate then
-  game.board.dy = garbage.y - screen_y(game.board:gate_top_y()) + sprite_size
- end
+ game.board:update()
 end
 
 function _draw()
  cls()
-
- -- draw garbage unitary
- if (garbage != nil) then
-  for x = 1, game.board.cols do
-   local spr_id = 1
-   if (x == 1) spr_id = 0
-   if (x == game.board.cols) spr_id = 2
-   spr(spr_id, screen_x(x), garbage.y)
-  end
- end
-
  game.board:draw()
-end
-
-function screen_x(x)
- return game.board.offset_x + (x - 1) * sprite_size
-end
-
-function screen_y(y)
- return game.board.offset_y + (y - 1) * sprite_size
 end
 
 __gfx__
