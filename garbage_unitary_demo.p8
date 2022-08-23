@@ -112,7 +112,8 @@ board_class = {
       end,
 
       put_garbage = function(self)
-        local garbage = garbage_unitary:new(3, self)
+        local width = flr(rnd(4)) + 3
+        local garbage = garbage_unitary:new(width, self)
 
         add(self._garbages, garbage)
       end,
@@ -172,7 +173,7 @@ game_class = {
 
 garbage_unitary = {
   new = function(self, width, board)
-    local x = flr(rnd(4)) + 1
+    local x = flr(rnd(board.cols - width + 1)) + 1
     local start_y = board:screen_y(1)
     local stop_y = board:screen_y(board:gate_top_y(x, x + width - 1) - 1)
 
