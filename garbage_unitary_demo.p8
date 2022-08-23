@@ -33,16 +33,6 @@ board_class = {
       end,
 
       draw = function(self)
-        -- draw garbage unitaries
-        foreach(self._garbages, function(each)
-          for x = each.x, each.x + each.width - 1 do
-            local spr_id = 1
-            if (x == each.x) spr_id = 0
-            if (x == each.x + each.width - 1) spr_id = 2
-            spr(spr_id, self:screen_x(x), each.y)
-          end
-        end)
-
         -- draw gates
         for x = 1, self.cols do
           for y = 1, self.rows do
@@ -61,6 +51,16 @@ board_class = {
             end
           end
         end
+        
+        -- draw garbage unitaries
+        foreach(self._garbages, function(each)
+          for x = each.x, each.x + each.width - 1 do
+            local spr_id = 1
+            if (x == each.x) spr_id = 0
+            if (x == each.x + each.width - 1) spr_id = 2
+            spr(spr_id, self:screen_x(x), each.y)
+          end
+        end)
 
         -- border left
         line(self._offset_x - 2, self._offset_y,
