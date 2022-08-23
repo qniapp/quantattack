@@ -20,16 +20,12 @@ board_class = {
           local y = self:y(each._stop_y)
 
           if each.state == "hit gate" then
-            for x = 1, self.cols do
-              self:put_gate("?", x, y)
-            end
+            self:put_gate(each.x, y, each)
           end
 
           if each.state == "idle" then
             del(self._garbages, each)
-            for x = 1, self.cols do
-              self:put_gate("g", x, y)
-            end
+            self:put_gate(each.x, y, each)
           end
 
           each:update()
@@ -39,10 +35,10 @@ board_class = {
       draw = function(self)
         -- draw garbage unitaries
         foreach(self._garbages, function(each)
-          for x = 1, self.cols do
+          for x = each.x, each.x + each.width - 1 do
             local spr_id = 1
-            if (x == 1) spr_id = 0
-            if (x == self.cols) spr_id = 2
+            if (x == each.x) spr_id = 0
+            if (x == each.x + each.width - 1) spr_id = 2
             spr(spr_id, self:screen_x(x), each.y)
           end
         end)
@@ -52,14 +48,16 @@ board_class = {
           for y = 1, self.rows do
             local gate = self:gate_at(x, y)
 
-            if gate == "*" then
+            if gate and gate.type == "*" then
               self:_draw_gate(16, x, y)
             end
-            if gate == "g" then
-              local spr_id = 1
-              if (x == 1) spr_id = 0
-              if (x == self.cols) spr_id = 2
-              self:_draw_gate(spr_id, x, y)
+            if gate and gate.type == "g" then
+              for gx = gate.x, gate.x + gate.width - 1 do
+                local spr_id = 1
+                if (gx == gate.x) spr_id = 0
+                if (gx == gate.x + gate.width - 1) spr_id = 2
+                self:_draw_gate(spr_id, gx, y)
+              end
             end
           end
         end
@@ -109,40 +107,28 @@ board_class = {
         return self._gates[x][y]
       end,
 
-      put_gate = function(self, gate_type, x, y)
-        self._gates[x][y] = gate_type
+      put_gate = function(self, x, y, gate)
+        self._gates[x][y] = gate
       end,
 
       put_garbage = function(self)
-        local start_y = self:screen_y(1)
-        local stop_y = self:screen_y(self:gate_and_placeholder_top_y() - 1)
+        local garbage = garbage_unitary:new(3, self)
 
-        add(self._garbages, garbage_unitary:new(start_y, stop_y))
+        add(self._garbages, garbage)
       end,
 
-      gate_top_y = function(self)
-        for y = self.rows, 1, -1 do
-          local gate_found = false
+      gate_top_y = function(self, x_start, x_end)
+        for y = 1, self.rows do
+          for x = x_start, x_end, 1 do
+            if (self._gates[x][y]) return y
+          end
           for x = 1, self.cols do
             local gate = self._gates[x][y]
-            if gate and gate != "?" then
-              gate_found = true
+            if gate and gate.type == "g" and
+               gate.x < x_start and x_start <= gate.x + gate.width - 1 then
+              return y
             end
           end
-          if (not gate_found) return y + 1
-        end
-        return 1
-      end,
-
-      gate_and_placeholder_top_y = function(self)
-        for y = self.rows, 1, -1 do
-          local gate_found = false
-          for x = 1, self.cols do
-            if self._gates[x][y] then
-              gate_found = true
-            end
-          end
-          if (not gate_found) return y + 1
         end
         return 1
       end,      
@@ -152,15 +138,15 @@ board_class = {
     for x = 1, board.cols do
       board._gates[x] = {}
     end  
-    board._gates[1][12] = "*"
-    board._gates[2][11] = "*"
-    board._gates[2][12] = "*"
-    board._gates[4][12] = "*"
-    board._gates[4][11] = "*"
-    board._gates[4][10] = "*"
-    board._gates[5][11] = "*"
-    board._gates[5][12] = "*"
-    board._gates[6][12] = "*"    
+    board._gates[1][12] = { type = "*" }
+    board._gates[2][11] = { type = "*" }
+    board._gates[2][12] = { type = "*" }
+    board._gates[4][12] = { type = "*" }
+    board._gates[4][11] = { type = "*" }
+    board._gates[4][10] = { type = "*" }
+    board._gates[5][11] = { type = "*" }
+    board._gates[5][12] = { type = "*" }
+    board._gates[6][12] = { type = "*" }    
 
     return board
   end
@@ -185,8 +171,15 @@ game_class = {
 }
 
 garbage_unitary = {
-  new = function(self, start_y, stop_y)
+  new = function(self, width, board)
+    local x = flr(rnd(4)) + 1
+    local start_y = board:screen_y(1)
+    local stop_y = board:screen_y(board:gate_top_y(x, x + width - 1) - 1)
+
     return {
+      type = "g",
+      width = width,
+      x = x,
       y = start_y,
       state = "fall",
       _stop_y = stop_y,
