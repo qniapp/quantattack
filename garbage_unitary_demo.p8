@@ -113,10 +113,9 @@ board_class = {
 
       put_garbage = function(self)
         local start_y = self:screen_y(1)
-        -- local stop_y = self:screen_y(self:gate_top_y() - 1)
         local stop_y = self:screen_y(self:gate_and_placeholder_top_y() - 1)
 
-        add(self._garbages, garbage_class:new(start_y, stop_y))
+        add(self._garbages, garbage_unitary:new(start_y, stop_y))
       end,
 
       gate_top_y = function(self)
@@ -169,7 +168,7 @@ game = {
  board = board_class:new()
 }
 
-garbage_class = {
+garbage_unitary = {
   new = function(self, start_y, stop_y)
     return {
       y = start_y,
