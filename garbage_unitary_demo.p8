@@ -216,19 +216,19 @@ garbage_class = {
 }
 
 function _init()
- sprite_size = 8
+  sprite_size = 8
 end
 
 function _update60()
- if btnp(4) and game.board.garbage == nil then
-  game.board:put_garbage()
- end
- game.board:update()
+  if btnp(4) and game.board.garbage == nil then
+    game.board:put_garbage()
+  end
+  game.board:update()
 end
 
 function _draw()
- cls()
- game.board:draw()
+  cls()
+  game.board:draw()
 end
 
 __gfx__
