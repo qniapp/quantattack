@@ -70,23 +70,23 @@ board_class = {
              colors.white)
         -- border bottom
         line(self._offset_x - 1, self:screen_y(self.rows + 1),
-             self._offset_x + self.cols * sprite_size - 1, self:screen_y(self.rows + 1),
+             self._offset_x + self.cols * quantum_gate.size - 1, self:screen_y(self.rows + 1),
              colors.white)
         -- border right
-        line(self._offset_x + self.cols * sprite_size, self._offset_y,
-             self._offset_x + self.cols * sprite_size, self:screen_y(self.rows + 1),
+        line(self._offset_x + self.cols * quantum_gate.size, self._offset_y,
+             self._offset_x + self.cols * quantum_gate.size, self:screen_y(self.rows + 1),
              colors.white)
         -- mask under the border bottom
         rectfill(self._offset_x - 1, self:screen_y(self.rows + 1) + 1,
-                 self._offset_x + self.cols * sprite_size - 1, 127,
+                 self._offset_x + self.cols * quantum_gate.size - 1, 127,
                  colors.black)
       end,
 
       _draw_gate = function(self, spr_id, x, y)
-        spr(spr_id, self:screen_x(x), self:screen_y(y) + self:_dy())
+        spr(spr_id, self:screen_x(x), self:screen_y(y) + self:dy())
       end,
 
-      _dy = function(self)
+      dy = function(self)
         if (#self._garbages != 0) then
           return self._garbages[#self._garbages]:dy()
         end
@@ -94,15 +94,15 @@ board_class = {
       end,
 
       screen_x = function(self, x)
-        return self._offset_x + (x - 1) * sprite_size
+        return self._offset_x + (x - 1) * quantum_gate.size
       end,
  
       screen_y = function(self, y)
-        return self._offset_y + (y - 1) * sprite_size
+        return self._offset_y + (y - 1) * quantum_gate.size
       end,
 
       y = function(self, screen_y)
-        return (screen_y - self._offset_y) / sprite_size + 1
+        return (screen_y - self._offset_y) / quantum_gate.size + 1
       end,
 
       gate_at = function(self, x, y)
@@ -190,8 +190,8 @@ garbage_unitary = {
       y = start_y,
       state = "fall",
       _stop_y = stop_y,
-      _gate_top_y = stop_y + sprite_size,
-      _sink_y = stop_y + sprite_size * 2,
+      _gate_top_y = stop_y + quantum_gate.size,
+      _sink_y = stop_y + quantum_gate.size * 2,
       _dy = 16,
       _ddy = 0.98,
 
@@ -259,7 +259,6 @@ garbage_unitary = {
 }
 
 function _init()
-  sprite_size = 8
   game = game_class:new()
 end
 

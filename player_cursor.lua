@@ -78,11 +78,11 @@ player_cursor = {
       end,
 
       _screen_yt = function(self)
-        return self._board:screen_y(self.y) - 5 + (self._shrunk and 1 or 0)
+        return self._board:screen_y(self.y) + self._board:dy() - 5 + (self._shrunk and 1 or 0)
       end,
 
       _screen_yb = function(self)
-        return self._board:screen_y(self.y) + quantum_gate.size - 4 - (self._shrunk and 1 or 0)
+        return self._board:screen_y(self.y) + self._board:dy() + quantum_gate.size - 4 - (self._shrunk and 1 or 0)
       end
     } 
   end
