@@ -5,11 +5,12 @@ player_cursor = {
   },
   _color = colors.dark_green,
 
-  new = function(self, board, x, y)
+  new = function(self, board_cols, board_rows, x, y)
     return {
       x = x or 3,
       y = y or 6,
-      _board = board,
+      _board_cols = board_cols,
+      _board_rows = board_rows,
       _tick = 0,
       _state_change_frames = 14,
 
@@ -18,7 +19,7 @@ player_cursor = {
       end,
 
       move_right = function(self)
-        if (self.x < self._board.cols - 1) self.x += 1
+        if (self.x < self._board_cols - 1) self.x += 1
       end,
 
       move_up = function(self)
@@ -26,15 +27,16 @@ player_cursor = {
       end,
 
       move_down = function(self)
-        if (self.y < self._board.rows) self.y += 1
+        if (self.y < self._board_rows) self.y += 1
       end,  
 
       update = function(self)
         self._shrunk = self._tick >= self._state_change_frames
-        self:_advance_tick()
+        self._tick += 1
+        self._tick %= self._state_change_frames * 2
       end,
 
-      draw = function(self)
+      draw = function(self, screen_x, screen_y, board_dy)
         if self.cannot_swap then
           pal(player_cursor._color, colors.red)
         end
@@ -42,11 +44,13 @@ player_cursor = {
           pal(player_cursor._color, colors.dark_grey)
         end
 
-        local xl = self:_screen_xl()
-        local xm = self:_screen_xm()
-        local xr = self:_screen_xr()
-        local yt = self:_screen_yt()
-        local yb = self:_screen_yb()
+        local d = self._shrunk and 1 or 0
+        local b_dy = board_dy or 0
+        local xl = screen_x - 5 + d
+        local xm = screen_x + 4
+        local xr = screen_x + 12 - d
+        local yt = screen_y - 5 + d + b_dy
+        local yb = screen_y + 4 - d + b_dy
 
         spr(player_cursor._sprites.corner, xl, yt)
         spr(player_cursor._sprites.middle, xm, yt)
@@ -56,33 +60,6 @@ player_cursor = {
         spr(player_cursor._sprites.corner, xr, yb, 1, 1, true, true)
 
         pal(player_cursor._color, player_cursor._color)
-      end,      
-
-      -- private
-
-      _advance_tick = function(self)
-        self._tick += 1
-        self._tick %= self._state_change_frames * 2
-      end,
-
-      _screen_xl = function(self)
-        return self._board:screen_x(self.x) - 5 + (self._shrunk and 1 or 0)
-      end,
-
-      _screen_xm = function(self)
-        return self._board:screen_x(self.x) + quantum_gate.size - 4
-      end,
-
-      _screen_xr = function(self)
-        return self._board:screen_x(self.x + 1) + 4 - (self._shrunk and 1 or 0)
-      end,
-
-      _screen_yt = function(self)
-        return self._board:screen_y(self.y) + self._board:dy() - 5 + (self._shrunk and 1 or 0)
-      end,
-
-      _screen_yb = function(self)
-        return self._board:screen_y(self.y) + self._board:dy() + quantum_gate.size - 4 - (self._shrunk and 1 or 0)
       end
     } 
   end

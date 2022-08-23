@@ -166,7 +166,7 @@ game_class = {
         o = 5,
       },  
       board = board,
-      player_cursor = player_cursor:new(board)
+      player_cursor = player_cursor:new(board.cols, board.rows)
     }
   end,
 }
@@ -280,7 +280,9 @@ end
 function _draw()
   cls()
   game.board:draw()
-  game.player_cursor:draw()
+  game.player_cursor:draw(game.board:screen_x(game.player_cursor.x),
+                          game.board:screen_y(game.player_cursor.y),
+                          game.board:dy())
 end
 
 __gfx__

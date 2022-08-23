@@ -83,10 +83,6 @@ board = {
         return self.top + (board_y - 1) * quantum_gate.size - self.raised_dots
       end,
 
-      dy = function(self)
-        return 0
-      end,
-
       update = function(self)
         self:reduce()
         self:drop_gates()

@@ -21,7 +21,7 @@ game = {
     self.state_machine = state_machine:new()
     self.board = board:new(18, 3)
     self.board:initialize_with_random_gates()
-    self.player_cursor = player_cursor:new(self.board)
+    self.player_cursor = player_cursor:new(self.board.cols, self.board.rows)
     self.tick = 0
     self.duration_raise_gates = 30 -- 0.5 seconds
     self.z_pushed = false
@@ -90,7 +90,8 @@ game = {
       -- draw function
       function(g)
         g.board:draw()
-        g.player_cursor:draw()
+        g.player_cursor:draw(g.board:screen_x(g.player_cursor.x),
+                             g.board:screen_y(g.player_cursor.y))
 
         puff_particle:draw()
         drop_particle:draw()
@@ -120,9 +121,9 @@ game = {
 
       -- draw function
       function(g)
-
         g.board:draw()
-        g.player_cursor:draw()
+        g.player_cursor:draw(g.board:screen_x(g.player_cursor.x),
+                             g.board:screen_y(g.player_cursor.y))
 
         puff_particle:draw()
         drop_particle:draw()
