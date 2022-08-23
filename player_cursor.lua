@@ -1,25 +1,24 @@
-player_cursor = {
-  _sprites = {
-    corner = 65,
-    middle = 66,
-  },
-  _color = colors.dark_green,
+-- config
+cursor_color = colors.dark_green
+cursor_sprite_corner = 65
+cursor_sprite_middle = 66
+cursor_anim_frames = 14
 
-  new = function(self, board_cols, board_rows, x, y)
+player_cursor = {
+  new = function(self, cols, rows, x, y)
     return {
       x = x or 3,
       y = y or 6,
-      _board_cols = board_cols,
-      _board_rows = board_rows,
+      _cols = cols,
+      _rows = rows,
       _tick = 0,
-      _state_change_frames = 14,
 
       move_left = function(self)
         if (self.x > 1) self.x -= 1
       end,
 
       move_right = function(self)
-        if (self.x < self._board_cols - 1) self.x += 1
+        if (self.x < self._cols - 1) self.x += 1
       end,
 
       move_up = function(self)
@@ -27,24 +26,24 @@ player_cursor = {
       end,
 
       move_down = function(self)
-        if (self.y < self._board_rows) self.y += 1
+        if (self.y < self._rows) self.y += 1
       end,  
 
       update = function(self)
-        self._shrunk = self._tick >= self._state_change_frames
+        self._small = self._tick >= cursor_anim_frames
         self._tick += 1
-        self._tick %= self._state_change_frames * 2
+        self._tick %= cursor_anim_frames * 2
       end,
 
       draw = function(self, screen_x, screen_y, board_dy)
         if self.cannot_swap then
-          pal(player_cursor._color, colors.red)
+          pal(cursor_color, colors.red)
         end
         if self.game_over then
-          pal(player_cursor._color, colors.dark_grey)
+          pal(cursor_color, colors.dark_grey)
         end
 
-        local d = self._shrunk and 1 or 0
+        local d = self._small and 1 or 0
         local b_dy = board_dy or 0
         local xl = screen_x - 5 + d
         local xm = screen_x + 4
@@ -52,14 +51,14 @@ player_cursor = {
         local yt = screen_y - 5 + d + b_dy
         local yb = screen_y + 4 - d + b_dy
 
-        spr(player_cursor._sprites.corner, xl, yt)
-        spr(player_cursor._sprites.middle, xm, yt)
-        spr(player_cursor._sprites.corner, xr, yt, 1, 1, true, false)
-        spr(player_cursor._sprites.corner, xl, yb, 1, 1, false, true)
-        spr(player_cursor._sprites.middle, xm, yb, 1, 1, false, true)
-        spr(player_cursor._sprites.corner, xr, yb, 1, 1, true, true)
+        spr(cursor_sprite_corner, xl, yt)
+        spr(cursor_sprite_middle, xm, yt)
+        spr(cursor_sprite_corner, xr, yt, 1, 1, true, false)
+        spr(cursor_sprite_corner, xl, yb, 1, 1, false, true)
+        spr(cursor_sprite_middle, xm, yb, 1, 1, false, true)
+        spr(cursor_sprite_corner, xr, yb, 1, 1, true, true)
 
-        pal(player_cursor._color, player_cursor._color)
+        pal(cursor_color, cursor_color)
       end
     } 
   end
