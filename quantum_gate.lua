@@ -4,7 +4,7 @@ quantum_gate = {
   _num_frames_swap = 4,
   _num_frames_match = 45,
 
-  new = function(self, type)
+  new = function(_self, type)
     return {
       _type = type,
       _reduce_to = nil,

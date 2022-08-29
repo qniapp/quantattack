@@ -3,7 +3,12 @@ version 36
 __lua__
 #include colors.lua
 #include player_cursor.lua
-#include quantum_gate.lua
+
+-- todo: merge with quantum_gate_types.lua
+
+quantum_gate = {
+  size = 8,
+}
 
 board_class = {
   new = function(_self) 

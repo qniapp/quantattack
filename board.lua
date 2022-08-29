@@ -320,11 +320,6 @@ board = {
             local match = false
 
             if is_garbage_unitary(gate) then
-              -- おじゃまユニタリの下の行のいずれかがマッチしている場合 
-              --
-              -- ggggg
-              -- ?????
-              --
               if y < self.rows then
                 for gx = x, x + gate._width - 1 do
                   if gx <= self.cols and is_match(self:gate_at(gx, y + 1)) and (not is_garbage_unitary_match(self:gate_at(gx, y + 1))) then
