@@ -5,7 +5,7 @@ cursor_sprite_middle = 66
 cursor_anim_frames = 14
 
 player_cursor = {
- new = function(self, cols, rows, x, y)
+ new = function(_self, cols, rows, x, y)
   return {
    x = x or 3,
    y = y or 6,
