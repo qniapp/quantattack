@@ -6,7 +6,7 @@ __lua__
 #include quantum_gate.lua
 
 board_class = {
-  new = function(self) 
+  new = function(_self) 
     local board = {
       cols = 6,
       rows = 12,
@@ -51,7 +51,7 @@ board_class = {
             end
           end
         end
-        
+
         -- draw garbage unitaries
         foreach(self._garbages, function(each)
           for x = each.x, each.x + each.width - 1 do
@@ -154,7 +154,7 @@ board_class = {
 }
 
 game_class = {
-  new = function(self)
+  new = function(_self)
     local board = board_class:new()
     return {
       button = {
@@ -172,7 +172,7 @@ game_class = {
 }
 
 garbage_unitary = {
-  new = function(self, width, board)
+  new = function(_self, width, board)
     local x = flr(rnd(board.cols - width + 1)) + 1
     local start_y = board:screen_y(1)
     local stop_y = board:screen_y(board:gate_top_y(x, x + width - 1) - 1)
