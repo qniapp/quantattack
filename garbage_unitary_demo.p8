@@ -8,7 +8,24 @@ __lua__
 
 quantum_gate = {
   size = 8,
+  types = {"h", "x", "y", "z", "s", "t"},
+  _spr = {h=0, x=1, y=2, z=3, s=4, t=5},
+
+  new = function(_self, type)
+    return {
+      type = type,
+      draw = function(self, screen_x, screen_y)
+        if (self.type == "i") return
+        spr(quantum_gate._spr[self.type], screen_x, screen_y)
+      end,
+    }
+  end  
 }
+
+function random_gate()
+  local type = quantum_gate.types[flr(rnd(#quantum_gate.types)) + 1]
+  return quantum_gate:new(type)
+end
 
 board_class = {
   new = function(_self) 
@@ -16,21 +33,30 @@ board_class = {
       cols = 6,
       rows = 12,
       _gates = {},
-      _garbages = {},
+      _falling_garbages = {},
       _offset_x = 10,
       _offset_y = 10,
 
-      update = function(self)
-        foreach(self._garbages, function(each)
-          local y = self:y(each._stop_y)
-
-          if each.state == "hit gate" then
-            self:put_gate(each.x, y, each)
+      initialize_with_random_gates = function(self)
+        for x = 1, self.cols do
+          for y = self.rows, 1, -1 do
+            if y >= self.rows - 1 or
+               (y < self.rows - 1 and y >= 6 and rnd(1) > (y - 11) * -0.1 and self:gate_at(x, y + 1).type != "i") then
+              self:put(x, y, random_gate())
+            else
+              self:put(x, y, quantum_gate:new("i"))
+            end
           end
+        end      
+      end,
 
-          if each.state == "idle" then
-            del(self._garbages, each)
-            self:put_gate(each.x, y, each)
+      update = function(self)
+        foreach(self._falling_garbages, function(each)
+          if each.state == "hit gate" then
+            local y = self:y(each.stop_y)
+            self:put(each.x, y, each)
+          elseif each.state == "idle" then
+            del(self._falling_garbages, each)
           end
 
           each:update()
@@ -38,33 +64,23 @@ board_class = {
       end,
 
       draw = function(self)
-        -- draw gates
+        -- draw idle gates
         for x = 1, self.cols do
           for y = 1, self.rows do
             local gate = self:gate_at(x, y)
+            if (not gate) goto next
 
-            if gate and gate.type == "*" then
-              self:_draw_gate(16, x, y)
-            end
-            if gate and gate.type == "g" then
-              for gx = gate.x, gate.x + gate.width - 1 do
-                local spr_id = 1
-                if (gx == gate.x) spr_id = 0
-                if (gx == gate.x + gate.width - 1) spr_id = 2
-                self:_draw_gate(spr_id, gx, y)
-              end
-            end
+            local screen_x = self:screen_x(x)
+            local screen_y = self:screen_y(y) + self:dy()
+            gate:draw(screen_x, screen_y)
+
+            ::next::
           end
         end
 
-        -- draw garbage unitaries
-        foreach(self._garbages, function(each)
-          for x = each.x, each.x + each.width - 1 do
-            local spr_id = 1
-            if (x == each.x) spr_id = 0
-            if (x == each.x + each.width - 1) spr_id = 2
-            spr(spr_id, self:screen_x(x), each.y)
-          end
+        -- draw falling garbage unitaries
+        foreach(self._falling_garbages, function(each)
+          each:draw(self:screen_x(each.x))
         end)
 
         -- border left
@@ -85,13 +101,9 @@ board_class = {
                  colors.black)
       end,
 
-      _draw_gate = function(self, spr_id, x, y)
-        spr(spr_id, self:screen_x(x), self:screen_y(y) + self:dy())
-      end,
-
       dy = function(self)
-        if (#self._garbages != 0) then
-          return self._garbages[#self._garbages]:dy()
+        if (#self._falling_garbages != 0) then
+          return self._falling_garbages[#self._falling_garbages]:dy()
         end
         return 0
       end,
@@ -112,21 +124,20 @@ board_class = {
         return self._gates[x][y]
       end,
 
-      put_gate = function(self, x, y, gate)
+      put = function(self, x, y, gate)
         self._gates[x][y] = gate
       end,
 
       put_garbage = function(self)
         local width = flr(rnd(4)) + 3
-        local garbage = garbage_unitary:new(width, self)
 
-        add(self._garbages, garbage)
+        add(self._falling_garbages, garbage:new(width, self))
       end,
 
       gate_top_y = function(self, x_start, x_end)
         for y = 1, self.rows do
           for x = x_start, x_end, 1 do
-            if (self._gates[x][y]) return y
+            if (self._gates[x][y].type != "i") return y
           end
           for x = 1, self.cols do
             local gate = self._gates[x][y]
@@ -143,16 +154,8 @@ board_class = {
     -- initialize the board
     for x = 1, board.cols do
       board._gates[x] = {}
-    end  
-    board._gates[1][12] = { type = "*" }
-    board._gates[2][11] = { type = "*" }
-    board._gates[2][12] = { type = "*" }
-    board._gates[4][12] = { type = "*" }
-    board._gates[4][11] = { type = "*" }
-    board._gates[4][10] = { type = "*" }
-    board._gates[5][11] = { type = "*" }
-    board._gates[5][12] = { type = "*" }
-    board._gates[6][12] = { type = "*" }    
+    end
+    board:initialize_with_random_gates()
 
     return board
   end
@@ -176,19 +179,22 @@ game_class = {
   end,
 }
 
-garbage_unitary = {
+garbage = {
   new = function(_self, width, board)
-    local x = flr(rnd(board.cols - width + 1)) + 1
+    local random_x = flr(rnd(board.cols - width + 1)) + 1
     local start_y = board:screen_y(1)
-    local stop_y = board:screen_y(board:gate_top_y(x, x + width - 1) - 1)
+    local stop_y = board:screen_y(board:gate_top_y(random_x, random_x + width - 1) - 1)
 
     return {
       type = "g",
       width = width,
-      x = x,
+      x = random_x,
       y = start_y,
       state = "fall",
-      _stop_y = stop_y,
+      stop_y = stop_y,
+      _spr = 14,
+      _spr_left = 13,
+      _spr_right = 15,
       _gate_top_y = stop_y + quantum_gate.size,
       _sink_y = stop_y + quantum_gate.size * 2,
       _dy = 16,
@@ -200,9 +206,23 @@ garbage_unitary = {
         self:_update_dy()
       end,
 
+      draw = function(self, screen_x, screen_y)
+        for x = 0, self.width - 1 do
+          local spr_id = self._spr
+          if (x == 0) spr_id = self._spr_left
+          if (x == self.width - 1) spr_id = self._spr_right
+
+          if screen_y then
+            spr(spr_id, screen_x + x * quantum_gate.size, screen_y)
+          elseif self.state == "fall" then
+            spr(spr_id, screen_x + x * quantum_gate.size, self.y)
+          end
+        end
+      end,
+
       dy = function(self)
         if self.state == "sink" or self.state == "bounce" then
-          return self.y - self._stop_y
+          return self.y - self.stop_y
         else
           return 0
         end
@@ -233,13 +253,13 @@ garbage_unitary = {
           end
         else
           -- bounce
-          if self.y > self._stop_y and self._dy > 0 then
-            self.y = self._stop_y
+          if self.y > self.stop_y and self._dy > 0 then
+            self.y = self.stop_y
             self._dy = -self._dy * 0.6
           end
         end
 
-        if (self.y == self._stop_y and
+        if (self.y == self.stop_y and
             self.y == self.y_prev) then
           self:_change_state("idle")
         end
@@ -291,14 +311,14 @@ function _draw()
 end
 
 __gfx__
-07777777777777777777770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-77ddddddddddddddddddd77000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-7d7777777777777777777d7000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-7d7777777777777777777d7000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-7d7777777777777777777d7000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-77ddddddddddddddddddd77000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-07777777777777777777770000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0888880000ccc000099999000eeeee000bbbbb000222220000000000000000000000000000000000000000000000000000000000077777777777777777777700
+8e888e800cc6cc009f999f90efffffe0bb3333b02eeeee200000000000000000000000000000000000000000000000000000000077ddddddddddddddddddd770
+8e888e80ccc6ccc099f9f990eeeefee0b3bbbbb0222e2220000000000000000000000000000000000000000000000000000000007d7777777777777777777d70
+8eeeee80c66666c0999f9990eeefeee0bb333bb0222e2220000000000000000000000000000000000000000000000000000000007d7777777777777777777d70
+8e888e80ccc6ccc0999f9990eefeeee0bbbbb3b0222e2220000000000000000000000000000000000000000000000000000000007d7777777777777777777d70
+8e888e801cc6cc10999f9990efffffe0b3333bb0222e22200000000000000000000000000000000000000000000000000000000077ddddddddddddddddddd770
+1888881001ccc100199999101eeeee101bbbbb101222221000000000000000000000000000000000000000000000000000000000077777777777777777777700
+01111100001110000111110001111100011111000111110000000000000000000000000000000000000000000000000000000000000000000000000000000000
 03333300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 3bbbbb30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 3bbbbb30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
