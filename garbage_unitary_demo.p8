@@ -6,6 +6,10 @@ __lua__
 
 -- todo: merge with quantum_gate_types.lua
 
+function is_i(gate)      
+  return gate.type == "i"
+end
+
 quantum_gate = {
   size = 8,
   types = {"h", "x", "y", "z", "s", "t"},
@@ -15,7 +19,7 @@ quantum_gate = {
     return {
       type = type,
       draw = function(self, screen_x, screen_y)
-        if (self.type == "i") return
+        if (is_i(self)) return
         spr(quantum_gate._spr[self.type], screen_x, screen_y)
       end,
     }
@@ -32,6 +36,7 @@ board_class = {
     local board = {
       cols = 6,
       rows = 12,
+      rows_plus_next_rows = 13,
       _gates = {},
       _falling_garbages = {},
       _offset_x = 10,
@@ -39,9 +44,9 @@ board_class = {
 
       initialize_with_random_gates = function(self)
         for x = 1, self.cols do
-          for y = self.rows, 1, -1 do
-            if y >= self.rows - 1 or
-               (y < self.rows - 1 and y >= 6 and rnd(1) > (y - 11) * -0.1 and self:gate_at(x, y + 1).type != "i") then
+          for y = self.rows_plus_next_rows, 1, -1 do
+            if y >= self.rows - 2 or
+               (y < self.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and (not is_i(self:gate_at(x, y + 1)))) then
               self:put(x, y, random_gate())
             else
               self:put(x, y, quantum_gate:new("i"))
@@ -66,7 +71,7 @@ board_class = {
       draw = function(self)
         -- draw idle gates
         for x = 1, self.cols do
-          for y = 1, self.rows do
+          for y = 1, self.rows_plus_next_rows do
             local gate = self:gate_at(x, y)
             if (not gate) goto next
 
@@ -136,15 +141,19 @@ board_class = {
 
       gate_top_y = function(self, x_start, x_end)
         for y = 1, self.rows do
-          for x = x_start, x_end, 1 do
-            if (self._gates[x][y].type != "i") return y
+          for x = x_start, x_end do
+            if (not is_i(self:gate_at(x, y))) return y
           end
+
           for x = 1, self.cols do
-            local gate = self._gates[x][y]
-            if gate and gate.type == "g" and
-               gate.x < x_start and x_start <= gate.x + gate.width - 1 then
-              return y
+            local gate = self:gate_at(x, y)
+            if (gate.type != "g") goto next
+
+            for gx = x, x + gate.width - 1, 1 do
+              if (x_start <= gx and gx <= x_end) return y
             end
+
+            ::next::
           end
         end
         return 1
