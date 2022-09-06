@@ -22,17 +22,29 @@ function is_swap_finished(gate)
   return gate.state == "swap_finished"
 end
 
+function is_dropping(gate)
+  return gate.state == "dropping"
+end
+
+function is_dropped(gate)
+  return gate.state == "dropped"
+end
+
 quantum_gate = {
   size = 8,
   types = {"h", "x", "y", "z", "s", "t"},
   _spr = {h=0, x=1, y=2, z=3, s=4, t=5},
   num_frames_swap = 2,
+  _dy = 16,
 
   new = function(_self, type)
     return {
       type = type,
+      dy = 0,
 
       update = function(self)
+        if (self.type == "?") return
+
         if is_swapping(self) then
           if self.tick_swap < quantum_gate.num_frames_swap then
             self.tick_swap += 1
@@ -41,20 +53,34 @@ quantum_gate = {
           end          
         elseif is_swap_finished(self) then
           self:_change_state("idle")
+        elseif is_dropping(self) then
+          if self.start_screen_y + self.dy == self.stop_screen_y then
+            self:_change_state("dropped")
+          end
+        elseif is_dropped(self) then
+          self.dy = 0
+          self:_change_state("idle")
         end
       end,
 
       draw = function(self, screen_x, screen_y)
         if (is_i(self)) return
+        if (self.type == "?") return
 
         local dx = 0
+        local dy = 0
         if self.state == "swapping_with_right" then
           dx = self.tick_swap * (quantum_gate.size / quantum_gate.num_frames_swap)
         elseif self.state == "swapping_with_left" then
           dx = -self.tick_swap * (quantum_gate.size / quantum_gate.num_frames_swap)
+        elseif self.state == "dropping" then
+          self.dy += quantum_gate._dy
+          if (screen_y + self.dy > self.stop_screen_y) then
+            self.dy = self.stop_screen_y - screen_y
+          end
         end
 
-        spr(quantum_gate._spr[self.type], screen_x + dx, screen_y)
+        spr(quantum_gate._spr[self.type], screen_x + dx, screen_y + self.dy)
       end,
 
       start_swap_with_right = function(self, swap_new_x)
@@ -67,6 +93,17 @@ quantum_gate = {
         self.tick_swap = 0
         self.swap_new_x = swap_new_x
         self:_change_state("swapping_with_left")
+      end,
+
+      drop = function(self, start_screen_y, stop_screen_y)
+        self.dy = 0
+        self.start_screen_y = start_screen_y
+        self.stop_screen_y = stop_screen_y
+        self:_change_state("dropping")
+      end,
+
+      is_droppable = function(self)
+        return (not is_i(self)) and (not is_dropping(self)) and (not is_swapping(self))
       end,
 
       _change_state = function(self, new_state)
@@ -106,8 +143,33 @@ board_class = {
       end,
 
       update = function(self)
+        self:_drop_gates()
         self:_update_falling_garbages()
         self:_update_gates()
+      end,
+
+      _drop_gates = function(self)
+        for x = 1, self.cols do
+          for y = self.rows - 1, 1, -1 do
+            local gate = self:gate_at(x, y)
+            if (gate.type == "?") goto next
+            if (gate.type == "g") goto next
+            if (not gate:is_droppable()) goto next
+
+            if is_i(self:gate_at(x, y + 1)) then
+              local stop_y = y
+              while is_i(self:gate_at(x, stop_y + 1)) or is_dropping(self:gate_at(x, stop_y + 1)) do
+                stop_y += 1
+              end
+              gate:drop(self:screen_y(y), self:screen_y(stop_y))
+              self:put(x, stop_y, quantum_gate:new("?"))
+
+              -- printh("drop " .. gate.type .. "(" .. y .. " -> ".. stop_y ..")")
+            end
+
+            ::next::
+          end
+        end
       end,
 
       _update_falling_garbages = function(self)
@@ -126,14 +188,23 @@ board_class = {
         local gates_to_swap = {}
 
         for x = 1, self.cols do
-          for y = 1, self.rows do
+          for y = self.rows, 1, -1 do
             local gate = self:gate_at(x, y)
+            if (gate.type == "?") goto next
 
             gate:update()
 
             if is_swap_finished(gate) then
               add(gates_to_swap, { gate = gate, y = y })
             end
+            if is_dropped(gate) then
+              printh("gate.type = " .. gate.type)
+
+              self:put(x, self:y(gate.stop_screen_y), gate)
+              self:put(x, self:y(gate.start_screen_y), quantum_gate:new("i"))
+            end
+
+            ::next::
           end
         end
 
