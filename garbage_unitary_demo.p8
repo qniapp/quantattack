@@ -10,20 +10,70 @@ function is_i(gate)
   return gate.type == "i"
 end
 
+function is_idle(gate)
+  return gate.state == "idle"
+end
+
+function is_swapping(gate)
+  return gate.state == "swapping_with_right" or gate.state == "swapping_with_left"
+end
+
+function is_swap_finished(gate)
+  return gate.state == "swap_finished"
+end
+
 quantum_gate = {
   size = 8,
   types = {"h", "x", "y", "z", "s", "t"},
   _spr = {h=0, x=1, y=2, z=3, s=4, t=5},
+  num_frames_swap = 2,
 
   new = function(_self, type)
     return {
       type = type,
+
+      update = function(self)
+        if is_swapping(self) then
+          if self.tick_swap < quantum_gate.num_frames_swap then
+            self.tick_swap += 1
+          else
+            self:_change_state("swap_finished")
+          end          
+        elseif is_swap_finished(self) then
+          self:_change_state("idle")
+        end
+      end,
+
       draw = function(self, screen_x, screen_y)
         if (is_i(self)) return
-        spr(quantum_gate._spr[self.type], screen_x, screen_y)
+
+        local dx = 0
+        if self.state == "swapping_with_right" then
+          dx = self.tick_swap * (quantum_gate.size / quantum_gate.num_frames_swap)
+        elseif self.state == "swapping_with_left" then
+          dx = -self.tick_swap * (quantum_gate.size / quantum_gate.num_frames_swap)
+        end
+
+        spr(quantum_gate._spr[self.type], screen_x + dx, screen_y)
+      end,
+
+      start_swap_with_right = function(self, swap_new_x)
+        self.tick_swap = 0
+        self.swap_new_x = swap_new_x
+        self:_change_state("swapping_with_right")
+      end,
+
+      start_swap_with_left = function(self, swap_new_x)
+        self.tick_swap = 0
+        self.swap_new_x = swap_new_x
+        self:_change_state("swapping_with_left")
+      end,
+
+      _change_state = function(self, new_state)
+        self.state = new_state
       end,
     }
-  end  
+  end
 }
 
 function random_gate()
@@ -56,16 +106,40 @@ board_class = {
       end,
 
       update = function(self)
+        self:_update_falling_garbages()
+        self:_update_gates()
+      end,
+
+      _update_falling_garbages = function(self)
         foreach(self._falling_garbages, function(each)
           if each.state == "hit gate" then
-            local y = self:y(each.stop_y)
-            self:put(each.x, y, each)
+            self:put(each.x, self:y(each.stop_y), each)
           elseif each.state == "idle" then
             del(self._falling_garbages, each)
           end
 
           each:update()
-        end)
+        end)      
+      end,
+
+      _update_gates = function(self)
+        local gates_to_swap = {}
+
+        for x = 1, self.cols do
+          for y = 1, self.rows do
+            local gate = self:gate_at(x, y)
+
+            gate:update()
+
+            if is_swap_finished(gate) then
+              add(gates_to_swap, { gate = gate, y = y })
+            end
+          end
+        end
+
+        foreach(gates_to_swap, function(each)
+          self:put(each.gate.swap_new_x, each.y, each.gate)
+        end)        
       end,
 
       draw = function(self)
@@ -104,6 +178,20 @@ board_class = {
         rectfill(self._offset_x - 1, self:screen_y(self.rows + 1) + 1,
                  self._offset_x + self.cols * quantum_gate.size - 1, 127,
                  colors.black)
+      end,
+
+      swap = function(self, x_left, x_right, y)
+        -- if not self:is_swappable(x_left, x_right, y) then
+        --   return false
+        -- end
+
+        local left_gate = self:gate_at(x_left, y)
+        local right_gate = self:gate_at(x_right, y)
+
+        left_gate:start_swap_with_right(x_right)
+        right_gate:start_swap_with_left(x_left)
+
+        return true
       end,
 
       dy = function(self)
@@ -255,7 +343,7 @@ garbage = {
 
             if (self.state == "fall") then 
               self:_change_state("hit gate")
-              sfx(0)
+              sfx(1)
             else
               self:_change_state("sink")
             end
@@ -291,24 +379,40 @@ function _init()
 end
 
 function _update60()
+  local player_cursor = game.player_cursor
+
   if btnp(game.button.left) then
-    game.player_cursor:move_left()
+    sfx(0)
+    player_cursor:move_left()
   end
   if btnp(game.button.right) then
-    game.player_cursor:move_right()
+    sfx(0)
+    player_cursor:move_right()
   end
   if btnp(game.button.up) then
-    game.player_cursor:move_up()
+    sfx(0)
+    player_cursor:move_up()
   end
   if btnp(game.button.down) then
-    game.player_cursor:move_down()
+    sfx(0)
+    player_cursor:move_down()
   end
   if btnp(game.button.x) then
+    local swapped = game.board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y)
+    -- if swapped == false then
+    --   self.player_cursor.cannot_swap = true
+    -- end
+
+    if swapped then
+      sfx(2)        
+    end
+  end
+  if btnp(game.button.o) then
     game.board:put_garbage()
   end
 
   game.board:update()
-  game.player_cursor:update()
+  player_cursor:update()
 end
 
 function _draw()
@@ -360,4 +464,6 @@ __gfx__
 00000000003730000037300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000003330000033300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
-010100000e057000570e057000570d057000570d0570d0070c0070c0070c00700007000070e057000570c057000570b057000570b0570005700007000070000700007000570b057020570a057010570a05701057
+000100002202000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0001000010057000570e057000570d057000570d0570d0070c0070c0070c00700007000070e057000570c057000570b057000570b0570005700007000070000700007000570b057020570a057010570a05701057
+000100002b0102d01031010336102e0102f0103160000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
