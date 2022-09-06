@@ -23,8 +23,8 @@ gate_reduction_rules = {
       return {
         type = "hh",
         score = 100,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = i_gate:new() }},
+        to = {{ gate = i_gate:new() },
+              { dy = 1, gate = i_gate:new() }},
       }
     end
   
@@ -35,8 +35,8 @@ gate_reduction_rules = {
         return {
           type = "xx",
           score = 100,
-          to = {{ dx = 0, dy = 0, gate = i_gate:new() },
-                { dx = 0, dy = 1, gate = i_gate:new() }},
+          to = {{ gate = i_gate:new() },
+                { dy = 1, gate = i_gate:new() }},
         }
       end
       if is_z(gate_y1) then
@@ -45,8 +45,8 @@ gate_reduction_rules = {
         return {
           type = "xz",
           score = 200,
-          to = {{ dx = 0, dy = 0, gate = i_gate:new() },
-                { dx = 0, dy = 1, gate = y_gate:new() }},
+          to = {{ gate = i_gate:new() },
+                { dy = 1, gate = y_gate:new() }},
         }
       end
     end
@@ -58,8 +58,8 @@ gate_reduction_rules = {
       return {
         type = "yy",
         score = 100,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = i_gate:new() }},
+        to = {{ gate = i_gate:new() },
+              { dy = 1, gate = i_gate:new() }},
       }
     end
 
@@ -70,8 +70,8 @@ gate_reduction_rules = {
         return {
           type = "zz",
           score = 100,
-          to = {{ dx = 0, dy = 0, gate = i_gate:new() },
-                { dx = 0, dy = 1, gate = i_gate:new() }},
+          to = {{ gate = i_gate:new() },
+                { dy = 1, gate = i_gate:new() }},
         }
       elseif is_x(gate_y1) then
         -- z  -->  
@@ -79,8 +79,8 @@ gate_reduction_rules = {
         return {
           type = "zx",
           score = 200,
-          to = {{ dx = 0, dy = 0, gate = i_gate:new() },
-                { dx = 0, dy = 1, gate = y_gate:new() }},
+          to = {{ gate = i_gate:new() },
+                { dy = 1, gate = y_gate:new() }},
         }
       end
     end
@@ -92,8 +92,8 @@ gate_reduction_rules = {
       return {
         type = "ss",
         score = 200,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = z_gate:new() }},
+        to = {{ gate = i_gate:new() },
+              { dy = 1, gate = z_gate:new() }},
       }
     end
 
@@ -104,8 +104,8 @@ gate_reduction_rules = {
       return {
         type = "tt",
         score = 200,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = s_gate:new() }},
+        to = {{ gate = i_gate:new() },
+              { dy = 1, gate = s_gate:new() }},
       }
     end
 
@@ -117,8 +117,8 @@ gate_reduction_rules = {
       return {
         type = "swap swap",
         score = 600,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() }, { dx = dx, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = i_gate:new() }, { dx = dx, dy = 1, gate = i_gate:new() }},
+        to = {{ gate = i_gate:new() }, { dx = dx, gate = i_gate:new() },
+              { dy = 1, gate = i_gate:new() }, { dx = dx, dy = 1, gate = i_gate:new() }},
       }  
     end
 
@@ -130,8 +130,8 @@ gate_reduction_rules = {
       return {
         type = "cnot x2",
         score = 200,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() }, { dx = dx, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = i_gate:new() }, { dx = dx, dy = 1, gate = i_gate:new() }},
+        to = {{ gate = i_gate:new() }, { dx = dx, gate = i_gate:new() },
+              { dy = 1, gate = i_gate:new() }, { dx = dx, dy = 1, gate = i_gate:new() }},
       }  
     end
 
@@ -153,9 +153,9 @@ gate_reduction_rules = {
       return {
         type = "hxh",
         score = 400,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = i_gate:new() },
-              { dx = 0, dy = 2, gate = z_gate:new() }},
+        to = {{ gate = i_gate:new() },
+              { dy = 1, gate = i_gate:new() },
+              { dy = 2, gate = z_gate:new() }},
       }      
     end 
 
@@ -165,9 +165,9 @@ gate_reduction_rules = {
       return {
         type = "hzh",
         score = 400,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = i_gate:new() },
-              { dx = 0, dy = 2, gate = x_gate:new() }},
+        to = {{ gate = i_gate:new() },
+              { dy = 1, gate = i_gate:new() },
+              { dy = 2, gate = x_gate:new() }},
       }
     end 
 
@@ -177,9 +177,9 @@ gate_reduction_rules = {
       return {
         type = "szs",
         score = 400,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = i_gate:new() },
-              { dx = 0, dy = 2, gate = z_gate:new() }},
+        to = {{ gate = i_gate:new() },
+              { dy = 1, gate = i_gate:new() },
+              { dy = 2, gate = z_gate:new() }},
       }      
     end
 
@@ -193,9 +193,9 @@ gate_reduction_rules = {
       return {
         type = "cnot x3",
         score = 800,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() }, { dx = dx, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = i_gate:new() }, { dx = dx, dy = 1, gate = i_gate:new() },
-              { dx = 0, dy = 2, gate = swap_gate:new(x + dx) }, { dx = dx, dy = 2, gate = swap_gate:new(x) }},
+        to = {{ gate = i_gate:new() }, { dx = dx, gate = i_gate:new() },
+              { dy = 1, gate = i_gate:new() }, { dx = dx, dy = 1, gate = i_gate:new() },
+              { dy = 2, gate = swap_gate:new(x + dx) }, { dx = dx, dy = 2, gate = swap_gate:new(x) }},
       }  
     end
 
@@ -209,9 +209,9 @@ gate_reduction_rules = {
       return {
         type = "hh cnot hh",
         score = 800,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() }, { dx = dx, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = cnot_x_gate:new(x + dx) }, { dx = dx, dy = 1, gate = control_gate:new(x) },
-              { dx = 0, dy = 2, gate = i_gate:new() }, { dx = dx, dy = 2, gate = i_gate:new() }},
+        to = {{ gate = i_gate:new() }, { dx = dx, gate = i_gate:new() },
+              { dy = 1, gate = cnot_x_gate:new(x + dx) }, { dx = dx, dy = 1, gate = control_gate:new(x) },
+              { dy = 2, gate = i_gate:new() }, { dx = dx, dy = 2, gate = i_gate:new() }},
       }  
     end
 
@@ -225,9 +225,9 @@ gate_reduction_rules = {
       return {
         type = "xx cnot xx",
         score = 800,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() }, { dx = dx, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = control_gate:new(x + dx) }, { dx = dx, dy = 1, gate = cnot_x_gate:new(x) },
-              { dx = 0, dy = 2, gate = i_gate:new() }},
+        to = {{ gate = i_gate:new() }, { dx = dx, gate = i_gate:new() },
+              { dy = 1, gate = control_gate:new(x + dx) }, { dx = dx, dy = 1, gate = cnot_x_gate:new(x) },
+              { dy = 2, gate = i_gate:new() }},
       }  
     end
 
@@ -241,8 +241,8 @@ gate_reduction_rules = {
       return {
         type = "zz cnot z",
         score = 800,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() }, { dx = dx, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = control_gate:new(x + dx) }, { dx = dx, dy = 1, gate = cnot_x_gate:new(x) },
+        to = {{ gate = i_gate:new() }, { dx = dx, gate = i_gate:new() },
+              { dy = 1, gate = control_gate:new(x + dx) }, { dx = dx, dy = 1, gate = cnot_x_gate:new(x) },
               { dx = dx, dy = 2, gate = i_gate:new() }},
       }  
     end
@@ -257,9 +257,9 @@ gate_reduction_rules = {
       return {
         type = "x cnot x",
         score = 800,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = cnot_x_gate:new(x + dx) }, { dx = dx, dy = 1, gate = control_gate:new(x) },
-              { dx = 0, dy = 2, gate = i_gate:new() }},
+        to = {{ gate = i_gate:new() },
+              { dy = 1, gate = cnot_x_gate:new(x + dx) }, { dx = dx, dy = 1, gate = control_gate:new(x) },
+              { dy = 2, gate = i_gate:new() }},
       }  
     end   
 
@@ -273,9 +273,9 @@ gate_reduction_rules = {
       return {
         type = "z cnot z",
         score = 800,
-        to = {{ dx = 0, dy = 0, gate = i_gate:new() },
-              { dx = 0, dy = 1, gate = control_gate:new(x + dx) }, { dx = dx, dy = 1, gate = cnot_x_gate:new(x) },
-              { dx = 0, dy = 2, gate = i_gate:new() }},
+        to = {{ gate = i_gate:new() },
+              { dy = 1, gate = control_gate:new(x + dx) }, { dx = dx, dy = 1, gate = cnot_x_gate:new(x) },
+              { dy = 2, gate = i_gate:new() }},
       }  
     end     
 
