@@ -27,7 +27,7 @@ gate_reduction_rules = {
               { dx = 0, dy = 1, gate = i_gate:new() }},
       }
     end
-
+  
     if is_x(gate) then
       if is_x(gate_y1) then
         -- x  -->  i
@@ -146,7 +146,6 @@ gate_reduction_rules = {
     end
 
     local gate_y2 = board:reducible_gate_at(x, y + 2)
-    if (is_i(gate_y2)) return {to = {}}
 
     if (is_h(gate) and
         is_x(gate_y1) and
@@ -228,23 +227,23 @@ gate_reduction_rules = {
         score = 800,
         to = {{ dx = 0, dy = 0, gate = i_gate:new() }, { dx = dx, dy = 0, gate = i_gate:new() },
               { dx = 0, dy = 1, gate = control_gate:new(x + dx) }, { dx = dx, dy = 1, gate = cnot_x_gate:new(x) },
-              { dx = 0, dy = 2, gate = i_gate:new() }, { dx = dx, dy = 2, gate = i_gate:new() }},
+              { dx = 0, dy = 2, gate = i_gate:new() }},
       }  
     end
 
     -- z z
     -- c-x  -->  c-x
-    -- z         
+    --   z
     if (is_z(gate) and is_control(gate_y1) and is_z(board:reducible_gate_at(gate_y1.cnot_x_x, y)) and
         is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y + 1)) and
-        is_z(gate_y2)) then
+        is_z(board:reducible_gate_at(gate_y1.cnot_x_x, y + 2))) then
       local dx = gate_y1.cnot_x_x - x
       return {
-        type = "zz cnot zz",
+        type = "zz cnot z",
         score = 800,
         to = {{ dx = 0, dy = 0, gate = i_gate:new() }, { dx = dx, dy = 0, gate = i_gate:new() },
               { dx = 0, dy = 1, gate = control_gate:new(x + dx) }, { dx = dx, dy = 1, gate = cnot_x_gate:new(x) },
-              { dx = 0, dy = 2, gate = i_gate:new() }},
+              { dx = dx, dy = 2, gate = i_gate:new() }},
       }  
     end
 
@@ -262,7 +261,23 @@ gate_reduction_rules = {
               { dx = 0, dy = 1, gate = cnot_x_gate:new(x + dx) }, { dx = dx, dy = 1, gate = control_gate:new(x) },
               { dx = 0, dy = 2, gate = i_gate:new() }},
       }  
-    end        
+    end   
+
+    -- z
+    -- c-x  -->  c-x
+    -- z       
+    if (is_z(gate) and
+        is_control(gate_y1) and is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y + 1)) and
+        is_z(gate_y2)) then
+      local dx = gate_y1.cnot_x_x - x
+      return {
+        type = "z cnot z",
+        score = 800,
+        to = {{ dx = 0, dy = 0, gate = i_gate:new() },
+              { dx = 0, dy = 1, gate = control_gate:new(x + dx) }, { dx = dx, dy = 1, gate = cnot_x_gate:new(x) },
+              { dx = 0, dy = 2, gate = i_gate:new() }},
+      }  
+    end     
 
     return {to = {}}
   end,
