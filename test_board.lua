@@ -5,6 +5,10 @@ function put(x, y, gate)
   test_board:put(x, y, gate)
 end
 
+function assert_gate(x, y, expected)
+  return test_board:gate_at(x, y)._type == expected
+end
+
 function assert_reduction(x, y, expected)
   return test_board:gate_at(x, y)._reduce_to._type == expected
 end
@@ -270,7 +274,7 @@ test('board', function(desc,it)
       reduce()
 
       return assert_reduction(1, 10, 'i'), assert_reduction(3, 10, 'i'),
-             assert_reduction(1, 11, 'control'), assert_reduction(3, 11, 'cnot_x'),
+             assert_gate(1, 11, 'control'), assert_gate(3, 11, 'cnot_x'),
              assert_reduction(1, 12, 'i')
     end)  
 
@@ -288,7 +292,7 @@ test('board', function(desc,it)
       reduce()
 
       return assert_reduction(1, 10, 'i'), assert_reduction(3, 10, 'i'),
-             assert_reduction(1, 11, 'control'), assert_reduction(3, 11, 'cnot_x'),
+             assert_gate(1, 11, 'control'), assert_gate(3, 11, 'cnot_x'),
              assert_reduction(3, 12, 'i')
     end)
 
@@ -305,7 +309,7 @@ test('board', function(desc,it)
       reduce()
 
       return assert_reduction(1, 10, 'i'),
-             assert_reduction(1, 11, 'cnot_x'), assert_reduction(3, 11, 'control'),
+             assert_gate(1, 11, 'cnot_x'), assert_gate(3, 11, 'control'),
              assert_reduction(1, 12, 'i')
     end)  
 
@@ -322,7 +326,7 @@ test('board', function(desc,it)
       reduce()
 
       return assert_reduction(1, 10, 'i'),
-             assert_reduction(1, 11, 'control'), assert_reduction(3, 11, 'cnot_x'),
+             assert_gate(1, 11, 'control'), assert_gate(3, 11, 'cnot_x'),
              assert_reduction(1, 12, 'i')
     end)       
   end)

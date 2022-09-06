@@ -300,9 +300,12 @@ board = {
 
               for index, r in pairs(reduction.to) do
                 local delay_puff = (index - 1) * 20
-                self:gate_at(x + (r.dx or 0), y + (r.dy or 0)):replace_with(r.gate, reduction.type, delay_puff, delay_disappear)
+                local dx = r.dx or 0
+                local dy = r.dy or 0
+                local gate = r.gate or i_gate:new()
+                self:gate_at(x + dx, y + dy):replace_with(gate, reduction.type, delay_puff, delay_disappear)
 
-                if (r.dx == 0 and r.dy == 0) then
+                if (dx == 0 and dy == 0) then
                   player.score += reduction.score / 100
                   score_popup:create(self:screen_x(x) - 2, self:screen_y(y), tostr(reduction.score))
                 end
