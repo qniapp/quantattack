@@ -239,7 +239,35 @@ gate_reduction_rules = {
       return {
         type = "zz cnot z",
         score = 800,
-        to = {{}, { dx = dx}, { dx = dx, dy = 2 }},
+        to = {{}, { dx = dx }, { dx = dx, dy = 2 }},
+      }  
+    end
+
+    -- s s       z z
+    -- c-x  -->  c-x
+    --   s
+    if (is_s(gate) and is_control(gate_y1) and is_s(board:reducible_gate_at(gate_y1.cnot_x_x, y)) and
+        is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y + 1)) and
+        is_s(board:reducible_gate_at(gate_y1.cnot_x_x, y + 2))) then
+      local dx = gate_y1.cnot_x_x - x
+      return {
+        type = "ss cnot s",
+        score = 800,
+        to = {{gate = z_gate:new()}, { dx = dx, gate = z_gate:new() }, { dx = dx, dy = 2 }},
+      }  
+    end
+
+    -- t t       s s
+    -- c-x  -->  c-x
+    --   t
+    if (is_t(gate) and is_control(gate_y1) and is_t(board:reducible_gate_at(gate_y1.cnot_x_x, y)) and
+        is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y + 1)) and
+        is_t(board:reducible_gate_at(gate_y1.cnot_x_x, y + 2))) then
+      local dx = gate_y1.cnot_x_x - x
+      return {
+        type = "tt cnot t",
+        score = 800,
+        to = {{gate = s_gate:new()}, { dx = dx, gate = s_gate:new() }, { dx = dx, dy = 2 }},
       }  
     end
 
