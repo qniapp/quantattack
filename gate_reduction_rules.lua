@@ -297,7 +297,35 @@ gate_reduction_rules = {
         score = 800,
         to = {{}, { dy = 2 }},
       }  
-    end     
+    end
+
+    -- s         z
+    -- c-x  -->  c-x
+    -- s       
+    if (is_s(gate) and
+        is_control(gate_y1) and is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y + 1)) and
+        is_s(gate_y2)) then
+      local dx = gate_y1.cnot_x_x - x
+      return {
+        type = "s cnot s",
+        score = 800,
+        to = {{ gate = z_gate:new() }, { dy = 2 }},
+      }  
+    end          
+
+    -- t         s
+    -- c-x  -->  c-x
+    -- t       
+    if (is_t(gate) and
+        is_control(gate_y1) and is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y + 1)) and
+        is_t(gate_y2)) then
+      local dx = gate_y1.cnot_x_x - x
+      return {
+        type = "t cnot t",
+        score = 800,
+        to = {{ gate = s_gate:new() }, { dy = 2 }},
+      }  
+    end  
 
     return {to = {}}
   end,
