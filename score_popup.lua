@@ -19,7 +19,7 @@ score_popup = {
 
   update = function(self)
     foreach(score_popup._all, function(each)
-      if (each.tick > each.max_tick) then
+      if each.tick > each.max_tick then
         del(score_popup._all, each)
       end
 

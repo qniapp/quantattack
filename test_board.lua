@@ -1,179 +1,157 @@
+-- test helpers
+test_board = nil
+
+function put(x, y, gate)
+  test_board:put(x, y, gate)
+end
+
+function assert_gate(x, y, expected)
+  return test_board:gate_at(x, y)._type == expected
+end
+
+function assert_reduction(x, y, expected)
+  return test_board:gate_at(x, y)._reduce_to._type == expected
+end
+
+function reduce()
+  test_board:reduce()
+end
+
+function drop()
+  test_board:drop_gates()
+end
+
 test('board', function(desc,it)
-  desc('cols', function()
-    it('should be 6', function()
-      return board:new().cols == 6
-    end)
-  end)
-
-  desc('rows', function()
-    it('should be 13', function()
-      return board:new().rows_plus_next_rows == 13
-    end)
-  end)
-
-  desc('rows_plus_next_rows', function()
-    it('should be 12', function()
-      return board:new().rows == 12
-    end)
-  end)
-
-  desc("top", function()
-    it('should be 0 by default', function()
-      return board:new().top == 0
-    end)
-  end)
-
-  desc("left", function()
-    it('should be 0 by default', function()
-      return board:new().left == 0
-    end)
-  end)
-
-  desc('new', function ()
-    it('should be initialized with id gates', function ()
-      local board = board:new()
-      local result = true
-
-      for x = 1, board.cols do
-        for y = 1, board.rows_plus_next_rows do
-          result = result and is_i(board:gate_at(x, y))
-        end
-      end
-
-      return result
-    end)      
-  end)
-
   desc('reduce', function ()
     --
     --  h  reduce
     --  h  ----->  i
     --
     it('should reduce hh', function ()
-      local board = board:new()
-      board:put(1, 11, h_gate:new())
-      board:put(1, 12, h_gate:new())
+      test_board = board:new()
+      put(1, 11, h_gate:new())
+      put(1, 12, h_gate:new())
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "i"
+      return assert_reduction(1, 11, 'i'),
+             assert_reduction(1, 12, 'i')
     end)
 
     --  x  reduce
     --  x  ----->  i
     --
     it('should reduce xx', function ()
-      local board = board:new()
-      board:put(1, 11, x_gate:new())
-      board:put(1, 12, x_gate:new())
+      test_board = board:new()
+      put(1, 11, x_gate:new())
+      put(1, 12, x_gate:new())
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "i"
+      return assert_reduction(1, 11, 'i'),
+             assert_reduction(1, 12, 'i')
     end)
 
     --  y  reduce
     --  y  ----->  i
     --
     it('should reduce yy', function ()
-      local board = board:new()
-      board:put(1, 11, y_gate:new())
-      board:put(1, 12, y_gate:new())
+      test_board = board:new()
+      put(1, 11, y_gate:new())
+      put(1, 12, y_gate:new())
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "i"
+      return assert_reduction(1, 11, 'i'),
+             assert_reduction(1, 12, 'i')
     end)
 
     --  z  reduce
     --  z  ----->  i
     --
     it('should reduce zz', function ()
-      local board = board:new()
-      board:put(1, 11, z_gate:new())
-      board:put(1, 12, z_gate:new())
+      test_board = board:new()
+      put(1, 11, z_gate:new())
+      put(1, 12, z_gate:new())
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "i"
+      return assert_reduction(1, 11, 'i'),
+             assert_reduction(1, 12, 'i')
     end)
 
     --  z  reduce
     --  x  ----->  y
     --
     it('should reduce zx', function ()
-      local board = board:new()
-      board:put(1, 11, z_gate:new())
-      board:put(1, 12, x_gate:new())
+      test_board = board:new()
+      put(1, 11, z_gate:new())
+      put(1, 12, x_gate:new())
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "y"
+      return assert_reduction(1, 11, 'i'),
+             assert_reduction(1, 12, 'y')
     end)
 
     --  x  reduce
     --  z  ----->  y
     --
     it('should reduce xz', function ()
-      local board = board:new()
-      board:put(1, 11, x_gate:new())
-      board:put(1, 12, z_gate:new())
+      test_board = board:new()
+      put(1, 11, x_gate:new())
+      put(1, 12, z_gate:new())
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "y"
+      return assert_reduction(1, 11, 'i'),
+             assert_reduction(1, 12, 'y')
     end)
 
     --  s  reduce
     --  s  ----->  z
     --
     it('should reduce ss', function ()
-      local board = board:new()
-      board:put(1, 11, s_gate:new())
-      board:put(1, 12, s_gate:new())
+      test_board = board:new()
+      put(1, 11, s_gate:new())
+      put(1, 12, s_gate:new())
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "z"
+      return assert_reduction(1, 11, 'i'),
+             assert_reduction(1, 12, 'z')
     end)
 
     --  t  reduce
     --  t  ----->  s
     --
     it('should reduce tt', function ()
-      local board = board:new()
-      board:put(1, 11, t_gate:new())
-      board:put(1, 12, t_gate:new())
+      test_board = board:new()
+      put(1, 11, t_gate:new())
+      put(1, 12, t_gate:new())
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "s"
+      return assert_reduction(1, 11, 'i'),
+             assert_reduction(1, 12, 's')
     end)
 
     --  s-s  reduce
     --  s-s  ----->  i-i
     --
     it('should reduce swap pairs in the same columns', function ()
-      local board = board:new()
-      board:put(1, 11, swap_gate:new(3))
-      board:put(3, 11, swap_gate:new(1))
-      board:put(1, 12, swap_gate:new(3))
-      board:put(3, 12, swap_gate:new(1))
+      test_board = board:new()
+      put(1, 11, swap_gate:new(3))
+      put(3, 11, swap_gate:new(1))
+      put(1, 12, swap_gate:new(3))
+      put(3, 12, swap_gate:new(1))
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 11)._reduce_to._type == "i",
-             board:gate_at(3, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "i",
-             board:gate_at(3, 12)._reduce_to._type == "i"
+      return assert_reduction(1, 11, 'i'),
+             assert_reduction(3, 11, 'i'),
+             assert_reduction(1, 12, 'i'),
+             assert_reduction(3, 12, 'i')
     end)
 
     --  h
@@ -181,16 +159,16 @@ test('board', function(desc,it)
     --  h  ----->  z
     --
     it('should reduce hxh', function ()
-      local board = board:new()
-      board:put(1, 10, h_gate:new())
-      board:put(1, 11, x_gate:new())
-      board:put(1, 12, h_gate:new())
+      test_board = board:new()
+      put(1, 10, h_gate:new())
+      put(1, 11, x_gate:new())
+      put(1, 12, h_gate:new())
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 10)._reduce_to._type == "i",
-             board:gate_at(1, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "z"
+      return assert_reduction(1, 10, 'i'),
+             assert_reduction(1, 11, 'i'),
+             assert_reduction(1, 12, 'z')
     end)
 
     --  h
@@ -198,16 +176,16 @@ test('board', function(desc,it)
     --  h  ----->  x
     --
     it('should reduce hzh', function ()
-      local board = board:new()
-      board:put(1, 10, h_gate:new())
-      board:put(1, 11, z_gate:new())
-      board:put(1, 12, h_gate:new())
+      test_board = board:new()
+      put(1, 10, h_gate:new())
+      put(1, 11, z_gate:new())
+      put(1, 12, h_gate:new())
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 10)._reduce_to._type == "i",
-             board:gate_at(1, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "x"
+      return assert_reduction(1, 10, 'i'),
+             assert_reduction(1, 11, 'i'),
+             assert_reduction(1, 12, 'x')
     end)
 
     --  s
@@ -215,107 +193,234 @@ test('board', function(desc,it)
     --  s  ----->  z
     --
     it('should reduce szs', function ()
-      local board = board:new()
-      board:put(1, 10, s_gate:new())
-      board:put(1, 11, z_gate:new())
-      board:put(1, 12, s_gate:new())
+      test_board = board:new()
+      put(1, 10, s_gate:new())
+      put(1, 11, z_gate:new())
+      put(1, 12, s_gate:new())
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 10)._reduce_to._type == "i",
-             board:gate_at(1, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "z"
+      return assert_reduction(1, 10, 'i'),
+             assert_reduction(1, 11, 'i'),
+             assert_reduction(1, 12, 'z')
     end)
 
     --  c-x  reduce
     --  c-x  ----->  i i
     --
     it('should reduce cnot x2', function ()
-      local board = board:new()
-      board:put(1, 11, control_gate:new(3))
-      board:put(3, 11, cnot_x_gate:new(1))
-      board:put(1, 12, control_gate:new(3))
-      board:put(3, 12, cnot_x_gate:new(1))
+      test_board = board:new()
+      put(1, 11, control_gate:new(3))
+      put(3, 11, cnot_x_gate:new(1))
+      put(1, 12, control_gate:new(3))
+      put(3, 12, cnot_x_gate:new(1))
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",      
-             board:gate_at(1, 12)._reduce_to._type == "i", board:gate_at(3, 12)._reduce_to._type == "i"
+      return assert_reduction(1, 11, 'i'), assert_reduction(3, 11, 'i'),
+             assert_reduction(1, 12, 'i'), assert_reduction(3, 12, 'i')
     end)
-
-    --  x-c  reduce
-    --  x-c  ----->  i i
-    --
-    it('should reduce cnot x2', function ()
-      local board = board:new()
-      board:put(1, 11, cnot_x_gate:new(3))
-      board:put(3, 11, control_gate:new(1))
-      board:put(1, 12, cnot_x_gate:new(3))
-      board:put(3, 12, control_gate:new(1))
-
-      board:reduce()
-
-      return board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",      
-             board:gate_at(1, 12)._reduce_to._type == "i", board:gate_at(3, 12)._reduce_to._type == "i"
-    end)    
 
     --  c-x
     --  x-c  reduce
     --  c-x  ----->  s-s
     --
     it('should reduce cnotx3', function ()
-      local board = board:new()
-      board:put(1, 10, control_gate:new(3))
-      board:put(3, 10, cnot_x_gate:new(1))
-      board:put(1, 11, cnot_x_gate:new(3))
-      board:put(3, 11, control_gate:new(1))
-      board:put(1, 12, control_gate:new(3))
-      board:put(3, 12, cnot_x_gate:new(1))
+      test_board = board:new()
+      put(1, 10, control_gate:new(3))
+      put(3, 10, cnot_x_gate:new(1))
+      put(1, 11, cnot_x_gate:new(3))
+      put(3, 11, control_gate:new(1))
+      put(1, 12, control_gate:new(3))
+      put(3, 12, cnot_x_gate:new(1))
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 10)._reduce_to._type == "i", board:gate_at(3, 10)._reduce_to._type == "i",      
-             board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "swap", board:gate_at(3, 12)._reduce_to._type == "swap"
+      return assert_reduction(1, 10, 'i'), assert_reduction(3, 10, 'i'),
+             assert_reduction(1, 11, 'i'), assert_reduction(3, 11, 'i'),
+             assert_reduction(1, 12, 'swap'), assert_reduction(3, 12, 'swap')
     end)
 
     -- h h  reduce
-    -- c-x  ----->
-    -- h h          x-c   
+    -- c-x  ----->  x-c
+    -- h h             
     it('should reduce hh cx hh', function ()
-      local board = board:new()
-      board:put(1, 10, h_gate:new())
-      board:put(3, 10, h_gate:new())
-      board:put(1, 11, control_gate:new(3))
-      board:put(3, 11, cnot_x_gate:new(1))
-      board:put(1, 12, h_gate:new())
-      board:put(3, 12, h_gate:new())
+      test_board = board:new()
+      put(1, 10, h_gate:new())
+      put(3, 10, h_gate:new())
+      put(1, 11, control_gate:new(3))
+      put(3, 11, cnot_x_gate:new(1))
+      put(1, 12, h_gate:new())
+      put(3, 12, h_gate:new())
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 10)._reduce_to._type == "i", board:gate_at(3, 10)._reduce_to._type == "i",
-             board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "cnot_x", board:gate_at(3, 12)._reduce_to._type == "control"
-    end)                   
+      return assert_reduction(1, 10, 'i'), assert_reduction(3, 10, 'i'),
+             assert_reduction(1, 11, 'cnot_x'), assert_reduction(3, 11, 'control'),
+             assert_reduction(1, 12, 'i'), assert_reduction(3, 12, 'i')
+    end)
 
-    -- h h  reduce
-    -- x-c  ----->
-    -- h h          c-x
-    it('should reduce hh xc hh', function ()
-      local board = board:new()
-      board:put(1, 10, h_gate:new())
-      board:put(3, 10, h_gate:new())
-      board:put(1, 11, cnot_x_gate:new(3))
-      board:put(3, 11, control_gate:new(1))
-      board:put(1, 12, h_gate:new())
-      board:put(3, 12, h_gate:new())
+    -- x x  reduce
+    -- c-x  ----->  c-x
+    -- x               
+    it('should reduce xx cx x', function ()
+      test_board = board:new()
+      put(1, 10, x_gate:new())
+      put(3, 10, x_gate:new())
+      put(1, 11, control_gate:new(3))
+      put(3, 11, cnot_x_gate:new(1))
+      put(1, 12, x_gate:new())
 
-      board:reduce()
+      reduce()
 
-      return board:gate_at(1, 10)._reduce_to._type == "i", board:gate_at(3, 10)._reduce_to._type == "i",
-             board:gate_at(1, 11)._reduce_to._type == "i", board:gate_at(3, 11)._reduce_to._type == "i",
-             board:gate_at(1, 12)._reduce_to._type == "control", board:gate_at(3, 12)._reduce_to._type == "cnot_x"
-    end)        
+      return assert_reduction(1, 10, 'i'), assert_reduction(3, 10, 'i'),
+             assert_gate(1, 11, 'control'), assert_gate(3, 11, 'cnot_x'),
+             assert_reduction(1, 12, 'i')
+    end)  
+
+    -- z z  reduce
+    -- c-x  ----->  c-x
+    --   z              
+    it('should reduce zz cx z', function ()
+      test_board = board:new()
+      put(1, 10, z_gate:new())
+      put(3, 10, z_gate:new())
+      put(1, 11, control_gate:new(3))
+      put(3, 11, cnot_x_gate:new(1))
+      put(3, 12, z_gate:new())
+
+      reduce()
+
+      return assert_reduction(1, 10, 'i'), assert_reduction(3, 10, 'i'),
+             assert_gate(1, 11, 'control'), assert_gate(3, 11, 'cnot_x'),
+             assert_reduction(3, 12, 'i')
+    end)
+
+    -- s s  reduce  z z
+    -- c-x  ----->  c-x
+    --   s              
+    it('should reduce ss cx s', function ()
+      test_board = board:new()
+      put(1, 10, s_gate:new())
+      put(3, 10, s_gate:new())
+      put(1, 11, control_gate:new(3))
+      put(3, 11, cnot_x_gate:new(1))
+      put(3, 12, s_gate:new())
+
+      reduce()
+
+      return assert_reduction(1, 10, 'z'), assert_reduction(3, 10, 'z'),
+             assert_gate(1, 11, 'control'), assert_gate(3, 11, 'cnot_x'),
+             assert_reduction(3, 12, 'i')
+    end)
+
+    -- t t  reduce  s s
+    -- c-x  ----->  c-x
+    --   t              
+    it('should reduce tt cx t', function ()
+      test_board = board:new()
+      put(1, 10, t_gate:new())
+      put(3, 10, t_gate:new())
+      put(1, 11, control_gate:new(3))
+      put(3, 11, cnot_x_gate:new(1))
+      put(3, 12, t_gate:new())
+
+      reduce()
+
+      return assert_reduction(1, 10, 's'), assert_reduction(3, 10, 's'),
+             assert_gate(1, 11, 'control'), assert_gate(3, 11, 'cnot_x'),
+             assert_reduction(3, 12, 'i')
+    end)
+
+    -- x    reduce
+    -- x-c  ----->  x-c
+    -- x             
+    it('should reduce x xc x', function ()
+      test_board = board:new()
+      put(1, 10, x_gate:new())
+      put(1, 11, cnot_x_gate:new(3))
+      put(3, 11, control_gate:new(1))
+      put(1, 12, x_gate:new())
+
+      reduce()
+
+      return assert_reduction(1, 10, 'i'),
+             assert_gate(1, 11, 'cnot_x'), assert_gate(3, 11, 'control'),
+             assert_reduction(1, 12, 'i')
+    end)  
+
+    -- z    reduce
+    -- c-x  ----->  c-x
+    -- z             
+    it('should reduce z cx z', function ()
+      test_board = board:new()
+      put(1, 10, z_gate:new())
+      put(1, 11, control_gate:new(3))
+      put(3, 11, cnot_x_gate:new(1))
+      put(1, 12, z_gate:new())
+
+      reduce()
+
+      return assert_reduction(1, 10, 'i'),
+             assert_gate(1, 11, 'control'), assert_gate(3, 11, 'cnot_x'),
+             assert_reduction(1, 12, 'i')
+    end)
+
+    -- s    reduce  z
+    -- c-x  ----->  c-x
+    -- s             
+    it('should reduce s cx s', function ()
+      test_board = board:new()
+      put(1, 10, s_gate:new())
+      put(1, 11, control_gate:new(3))
+      put(3, 11, cnot_x_gate:new(1))
+      put(1, 12, s_gate:new())
+
+      reduce()
+
+      return assert_reduction(1, 10, 'z'),
+             assert_gate(1, 11, 'control'), assert_gate(3, 11, 'cnot_x'),
+             assert_reduction(1, 12, 'i')
+    end)
+
+    -- t    reduce  s
+    -- c-x  ----->  c-x
+    -- t             
+    it('should reduce t cx t', function ()
+      test_board = board:new()
+      put(1, 10, t_gate:new())
+      put(1, 11, control_gate:new(3))
+      put(3, 11, cnot_x_gate:new(1))
+      put(1, 12, t_gate:new())
+
+      reduce()
+
+      return assert_reduction(1, 10, 's'),
+             assert_gate(1, 11, 'control'), assert_gate(3, 11, 'cnot_x'),
+             assert_reduction(1, 12, 'i')
+    end)
+
+    -- z
+    -- h x  reduce  h
+    -- x-c  ----->  x-c
+    -- h x          h
+    it('should reduce xz cz x', function ()
+      test_board = board:new()
+      put(1, 9, z_gate:new())
+      put(1, 10, h_gate:new())
+      put(3, 10, x_gate:new())
+      put(1, 11, cnot_x_gate:new(3))
+      put(3, 11, control_gate:new(1))
+      put(1, 12, h_gate:new())
+      put(3, 12, x_gate:new())
+
+      reduce()
+
+      return assert_reduction(1, 9, 'i'),
+             assert_gate(1, 10, 'h'), assert_reduction(3, 10, 'i'),
+             assert_gate(1, 11, 'cnot_x'), assert_gate(3, 11, 'control'),
+             assert_gate(1, 12, 'h'), assert_reduction(3, 12, 'i')
+    end)     
   end)
 
   desc('drop_gates', function ()
@@ -324,12 +429,12 @@ test('board', function(desc,it)
     --  _              _
     --
     it('should drop gates', function ()
-      local board = board:new()
-      board:put(1, 10, x_gate:new())
+      test_board = board:new()
+      put(1, 10, x_gate:new())
 
-      board:drop_gates()
+      drop()
 
-      return is_x(board:gate_at(1, 12))
+      return is_x(test_board:gate_at(1, 12))
     end)
 
     --     drop_gates
@@ -337,83 +442,83 @@ test('board', function(desc,it)
     --  _              _
     --
     it('should stop dropping gate when it reaches the ground', function ()
-      local board = board:new()
-      board:put(1, board.rows, x_gate:new())
+      test_board = board:new()
+      put(1, test_board.rows, x_gate:new())
 
-      board:drop_gates()
+      drop()
 
-      return is_x(board:gate_at(1, board.rows))
+      return is_x(test_board:gate_at(1, test_board.rows))
     end)
 
     --  x    drop_gates  
     --       --------->  x
     -- c-x              c-x
     it('should drop gate until it stops at cnot', function ()
-      local board = board:new()
-      board:put(2, 1, x_gate:new())
-      board:put(1, board.rows, control_gate:new(3))
-      board:put(3, board.rows, cnot_x_gate:new(1))
+      test_board = board:new()
+      put(2, 1, x_gate:new())
+      put(1, test_board.rows, control_gate:new(3))
+      put(3, test_board.rows, cnot_x_gate:new(1))
 
-      board:drop_gates()
+      drop()
 
-      return is_x(board:gate_at(2, board.rows - 1))
+      return is_x(test_board:gate_at(2, test_board.rows - 1))
     end)
 
     --  x    drop_gates  
     --       --------->  x
     -- s-s              s-s
     it('should drop gate until it stops at swap', function ()
-      local board = board:new()
-      board:put(2, 1, x_gate:new())
-      board:put(1, board.rows, swap_gate:new(3))
-      board:put(3, board.rows, swap_gate:new(1))
+      test_board = board:new()
+      put(2, 1, x_gate:new())
+      put(1, test_board.rows, swap_gate:new(3))
+      put(3, test_board.rows, swap_gate:new(1))
 
-      board:drop_gates()
+      drop()
 
-      return is_x(board:gate_at(2, board.rows - 1))
+      return is_x(test_board:gate_at(2, test_board.rows - 1))
     end)
 
     --  x   drop_gates  
     --      --------->   x
     -- ggg              ggg
     it('should drop gate until it stops at garbage unitary', function ()
-      local board = board:new()
-      board:put(2, 1, x_gate:new())
-      board:put(1, board.rows, garbage_unitary:new(3))
+      test_board = board:new()
+      put(2, 1, x_gate:new())
+      put(1, test_board.rows, garbage_unitary:new(3))
 
-      board:drop_gates()
+      drop()
 
-      return is_x(board:gate_at(2, board.rows - 1))
+      return is_x(test_board:gate_at(2, test_board.rows - 1))
     end)
 
     -- c-x  drop_gates
     --      --------->  c-x
     -- _x_              _x_
     it('should drop cnot pair until it stops at another gate', function ()
-      local board = board:new()
-      board:put(1, 1, control_gate:new(3))
-      board:put(3, 1, cnot_x_gate:new(1))
-      board:put(2, board.rows, x_gate:new())
+      test_board = board:new()
+      put(1, 1, control_gate:new(3))
+      put(3, 1, cnot_x_gate:new(1))
+      put(2, test_board.rows, x_gate:new())
 
-      board:drop_gates()
+      drop()
 
-      return is_control(board:gate_at(1, board.rows - 1)),
-             is_cnot_x(board:gate_at(3, board.rows - 1))
+      return is_control(test_board:gate_at(1, test_board.rows - 1)),
+             is_cnot_x(test_board:gate_at(3, test_board.rows - 1))
     end)
 
     -- s-s  drop_gates
     --      --------->  s-s
     -- _x_              _x_
     it('should drop swap pair until it stops at another gate', function ()
-      local board = board:new()
-      board:put(1, 1, swap_gate:new(3))
-      board:put(3, 1, swap_gate:new(1))
-      board:put(2, board.rows, x_gate:new())
+      test_board = board:new()
+      put(1, 1, swap_gate:new(3))
+      put(3, 1, swap_gate:new(1))
+      put(2, test_board.rows, x_gate:new())
 
-      board:drop_gates()
+      drop()
 
-      return is_swap(board:gate_at(1, board.rows - 1)),
-             is_swap(board:gate_at(3, board.rows - 1))
+      return is_swap(test_board:gate_at(1, test_board.rows - 1)),
+             is_swap(test_board:gate_at(3, test_board.rows - 1))
     end)
   end)  
 end)

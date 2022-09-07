@@ -15,7 +15,7 @@ drop_particle = {
     p.dy = rnd(.05)
     p.ddy = .02
 
-    if (left) then
+    if left then
       p.dx *= -1
     end
 

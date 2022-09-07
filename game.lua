@@ -1,5 +1,5 @@
 game = {
-  _button = {
+  button = {
     left = 0,
     right = 1,
     up = 2,
@@ -21,7 +21,7 @@ game = {
     self.state_machine = state_machine:new()
     self.board = board:new(18, 3)
     self.board:initialize_with_random_gates()
-    self.player_cursor = player_cursor:new(self.board)
+    self.player_cursor = player_cursor:new(self.board.cols, self.board.rows)
     self.tick = 0
     self.duration_raise_gates = 30 -- 0.5 seconds
     self.z_pushed = false
@@ -31,7 +31,7 @@ game = {
 
       -- transition function
       function(g)
-        if btn(game._button.x) then
+        if btn(game.button.x) then
           g.z_pushed = true
         elseif self.z_pushed then
           g.z_pushed = false
@@ -76,7 +76,7 @@ game = {
         g:_maybe_change_cursor_color()
         g.player_cursor:update()
 
-        if (g:_maybe_raise_gates()) then
+        if g:_maybe_raise_gates() then
           g:_maybe_add_garbage_unitary()
         end
 
@@ -90,7 +90,8 @@ game = {
       -- draw function
       function(g)
         g.board:draw()
-        g.player_cursor:draw()
+        g.player_cursor:draw(g.board:screen_x(g.player_cursor.x),
+                             g.board:screen_y(g.player_cursor.y))
 
         puff_particle:draw()
         drop_particle:draw()
@@ -111,7 +112,7 @@ game = {
   
       -- update function
       function(g)
-        if (btnp(game._button.o)) g:init()
+        if (btnp(game.button.o)) g:init()
 
         g.player_cursor.game_over = true
         g.board:update_gates()
@@ -120,9 +121,9 @@ game = {
 
       -- draw function
       function(g)
-
         g.board:draw()
-        g.player_cursor:draw()
+        g.player_cursor:draw(g.board:screen_x(g.player_cursor.x),
+                             g.board:screen_y(g.player_cursor.y))
 
         puff_particle:draw()
         drop_particle:draw()
@@ -152,27 +153,27 @@ game = {
   -- private
 
   _handle_button_events = function(self)
-    if btnp(game._button.left) then
+    if btnp(game.button.left) then
       self.player_cursor:move_left()
       sfx(game.sfx.move_cursor)
     end
 
-    if btnp(game._button.right) then
+    if btnp(game.button.right) then
       self.player_cursor:move_right()
       sfx(game.sfx.move_cursor)
     end
 
-    if btnp(game._button.up) then
+    if btnp(game.button.up) then
       self.player_cursor:move_up()
       sfx(game.sfx.move_cursor)
     end
 
-    if btnp(game._button.down) then
+    if btnp(game.button.down) then
       self.player_cursor:move_down()
       sfx(game.sfx.move_cursor)
     end
 
-    if btnp(game._button.x) then
+    if btnp(game.button.x) then
       local swapped = self.board:swap(self.player_cursor.x, self.player_cursor.x + 1, self.player_cursor.y)
       if swapped == false then
         self.player_cursor.cannot_swap = true
