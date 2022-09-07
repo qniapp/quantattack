@@ -1,19 +1,22 @@
 gate_reduction_rules = {
   reduce = function(self, board, x, y, include_next)
     include_next = include_next or false
+    local y1 = y + 1
+    local y2 = y + 2
+    local y3 = y + 3
 
     if include_next then
-      if y + 1 > board.rows_plus_next_rows then
+      if y1 > board.rows_plus_next_rows then
         return {to = {}}
       end
     else
-      if y + 1 > board.rows then
+      if y1 > board.rows then
         return {to = {}}
       end    
     end
 
     local gate = board:reducible_gate_at(x, y)
-    local gate_y1 = board:reducible_gate_at(x, y + 1)
+    local gate_y1 = board:reducible_gate_at(x, y1)
     if (is_i(gate_y1)) return {to = {}}
 
     if (is_h(gate) and
@@ -110,7 +113,7 @@ gate_reduction_rules = {
     end
 
     if (is_swap(gate) and is_swap(board:reducible_gate_at(gate.other_x, y)) and
-        is_swap(gate_y1) and is_swap(board:reducible_gate_at(gate.other_x, y + 1))) then 
+        is_swap(gate_y1) and is_swap(board:reducible_gate_at(gate.other_x, y1))) then 
       -- s-s  -->  i i
       -- s-s       i i        
       local dx = gate.other_x - x
@@ -125,7 +128,7 @@ gate_reduction_rules = {
     -- c-x   x-c      i i
     -- c-x   x-c  --> i i
     if (is_control(gate) and is_cnot_x(board:reducible_gate_at(gate.cnot_x_x, y)) and
-        is_control(gate_y1) and (gate_y1.cnot_x_x == gate.cnot_x_x) and is_cnot_x(board:reducible_gate_at(gate.cnot_x_x, y + 1))) then
+        is_control(gate_y1) and (gate_y1.cnot_x_x == gate.cnot_x_x) and is_cnot_x(board:reducible_gate_at(gate.cnot_x_x, y1))) then
       local dx = gate.cnot_x_x - x
       return {
         type = "cnot x2",
@@ -136,16 +139,16 @@ gate_reduction_rules = {
     end
 
     if include_next then
-      if y + 2 > board.rows_plus_next_rows then
+      if y2 > board.rows_plus_next_rows then
         return {to = {}}
       end       
     else
-      if y + 2 > board.rows then
+      if y2 > board.rows then
         return {to = {}}
       end    
     end
 
-    local gate_y2 = board:reducible_gate_at(x, y + 2)
+    local gate_y2 = board:reducible_gate_at(x, y2)
 
     if (is_h(gate) and
         is_x(gate_y1) and
@@ -187,8 +190,8 @@ gate_reduction_rules = {
     -- x-c   c-x  --> 
     -- c-x,  x-c       s-s
     if (is_control(gate) and is_cnot_x(board:reducible_gate_at(gate.cnot_x_x, y)) and
-        is_cnot_x(gate_y1) and is_control(board:reducible_gate_at(gate.cnot_x_x, y + 1)) and
-        is_control(gate_y2) and is_cnot_x(board:reducible_gate_at(gate.cnot_x_x, y + 2))) then
+        is_cnot_x(gate_y1) and is_control(board:reducible_gate_at(gate.cnot_x_x, y1)) and
+        is_control(gate_y2) and is_cnot_x(board:reducible_gate_at(gate.cnot_x_x, y2))) then
       local dx = gate.cnot_x_x - x
       return {
         type = "cnot x3",
@@ -203,8 +206,8 @@ gate_reduction_rules = {
     -- c-x  -->  x-c
     -- h h       
     if (is_h(gate) and is_control(gate_y1) and is_h(board:reducible_gate_at(gate_y1.cnot_x_x, y)) and
-        is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y + 1)) and
-        is_h(gate_y2) and is_h(board:reducible_gate_at(gate_y1.cnot_x_x, y + 2))) then
+        is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y1)) and
+        is_h(gate_y2) and is_h(board:reducible_gate_at(gate_y1.cnot_x_x, y2))) then
       local dx = gate_y1.cnot_x_x - x
       return {
         type = "hh cnot hh",
@@ -219,7 +222,7 @@ gate_reduction_rules = {
     -- c-x  -->  c-x
     -- x         
     if (is_x(gate) and is_control(gate_y1) and is_x(board:reducible_gate_at(gate_y1.cnot_x_x, y)) and
-        is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y + 1)) and
+        is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y1)) and
         is_x(gate_y2)) then
       local dx = gate_y1.cnot_x_x - x
       return {
@@ -233,8 +236,8 @@ gate_reduction_rules = {
     -- c-x  -->  c-x
     --   z
     if (is_z(gate) and is_control(gate_y1) and is_z(board:reducible_gate_at(gate_y1.cnot_x_x, y)) and
-        is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y + 1)) and
-        is_z(board:reducible_gate_at(gate_y1.cnot_x_x, y + 2))) then
+        is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y1)) and
+        is_z(board:reducible_gate_at(gate_y1.cnot_x_x, y2))) then
       local dx = gate_y1.cnot_x_x - x
       return {
         type = "zz cnot z",
@@ -247,8 +250,8 @@ gate_reduction_rules = {
     -- c-x  -->  c-x
     --   s
     if (is_s(gate) and is_control(gate_y1) and is_s(board:reducible_gate_at(gate_y1.cnot_x_x, y)) and
-        is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y + 1)) and
-        is_s(board:reducible_gate_at(gate_y1.cnot_x_x, y + 2))) then
+        is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y1)) and
+        is_s(board:reducible_gate_at(gate_y1.cnot_x_x, y2))) then
       local dx = gate_y1.cnot_x_x - x
       return {
         type = "ss cnot s",
@@ -261,8 +264,8 @@ gate_reduction_rules = {
     -- c-x  -->  c-x
     --   t
     if (is_t(gate) and is_control(gate_y1) and is_t(board:reducible_gate_at(gate_y1.cnot_x_x, y)) and
-        is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y + 1)) and
-        is_t(board:reducible_gate_at(gate_y1.cnot_x_x, y + 2))) then
+        is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y1)) and
+        is_t(board:reducible_gate_at(gate_y1.cnot_x_x, y2))) then
       local dx = gate_y1.cnot_x_x - x
       return {
         type = "tt cnot t",
@@ -275,7 +278,7 @@ gate_reduction_rules = {
     -- x-c  -->  x-c
     -- x       
     if (is_x(gate) and
-        is_cnot_x(gate_y1) and is_control(board:reducible_gate_at(gate_y1.cnot_c_x, y + 1)) and
+        is_cnot_x(gate_y1) and is_control(board:reducible_gate_at(gate_y1.cnot_c_x, y1)) and
         is_x(gate_y2)) then
       local dx = gate_y1.cnot_c_x - x
       return {
@@ -289,7 +292,7 @@ gate_reduction_rules = {
     -- c-x  -->  c-x
     -- z       
     if (is_z(gate) and
-        is_control(gate_y1) and is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y + 1)) and
+        is_control(gate_y1) and is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y1)) and
         is_z(gate_y2)) then
       local dx = gate_y1.cnot_x_x - x
       return {
@@ -303,7 +306,7 @@ gate_reduction_rules = {
     -- c-x  -->  c-x
     -- s       
     if (is_s(gate) and
-        is_control(gate_y1) and is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y + 1)) and
+        is_control(gate_y1) and is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y1)) and
         is_s(gate_y2)) then
       local dx = gate_y1.cnot_x_x - x
       return {
@@ -317,7 +320,7 @@ gate_reduction_rules = {
     -- c-x  -->  c-x
     -- t       
     if (is_t(gate) and
-        is_control(gate_y1) and is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y + 1)) and
+        is_control(gate_y1) and is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y1)) and
         is_t(gate_y2)) then
       local dx = gate_y1.cnot_x_x - x
       return {
@@ -333,9 +336,9 @@ gate_reduction_rules = {
     -- h x       h 
     local x2 = gate_y2.cnot_c_x
     if (y <= 9 and is_z(gate) and
-        is_h(gate_y1) and is_cnot_x(gate_y2) and is_x(board:reducible_gate_at(x2, y + 1)) and
-        is_control(board:reducible_gate_at(x2, y + 2)) and
-        is_h(board:reducible_gate_at(x, y + 3)) and is_x(board:reducible_gate_at(x2, y + 3))) then
+        is_h(gate_y1) and is_cnot_x(gate_y2) and is_x(board:reducible_gate_at(x2, y1)) and
+        is_control(board:reducible_gate_at(x2, y2)) and
+        is_h(board:reducible_gate_at(x, y3)) and is_x(board:reducible_gate_at(x2, y3))) then
       local dx = gate_y2.cnot_c_x - x
       return {
         type = "xz cz x",
