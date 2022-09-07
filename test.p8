@@ -23,7 +23,6 @@ __lua__
 
 -- tests
 #include test_helper.lua
-#include test_quantum_gate.lua
 #include test_board.lua
 
 __gfx__

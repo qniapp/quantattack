@@ -76,7 +76,7 @@ game = {
         g:_maybe_change_cursor_color()
         g.player_cursor:update()
 
-        if (g:_maybe_raise_gates()) then
+        if g:_maybe_raise_gates() then
           g:_maybe_add_garbage_unitary()
         end
 

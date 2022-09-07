@@ -23,7 +23,7 @@
       end,
 
       dropped = function(self)
-        if (self._first_drop) then
+        if self._first_drop then
           sfx(game.sfx.garbage_drop)
         end
         self._first_drop = false

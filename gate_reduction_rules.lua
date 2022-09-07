@@ -327,6 +327,25 @@ gate_reduction_rules = {
       }  
     end  
 
+    -- z
+    -- h x       h
+    -- x-c  -->  x-c
+    -- h x       h 
+    local x2 = gate_y2.cnot_c_x
+    if (y <= 9 and is_z(gate) and
+        is_h(gate_y1) and is_cnot_x(gate_y2) and is_x(board:reducible_gate_at(x2, y + 1)) and
+        is_control(board:reducible_gate_at(x2, y + 2)) and
+        is_h(board:reducible_gate_at(x, y + 3)) and is_x(board:reducible_gate_at(x2, y + 3))) then
+      local dx = gate_y2.cnot_c_x - x
+      return {
+        type = "xz cz x",
+        score = 800,
+        to = {{},
+              { dx = dx, dy = 1 },
+              { dx = dx, dy = 3 }}
+      }  
+    end     
+
     return {to = {}}
   end,
 }

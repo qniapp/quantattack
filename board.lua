@@ -141,7 +141,7 @@ board = {
               gate:draw(x, y)
             end            
 
-            if (by == self.rows_plus_next_rows) then
+            if by == self.rows_plus_next_rows then
               spr(64, x, y)
             end              
           end
@@ -305,7 +305,7 @@ board = {
                 local gate = r.gate or i_gate:new()
                 self:gate_at(x + dx, y + dy):replace_with(gate, reduction.type, delay_puff, delay_disappear)
 
-                if (dx == 0 and dy == 0) then
+                if dx == 0 and dy == 0 then
                   player.score += reduction.score / 100
                   score_popup:create(self:screen_x(x) - 2, self:screen_y(y), tostr(reduction.score))
                 end
@@ -370,9 +370,9 @@ board = {
             local gate = self:gate_at(x, y)
             local gate_below = self:gate_at(x, y + 1)
 
-            if ((not is_i(gate)) and
-                is_dropped(gate) and gate.tick_drop == 0 and
-                (not is_dropped(gate_below))) then
+            if (not is_i(gate)) and
+               is_dropped(gate) and gate.tick_drop == 0 and
+               (not is_dropped(gate_below)) then
               gate.x = x
               gate.y = y
               add(gates, gate)
@@ -419,7 +419,7 @@ board = {
               tmp_y += 1
             end
 
-            if (tmp_y > y) then
+            if tmp_y > y then
               gate:dropped()
             end
           end
@@ -473,7 +473,7 @@ board = {
               gate = self:gate_at(x, tmp_y)
             end
 
-            if (tmp_y > y) then
+            if tmp_y > y then
               self:gate_at(x, tmp_y):dropped()
             end
           end

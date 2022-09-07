@@ -399,6 +399,28 @@ test('board', function(desc,it)
              assert_gate(1, 11, 'control'), assert_gate(3, 11, 'cnot_x'),
              assert_reduction(1, 12, 'i')
     end)
+
+    -- z
+    -- h x  reduce  h
+    -- x-c  ----->  x-c
+    -- h x          h
+    it('should reduce xz cz x', function ()
+      test_board = board:new()
+      put(1, 9, z_gate:new())
+      put(1, 10, h_gate:new())
+      put(3, 10, x_gate:new())
+      put(1, 11, cnot_x_gate:new(3))
+      put(3, 11, control_gate:new(1))
+      put(1, 12, h_gate:new())
+      put(3, 12, x_gate:new())
+
+      reduce()
+
+      return assert_reduction(1, 9, 'i'),
+             assert_gate(1, 10, 'h'), assert_reduction(3, 10, 'i'),
+             assert_gate(1, 11, 'cnot_x'), assert_gate(3, 11, 'control'),
+             assert_gate(1, 12, 'h'), assert_reduction(3, 12, 'i')
+    end)     
   end)
 
   desc('drop_gates', function ()
