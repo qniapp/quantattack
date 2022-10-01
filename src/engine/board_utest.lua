@@ -7,6 +7,7 @@ local y_gate = require("src/engine/y_gate")
 local z_gate = require("src/engine/z_gate")
 local s_gate = require("src/engine/s_gate")
 local t_gate = require("src/engine/t_gate")
+local swap_gate = require("src/engine/swap_gate")
 
 describe('board', function()
   describe('reduce', function()
@@ -119,6 +120,23 @@ describe('board', function()
 
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
       assert.are.equals('s', board:gate_at(1, 12)._reduce_to.type)
+    end)
+
+    --  SWAP-SWAP  reduce
+    --  SWAP-SWAP  ----->  I I
+    --
+    it('should reduce SWAP pairs in the same columns', function ()
+      board:put(1, 11, swap_gate:new(3))
+      board:put(3, 11, swap_gate:new(1))
+      board:put(1, 12, swap_gate:new(3))
+      board:put(3, 12, swap_gate:new(1))
+
+      board:_reduce()
+
+      assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
+      assert.are.equals('i', board:gate_at(3, 11)._reduce_to.type)
+      assert.are.equals('i', board:gate_at(1, 12)._reduce_to.type)
+      assert.are.equals('i', board:gate_at(3, 12)._reduce_to.type)
     end)
   end)
 end)
