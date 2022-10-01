@@ -292,8 +292,12 @@ board = {
     -- initialize the board
     for x = 1, board.cols do
       board._gates[x] = {}
+      for y = 1, board.rows_plus_next_rows do
+        board._gates[x][y] = quantum_gate:new("i")
+      end
     end
-    board:initialize_with_random_gates()
+
+    -- board:initialize_with_random_gates()
 
     return board
   end
