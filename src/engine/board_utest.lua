@@ -138,5 +138,21 @@ describe('board', function()
       assert.are.equals('i', board:gate_at(1, 12)._reduce_to.type)
       assert.are.equals('i', board:gate_at(3, 12)._reduce_to.type)
     end)
+
+    --  H
+    --  X  reduce
+    --  H  ----->  Z
+    --
+    it('should reduce hxh', function ()
+      board:put(1, 10, h_gate:new())
+      board:put(1, 11, x_gate:new())
+      board:put(1, 12, h_gate:new())
+
+      board:_reduce()
+
+      assert.are.equals('i', board:gate_at(1, 10)._reduce_to.type)
+      assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
+      assert.are.equals('z', board:gate_at(1, 12)._reduce_to.type)
+    end)
   end)
 end)
