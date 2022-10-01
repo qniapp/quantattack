@@ -8,6 +8,8 @@ local z_gate = require("src/engine/z_gate")
 local s_gate = require("src/engine/s_gate")
 local t_gate = require("src/engine/t_gate")
 local swap_gate = require("src/engine/swap_gate")
+local control_gate = require("src/engine/control_gate")
+local cnot_x_gate = require("src/engine/cnot_x_gate")
 
 describe('board', function()
   describe('reduce', function()
@@ -153,6 +155,55 @@ describe('board', function()
       assert.are.equals('i', board:gate_at(1, 10)._reduce_to.type)
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
       assert.are.equals('z', board:gate_at(1, 12)._reduce_to.type)
+    end)
+
+    --  H
+    --  Z  reduce
+    --  H  ----->  X
+    --
+    it('should reduce HZH', function ()
+      board:put(1, 10, h_gate:new())
+      board:put(1, 11, z_gate:new())
+      board:put(1, 12, h_gate:new())
+
+      board:_reduce()
+
+      assert.are.equals('i', board:gate_at(1, 10)._reduce_to.type)
+      assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
+      assert.are.equals('x', board:gate_at(1, 12)._reduce_to.type)
+    end)
+
+    --  S
+    --  Z  reduce
+    --  S  ----->  Z
+    --
+    it('should reduce SZS', function ()
+      board:put(1, 10, s_gate:new())
+      board:put(1, 11, z_gate:new())
+      board:put(1, 12, s_gate:new())
+
+      board:_reduce()
+
+      assert.are.equals('i', board:gate_at(1, 10)._reduce_to.type)
+      assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
+      assert.are.equals('z', board:gate_at(1, 12)._reduce_to.type)
+    end)
+
+    --  C-X  reduce
+    --  C-X  ----->  I I
+    --
+    it('should reduce CNOT x2', function ()
+      board:put(1, 11, control_gate:new(3))
+      board:put(3, 11, cnot_x_gate:new(1))
+      board:put(1, 12, control_gate:new(3))
+      board:put(3, 12, cnot_x_gate:new(1))
+
+      board:_reduce()
+
+      assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
+      assert.are.equals('i', board:gate_at(3, 11)._reduce_to.type)
+      assert.are.equals('i', board:gate_at(1, 12)._reduce_to.type)
+      assert.are.equals('i', board:gate_at(3, 12)._reduce_to.type)
     end)
   end)
 end)

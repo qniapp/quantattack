@@ -40,6 +40,10 @@ function is_swap(gate)
   return gate.type == "swap"
 end
 
+function is_cnot_x(gate)
+  return gate.type == "cnot_x"
+end
+
 gate_reduction_rules = {
   reduce = function(self, board, x, y, include_next)
     include_next = include_next or false
