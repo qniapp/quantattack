@@ -1,6 +1,9 @@
 {
   "Lua.diagnostics.globals": [
     "board",
-    "_init"
+    "_init",
+    "describe",
+    "before_each",
+    "it"
   ]
 }
