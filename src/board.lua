@@ -1,8 +1,9 @@
 require("engine/core/class")
+
 require("engine/quantum_gate_types")
 
 local quantum_gate = require("quantum_gate")
-local gate_reduction_rules = require("engine/gate_reduction_rules")
+local gate_reduction_rules = require("gate_reduction_rules")
 
 -- gate states
 
