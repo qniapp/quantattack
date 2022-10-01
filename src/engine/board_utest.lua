@@ -25,7 +25,7 @@ describe('board', function()
       board:put(1, 11, h_gate:new())
       board:put(1, 12, h_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
       assert.are.equals('i', board:gate_at(1, 12)._reduce_to.type)
@@ -37,7 +37,7 @@ describe('board', function()
       board:put(1, 11, x_gate:new())
       board:put(1, 12, x_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
       assert.are.equals('i', board:gate_at(1, 12)._reduce_to.type)
@@ -49,7 +49,7 @@ describe('board', function()
       board:put(1, 11, y_gate:new())
       board:put(1, 12, y_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
       assert.are.equals('i', board:gate_at(1, 12)._reduce_to.type)
@@ -61,7 +61,7 @@ describe('board', function()
       board:put(1, 11, z_gate:new())
       board:put(1, 12, z_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
       assert.are.equals('i', board:gate_at(1, 12)._reduce_to.type)
@@ -73,7 +73,7 @@ describe('board', function()
       board:put(1, 11, z_gate:new())
       board:put(1, 12, x_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
       assert.are.equals('y', board:gate_at(1, 12)._reduce_to.type)
@@ -85,7 +85,7 @@ describe('board', function()
       board:put(1, 11, x_gate:new())
       board:put(1, 12, z_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
       assert.are.equals('y', board:gate_at(1, 12)._reduce_to.type)
@@ -97,7 +97,7 @@ describe('board', function()
       board:put(1, 11, s_gate:new())
       board:put(1, 12, s_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
       assert.are.equals('z', board:gate_at(1, 12)._reduce_to.type)
@@ -109,7 +109,7 @@ describe('board', function()
       board:put(1, 11, t_gate:new())
       board:put(1, 12, t_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
       assert.are.equals('s', board:gate_at(1, 12)._reduce_to.type)
@@ -123,7 +123,7 @@ describe('board', function()
       board:put(1, 12, swap_gate:new(3))
       board:put(3, 12, swap_gate:new(1))
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
       assert.are.equals('i', board:gate_at(3, 11)._reduce_to.type)
@@ -139,7 +139,7 @@ describe('board', function()
       board:put(1, 11, x_gate:new())
       board:put(1, 12, h_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 10)._reduce_to.type)
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
@@ -154,7 +154,7 @@ describe('board', function()
       board:put(1, 11, z_gate:new())
       board:put(1, 12, h_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 10)._reduce_to.type)
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
@@ -169,7 +169,7 @@ describe('board', function()
       board:put(1, 11, z_gate:new())
       board:put(1, 12, s_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 10)._reduce_to.type)
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
@@ -184,7 +184,7 @@ describe('board', function()
       board:put(1, 12, control_gate:new(3))
       board:put(3, 12, cnot_x_gate:new(1))
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 11)._reduce_to.type)
       assert.are.equals('i', board:gate_at(3, 11)._reduce_to.type)
@@ -203,7 +203,7 @@ describe('board', function()
       board:put(1, 12, control_gate:new(3))
       board:put(3, 12, cnot_x_gate:new(1))
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 10)._reduce_to.type)
       assert.are.equals('i', board:gate_at(3, 10)._reduce_to.type)
@@ -224,7 +224,7 @@ describe('board', function()
       board:put(1, 12, h_gate:new())
       board:put(3, 12, h_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 10)._reduce_to.type)
       assert.are.equals('i', board:gate_at(3, 10)._reduce_to.type)
@@ -244,7 +244,7 @@ describe('board', function()
       board:put(3, 11, cnot_x_gate:new(1))
       board:put(1, 12, x_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 10)._reduce_to.type)
       assert.are.equals('i', board:gate_at(3, 10)._reduce_to.type)
@@ -263,7 +263,7 @@ describe('board', function()
       board:put(3, 11, cnot_x_gate:new(1))
       board:put(3, 12, z_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 10)._reduce_to.type)
       assert.are.equals('i', board:gate_at(3, 10)._reduce_to.type)
@@ -282,7 +282,7 @@ describe('board', function()
       board:put(3, 11, control_gate:new(1))
       board:put(1, 12, x_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 10)._reduce_to.type)
       assert.are.equals('cnot_x', board:gate_at(1, 11).type)
@@ -299,7 +299,7 @@ describe('board', function()
       board:put(3, 11, cnot_x_gate:new(1))
       board:put(1, 12, z_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 10)._reduce_to.type)
       assert.are.equals('control', board:gate_at(1, 11).type)
@@ -320,7 +320,7 @@ describe('board', function()
       board:put(1, 12, h_gate:new())
       board:put(3, 12, x_gate:new())
 
-      board:_reduce()
+      board:reduce()
 
       assert.are.equals('i', board:gate_at(1, 9)._reduce_to.type)
       assert.are.equals('h', board:gate_at(1, 10).type)

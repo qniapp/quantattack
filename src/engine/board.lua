@@ -69,13 +69,13 @@ board = {
       end,
 
       update = function(self)
-        self:_reduce()
+        self:reduce()
         self:_drop_gates()
         self:_update_falling_garbages()
         self:_update_gates()
       end,
 
-      _reduce = function(self)
+      reduce = function(self)
         for x = 1, self.cols do
           for y = 1, self.rows - 1 do
             if (not is_reducible(self:gate_at(x, y))) then
