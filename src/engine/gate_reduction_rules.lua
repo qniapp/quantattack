@@ -1,6 +1,6 @@
-local y_gate = require("engine/y_gate")
-local z_gate = require("engine/z_gate")
-local s_gate = require("engine/s_gate")
+local y_gate = require("y_gate")
+local z_gate = require("z_gate")
+local s_gate = require("s_gate")
 
 -- todo: merge with quantum_gate_types.lua
 
