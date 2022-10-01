@@ -45,7 +45,7 @@ quantum_gate = {
             self.tick_match = self.tick_match + 1
           else
             self.tick_match = nil
-            self.type = self._reduce_to.type
+            self.type = self.reduce_to.type
             self:_change_state("idle")
           end
         end
@@ -138,7 +138,7 @@ quantum_gate = {
       end,
 
       replace_with = function(self, other)
-        self._reduce_to = other
+        self.reduce_to = other
         self:_change_state("match")
       end,
 
