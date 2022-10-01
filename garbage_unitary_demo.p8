@@ -10,6 +10,50 @@ function is_i(gate)
   return gate.type == "i"
 end
 
+function is_h(gate)
+  return gate.type == "h"
+end
+
+function is_x(gate)
+  return gate.type == "x"
+end
+
+function is_y(gate)
+  return gate.type == "y"
+end
+
+function is_z(gate)
+  return gate.type == "z"
+end
+
+function is_s(gate)
+  return gate.type == "s"
+end
+
+function is_t(gate)
+  return gate.type == "t"
+end
+
+function is_control(gate)
+  return gate.type == "control"
+end
+
+function is_swap(gate)
+  return gate.type == "swap"
+end
+
+-- todo: implement this
+function is_cnot_x(gate)
+  return false
+end
+
+-- todo: rename is_garbage
+function is_garbage_unitary(gate)
+  return gate._type == "g"
+end
+
+-- gate states
+
 function is_idle(gate)
   return gate.state == "idle"
 end
@@ -22,6 +66,10 @@ function is_swap_finished(gate)
   return gate.state == "swap_finished"
 end
 
+function is_droppable(gate)
+  return not (is_i(gate) or is_dropping(gate) or is_swapping(gate))
+end
+
 function is_dropping(gate)
   return gate.state == "dropping"
 end
@@ -30,23 +78,384 @@ function is_dropped(gate)
   return gate.state == "dropped"
 end
 
+function is_match(gate)
+  return gate.state == "match"
+end
+
+function is_reducible(gate)
+  return not (is_i(gate) or is_busy(gate))
+end
+
+function is_busy(gate)
+  return not (is_idle(gate) or is_swap_finished(gate))
+end
+
+gate_reduction_rules = {
+  reduce = function(self, board, x, y, include_next)
+    include_next = include_next or false
+
+    local y1 = y + 1
+    local y2 = y + 2
+    local y3 = y + 3
+
+    if include_next then
+      if y1 > board.rows_plus_next_rows then
+        return {to = {}}
+      end
+    else
+      if y1 > board.rows then
+        return {to = {}}
+      end    
+    end
+
+    local gate = board:reducible_gate_at(x, y)
+    local gate_y1 = board:reducible_gate_at(x, y1)
+
+    if (is_i(gate_y1)) return {to = {}}
+
+    -- h  -->  i
+    -- h       i  
+    if is_h(gate) and
+       is_h(gate_y1) then
+      return {
+        type = "hh",
+        score = 100,
+        to = {{},
+              { dy = 1 }}
+      }
+    end
+  
+    -- x  -->  i
+    -- x       i     
+    if is_x(gate) and
+       is_x(gate_y1) then
+      return {
+        type = "xx",
+        score = 100,
+        to = {{},
+              { dy = 1 }}
+      }       
+    end
+
+    -- x  -->  
+    -- z       y   
+    if is_x(gate) and
+       is_z(gate_y1) then
+      return {
+        type = "xz",
+        score = 200,
+        to = {{},
+              { dy = 1, gate = quantum_gate:new("y") }}
+      }
+    end
+
+    -- y  -->  i
+    -- y       i   
+    if is_y(gate) and
+       is_y(gate_y1) then
+      return {
+        type = "yy",
+        score = 100,
+        to = {{},
+              { dy = 1 }}
+      }
+    end
+
+    -- z  -->  i
+    -- z       i    
+    if is_z(gate) and
+       is_z(gate_y1) then
+      return {
+        type = "zz",
+        score = 100,
+        to = {{},
+              { dy = 1 }}
+      }
+    end
+
+    -- z  -->  
+    -- x       y        
+    if is_z(gate) and
+       is_x(gate_y1) then
+      return {
+        type = "zx",
+        score = 200,
+        to = {{},
+              { dy = 1, gate = quantum_gate:new("y") }}
+      }
+    end
+
+    -- s  --> 
+    -- s       z        
+    if is_s(gate) and
+       is_s(gate_y1) then
+      return {
+        type = "ss",
+        score = 200,
+        to = {{},
+              { dy = 1, gate = quantum_gate:new("z") }}
+      }
+    end
+
+    -- t  -->  
+    -- t       s  
+    if is_t(gate) and
+       is_t(gate_y1) then
+      return {
+        type = "tt",
+        score = 200,
+        to = {{},
+              { dy = 1, gate = quantum_gate:new("s") }}
+      }
+    end
+
+    -- s-s  -->  i i
+    -- s-s       i i  
+    if is_swap(gate) and is_swap(board:reducible_gate_at(gate.other_x, y)) and
+       is_swap(gate_y1) and is_swap(board:reducible_gate_at(gate.other_x, y1)) then 
+      local dx = gate.other_x - x
+      return {
+        type = "swap swap",
+        score = 600,
+        to = {{}, { dx = dx },
+              { dy = 1 }, { dx = dx, dy = 1 }}
+      }  
+    end
+
+    -- c-x  -->  i i
+    -- c-x       i i
+    if is_control(gate) and is_cnot_x(board:reducible_gate_at(gate.cnot_x_x, y)) and
+       is_control(gate_y1) and is_cnot_x(board:reducible_gate_at(gate.cnot_x_x, y1)) and
+       gate.cnot_x_x == gate_y1.cnot_x_x then
+      local dx = gate.cnot_x_x - x
+      return {
+        type = "cnot cnot",
+        score = 200,
+        to = {{}, { dx = dx },
+              { dy = 1 }, { dx = dx, dy = 1 }}
+      }  
+    end
+
+    if include_next then
+      if y2 > board.rows_plus_next_rows then
+        return {to = {}}
+      end       
+    else
+      if y2 > board.rows then
+        return {to = {}}
+      end    
+    end
+
+    local gate_y2 = board:reducible_gate_at(x, y2)
+
+    -- h 
+    -- x  -->  
+    -- h       z
+    if is_h(gate) and
+       is_x(gate_y1) and
+       is_h(gate_y2) then
+      return {
+        type = "hxh",
+        score = 400,
+        to = {{},
+              { dy = 1 },
+              { dy = 2, gate = quantum_gate:new("z") }}
+      }      
+    end 
+
+    -- h 
+    -- z  -->  
+    -- h       x
+    if is_h(gate) and
+       is_z(gate_y1) and
+       is_h(gate_y2) then
+      return {
+        type = "hzh",
+        score = 400,
+        to = {{},
+              { dy = 1 },
+              { dy = 2, gate = quantum_gate:new("x") }}
+      }
+    end 
+
+    -- s
+    -- z  -->  
+    -- s       z
+    if is_s(gate) and
+       is_z(gate_y1) and
+       is_s(gate_y2) then
+      return {
+        type = "szs",
+        score = 400,
+        to = {{},
+              { dy = 1 },
+              { dy = 2, gate = quantum_gate:new("z") }}
+      }      
+    end
+
+    -- c-x
+    -- x-c  --> 
+    -- c-x       s-s
+    if is_control(gate) and is_cnot_x(board:reducible_gate_at(gate.cnot_x_x, y)) and
+       is_cnot_x(gate_y1) and is_control(board:reducible_gate_at(gate.cnot_x_x, y1)) and
+       is_control(gate_y2) and is_cnot_x(board:reducible_gate_at(gate.cnot_x_x, y2)) and
+       gate.cnot_x_x == gate_y1.cnot_x_x and gate.cnot_x_x == gate_y2.cnot_x_x then
+      local dx = gate.cnot_x_x - x
+      return {
+        type = "cnot x3",
+        score = 800,
+        to = {{}, { dx = dx },
+              { dy = 1 }, { dx = dx, dy = 1 },
+              { dy = 2, gate = swap_gate:new(x + dx) }, { dx = dx, dy = 2, gate = swap_gate:new(x) }}
+      }  
+    end
+
+    -- h h
+    -- c-x  -->  x-c
+    -- h h       
+    if is_h(gate) and is_control(gate_y1) and is_h(board:reducible_gate_at(gate_y1.cnot_x_x, y)) and
+       is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y1)) and
+       is_h(gate_y2) and is_h(board:reducible_gate_at(gate_y1.cnot_x_x, y2)) then
+      local dx = gate_y1.cnot_x_x - x
+      return {
+        type = "hh cnot hh",
+        score = 800,
+        to = {{}, { dx = dx },
+              { dy = 1, gate = cnot_x_gate:new(x + dx) }, { dx = dx, dy = 1, gate = control_gate:new(x) },
+              { dy = 2 }, { dx = dx, dy = 2 }}
+      }  
+    end
+
+    -- x x
+    -- c-x  -->  c-x
+    -- x         
+    if (is_x(gate) and is_control(gate_y1) and is_x(board:reducible_gate_at(gate_y1.cnot_x_x, y)) and
+        is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y1)) and
+        is_x(gate_y2)) then
+      local dx = gate_y1.cnot_x_x - x
+      return {
+        type = "xx cnot xx",
+        score = 800,
+        to = {{}, { dx = dx }, { dy = 2 }}
+      }  
+    end
+
+    -- z z
+    -- c-x  -->  c-x
+    --   z
+    if is_z(gate) and is_control(gate_y1) and is_z(board:reducible_gate_at(gate_y1.cnot_x_x, y)) and
+       is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y1)) and
+       is_z(board:reducible_gate_at(gate_y1.cnot_x_x, y2)) then
+      local dx = gate_y1.cnot_x_x - x
+      return {
+        type = "zz cnot z",
+        score = 800,
+        to = {{}, { dx = dx }, { dx = dx, dy = 2 }}
+      }  
+    end
+
+    -- s s       z z
+    -- c-x  -->  c-x
+    --   s
+    if is_s(gate) and is_control(gate_y1) and is_s(board:reducible_gate_at(gate_y1.cnot_x_x, y)) and
+       is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y1)) and
+       is_s(board:reducible_gate_at(gate_y1.cnot_x_x, y2)) then
+      local dx = gate_y1.cnot_x_x - x
+      return {
+        type = "ss cnot s",
+        score = 800,
+        to = {{ gate = quantum_gate:new("z") }, { dx = dx, gate = quantum_gate:new("z") },
+              { dx = dx, dy = 2 }}
+      }  
+    end
+
+    -- t t       s s
+    -- c-x  -->  c-x
+    --   t
+    if is_t(gate) and is_control(gate_y1) and is_t(board:reducible_gate_at(gate_y1.cnot_x_x, y)) and
+       is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y1)) and
+       is_t(board:reducible_gate_at(gate_y1.cnot_x_x, y2)) then
+      local dx = gate_y1.cnot_x_x - x
+      return {
+        type = "tt cnot t",
+        score = 800,
+        to = {{ gate = quantum_gate:new("s") }, { dx = dx, gate = quantum_gate:new("s") },
+              { dx = dx, dy = 2 }}
+      }  
+    end
+
+    -- x
+    -- x-c  -->  x-c
+    -- x       
+    if is_x(gate) and
+       is_cnot_x(gate_y1) and is_control(board:reducible_gate_at(gate_y1.cnot_c_x, y1)) and
+       is_x(gate_y2) then
+      return {
+        type = "x cnot x",
+        score = 800,
+        to = {{}, { dy = 2 }}
+      }  
+    end   
+
+    -- z
+    -- c-x  -->  c-x
+    -- z       
+    if is_z(gate) and
+       is_control(gate_y1) and is_cnot_x(board:reducible_gate_at(gate_y1.cnot_x_x, y1)) and
+       is_z(gate_y2) then
+      return {
+        type = "z cnot z",
+        score = 800,
+        to = {{}, { dy = 2 }}
+      }  
+    end
+
+    -- z
+    -- h x       h
+    -- x-c  -->  x-c
+    -- h x       h 
+    local x2 = gate_y2.cnot_c_x
+    if y <= 9 and is_z(gate) and
+       is_h(gate_y1) and is_cnot_x(gate_y2) and is_x(board:reducible_gate_at(x2, y1)) and
+       is_control(board:reducible_gate_at(x2, y2)) and
+       is_h(board:reducible_gate_at(x, y3)) and is_x(board:reducible_gate_at(x2, y3)) then
+      local dx = gate_y2.cnot_c_x - x
+      return {
+        type = "xz cz x",
+        score = 800,
+        to = {{},
+              { dx = dx, dy = 1 },
+              { dx = dx, dy = 3 }}
+      }  
+    end     
+
+    return {to = {}}
+  end,
+}
+
 quantum_gate = {
   size = 8,
-  types = {"h", "x", "y", "z", "s", "t"},
-  _spr = {h=0, x=1, y=2, z=3, s=4, t=5},
-  num_frames_swap = 2,
-  _dy = 16,
+  _types = {"h", "x", "y", "z", "s", "t"},
+  _num_frames_swap = 2,
+  _num_frames_match = 45,
+  _dy = 2,
+
+  random_single_gate = function(self)
+    local type = self._types[flr(rnd(#self._types)) + 1]
+    return self:new(type)
+  end,
 
   new = function(_self, type)
     return {
       type = type,
       dy = 0,
+      state = "idle",
 
       update = function(self)
         if (self.type == "?") return
 
         if is_swapping(self) then
-          if self.tick_swap < quantum_gate.num_frames_swap then
+          if self.tick_swap < quantum_gate._num_frames_swap then
             self.tick_swap += 1
           else
             self:_change_state("swap_finished")
@@ -60,6 +469,16 @@ quantum_gate = {
         elseif is_dropped(self) then
           self.dy = 0
           self:_change_state("idle")
+        elseif is_match(self) then
+          if self.tick_match == nil then
+            self.tick_match = 0
+          elseif self.tick_match < quantum_gate._num_frames_match then
+            self.tick_match += 1
+          else
+            self.tick_match = nil
+            self.type = self._reduce_to.type
+            self:_change_state("idle")
+          end          
         end
       end,
 
@@ -68,11 +487,10 @@ quantum_gate = {
         if (self.type == "?") return
 
         local dx = 0
-        local dy = 0
         if self.state == "swapping_with_right" then
-          dx = self.tick_swap * (quantum_gate.size / quantum_gate.num_frames_swap)
+          dx = self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
         elseif self.state == "swapping_with_left" then
-          dx = -self.tick_swap * (quantum_gate.size / quantum_gate.num_frames_swap)
+          dx = -self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
         elseif self.state == "dropping" then
           self.dy += quantum_gate._dy
           if (screen_y + self.dy > self.stop_screen_y) then
@@ -80,7 +498,75 @@ quantum_gate = {
           end
         end
 
-        spr(quantum_gate._spr[self.type], screen_x + dx, screen_y + self.dy)
+        spr(self:_sprite(), screen_x + dx, screen_y + self.dy)
+      end,
+
+      _sprite = function(self)
+        local _sprites = {
+          h = {
+            idle = 0,
+            match_up = 8,
+            match_middle = 24,
+            match_down = 40
+          },
+          x = {
+            idle = 1,
+            match_up = 9,
+            match_middle = 25,
+            match_down = 41,
+          },
+          y = {
+            idle = 2,
+            match_up = 10,
+            match_middle = 26,
+            match_down = 42,
+          },
+          z = {
+            idle = 3,
+            match_up = 11,
+            match_middle = 27,
+            match_down = 43,
+          },
+          s = {
+            idle = 4,
+            match_up = 12,
+            match_middle = 28,
+            match_down = 44,
+          },
+          t = {
+            idle = 5,
+            match_up = 13,
+            match_middle = 29,
+            match_down = 45,
+          },          
+        }
+        local sprites = _sprites[self.type]
+
+        if is_idle(self) or
+           is_swapping(self) or
+           is_swap_finished(self) or
+           is_dropping(self) or
+           is_dropped(self) then
+          return sprites.idle
+        elseif is_match(self) then
+          local mod = self.tick_match % 12
+          if mod <= 2 then
+            return sprites.match_up
+          elseif mod <= 5 then
+            return sprites.match_middle
+          elseif mod <= 8 then
+            return sprites.match_down
+          elseif mod <= 11 then
+            return sprites.match_middle
+          end
+        else
+          assert(false, "unknown state: " .. self.state)
+        end
+      end,
+
+      replace_with = function(self, other)
+        self._reduce_to = other
+        self:_change_state("match")
       end,
 
       start_swap_with_right = function(self, swap_new_x)
@@ -102,21 +588,12 @@ quantum_gate = {
         self:_change_state("dropping")
       end,
 
-      is_droppable = function(self)
-        return (not is_i(self)) and (not is_dropping(self)) and (not is_swapping(self))
-      end,
-
       _change_state = function(self, new_state)
         self.state = new_state
       end,
     }
   end
 }
-
-function random_gate()
-  local type = quantum_gate.types[flr(rnd(#quantum_gate.types)) + 1]
-  return quantum_gate:new(type)
-end
 
 board_class = {
   new = function(_self) 
@@ -134,7 +611,9 @@ board_class = {
           for y = self.rows_plus_next_rows, 1, -1 do
             if y >= self.rows - 2 or
                (y < self.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and (not is_i(self:gate_at(x, y + 1)))) then
-              self:put(x, y, random_gate())
+              repeat
+                self:put(x, y, quantum_gate:random_single_gate())
+              until #gate_reduction_rules:reduce(self, x, y, true).to == 0
             else
               self:put(x, y, quantum_gate:new("i"))
             end
@@ -143,10 +622,31 @@ board_class = {
       end,
 
       update = function(self)
+        self:_reduce()
         self:_drop_gates()
         self:_update_falling_garbages()
         self:_update_gates()
       end,
+
+      _reduce = function(self)
+        for x = 1, self.cols do
+          for y = 1, self.rows - 1 do
+            if (not is_reducible(self:gate_at(x, y))) goto next
+
+            local reduction = gate_reduction_rules:reduce(self, x, y)
+
+            for _index, r in pairs(reduction.to) do
+              local dx = r.dx or 0
+              local dy = r.dy or 0
+              local gate = r.gate or quantum_gate:new("i")
+
+              self:gate_at(x + dx, y + dy):replace_with(gate)
+            end
+
+            ::next::
+          end
+        end
+      end,      
 
       _drop_gates = function(self)
         for x = 1, self.cols do
@@ -154,7 +654,7 @@ board_class = {
             local gate = self:gate_at(x, y)
             if (gate.type == "?") goto next
             if (gate.type == "g") goto next
-            if (not gate:is_droppable()) goto next
+            if (not is_droppable(gate)) goto next
 
             if is_i(self:gate_at(x, y + 1)) then
               local stop_y = y
@@ -163,8 +663,6 @@ board_class = {
               end
               gate:drop(self:screen_y(y), self:screen_y(stop_y))
               self:put(x, stop_y, quantum_gate:new("?"))
-
-              -- printh("drop " .. gate.type .. "(" .. y .. " -> ".. stop_y ..")")
             end
 
             ::next::
@@ -198,8 +696,6 @@ board_class = {
               add(gates_to_swap, { gate = gate, y = y })
             end
             if is_dropped(gate) then
-              printh("gate.type = " .. gate.type)
-
               self:put(x, self:y(gate.stop_screen_y), gate)
               self:put(x, self:y(gate.start_screen_y), quantum_gate:new("i"))
             end
@@ -288,6 +784,13 @@ board_class = {
         return self._gates[x][y]
       end,
 
+      reducible_gate_at = function(self, x, y)
+        local gate = self:gate_at(x, y)
+
+        if (is_reducible(gate)) return gate
+        return quantum_gate:new("i")
+      end,      
+
       put = function(self, x, y, gate)
         self._gates[x][y] = gate
       end,
@@ -360,9 +863,9 @@ garbage = {
       y = start_y,
       state = "fall",
       stop_y = stop_y,
-      _spr = 14,
-      _spr_left = 13,
-      _spr_right = 15,
+      _spr = 57,
+      _spr_left = 56,
+      _spr_right = 58,
       _gate_top_y = stop_y + quantum_gate.size,
       _sink_y = stop_y + quantum_gate.size * 2,
       _dy = 16,
@@ -450,26 +953,26 @@ function _init()
 end
 
 function _update60()
-  local player_cursor = game.player_cursor
+  local cursor = game.player_cursor
 
   if btnp(game.button.left) then
     sfx(0)
-    player_cursor:move_left()
+    cursor:move_left()
   end
   if btnp(game.button.right) then
     sfx(0)
-    player_cursor:move_right()
+    cursor:move_right()
   end
   if btnp(game.button.up) then
     sfx(0)
-    player_cursor:move_up()
+    cursor:move_up()
   end
   if btnp(game.button.down) then
     sfx(0)
-    player_cursor:move_down()
+    cursor:move_down()
   end
   if btnp(game.button.x) then
-    local swapped = game.board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y)
+    local swapped = game.board:swap(cursor.x, cursor.x + 1, cursor.y)
     -- if swapped == false then
     --   self.player_cursor.cannot_swap = true
     -- end
@@ -483,7 +986,7 @@ function _update60()
   end
 
   game.board:update()
-  player_cursor:update()
+  cursor:update()
 end
 
 function _draw()
@@ -495,41 +998,41 @@ function _draw()
 end
 
 __gfx__
-0888880000ccc000099999000eeeee000bbbbb000222220000000000000000000000000000000000000000000000000000000000077777777777777777777700
-8e888e800cc6cc009f999f90efffffe0bb3333b02eeeee200000000000000000000000000000000000000000000000000000000077ddddddddddddddddddd770
-8e888e80ccc6ccc099f9f990eeeefee0b3bbbbb0222e2220000000000000000000000000000000000000000000000000000000007d7777777777777777777d70
-8eeeee80c66666c0999f9990eeefeee0bb333bb0222e2220000000000000000000000000000000000000000000000000000000007d7777777777777777777d70
-8e888e80ccc6ccc0999f9990eefeeee0bbbbb3b0222e2220000000000000000000000000000000000000000000000000000000007d7777777777777777777d70
-8e888e801cc6cc10999f9990efffffe0b3333bb0222e22200000000000000000000000000000000000000000000000000000000077ddddddddddddddddddd770
-1888881001ccc100199999101eeeee101bbbbb101222221000000000000000000000000000000000000000000000000000000000077777777777777777777700
-01111100001110000111110001111100011111000111110000000000000000000000000000000000000000000000000000000000000000000000000000000000
-03333300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-3bbbbb30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-3bbbbb30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-3bbbbb30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-3bbbbb30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-3bbbbb30000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-03333300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0888880000ccc000099999000eeeee000bbbbb0002222200000000000000000006ddd60000d6d00006ddd600066666000d666600066666007777777777777700
+8e888e800cc6cc009f999f90efffffe0bb3333b02eeeee200000000000000000d6ddd6d00dd6dd00dd6d6dd0dddd6dd0d6ddddd0ddd6ddd0ddddddddddddd770
+8e888e80ccc6ccc099f9f990eeeefee0b3bbbbb0222e22200000000000000000d66666d0d66666d0ddd6ddd0ddd6ddd0dd666dd0ddd6ddd07777777777777d70
+8eeeee80c66666c0999f9990eeefeee0bb333bb0222e22200000000000000000d6ddd6d0ddd6ddd0ddd6ddd0dd6dddd0ddddd6d0ddd6ddd07777777777777d70
+8e888e80ccc6ccc0999f9990eefeeee0bbbbb3b0222e22200000000000000000d6ddd6d0ddd6ddd0ddd6ddd0d66666d0d6666dd0ddd6ddd07777777777777d70
+8e888e801cc6cc10999f9990efffffe0b3333bb0222e22200000000000000000ddddddd01ddddd10ddddddd0ddddddd0ddddddd0ddddddd0ddddddddddddd770
+1888881001ccc100199999101eeeee101bbbbb101222221000000000000000001ddddd1001ddd1001ddddd101ddddd101ddddd101ddddd107777777777777700
+01111100001110000111110001111100011111000111110000000000000000000111110000111000011111000111110001111100011111000000000000000000
+08888800000000000000000000000000000000000000000000000000000000000ddddd0000ddd0000ddddd000ddddd000ddddd000ddddd000000000000000000
+8888888000000000000000000000000000000000000000000000000000000000d6ddd6d00dd6dd00d6ddd6d0d66666d0dd6666d0d66666d00000000000000000
+8888888000000000000000000000000000000000000000000000000000000000d6ddd6d0ddd6ddd0dd6d6dd0dddd6dd0d6ddddd0ddd6ddd00000000000000000
+8e888e8000000000000000000000000000000000000000000000000000000000d66666d0d66666d0ddd6ddd0ddd6ddd0dd666dd0ddd6ddd00000000000000000
+8e888e8000000000000000000000000000000000000000000000000000000000d6ddd6d0ddd6ddd0ddd6ddd0dd6dddd0ddddd6d0ddd6ddd00000000000000000
+8eeeee8000000000000000000000000000000000000000000000000000000000d6ddd6d01dd6dd10ddd6ddd0d66666d0d6666dd0ddd6ddd00000000000000000
+1e888e10000000000000000000000000000000000000000000000000000000001ddddd1001ddd1001ddddd101ddddd101ddddd101ddddd100000000000000000
+01111100000000000000000000000000000000000000000000000000000000000111110000111000011111000111110001111100011111000000000000000000
+0e888e00000000000000000000000000000000000000000000000000000000000ddddd0000ddd0000ddddd000ddddd000ddddd000ddddd000000000000000000
+8e888e8000000000000000000000000000000000000000000000000000000000ddddddd00ddddd00ddddddd0ddddddd0ddddddd0ddddddd00000000000000000
+8eeeee8000000000000000000000000000000000000000000000000000000000d6ddd6d0ddd6ddd0d6ddd6d0d66666d0dd6666d0d66666d00000000000000000
+8e888e8000000000000000000000000000000000000000000000000000000000d6ddd6d0ddd6ddd0dd6d6dd0dddd6dd0d6ddddd0ddd6ddd00000000000000000
+8e888e8000000000000000000000000000000000000000000000000000000000d66666d0d66666d0ddd6ddd0ddd6ddd0dd666dd0ddd6ddd00000000000000000
+8888888000000000000000000000000000000000000000000000000000000000d6ddd6d01dd6dd10ddd6ddd0dd6dddd0ddddd6d0ddd6ddd00000000000000000
+188888100000000000000000000000000000000000000000000000000000000016ddd61001d6d1001dd6dd101666661016666d101dd6dd100000000000000000
+01111100000000000000000000000000000000000000000000000000000000000111110000111000011111000111110001111100011111000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000777777777777777777777000000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000000000000000000077ddddddddddddddddddd7700000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000007d7777777777777777777d700000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000007d7777777777777777777d700000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000007d7777777777777777777d700000000000000000000000000000000000000000
+000000000000000000000000000000000000000000000000000000000000000077ddddddddddddddddddd7700000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000777777777777777777777000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000003333303333333000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000333300333330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000003777303777773000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000003733303337333000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000003730000037300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
