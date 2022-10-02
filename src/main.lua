@@ -7,8 +7,8 @@ require("engine/pico8/api")
 local game_class = require("game")
 
 function _init()
-   game = game_class:new()
-   game.board:initialize_with_random_gates()
+  game = game_class:new()
+  game.board:initialize_with_random_gates()
 end
 
 function _update60()
@@ -51,7 +51,5 @@ end
 function _draw()
   cls()
   game.board:draw()
-  game.player_cursor:draw(game.board:screen_x(game.player_cursor.x),
-                          game.board:screen_y(game.player_cursor.y),
-                          game.board:dy())
+  game.player_cursor:draw(game.board)
 end

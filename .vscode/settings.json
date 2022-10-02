@@ -4,6 +4,9 @@
     "_init",
     "describe",
     "before_each",
-    "it"
+    "it",
+    "new_class",
+    "pal",
+    "spr"
   ]
 }

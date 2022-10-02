@@ -1,12 +1,13 @@
 require("engine/test/bustedhelper")
 
 local player_cursor_class = require("player_cursor")
+local board_class = require("board")
 
 describe('player_cursor', function()
   local player_cursor
 
   before_each(function()
-    player_cursor = player_cursor_class:new()
+    player_cursor = player_cursor_class()
   end)
 
   it('should be placed at x = 3, y = 6 by default', function()
@@ -51,6 +52,6 @@ describe('player_cursor', function()
   end)
 
   it("should draw", function()
-    player_cursor:draw()
+    player_cursor:draw(board_class:new())
   end)
 end)
