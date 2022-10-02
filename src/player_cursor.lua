@@ -1,69 +1,82 @@
-local colors = require("colors")
+require("engine/core/class")  -- already in engine/common, but added for clarity
 
--- config
-cursor_color = colors.dark_green
-cursor_sprite_corner = 65
-cursor_sprite_middle = 66
-cursor_anim_frames = 14
+local colors = require("colors")
+local board = require("board")
 
 player_cursor = {
- new = function(_self, cols, rows, x, y)
-  return {
-   x = x or 3,
-   y = y or 6,
-   _cols = cols,
-   _rows = rows,
-   _tick = 0,
+    color = colors.dark_green,
+    sprite_corner = 65,
+    sprite_middle = 66,
+    animation_frame_count = 14,
 
-   move_left = function(self)
-    if (self.x > 1) self.x -= 1
-   end,
+    new = function(_self, cols, rows, x, y)
+        return {
+            x = x or 3,
+            y = y or 6,
+            _cols = board.default_cols,
+            _rows = board.default_rows,
+            _tick = 0,
 
-   move_right = function(self)
-    if (self.x < self._cols - 1) self.x += 1
-   end,
+            move_left = function(self)
+                if self.x > 1 then
+                    self.x = self.x - 1
+                end
+            end,
 
-   move_up = function(self)
-    if (self.y > 1) self.y -= 1
-   end,
+            move_right = function(self)
+                if self.x < self._cols - 1 then
+                    self.x = self.x + 1
+                end
+            end,
 
-   move_down = function(self)
-    if (self.y < self._rows) self.y += 1
-   end,  
+            move_up = function(self)
+                if self.y > 1 then
+                    self.y = self.y - 1
+                end
+            end,
 
-   update = function(self)
-    self._small = self._tick >= cursor_anim_frames
-    self._tick += 1
-    self._tick %= cursor_anim_frames * 2
-   end,
+            move_down = function(self)
+                if self.y < self._rows then
+                    self.y = self.y + 1
+                end
+            end,
 
-   draw = function(self, screen_x, screen_y, board_dy)
-    if self.cannot_swap then
-     pal(cursor_color, colors.red)
+            update = function(self)
+                self._small = self._tick >= player_cursor.animation_frame_count
+                self._tick = self._tick + 1
+                self._tick = self._tick % (player_cursor.animation_frame_count * 2)
+            end,
+
+            draw = function(self, screen_x, screen_y, board_dy)
+                local x = screen_x or self.x
+                local y = screen_y or self.y
+                local dy = board_dy or 0
+
+                if self.cannot_swap then
+                    pal(player_cursor.color, colors.red)
+                end
+                if self.game_over then
+                    pal(player_cursor.color, colors.dark_grey)
+                end
+
+                local d = self._small and 1 or 0
+                local xl = x - 5 + d
+                local xm = x + 4
+                local xr = x + 12 - d
+                local yt = y - 5 + d + dy
+                local yb = y + 4 - d + dy
+
+                spr(player_cursor.sprite_corner, xl, yt)
+                spr(player_cursor.sprite_middle, xm, yt)
+                spr(player_cursor.sprite_corner, xr, yt, 1, 1, true, false)
+                spr(player_cursor.sprite_corner, xl, yb, 1, 1, false, true)
+                spr(player_cursor.sprite_middle, xm, yb, 1, 1, false, true)
+                spr(player_cursor.sprite_corner, xr, yb, 1, 1, true, true)
+
+                pal(player_cursor.color, player_cursor.color)
+            end
+        }
     end
-    if self.game_over then
-     pal(cursor_color, colors.dark_grey)
-    end
-
-    local d = self._small and 1 or 0
-    local b_dy = board_dy or 0
-    local xl = screen_x - 5 + d
-    local xm = screen_x + 4
-    local xr = screen_x + 12 - d
-    local yt = screen_y - 5 + d + b_dy
-    local yb = screen_y + 4 - d + b_dy
-
-    spr(cursor_sprite_corner, xl, yt)
-    spr(cursor_sprite_middle, xm, yt)
-    spr(cursor_sprite_corner, xr, yt, 1, 1, true, false)
-    spr(cursor_sprite_corner, xl, yb, 1, 1, false, true)
-    spr(cursor_sprite_middle, xm, yb, 1, 1, false, true)
-    spr(cursor_sprite_corner, xr, yb, 1, 1, true, true)
-
-    pal(cursor_color, cursor_color)
-   end
-  } 
- end
 }
 
 return player_cursor

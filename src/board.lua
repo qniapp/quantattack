@@ -45,10 +45,13 @@ function is_busy(gate)
 end
 
 board = {
+  default_cols = 6,
+  default_rows = 12,
+
   new = function(_self)
     local board = {
-      cols = 6,
-      rows = 12,
+      cols = board.default_cols,
+      rows = board.default_rows,
       row_next_gates = 13,
       _gates = {},
       _falling_garbages = {},
