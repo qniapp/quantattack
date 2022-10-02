@@ -106,8 +106,8 @@ describe('board', function()
     --  T          I
     --  T  ----->  S
     it('should reduce TT', function()
-      board:put(1, 11, t_gate:new())
-      board:put(1, 12, t_gate:new())
+      board:put(1, 11, t_gate())
+      board:put(1, 12, t_gate())
 
       board:reduce()
 
