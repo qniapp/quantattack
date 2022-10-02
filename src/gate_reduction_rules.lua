@@ -2,6 +2,7 @@ local x_gate = require("x_gate")
 local y_gate = require("y_gate")
 local z_gate = require("z_gate")
 local s_gate = require("s_gate")
+local swap_gate = require("swap_gate")
 
 -- todo: merge with quantum_gate_types.lua
 
@@ -249,7 +250,7 @@ gate_reduction_rules = {
         score = 800,
         to = { {}, { dx = dx },
           { dy = 1 }, { dx = dx, dy = 1 },
-          { dy = 2, gate = swap_gate:new(x + dx) }, { dx = dx, dy = 2, gate = swap_gate:new(x) } },
+          { dy = 2, gate = swap_gate(x + dx) }, { dx = dx, dy = 2, gate = swap_gate(x) } },
       }
     end
 

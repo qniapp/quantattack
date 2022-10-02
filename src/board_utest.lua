@@ -118,10 +118,10 @@ describe('board', function()
     --  SWAP-SWAP          I I
     --  SWAP-SWAP  ----->  I I
     it('should reduce SWAP pairs in the same columns', function()
-      board:put(1, 11, swap_gate:new(3))
-      board:put(3, 11, swap_gate:new(1))
-      board:put(1, 12, swap_gate:new(3))
-      board:put(3, 12, swap_gate:new(1))
+      board:put(1, 11, swap_gate(3))
+      board:put(3, 11, swap_gate(1))
+      board:put(1, 12, swap_gate(3))
+      board:put(3, 12, swap_gate(1))
 
       board:reduce()
 
