@@ -4,6 +4,7 @@ require("quantum_gate_types")
 
 local quantum_gate = require("quantum_gate")
 local gate_reduction_rules = require("gate_reduction_rules")
+local garbage = require("garbage")
 
 -- gate states
 
