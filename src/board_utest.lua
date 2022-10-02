@@ -94,8 +94,8 @@ describe('board', function()
     --  S          I
     --  S  ----->  Z
     it('should reduce SS', function()
-      board:put(1, 11, s_gate:new())
-      board:put(1, 12, s_gate:new())
+      board:put(1, 11, s_gate())
+      board:put(1, 12, s_gate())
 
       board:reduce()
 
@@ -165,9 +165,9 @@ describe('board', function()
     --  Z          I
     --  S  ----->  Z
     it('should reduce SZS', function()
-      board:put(1, 10, s_gate:new())
+      board:put(1, 10, s_gate())
       board:put(1, 11, z_gate())
-      board:put(1, 12, s_gate:new())
+      board:put(1, 12, s_gate())
 
       board:reduce()
 

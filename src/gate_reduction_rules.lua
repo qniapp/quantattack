@@ -158,7 +158,7 @@ gate_reduction_rules = {
         type = "tt",
         score = 200,
         to = { {},
-          { dy = 1, gate = s_gate:new() } },
+          { dy = 1, gate = s_gate() } },
       }
     end
 
