@@ -36,5 +36,3 @@ swap_gate = {
     return swap
   end
 }
-
-return swap_gate
