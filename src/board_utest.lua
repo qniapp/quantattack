@@ -58,8 +58,8 @@ describe('board', function()
     --  Z          I
     --  Z  ----->  I
     it('should reduce ZZ', function()
-      board:put(1, 11, z_gate:new())
-      board:put(1, 12, z_gate:new())
+      board:put(1, 11, z_gate())
+      board:put(1, 12, z_gate())
 
       board:reduce()
 
@@ -70,7 +70,7 @@ describe('board', function()
     --  Z          I
     --  X  ----->  Y
     it('should reduce ZX', function()
-      board:put(1, 11, z_gate:new())
+      board:put(1, 11, z_gate())
       board:put(1, 12, x_gate())
 
       board:reduce()
@@ -83,7 +83,7 @@ describe('board', function()
     --  Z  ----->  Y
     it('should reduce XZ', function()
       board:put(1, 11, x_gate())
-      board:put(1, 12, z_gate:new())
+      board:put(1, 12, z_gate())
 
       board:reduce()
 
@@ -151,7 +151,7 @@ describe('board', function()
     --  H  ----->  X
     it('should reduce HZH', function()
       board:put(1, 10, h_gate())
-      board:put(1, 11, z_gate:new())
+      board:put(1, 11, z_gate())
       board:put(1, 12, h_gate())
 
       board:reduce()
@@ -166,7 +166,7 @@ describe('board', function()
     --  S  ----->  Z
     it('should reduce SZS', function()
       board:put(1, 10, s_gate:new())
-      board:put(1, 11, z_gate:new())
+      board:put(1, 11, z_gate())
       board:put(1, 12, s_gate:new())
 
       board:reduce()
@@ -257,11 +257,11 @@ describe('board', function()
     -- C-X  ----->  C-X
     --   Z            I
     it('should reduce zz cx z', function()
-      board:put(1, 10, z_gate:new())
-      board:put(3, 10, z_gate:new())
+      board:put(1, 10, z_gate())
+      board:put(3, 10, z_gate())
       board:put(1, 11, control_gate:new(3))
       board:put(3, 11, cnot_x_gate:new(1))
-      board:put(3, 12, z_gate:new())
+      board:put(3, 12, z_gate())
 
       board:reduce()
 
@@ -294,10 +294,10 @@ describe('board', function()
     -- C-X  ----->  C-X
     -- Z            I
     it('should reduce z cx z', function()
-      board:put(1, 10, z_gate:new())
+      board:put(1, 10, z_gate())
       board:put(1, 11, control_gate:new(3))
       board:put(3, 11, cnot_x_gate:new(1))
-      board:put(1, 12, z_gate:new())
+      board:put(1, 12, z_gate())
 
       board:reduce()
 
@@ -312,7 +312,7 @@ describe('board', function()
     -- X-C  ----->  X-C
     -- H X          H I
     it('should reduce xz cz x', function()
-      board:put(1, 9, z_gate:new())
+      board:put(1, 9, z_gate())
       board:put(1, 10, h_gate())
       board:put(3, 10, x_gate())
       board:put(1, 11, cnot_x_gate:new(3))
