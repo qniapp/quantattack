@@ -1,4 +1,4 @@
-local colors = require("engine/colors")
+local colors = require("colors")
 
 -- config
 cursor_color = colors.dark_green

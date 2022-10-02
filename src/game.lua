@@ -1,5 +1,5 @@
-local board_class = require("engine/board")
-local player_cursor = require("engine/player_cursor")
+local board_class = require("board")
+local player_cursor = require("player_cursor")
 
 game = {
   new = function(_self)
