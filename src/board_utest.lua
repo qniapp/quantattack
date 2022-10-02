@@ -22,8 +22,8 @@ describe('board', function()
     --  H          I
     --  H  ----->  I
     it('should reduce HH', function()
-      board:put(1, 11, h_gate:new())
-      board:put(1, 12, h_gate:new())
+      board:put(1, 11, h_gate())
+      board:put(1, 12, h_gate())
 
       board:reduce()
 
@@ -34,8 +34,8 @@ describe('board', function()
     --  X          I
     --  X  ----->  I
     it('should reduce XX', function()
-      board:put(1, 11, x_gate:new())
-      board:put(1, 12, x_gate:new())
+      board:put(1, 11, x_gate())
+      board:put(1, 12, x_gate())
 
       board:reduce()
 
@@ -71,7 +71,7 @@ describe('board', function()
     --  X  ----->  Y
     it('should reduce ZX', function()
       board:put(1, 11, z_gate:new())
-      board:put(1, 12, x_gate:new())
+      board:put(1, 12, x_gate())
 
       board:reduce()
 
@@ -82,7 +82,7 @@ describe('board', function()
     --  X          I
     --  Z  ----->  Y
     it('should reduce XZ', function()
-      board:put(1, 11, x_gate:new())
+      board:put(1, 11, x_gate())
       board:put(1, 12, z_gate:new())
 
       board:reduce()
@@ -117,7 +117,7 @@ describe('board', function()
 
     --  SWAP-SWAP          I I
     --  SWAP-SWAP  ----->  I I
-    it('should reduce SWAP pairs in the same columns', function ()
+    it('should reduce SWAP pairs in the same columns', function()
       board:put(1, 11, swap_gate:new(3))
       board:put(3, 11, swap_gate:new(1))
       board:put(1, 12, swap_gate:new(3))
@@ -134,10 +134,10 @@ describe('board', function()
     --  H          I
     --  X          I
     --  H  ----->  Z
-    it('should reduce hxh', function ()
-      board:put(1, 10, h_gate:new())
-      board:put(1, 11, x_gate:new())
-      board:put(1, 12, h_gate:new())
+    it('should reduce hxh', function()
+      board:put(1, 10, h_gate())
+      board:put(1, 11, x_gate())
+      board:put(1, 12, h_gate())
 
       board:reduce()
 
@@ -149,10 +149,10 @@ describe('board', function()
     --  H          I
     --  Z          I
     --  H  ----->  X
-    it('should reduce HZH', function ()
-      board:put(1, 10, h_gate:new())
+    it('should reduce HZH', function()
+      board:put(1, 10, h_gate())
       board:put(1, 11, z_gate:new())
-      board:put(1, 12, h_gate:new())
+      board:put(1, 12, h_gate())
 
       board:reduce()
 
@@ -164,7 +164,7 @@ describe('board', function()
     --  S          I
     --  Z          I
     --  S  ----->  Z
-    it('should reduce SZS', function ()
+    it('should reduce SZS', function()
       board:put(1, 10, s_gate:new())
       board:put(1, 11, z_gate:new())
       board:put(1, 12, s_gate:new())
@@ -178,7 +178,7 @@ describe('board', function()
 
     --  C-X          I I
     --  C-X  ----->  I I
-    it('should reduce CNOT x2', function ()
+    it('should reduce CNOT x2', function()
       board:put(1, 11, control_gate:new(3))
       board:put(3, 11, cnot_x_gate:new(1))
       board:put(1, 12, control_gate:new(3))
@@ -195,7 +195,7 @@ describe('board', function()
     --  C-X             I I
     --  X-C             I I
     --  C-X  ----->  SWAP-SWAP
-    it('should reduce CNOT x3', function ()
+    it('should reduce CNOT x3', function()
       board:put(1, 10, control_gate:new(3))
       board:put(3, 10, cnot_x_gate:new(1))
       board:put(1, 11, cnot_x_gate:new(3))
@@ -216,13 +216,13 @@ describe('board', function()
     -- H H          I I
     -- C-X  ----->  X-C
     -- H H          I I
-    it('should reduce HH CNOT HH', function ()
-      board:put(1, 10, h_gate:new())
-      board:put(3, 10, h_gate:new())
+    it('should reduce HH CNOT HH', function()
+      board:put(1, 10, h_gate())
+      board:put(3, 10, h_gate())
       board:put(1, 11, control_gate:new(3))
       board:put(3, 11, cnot_x_gate:new(1))
-      board:put(1, 12, h_gate:new())
-      board:put(3, 12, h_gate:new())
+      board:put(1, 12, h_gate())
+      board:put(3, 12, h_gate())
 
       board:reduce()
 
@@ -237,12 +237,12 @@ describe('board', function()
     -- X X          I I
     -- C-X  ----->  C-X
     -- X            I
-    it('should reduce XX CNOT X', function ()
-      board:put(1, 10, x_gate:new())
-      board:put(3, 10, x_gate:new())
+    it('should reduce XX CNOT X', function()
+      board:put(1, 10, x_gate())
+      board:put(3, 10, x_gate())
       board:put(1, 11, control_gate:new(3))
       board:put(3, 11, cnot_x_gate:new(1))
-      board:put(1, 12, x_gate:new())
+      board:put(1, 12, x_gate())
 
       board:reduce()
 
@@ -256,7 +256,7 @@ describe('board', function()
     -- Z Z          I I
     -- C-X  ----->  C-X
     --   Z            I
-    it('should reduce zz cx z', function ()
+    it('should reduce zz cx z', function()
       board:put(1, 10, z_gate:new())
       board:put(3, 10, z_gate:new())
       board:put(1, 11, control_gate:new(3))
@@ -276,11 +276,11 @@ describe('board', function()
     -- X            I
     -- X-C  ----->  X-C
     -- X            I
-    it('should reduce x xc x', function ()
-      board:put(1, 10, x_gate:new())
+    it('should reduce x xc x', function()
+      board:put(1, 10, x_gate())
       board:put(1, 11, cnot_x_gate:new(3))
       board:put(3, 11, control_gate:new(1))
-      board:put(1, 12, x_gate:new())
+      board:put(1, 12, x_gate())
 
       board:reduce()
 
@@ -293,7 +293,7 @@ describe('board', function()
     -- Z            I
     -- C-X  ----->  C-X
     -- Z            I
-    it('should reduce z cx z', function ()
+    it('should reduce z cx z', function()
       board:put(1, 10, z_gate:new())
       board:put(1, 11, control_gate:new(3))
       board:put(3, 11, cnot_x_gate:new(1))
@@ -311,14 +311,14 @@ describe('board', function()
     -- H X          H I
     -- X-C  ----->  X-C
     -- H X          H I
-    it('should reduce xz cz x', function ()
+    it('should reduce xz cz x', function()
       board:put(1, 9, z_gate:new())
-      board:put(1, 10, h_gate:new())
-      board:put(3, 10, x_gate:new())
+      board:put(1, 10, h_gate())
+      board:put(3, 10, x_gate())
       board:put(1, 11, cnot_x_gate:new(3))
       board:put(3, 11, control_gate:new(1))
-      board:put(1, 12, h_gate:new())
-      board:put(3, 12, x_gate:new())
+      board:put(1, 12, h_gate())
+      board:put(3, 12, x_gate())
 
       board:reduce()
 

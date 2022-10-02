@@ -16,8 +16,8 @@ describe('gate_reduction_rules', function()
     --           -          -
     --           H  ----->  I (next gates)
     it('should reduce HH when including next gates', function()
-      board:put(1, 12, h_gate:new())
-      board:put(1, 13, h_gate:new())
+      board:put(1, 12, h_gate())
+      board:put(1, 13, h_gate())
 
       local reduction = gate_reduction_rules:reduce(board, 1, board.rows, true)
 
@@ -35,8 +35,8 @@ describe('gate_reduction_rules', function()
     --           -
     --           X (next gates)
     it('should not reduce when y is the last and include_next_gates = true', function()
-      board:put(1, board.rows, h_gate:new())
-      board:put(1, board.row_next_gates, x_gate:new())
+      board:put(1, board.rows, h_gate())
+      board:put(1, board.row_next_gates, x_gate())
 
       local reduction = gate_reduction_rules:reduce(board, 1, board.rows, true)
 

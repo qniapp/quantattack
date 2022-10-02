@@ -221,7 +221,7 @@ gate_reduction_rules = {
         score = 400,
         to = { {},
           { dy = 1 },
-          { dy = 2, gate = x_gate:new() } },
+          { dy = 2, gate = x_gate() } },
       }
     end
 

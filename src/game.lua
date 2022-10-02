@@ -14,7 +14,7 @@ game = {
         o = 5,
       },
       board = board,
-      player_cursor = player_cursor:new(board.cols, board.rows)
+      player_cursor = player_cursor(board.cols, board.rows)
     }
   end,
 }
