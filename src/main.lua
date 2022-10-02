@@ -8,6 +8,7 @@ local game_class = require("game")
 
 function _init()
    game = game_class:new()
+   game.board:initialize_with_random_gates()
 end
 
 function _update60()

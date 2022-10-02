@@ -1,3 +1,4 @@
+local x_gate = require("x_gate")
 local y_gate = require("y_gate")
 local z_gate = require("z_gate")
 local s_gate = require("s_gate")
