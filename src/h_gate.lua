@@ -1,6 +1,8 @@
+local quantum_gate = require("quantum_gate")
+
 h_gate = {
   new = function(self)
-    local h = quantum_gate:new("h")
+    local h = quantum_gate("h")
     h._sprites = {
       idle = 0,
       dropped = 16,

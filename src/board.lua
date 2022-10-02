@@ -67,7 +67,7 @@ board = {
                 self:put(x, y, quantum_gate:random_single_gate())
               until #gate_reduction_rules:reduce(self, x, y, true).to == 0
             else
-              self:put(x, y, quantum_gate:new("i"))
+              self:put(x, y, quantum_gate("i"))
             end
           end
         end
@@ -92,7 +92,7 @@ board = {
             for _index, r in pairs(reduction.to) do
               local dx = r.dx or 0
               local dy = r.dy or 0
-              local gate = r.gate or quantum_gate:new("i")
+              local gate = r.gate or quantum_gate("i")
 
               self:gate_at(x + dx, y + dy):replace_with(gate)
             end
@@ -122,7 +122,7 @@ board = {
                 stop_y = stop_y + 1
               end
               gate:drop(self:screen_y(y), self:screen_y(stop_y))
-              self:put(x, stop_y, quantum_gate:new("?"))
+              self:put(x, stop_y, quantum_gate("?"))
             end
 
             ::next::
@@ -159,7 +159,7 @@ board = {
             end
             if is_dropped(gate) then
               self:put(x, self:y(gate.stop_screen_y), gate)
-              self:put(x, self:y(gate.start_screen_y), quantum_gate:new("i"))
+              self:put(x, self:y(gate.start_screen_y), quantum_gate("i"))
             end
 
             ::next::
@@ -254,7 +254,7 @@ board = {
         if (is_reducible(gate)) then
           return gate
         end
-        return quantum_gate:new("i")
+        return quantum_gate("i")
       end,
 
       put = function(self, x, y, gate)
@@ -298,7 +298,7 @@ board = {
     for x = 1, board.cols do
       board._gates[x] = {}
       for y = 1, board.row_next_gates do
-        board._gates[x][y] = quantum_gate:new("i")
+        board._gates[x][y] = quantum_gate("i")
       end
     end
 

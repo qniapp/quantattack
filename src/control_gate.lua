@@ -1,8 +1,10 @@
+local quantum_gate = require("quantum_gate")
+
 control_gate = {
   new = function(self, cnot_x_x)
     assert(cnot_x_x)
 
-    local c = quantum_gate:new("control")
+    local c = quantum_gate("control")
     c.cnot_x_x = cnot_x_x
     c._sprites = {
       idle = 6,
@@ -30,7 +32,7 @@ control_gate = {
         self.connection = not self.connection
       else
         self.tick_connection = self.tick_connection + 1
-      end    
+      end
     end
 
     return c

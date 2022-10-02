@@ -1,8 +1,10 @@
+local quantum_gate = require("quantum_gate")
+
 swap_gate = {
   new = function(self, other_x)
     assert(other_x)
 
-    local swap = quantum_gate:new("swap")
+    local swap = quantum_gate("swap")
     swap.other_x = other_x
     swap._sprites = {
       idle = 7,
@@ -30,7 +32,7 @@ swap_gate = {
         self.connection = not self.connection
       else
         self.tick_connection = self.tick_connection + 1
-      end    
+      end
     end
 
     return swap

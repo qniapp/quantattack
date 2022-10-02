@@ -1,8 +1,10 @@
+local quantum_gate = require("quantum_gate")
+
 cnot_x_gate = {
   new = function(self, cnot_c_x)
     assert(cnot_c_x)
 
-    local cnot_x = quantum_gate:new("cnot_x")
+    local cnot_x = quantum_gate("cnot_x")
     cnot_x.cnot_c_x = cnot_c_x
     cnot_x._sprites = {
       idle = 1,

@@ -1,6 +1,6 @@
 i_gate = {
   new = function(self)
-    return quantum_gate:new("i")
+    return quantum_gate("i")
   end
 }
 
