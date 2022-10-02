@@ -99,7 +99,7 @@ gate_reduction_rules = {
     local y3 = y + 3
 
     if include_next then
-      if y1 > board.rows_plus_next_rows then
+      if y1 > board.row_next_gates then
         return {to = {}}
       end
     else
@@ -237,7 +237,7 @@ gate_reduction_rules = {
     end
 
     if include_next then
-      if y2 > board.rows_plus_next_rows then
+      if y2 > board.row_next_gates then
         return {to = {}}
       end       
     else
@@ -600,7 +600,7 @@ board_class = {
     local board = {
       cols = 6,
       rows = 12,
-      rows_plus_next_rows = 13,
+      row_next_gates = 13,
       _gates = {},
       _falling_garbages = {},
       _offset_x = 10,
@@ -608,7 +608,7 @@ board_class = {
 
       initialize_with_random_gates = function(self)
         for x = 1, self.cols do
-          for y = self.rows_plus_next_rows, 1, -1 do
+          for y = self.row_next_gates, 1, -1 do
             if y >= self.rows - 2 or
                (y < self.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and (not is_i(self:gate_at(x, y + 1)))) then
               repeat
@@ -712,7 +712,7 @@ board_class = {
       draw = function(self)
         -- draw idle gates
         for x = 1, self.cols do
-          for y = 1, self.rows_plus_next_rows do
+          for y = 1, self.row_next_gates do
             local gate = self:gate_at(x, y)
             if (not gate) goto next
 

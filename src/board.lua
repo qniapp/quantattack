@@ -48,7 +48,7 @@ board = {
     local board = {
       cols = 6,
       rows = 12,
-      rows_plus_next_rows = 13,
+      row_next_gates = 13,
       _gates = {},
       _falling_garbages = {},
       _offset_x = 10,
@@ -56,7 +56,7 @@ board = {
 
       initialize_with_random_gates = function(self)
         for x = 1, self.cols do
-          for y = self.rows_plus_next_rows, 1, -1 do
+          for y = self.row_next_gates, 1, -1 do
             if y >= self.rows - 2 or
                 (y < self.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and (not is_i(self:gate_at(x, y + 1)))) then
               repeat
@@ -170,7 +170,7 @@ board = {
       draw = function(self)
         -- draw idle gates
         for x = 1, self.cols do
-          for y = 1, self.rows_plus_next_rows do
+          for y = 1, self.row_next_gates do
             local gate = self:gate_at(x, y)
             if (not gate) then
               goto next
@@ -293,7 +293,7 @@ board = {
     -- initialize the board
     for x = 1, board.cols do
       board._gates[x] = {}
-      for y = 1, board.rows_plus_next_rows do
+      for y = 1, board.row_next_gates do
         board._gates[x][y] = quantum_gate:new("i")
       end
     end

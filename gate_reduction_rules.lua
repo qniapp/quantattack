@@ -6,7 +6,7 @@ gate_reduction_rules = {
     local y3 = y + 3
 
     if include_next then
-      if y1 > board.rows_plus_next_rows then
+      if y1 > board.row_next_gates then
         return {to = {}}
       end
     else
@@ -139,7 +139,7 @@ gate_reduction_rules = {
     end
 
     if include_next then
-      if y2 > board.rows_plus_next_rows then
+      if y2 > board.row_next_gates then
         return {to = {}}
       end       
     else

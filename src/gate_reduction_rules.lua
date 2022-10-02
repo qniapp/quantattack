@@ -45,14 +45,14 @@ function is_cnot_x(gate)
 end
 
 gate_reduction_rules = {
-  reduce = function(self, board, x, y, include_next)
-    include_next = include_next or false
+  reduce = function(self, board, x, y, include_next_gates)
+    include_next_gates = include_next_gates or false
     local y1 = y + 1
     local y2 = y + 2
     local y3 = y + 3
 
-    if include_next then
-      if y1 > board.rows_plus_next_rows then
+    if include_next_gates then
+      if y1 > board.row_next_gates then
         return { to = {} }
       end
     else
@@ -63,6 +63,7 @@ gate_reduction_rules = {
 
     local gate = board:reducible_gate_at(x, y)
     local gate_y1 = board:reducible_gate_at(x, y1)
+
     if (is_i(gate_y1)) then
       return { to = {} }
     end
@@ -187,8 +188,8 @@ gate_reduction_rules = {
       }
     end
 
-    if include_next then
-      if y2 > board.rows_plus_next_rows then
+    if include_next_gates then
+      if y2 > board.row_next_gates then
         return { to = {} }
       end
     else
