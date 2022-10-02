@@ -46,8 +46,8 @@ describe('board', function()
     --  Y          I
     --  Y  ----->  I
     it('should reduce YY', function()
-      board:put(1, 11, y_gate:new())
-      board:put(1, 12, y_gate:new())
+      board:put(1, 11, y_gate())
+      board:put(1, 12, y_gate())
 
       board:reduce()
 

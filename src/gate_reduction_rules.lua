@@ -99,7 +99,7 @@ gate_reduction_rules = {
           type = "xz",
           score = 200,
           to = { {},
-            { dy = 1, gate = y_gate:new() } },
+            { dy = 1, gate = y_gate() } },
         }
       end
     end
@@ -133,7 +133,7 @@ gate_reduction_rules = {
           type = "zx",
           score = 200,
           to = { {},
-            { dy = 1, gate = y_gate:new() } },
+            { dy = 1, gate = y_gate() } },
         }
       end
     end
