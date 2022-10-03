@@ -4,20 +4,12 @@ require("quantum_gate_types")
 
 local quantum_gate = require("quantum_gate")
 local gate_reduction_rules = require("gate_reduction_rules")
-local garbage = require("garbage")
+local garbage_gate = require("garbage_gate")
 
 -- gate states
 
 function is_droppable(gate)
   return not (gate:is_i() or gate:is_dropping() or gate:is_swapping())
-end
-
-function is_dropped(gate)
-  return gate.state == "dropped"
-end
-
-function is_match(gate)
-  return gate.state == "match"
 end
 
 function is_reducible(gate)
@@ -141,7 +133,7 @@ board = {
             if gate:is_swap_finished() then
               add(gates_to_swap, { gate = gate, y = y })
             end
-            if is_dropped(gate) then
+            if gate:is_dropped() then
               self:put(x, self:y(gate.stop_screen_y), gate)
               self:put(x, self:y(gate.start_screen_y), quantum_gate("i"))
             end
@@ -248,7 +240,7 @@ board = {
       put_garbage = function(self)
         local width = flr(rnd(4)) + 3
 
-        add(self._falling_garbages, garbage:new(width, self))
+        add(self._falling_garbages, garbage_gate(width, self))
       end,
 
       gate_top_y = function(self, x_start, x_end)

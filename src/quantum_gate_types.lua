@@ -1,17 +1,13 @@
 _gate_types = { h_gate, x_gate, y_gate, z_gate, s_gate, t_gate }
 
-function is_garbage_unitary(gate)
-  return gate._type == "garbage_unitary"
-end
-
-function is_garbage_unitary_match(gate)
-  return gate._type == "garbage_unitary_match"
+function is_garbage_gate(gate)
+  return gate.type == "g"
 end
 
 -- gate states
 
 function is_reducible(gate)
-  return is_garbage_unitary(gate) or
+  return is_garbage_gate(gate) or
       ((not gate:is_i()) and (not is_busy(gate)))
 end
 
@@ -27,20 +23,12 @@ function is_swapping_with_right(gate)
   return gate._state == "swapping_with_right"
 end
 
-function is_match(gate)
-  return gate._state == "match"
-end
-
-function is_dropped(gate)
-  return gate._state == "dropped"
-end
-
 function is_disappearing(gate)
   return gate._state == "disappear"
 end
 
 function is_busy(gate)
-  return not (gate:is_idle() or is_dropped(gate))
+  return not (gate:is_idle() or gate:is_dropped())
 end
 
 function is_match_type_i(gate)

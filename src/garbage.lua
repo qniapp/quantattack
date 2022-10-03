@@ -1,3 +1,7 @@
+require("engine/core/class")
+
+local quantum_gate = require("quantum_gate")
+
 garbage = {
   new = function(_self, width, board)
     local random_x = flr(rnd(board.cols - width + 1)) + 1

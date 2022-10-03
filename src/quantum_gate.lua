@@ -15,9 +15,11 @@ end
 
 function quantum_gate:_init(type)
   self.type = type
-  self.dy = 0
   self.state = "idle"
+  self.dy = 0
 end
+
+-- gate type
 
 function quantum_gate:is_i()
   return self.type == "i"
@@ -58,6 +60,12 @@ end
 function quantum_gate:is_cnot_x()
   return self.type == "cnot_x"
 end
+
+function quantum_gate:is_garbage_gate()
+  return self.type == "g"
+end
+
+-- gate state
 
 function quantum_gate:is_idle()
   return self.state == "idle"
