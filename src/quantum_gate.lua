@@ -103,6 +103,11 @@ function quantum_gate:is_match()
   return self.state == "match"
 end
 
+function quantum_gate:is_reducible()
+  return self:is_garbage_gate() or
+      ((not self:is_i()) and (not self:is_busy()))
+end
+
 function quantum_gate:update()
   if self.type == "?" then
     return

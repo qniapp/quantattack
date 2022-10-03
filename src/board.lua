@@ -12,10 +12,6 @@ function is_droppable(gate)
   return not (gate:is_i() or gate:is_dropping() or gate:is_swapping())
 end
 
-function is_reducible(gate)
-  return not (gate:is_i() or gate:is_busy())
-end
-
 board = {
   default_cols = 6,
   default_rows = 12,
@@ -55,7 +51,7 @@ board = {
       reduce = function(self)
         for x = 1, self.cols do
           for y = 1, self.rows - 1 do
-            if (not is_reducible(self:gate_at(x, y))) then
+            if not self:gate_at(x, y):is_reducible() then
               goto next
             end
 
@@ -223,7 +219,7 @@ board = {
       reducible_gate_at = function(self, x, y)
         local gate = self:gate_at(x, y)
 
-        if (is_reducible(gate)) then
+        if gate:is_reducible() then
           return gate
         end
         return quantum_gate("i")

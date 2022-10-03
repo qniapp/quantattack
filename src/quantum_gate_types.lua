@@ -2,11 +2,6 @@ _gate_types = { h_gate, x_gate, y_gate, z_gate, s_gate, t_gate }
 
 -- gate states
 
-function is_reducible(gate)
-  return gate:is_garbage_gate() or
-      ((not gate:is_i()) and (not gate:is_busy()))
-end
-
 function is_disappearing(gate)
   return gate._state == "disappear"
 end
