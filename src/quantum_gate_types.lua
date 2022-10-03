@@ -7,18 +7,6 @@ function is_reducible(gate)
       ((not gate:is_i()) and (not gate:is_busy()))
 end
 
-function is_swapping(gate)
-  return is_swapping_with_left(gate) or is_swapping_with_right(gate)
-end
-
-function is_swapping_with_left(gate)
-  return gate._state == "swapping_with_left"
-end
-
-function is_swapping_with_right(gate)
-  return gate._state == "swapping_with_right"
-end
-
 function is_disappearing(gate)
   return gate._state == "disappear"
 end
