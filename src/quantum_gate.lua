@@ -220,15 +220,13 @@ function quantum_gate:_change_state(new_state)
   self.state = new_state
 end
 
--- TODO: swap_with_right に名前を変更
-function quantum_gate:start_swap_with_right(swap_new_x)
+function quantum_gate:swap_with_right(swap_new_x)
   self.tick_swap = 0
   self.swap_new_x = swap_new_x
   self:_change_state("swapping_with_right")
 end
 
--- TODO: swap_with_left に名前を変更
-function quantum_gate:start_swap_with_left(swap_new_x)
+function quantum_gate:swap_with_left(swap_new_x)
   self.tick_swap = 0
   self.swap_new_x = swap_new_x
   self:_change_state("swapping_with_left")

@@ -34,12 +34,12 @@ describe('quantum_gate', function()
   it('should start swap with right gate', function()
     local gate = quantum_gate('h')
 
-    assert.has_no.errors(function() gate:start_swap_with_right() end)
+    assert.has_no.errors(function() gate:swap_with_right() end)
   end)
 
   it('should start swap with left gate', function()
     local gate = quantum_gate('h')
 
-    assert.has_no.errors(function() gate:start_swap_with_left() end)
+    assert.has_no.errors(function() gate:swap_with_left() end)
   end)
 end)
