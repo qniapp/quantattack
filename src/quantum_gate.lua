@@ -23,6 +23,42 @@ function quantum_gate:is_i()
   return self.type == "i"
 end
 
+function quantum_gate:is_h()
+  return self.type == "h"
+end
+
+function quantum_gate:is_x()
+  return self.type == "x"
+end
+
+function quantum_gate:is_y()
+  return self.type == "y"
+end
+
+function quantum_gate:is_z()
+  return self.type == "z"
+end
+
+function quantum_gate:is_s()
+  return self.type == "s"
+end
+
+function quantum_gate:is_t()
+  return self.type == "t"
+end
+
+function quantum_gate:is_swap()
+  return self.type == "swap"
+end
+
+function quantum_gate:is_control()
+  return self.type == "control"
+end
+
+function quantum_gate:is_cnot_x()
+  return self.type == "cnot_x"
+end
+
 function quantum_gate:is_idle()
   return self.state == "idle"
 end
@@ -188,10 +224,10 @@ function quantum_gate:start_swap_with_left(swap_new_x)
 end
 
 function quantum_gate:drop(start_screen_y, stop_screen_y)
-   self.dy = 0
-   self.start_screen_y = start_screen_y
-   self.stop_screen_y = stop_screen_y
-   self:_change_state("dropping")
+  self.dy = 0
+  self.start_screen_y = start_screen_y
+  self.stop_screen_y = stop_screen_y
+  self:_change_state("dropping")
 end
 
 return quantum_gate

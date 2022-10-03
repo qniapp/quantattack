@@ -21,7 +21,7 @@ function is_swap_finished(gate)
 end
 
 function is_droppable(gate)
-  return not (is_i(gate) or is_dropping(gate) or is_swapping(gate))
+  return not (gate:is_i() or is_dropping(gate) or is_swapping(gate))
 end
 
 function is_dropping(gate)
@@ -37,7 +37,7 @@ function is_match(gate)
 end
 
 function is_reducible(gate)
-  return not (is_i(gate) or is_busy(gate))
+  return not (gate:is_i() or is_busy(gate))
 end
 
 function is_busy(gate)
@@ -62,7 +62,7 @@ board = {
         for x = 1, self.cols do
           for y = self.row_next_gates, 1, -1 do
             if y >= self.rows - 2 or
-                (y < self.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and (not is_i(self:gate_at(x, y + 1)))) then
+                (y < self.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and (not self:gate_at(x, y + 1):is_i())) then
               repeat
                 self:put(x, y, quantum_gate:random_single_gate())
               until #gate_reduction_rules:reduce(self, x, y, true).to == 0
@@ -116,9 +116,9 @@ board = {
               goto next
             end
 
-            if is_i(self:gate_at(x, y + 1)) then
+            if self:gate_at(x, y + 1):is_i() then
               local stop_y = y
-              while is_i(self:gate_at(x, stop_y + 1)) or is_dropping(self:gate_at(x, stop_y + 1)) do
+              while self:gate_at(x, stop_y + 1):is_i() or is_dropping(self:gate_at(x, stop_y + 1)) do
                 stop_y = stop_y + 1
               end
               gate:drop(self:screen_y(y), self:screen_y(stop_y))
@@ -270,7 +270,7 @@ board = {
       gate_top_y = function(self, x_start, x_end)
         for y = 1, self.rows do
           for x = x_start, x_end do
-            if (not is_i(self:gate_at(x, y))) then
+            if not self:gate_at(x, y):is_i() then
               return y
             end
           end
