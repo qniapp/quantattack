@@ -5,11 +5,10 @@
 require("engine/pico8/api")
 
 local game_class = require("game")
-local game
+local game = game_class()
 
 function _init()
-  game = game_class()
-  game.board:initialize_with_random_gates()
+  game:start()
 end
 
 function _update60()

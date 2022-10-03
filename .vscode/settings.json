@@ -14,7 +14,8 @@
     "_draw",
     "btnp",
     "sfx",
-    "_update60"
+    "_update60",
+    "fps60"
   ],
   "Lua.workspace.library": [
     "${3rd}/lfs/library"

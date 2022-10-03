@@ -1,9 +1,12 @@
+require("engine/application/constants")
 require("engine/core/class")
 
+local gameapp = require("engine/application/gameapp")
 local board_class = require("board")
-local player_cursor = require("player_cursor")
-
-local game = new_class()
+local player_cursor_class = require("player_cursor")
+local game = derived_class(gameapp)
+local board = board_class:new()
+local player_cursor = player_cursor_class(board.cols, board.rows)
 
 game.button = {
   left = 0,
@@ -15,35 +18,34 @@ game.button = {
 }
 
 function game:_init()
-  local board = board_class:new()
-
-  self.board = board
-  self.player_cursor = player_cursor(board.cols, board.rows)
+  gameapp._init(self, fps60)
 end
 
-function game:update()
-  local cursor = self.player_cursor
+function game.on_post_start() -- override
+  board:initialize_with_random_gates()
+end
 
+function game.on_update() -- override
   if btnp(game.button.left) then
     sfx(0)
-    cursor:move_left()
+    player_cursor:move_left()
   end
   if btnp(game.button.right) then
     sfx(0)
-    cursor:move_right()
+    player_cursor:move_right()
   end
   if btnp(game.button.up) then
     sfx(0)
-    cursor:move_up()
+    player_cursor:move_up()
   end
   if btnp(game.button.down) then
     sfx(0)
-    cursor:move_down()
+    player_cursor:move_down()
   end
   if btnp(game.button.x) then
-    local swapped = self.board:swap(cursor.x, cursor.x + 1, cursor.y)
+    local swapped = board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y)
     -- if swapped == false then
-    --   self.player_cursor.cannot_swap = true
+    --   player_cursor.cannot_swap = true
     -- end
 
     if swapped then
@@ -51,17 +53,17 @@ function game:update()
     end
   end
   if btnp(game.button.o) then
-    self.board:put_garbage()
+    board:put_garbage()
   end
 
-  self.board:update()
-  cursor:update()
+  board:update()
+  player_cursor:update()
 end
 
-function game:draw()
+function game:on_render() -- override
   cls()
-  self.board:draw()
-  self.player_cursor:draw(self.board)
+  board:draw()
+  player_cursor:draw(board)
 end
 
 return game
