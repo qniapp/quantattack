@@ -9,7 +9,9 @@
     "pal",
     "spr",
     "derived_class",
-    "lfs"
+    "lfs",
+    "cls",
+    "_draw"
   ],
   "Lua.workspace.library": [
     "${3rd}/lfs/library"
