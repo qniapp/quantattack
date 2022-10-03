@@ -203,7 +203,7 @@ board = {
 
       dy = function(self)
         if (#self._falling_garbages ~= 0) then
-          return self._falling_garbages[#self._falling_garbages]:dy()
+          return self._falling_garbages[#self._falling_garbages]:effect_dy()
         end
         return 0
       end,

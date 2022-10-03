@@ -215,6 +215,7 @@ function quantum_gate:replace_with(other)
   self:_change_state("match")
 end
 
+-- TODO: いらないので self.state = new_state で書き直す
 function quantum_gate:_change_state(new_state)
   self.state = new_state
 end
