@@ -1,8 +1,9 @@
 require("engine/test/bustedhelper")
 
-local board_class = require("src/board")
-local h_gate = require("src/h_gate")
-local x_gate = require("src/x_gate")
+local gate_reduction_rules = require("gate_reduction_rules")
+local board_class = require("board")
+local h_gate = require("h_gate")
+local x_gate = require("x_gate")
 
 describe('gate_reduction_rules', function()
   describe('reduce', function()
