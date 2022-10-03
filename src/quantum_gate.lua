@@ -72,7 +72,15 @@ function quantum_gate:is_idle()
 end
 
 function quantum_gate:is_swapping()
-  return self.state == "swapping_with_right" or self.state == "swapping_with_left"
+  return self:is_swapping_with_right() or self:is_swapping_with_left()
+end
+
+function quantum_gate:is_swapping_with_right()
+  return self.state == "swapping_with_right"
+end
+
+function quantum_gate:is_swapping_with_left()
+  return self.state == "swapping_with_left"
 end
 
 function quantum_gate:is_swap_finished()
@@ -133,11 +141,11 @@ function quantum_gate:draw(screen_x, screen_y)
   end
 
   local dx = 0
-  if self.state == "swapping_with_right" then
+  if self:is_swapping_with_right() then
     dx = self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
-  elseif self.state == "swapping_with_left" then
+  elseif self:is_swapping_with_left() then
     dx = -self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
-  elseif self.state == "dropping" then
+  elseif self:is_dropping() then
     self.dy = self.dy + quantum_gate._dy
     if screen_y + self.dy > self.stop_screen_y then
       self.dy = self.stop_screen_y - screen_y

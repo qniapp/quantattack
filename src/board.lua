@@ -110,7 +110,7 @@ board = {
         foreach(self._falling_garbages, function(each)
           if each.state == "hit gate" then
             self:put(each.x, self:y(each.stop_y), each)
-          elseif each.state == "idle" then
+          elseif each:is_idle() then
             del(self._falling_garbages, each)
           end
 

@@ -8,6 +8,11 @@
     "new_class",
     "pal",
     "spr",
-    "derived_class"
-  ]
+    "derived_class",
+    "lfs"
+  ],
+  "Lua.workspace.library": [
+    "${3rd}/lfs/library"
+  ],
+  "Lua.workspace.checkThirdParty": false
 }
