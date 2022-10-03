@@ -29,7 +29,7 @@ swap_gate = {
         self.tick_connection = nil
         self.connection = not self.connection
       else
-        self.tick_connection += 1
+        self.tick_connection = self.tick_connection + 1
       end    
     end
 

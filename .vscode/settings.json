@@ -1,0 +1,13 @@
+{
+  "Lua.diagnostics.globals": [
+    "board",
+    "_init",
+    "describe",
+    "before_each",
+    "it",
+    "new_class",
+    "pal",
+    "spr",
+    "derived_class"
+  ]
+}

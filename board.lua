@@ -10,13 +10,13 @@ board = {
         self.left = left or 0
         self.cols = board.default_cols
         self.rows = board.default_rows
-        self.rows_plus_next_rows = self.rows + board.default_next_rows
+        self.row_next_gates = self.rows + board.default_next_rows
         self.width = self.cols * quantum_gate.size
         self.height = self.rows * quantum_gate.size
         self._gate = {}
         self.raised_dots = 0
 
-        for y = 1, self.rows_plus_next_rows do
+        for y = 1, self.row_next_gates do
           self._gate[y] = {}
           for x = 1, self.cols do
             self:put(x, y, i_gate:new())
@@ -28,7 +28,7 @@ board = {
 
       initialize_with_random_gates = function(self)
         for x = 1, self.cols do
-          for y = self.rows_plus_next_rows, 1, -1 do
+          for y = self.row_next_gates, 1, -1 do
             if y >= self.rows - 2 or
                (y < self.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and (not is_i(self:gate_at(x, y + 1)))) then
               repeat
@@ -48,7 +48,7 @@ board = {
         -- assert(x >= 1)
         -- assert(x <= self.cols)
         -- assert(y >= 1)
-        -- assert(y <= self.rows_plus_next_rows)
+        -- assert(y <= self.row_next_gates)
 
         local gate = self._gate[y][x]
         assert(gate)
@@ -69,7 +69,7 @@ board = {
 
       put = function(self, x, y, gate)
         assert(x and x >= 1 and x <= self.cols)
-        assert(y and y >= 1 and y <= self.rows_plus_next_rows)
+        assert(y and y >= 1 and y <= self.row_next_gates)
         assert(gate._type)
 
         self._gate[y][x] = gate
@@ -101,7 +101,7 @@ board = {
 
         -- draw cnot and swap connections over wires
         for x = 1, self.cols do
-          for y = 1, self.rows_plus_next_rows do
+          for y = 1, self.row_next_gates do
             local gate = self:gate_at(x, y)
             local connection_start_x = self:screen_x(x) + 3
             local connection_y = self:screen_y(y) + 3
@@ -127,7 +127,7 @@ board = {
         end
 
         for bx = 1, self.cols do
-          for by = 1, self.rows_plus_next_rows do
+          for by = 1, self.row_next_gates do
             local x = self:screen_x(bx)
             local y = self:screen_y(by)
             local gate = self:gate_at(bx, by)
@@ -141,7 +141,7 @@ board = {
               gate:draw(x, y)
             end            
 
-            if by == self.rows_plus_next_rows then
+            if by == self.row_next_gates then
               spr(64, x, y)
             end              
           end
@@ -688,14 +688,14 @@ board = {
 
       insert_gates_at_bottom = function(self)
         for x = 1, self.cols do
-          for y = 1, self.rows_plus_next_rows - 1 do
+          for y = 1, self.row_next_gates - 1 do
             self:put(x, y, self:gate_at(x, y + 1))
           end
         end
 
         for x = 1, self.cols do
           repeat
-            self:put(x, self.rows_plus_next_rows, random_gate())
+            self:put(x, self.row_next_gates, random_gate())
           until (#gate_reduction_rules:reduce(self, x, self.rows, true).to == 0)
         end
 
@@ -709,13 +709,13 @@ board = {
 
           local x_gate = cnot_x_gate:new(cnot_c_x)
           local control_gate = control_gate:new(cnot_x_x)
-          self:put(cnot_x_x, self.rows_plus_next_rows, x_gate)
-          self:put(cnot_c_x, self.rows_plus_next_rows, control_gate)
+          self:put(cnot_x_x, self.row_next_gates, x_gate)
+          self:put(cnot_c_x, self.row_next_gates, control_gate)
 
           local cnot_left_x = min(cnot_c_x, cnot_x_x)
           local cnot_right_x = max(cnot_c_x, cnot_x_x)
           for x = cnot_left_x + 1, cnot_right_x - 1 do
-            self:put(x, self.rows_plus_next_rows, i_gate:new())
+            self:put(x, self.row_next_gates, i_gate:new())
           end          
         end
       end,
@@ -724,7 +724,7 @@ board = {
         local gates_to_swap = {}
 
         for x = 1, self.cols do
-          for y = 1, self.rows_plus_next_rows do
+          for y = 1, self.row_next_gates do
             local gate = self:gate_at(x, y)
             gate:update()
 

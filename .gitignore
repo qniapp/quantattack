@@ -1,6 +1,10 @@
 .DS_Store
 activity_log.txt
 backup
+build/
 config.txt
+intermediate/
 log.txt
+luacov.report.out
+luacov.stats.out
 sdl_controllers.txt

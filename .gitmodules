@@ -1,0 +1,3 @@
+[submodule "pico-boots"]
+	path = pico-boots
+	url = https://github.com/hsandt/pico-boots.git
