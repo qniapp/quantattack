@@ -7,6 +7,7 @@ describe('quantum_gate', function()
     it('should create a random gate', function()
       local gate = quantum_gate.random_single_gate()
 
+      -- TODO: gate.type が { "h", "x", "y", "z", "s", "t" } の中の 1 つになることを assert する
       assert.truthy(gate.type)
     end)
   end)
