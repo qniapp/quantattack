@@ -10,10 +10,6 @@ end
 
 -- gate states
 
-function is_idle(gate)
-  return gate._state == "idle"
-end
-
 function is_reducible(gate)
   return is_garbage_unitary(gate) or
       ((not gate:is_i()) and (not is_busy(gate)))
@@ -44,7 +40,7 @@ function is_disappearing(gate)
 end
 
 function is_busy(gate)
-  return not (is_idle(gate) or is_dropped(gate))
+  return not (gate:is_idle() or is_dropped(gate))
 end
 
 function is_match_type_i(gate)

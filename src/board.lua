@@ -8,24 +8,8 @@ local garbage = require("garbage")
 
 -- gate states
 
-function is_idle(gate)
-  return gate.state == "idle"
-end
-
-function is_swapping(gate)
-  return gate.state == "swapping_with_right" or gate.state == "swapping_with_left"
-end
-
-function is_swap_finished(gate)
-  return gate.state == "swap_finished"
-end
-
 function is_droppable(gate)
-  return not (gate:is_i() or is_dropping(gate) or is_swapping(gate))
-end
-
-function is_dropping(gate)
-  return gate.state == "dropping"
+  return not (gate:is_i() or gate:is_dropping() or gate:is_swapping())
 end
 
 function is_dropped(gate)
@@ -41,7 +25,7 @@ function is_reducible(gate)
 end
 
 function is_busy(gate)
-  return not (is_idle(gate) or is_swap_finished(gate))
+  return not (gate:is_idle() or gate:is_swap_finished())
 end
 
 board = {
@@ -118,7 +102,7 @@ board = {
 
             if self:gate_at(x, y + 1):is_i() then
               local stop_y = y
-              while self:gate_at(x, stop_y + 1):is_i() or is_dropping(self:gate_at(x, stop_y + 1)) do
+              while self:gate_at(x, stop_y + 1):is_i() or self:gate_at(x, stop_y + 1):is_dropping() do
                 stop_y = stop_y + 1
               end
               gate:drop(self:screen_y(y), self:screen_y(stop_y))
@@ -154,7 +138,7 @@ board = {
 
             gate:update()
 
-            if is_swap_finished(gate) then
+            if gate:is_swap_finished() then
               add(gates_to_swap, { gate = gate, y = y })
             end
             if is_dropped(gate) then
