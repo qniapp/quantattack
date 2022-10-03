@@ -1,41 +1,5 @@
 _gate_types = { h_gate, x_gate, y_gate, z_gate, s_gate, t_gate }
 
-function is_h(gate)
-  return gate._type == "h"
-end
-
-function is_x(gate)
-  return gate._type == "x"
-end
-
-function is_cnot_x(gate)
-  return gate._type == "cnot_x"
-end
-
-function is_y(gate)
-  return gate._type == "y"
-end
-
-function is_z(gate)
-  return gate._type == "z"
-end
-
-function is_s(gate)
-  return gate._type == "s"
-end
-
-function is_t(gate)
-  return gate._type == "t"
-end
-
-function is_control(gate)
-  return gate._type == "control"
-end
-
-function is_swap(gate)
-  return gate._type == "swap"
-end
-
 function is_garbage_unitary(gate)
   return gate._type == "garbage_unitary"
 end
