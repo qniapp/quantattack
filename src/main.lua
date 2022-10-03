@@ -13,40 +13,7 @@ function _init()
 end
 
 function _update60()
-  local cursor = game.player_cursor
-
-  if btnp(game.button.left) then
-    sfx(0)
-    cursor:move_left()
-  end
-  if btnp(game.button.right) then
-    sfx(0)
-    cursor:move_right()
-  end
-  if btnp(game.button.up) then
-    sfx(0)
-    cursor:move_up()
-  end
-  if btnp(game.button.down) then
-    sfx(0)
-    cursor:move_down()
-  end
-  if btnp(game.button.x) then
-    local swapped = game.board:swap(cursor.x, cursor.x + 1, cursor.y)
-    -- if swapped == false then
-    --   self.player_cursor.cannot_swap = true
-    -- end
-
-    if swapped then
-      sfx(2)
-    end
-  end
-  if btnp(game.button.o) then
-    game.board:put_garbage()
-  end
-
-  game.board:update()
-  cursor:update()
+  game:update()
 end
 
 function _draw()
