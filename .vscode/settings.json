@@ -11,7 +11,10 @@
     "derived_class",
     "lfs",
     "cls",
-    "_draw"
+    "_draw",
+    "btnp",
+    "sfx",
+    "_update60"
   ],
   "Lua.workspace.library": [
     "${3rd}/lfs/library"
