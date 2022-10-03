@@ -1,14 +1,10 @@
 _gate_types = { h_gate, x_gate, y_gate, z_gate, s_gate, t_gate }
 
-function is_garbage_gate(gate)
-  return gate.type == "g"
-end
-
 -- gate states
 
 function is_reducible(gate)
-  return is_garbage_gate(gate) or
-      ((not gate:is_i()) and (not is_busy(gate)))
+  return gate:is_garbage_gate() or
+      ((not gate:is_i()) and (not gate:is_busy()))
 end
 
 function is_swapping(gate)
@@ -25,10 +21,6 @@ end
 
 function is_disappearing(gate)
   return gate._state == "disappear"
-end
-
-function is_busy(gate)
-  return not (gate:is_idle() or gate:is_dropped())
 end
 
 function is_match_type_i(gate)

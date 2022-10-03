@@ -13,11 +13,7 @@ function is_droppable(gate)
 end
 
 function is_reducible(gate)
-  return not (gate:is_i() or is_busy(gate))
-end
-
-function is_busy(gate)
-  return not (gate:is_idle() or gate:is_swap_finished())
+  return not (gate:is_i() or gate:is_busy())
 end
 
 board = {

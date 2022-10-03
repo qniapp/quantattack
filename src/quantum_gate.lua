@@ -71,6 +71,10 @@ function quantum_gate:is_idle()
   return self.state == "idle"
 end
 
+function quantum_gate:is_busy()
+  return not (self:is_idle() or self:is_dropped())
+end
+
 function quantum_gate:is_swapping()
   return self:is_swapping_with_right() or self:is_swapping_with_left()
 end
