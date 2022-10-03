@@ -7,7 +7,7 @@ local cnot_x_gate = require("cnot_x_gate")
 local swap_gate = require("swap_gate")
 
 -- TODO: singleton にする
-gate_reduction_rules = {
+local gate_reduction_rules = {
   reduce = function(self, board, x, y, include_next_gates)
     include_next_gates = include_next_gates or false
     local y1 = y + 1
