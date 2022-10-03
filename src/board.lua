@@ -195,8 +195,8 @@ board = {
         local left_gate = self:gate_at(x_left, y)
         local right_gate = self:gate_at(x_right, y)
 
-        left_gate:start_swap_with_right(x_right)
-        right_gate:start_swap_with_left(x_left)
+        left_gate:swap_with_right(x_right)
+        right_gate:swap_with_left(x_left)
 
         return true
       end,

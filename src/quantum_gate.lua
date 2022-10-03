@@ -92,7 +92,7 @@ function quantum_gate:is_match()
 end
 
 function quantum_gate:update()
-  if (self.type == "?") then
+  if self.type == "?" then
     return
   end
 
@@ -100,17 +100,17 @@ function quantum_gate:update()
     if self.tick_swap < quantum_gate._num_frames_swap then
       self.tick_swap = self.tick_swap + 1
     else
-      self:_change_state("swap_finished")
+      self.state = "swap_finished"
     end
   elseif self:is_swap_finished() then
-    self:_change_state("idle")
+    self.state = "idle"
   elseif self:is_dropping() then
     if self.start_screen_y + self.dy == self.stop_screen_y then
-      self:_change_state("dropped")
+      self.state = "dropped"
     end
   elseif self:is_dropped() then
     self.dy = 0
-    self:_change_state("idle")
+    self.state = "idle"
   elseif self:is_match() then
     if self.tick_match == nil then
       self.tick_match = 0
@@ -119,16 +119,16 @@ function quantum_gate:update()
     else
       self.tick_match = nil
       self.type = self.reduce_to.type
-      self:_change_state("idle")
+      self.state = "idle"
     end
   end
 end
 
 function quantum_gate:draw(screen_x, screen_y)
-  if (self:is_i()) then
+  if self:is_i() then
     return
   end
-  if (self.type == "?") then
+  if self.type == "?" then
     return
   end
 
@@ -139,7 +139,7 @@ function quantum_gate:draw(screen_x, screen_y)
     dx = -self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
   elseif self.state == "dropping" then
     self.dy = self.dy + quantum_gate._dy
-    if (screen_y + self.dy > self.stop_screen_y) then
+    if screen_y + self.dy > self.stop_screen_y then
       self.dy = self.stop_screen_y - screen_y
     end
   end
@@ -212,31 +212,26 @@ end
 
 function quantum_gate:replace_with(other)
   self.reduce_to = other
-  self:_change_state("match")
-end
-
--- TODO: いらないので self.state = new_state で書き直す
-function quantum_gate:_change_state(new_state)
-  self.state = new_state
+  self.state = "match"
 end
 
 function quantum_gate:swap_with_right(swap_new_x)
   self.tick_swap = 0
   self.swap_new_x = swap_new_x
-  self:_change_state("swapping_with_right")
+  self.state = "swapping_with_right"
 end
 
 function quantum_gate:swap_with_left(swap_new_x)
   self.tick_swap = 0
   self.swap_new_x = swap_new_x
-  self:_change_state("swapping_with_left")
+  self.state = "swapping_with_left"
 end
 
 function quantum_gate:drop(start_screen_y, stop_screen_y)
   self.dy = 0
   self.start_screen_y = start_screen_y
   self.stop_screen_y = stop_screen_y
-  self:_change_state("dropping")
+  self.state = "dropping"
 end
 
 return quantum_gate
