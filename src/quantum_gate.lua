@@ -72,7 +72,7 @@ function quantum_gate:is_idle()
 end
 
 function quantum_gate:is_busy()
-  return not (self:is_idle() or self:is_dropped())
+  return not (self:is_i() or self:is_idle() or self:is_dropped())
 end
 
 function quantum_gate:is_swapping()
@@ -104,8 +104,11 @@ function quantum_gate:is_match()
 end
 
 function quantum_gate:is_reducible()
-  return self:is_garbage_gate() or
-      ((not self:is_i()) and (not self:is_busy()))
+  return self:is_garbage_gate() or (not self:is_busy())
+end
+
+function quantum_gate:is_droppable()
+  return not (self:is_i() or self:is_dropping() or self:is_swapping())
 end
 
 function quantum_gate:update()

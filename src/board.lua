@@ -4,12 +4,6 @@ local quantum_gate = require("quantum_gate")
 local gate_reduction_rules = require("gate_reduction_rules")
 local garbage_gate = require("garbage_gate")
 
--- gate states
-
-function is_droppable(gate)
-  return not (gate:is_i() or gate:is_dropping() or gate:is_swapping())
-end
-
 board = {
   default_cols = 6,
   default_rows = 12,
@@ -75,10 +69,10 @@ board = {
             if (gate.type == "?") then
               goto next
             end
-            if (gate.type == "g") then
+            if gate:is_garbage_gate() then
               goto next
             end
-            if (not is_droppable(gate)) then
+            if not gate:is_droppable() then
               goto next
             end
 
