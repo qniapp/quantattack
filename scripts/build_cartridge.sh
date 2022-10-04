@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Configuration
-picoboots_src_path="$(dirname "$0")/pico-boots/src"
-picoboots_scripts_path="$(dirname "$0")/pico-boots/scripts"
+picoboots_src_path="$(dirname "$0")/../pico-boots/src"
+picoboots_scripts_path="$(dirname "$0")/../pico-boots/scripts"
 
 help() {
   echo "Build .p8 file from a main source file with picotool.
