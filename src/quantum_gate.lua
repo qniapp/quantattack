@@ -12,14 +12,14 @@ quantum_gate.size = 8
 
 quantum_gate._num_frames_swap = 2
 quantum_gate._num_frames_match = 45
-quantum_gate.dy = 2
+quantum_gate._dy = 2 -- ゲートの落下速度
 quantum_gate._state_swapping_with_left = "swapping_with_left"
 quantum_gate._state_swapping_with_right = "swapping_with_right"
 quantum_gate._state_swap_finished = "swap_finished"
 
 function quantum_gate:_init(type)
   self.type = type
-  self.state = "idle"
+  self._state = "idle"
   self._distance_dropped = 0 -- ゲートが落下した距離
 end
 
@@ -76,7 +76,7 @@ end
 -- gate state
 
 function quantum_gate:is_idle()
-  return self.state == "idle"
+  return self._state == "idle"
 end
 
 function quantum_gate:is_busy()
@@ -84,7 +84,7 @@ function quantum_gate:is_busy()
 end
 
 function quantum_gate:is_match()
-  return self.state == "match"
+  return self._state == "match"
 end
 
 function quantum_gate:is_reducible()
@@ -100,21 +100,21 @@ function quantum_gate:update()
     if self.tick_swap < quantum_gate._num_frames_swap then
       self.tick_swap = self.tick_swap + 1
     else
-      self.state = quantum_gate._state_swap_finished
+      self._state = quantum_gate._state_swap_finished
     end
   elseif self:is_swap_finished() then
-    self.state = "idle"
+    self._state = "idle"
   elseif self:is_dropping() then
     local max_drop_distance = (self.stop_y - self.start_y) * quantum_gate.size
 
-    self._distance_dropped = self._distance_dropped + quantum_gate.dy
+    self._distance_dropped = self._distance_dropped + quantum_gate._dy
     if self._distance_dropped >= max_drop_distance then
       self._distance_dropped = max_drop_distance
-      self.state = "dropped"
+      self._state = "dropped"
     end
   elseif self:is_dropped() then
     self._distance_dropped = 0
-    self.state = "idle"
+    self._state = "idle"
   elseif self:is_match() then
     if self.tick_match == nil then
       self.tick_match = 0
@@ -123,7 +123,7 @@ function quantum_gate:update()
     else
       self.tick_match = nil
       self.type = self.reduce_to.type
-      self.state = "idle"
+      self._state = "idle"
     end
   end
 end
@@ -205,13 +205,13 @@ function quantum_gate:_sprite()
       return sprites.match_middle
     end
   else
-    assert(false, "unknown state: " .. self.state)
+    assert(false, "unknown state: " .. self._state)
   end
 end
 
 function quantum_gate:replace_with(other)
   self.reduce_to = other
-  self.state = "match"
+  self._state = "match"
 end
 
 -------------------------------------------------------------------------------
@@ -234,15 +234,15 @@ function quantum_gate:drop(start_y, stop_y)
   self._distance_dropped = 0
   self.start_y = start_y
   self.stop_y = stop_y
-  self.state = "dropping"
+  self._state = "dropping"
 end
 
 function quantum_gate:is_dropping()
-  return self.state == "dropping"
+  return self._state == "dropping"
 end
 
 function quantum_gate:is_dropped()
-  return self.state == "dropped"
+  return self._state == "dropped"
 end
 
 -------------------------------------------------------------------------------
@@ -258,7 +258,7 @@ function quantum_gate:is_swapping()
 end
 
 function quantum_gate:is_swap_finished()
-  return self.state == quantum_gate._state_swap_finished
+  return self._state == quantum_gate._state_swap_finished
 end
 
 function quantum_gate:swap_with_right(new_x)
@@ -268,7 +268,7 @@ function quantum_gate:swap_with_right(new_x)
 
   self.tick_swap = 0
   self.new_x_after_swap = new_x
-  self.state = quantum_gate._state_swapping_with_right
+  self._state = quantum_gate._state_swapping_with_right
 end
 
 function quantum_gate:swap_with_left(new_x)
@@ -278,17 +278,17 @@ function quantum_gate:swap_with_left(new_x)
 
   self.tick_swap = 0
   self.new_x_after_swap = new_x
-  self.state = quantum_gate._state_swapping_with_left
+  self._state = quantum_gate._state_swapping_with_left
 end
 
 -- private
 
 function quantum_gate:_is_swapping_with_right()
-  return self.state == quantum_gate._state_swapping_with_right
+  return self._state == quantum_gate._state_swapping_with_right
 end
 
 function quantum_gate:_is_swapping_with_left()
-  return self.state == quantum_gate._state_swapping_with_left
+  return self._state == quantum_gate._state_swapping_with_left
 end
 
 return quantum_gate

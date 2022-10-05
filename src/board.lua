@@ -263,7 +263,7 @@ function board:put(x, y, gate)
   self._gates[x][y] = gate
 end
 
-function board:put_garbate()
+function board:put_garbage()
   local width = flr(rnd(4)) + 3
 
   add(self._falling_garbages, garbage_gate(width, self))

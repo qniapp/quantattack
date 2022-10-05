@@ -21,9 +21,10 @@ function h_gate:_tostring()
   if self:is_idle() then
     return "H"
   else
-    return "H".." ("..self.state..")"
+    return "H" .. " (" .. self._state .. ")"
   end
 end
+
 --#endif
 
 return h_gate

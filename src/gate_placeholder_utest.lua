@@ -90,10 +90,6 @@ describe('gate_placeholder', function()
   end)
 
   describe("state", function()
-    it("should return 'idle'", function()
-      assert.are.equals('idle', gate_placeholder.state)
-    end)
-
     describe("is_idle", function()
       it("should return true", function()
         assert.is_true(gate_placeholder:is_idle())

@@ -84,10 +84,6 @@ describe('i_gate', function()
   end)
 
   describe("state", function()
-    it("should return 'idle'", function()
-      assert.are.equals('idle', i_gate.state)
-    end)
-
     describe("is_idle", function()
       it("should return true", function()
         assert.is_true(i_gate:is_idle())

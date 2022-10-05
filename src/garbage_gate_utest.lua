@@ -98,7 +98,7 @@ describe('garbage_gate', function()
     end)
 
     it("should return 'fall'", function()
-      assert.are.equals('fall', garbage_gate.state)
+      assert.is_true(garbage_gate:is_fall())
     end)
 
     describe("is_idle", function()

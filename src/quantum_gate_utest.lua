@@ -31,7 +31,7 @@ describe('quantum_gate', function()
     end)
 
     it('should return true if the state is swap_finished', function()
-      gate.state = 'swap_finished'
+      gate._state = 'swap_finished'
 
       assert.is_true(gate:is_swappable())
     end)

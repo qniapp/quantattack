@@ -13,7 +13,7 @@ function garbage_gate:_init(width, board)
 
   quantum_gate._init(self, 'g')
   self.width = width
-  self.state = "fall"
+  self._state = "fall"
   self.x = random_x
   self.y = start_y
   self.stop_y = stop_y
@@ -41,7 +41,7 @@ function garbage_gate:_update_y()
 end
 
 function garbage_gate:_update_state()
-  if self.state ~= "bounce" then
+  if self._state ~= "bounce" then
     if self._dy < 0.1 then
       self:_change_state("bounce")
       self._dy = -7
@@ -53,7 +53,7 @@ function garbage_gate:_update_state()
       end
       self._dy = self._dy * 0.2
 
-      if (self.state == "fall") then
+      if (self._state == "fall") then
         self:_change_state("hit gate")
         sfx(1)
       else
@@ -75,29 +75,29 @@ function garbage_gate:_update_state()
 end
 
 function garbage_gate:_update_dy()
-  if (self.state ~= "bounce") then
+  if (self._state ~= "bounce") then
     return
   end
   self._dy = self._dy + self._ddy
 end
 
 function garbage_gate:effect_dy()
-  if self.state == "sink" or self.state == "bounce" then
+  if self._state == "sink" or self._state == "bounce" then
     return self.y - self.stop_y
   else
     return 0
   end
 end
 
--- いらないので self.state = new_state とベタに書く
+-- いらないので self._state = new_state とベタに書く
 function garbage_gate:_change_state(new_state)
-  self.state = new_state
+  self._state = new_state
 end
 
 -- TODO: state == "drop" との違いは？
 -- もし違いがなければ、quantum_gate:is_dropping() に置き換える
 function garbage_gate:is_fall()
-  return self.state == "fall"
+  return self._state == "fall"
 end
 
 function garbage_gate:draw(screen_x, screen_y)
@@ -112,7 +112,7 @@ function garbage_gate:draw(screen_x, screen_y)
 
     if screen_y then
       spr(spr_id, screen_x + x * quantum_gate.size, screen_y)
-    elseif self.state == "fall" then
+    elseif self._state == "fall" then
       spr(spr_id, screen_x + x * quantum_gate.size, self.y)
     end
   end
