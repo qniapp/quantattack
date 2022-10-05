@@ -126,12 +126,6 @@ describe('x_gate', function()
     end)
   end)
 
-  describe("dy", function()
-    it("should return 0", function()
-      assert.are.equals(0, x_gate.dy)
-    end)
-  end)
-
   describe("stringify", function()
     it("should return 'X'", function()
       assert.are.equals("X", stringify(x_gate))

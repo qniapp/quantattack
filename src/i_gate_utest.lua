@@ -131,12 +131,6 @@ describe('i_gate', function()
     end)
   end)
 
-  describe("dy", function()
-    it("should return 0", function()
-      assert.are.equals(0, i_gate.dy)
-    end)
-  end)
-
   describe("stringify", function()
     it("should return '_'", function()
       assert.are.equals("_", stringify(i_gate))

@@ -131,12 +131,6 @@ describe('gate_placeholder', function()
     end)
   end)
 
-  describe("dy", function()
-    it("should return 0", function()
-      assert.are.equals(0, gate_placeholder.dy)
-    end)
-  end)
-
   describe("stringify", function()
     it("should return '?'", function()
       assert.are.equals('?', stringify(gate_placeholder))

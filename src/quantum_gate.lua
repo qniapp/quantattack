@@ -12,7 +12,7 @@ quantum_gate.size = 8
 
 quantum_gate._num_frames_swap = 2
 quantum_gate._num_frames_match = 45
-quantum_gate.ddy = 2
+quantum_gate.dy = 2
 quantum_gate._state_swapping_with_left = "swapping_with_left"
 quantum_gate._state_swapping_with_right = "swapping_with_right"
 quantum_gate._state_swap_finished = "swap_finished"
@@ -20,7 +20,7 @@ quantum_gate._state_swap_finished = "swap_finished"
 function quantum_gate:_init(type)
   self.type = type
   self.state = "idle"
-  self.dy = 0
+  self._distance_dropped = 0 -- ゲートが落下した距離
 end
 
 -- gate type
@@ -105,15 +105,15 @@ function quantum_gate:update()
   elseif self:is_swap_finished() then
     self.state = "idle"
   elseif self:is_dropping() then
-    local drop_distance = (self.stop_y - self.start_y) * quantum_gate.size
+    local max_drop_distance = (self.stop_y - self.start_y) * quantum_gate.size
 
-    self.dy = self.dy + quantum_gate.ddy
-    if self.dy >= drop_distance then
-      self.dy = drop_distance
+    self._distance_dropped = self._distance_dropped + quantum_gate.dy
+    if self._distance_dropped >= max_drop_distance then
+      self._distance_dropped = max_drop_distance
       self.state = "dropped"
     end
   elseif self:is_dropped() then
-    self.dy = 0
+    self._distance_dropped = 0
     self.state = "idle"
   elseif self:is_match() then
     if self.tick_match == nil then
@@ -143,7 +143,7 @@ function quantum_gate:render(screen_x, screen_y)
     dx = -self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
   end
 
-  spr(self:_sprite(), screen_x + dx, screen_y + self.dy)
+  spr(self:_sprite(), screen_x + dx, screen_y + self._distance_dropped)
 end
 
 function quantum_gate:_sprite()
@@ -231,7 +231,7 @@ function quantum_gate:drop(start_y, stop_y)
   assert(start_y < stop_y)
   --#endif
 
-  self.dy = 0
+  self._distance_dropped = 0
   self.start_y = start_y
   self.stop_y = stop_y
   self.state = "dropping"
