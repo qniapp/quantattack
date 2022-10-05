@@ -48,7 +48,7 @@ function player_cursor:update()
   self._tick = self._tick % (player_cursor.animation_frame_count * 2)
 end
 
-function player_cursor:draw(board)
+function player_cursor:render(board)
   local x = board:screen_x(self.x)
   local y = board:screen_y(self.y)
   local dy = board:dy()

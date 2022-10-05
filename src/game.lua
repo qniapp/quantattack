@@ -69,7 +69,7 @@ end
 function game:on_render() -- override
   cls()
   board:draw()
-  player_cursor:draw(board)
+  player_cursor:render(board)
 end
 
 return game
