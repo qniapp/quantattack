@@ -53,7 +53,7 @@ describe('player_cursor', function()
 
   describe("render", function()
     it("should render without errors", function()
-      assert.has_no.errors(function() player_cursor:render(board_class:new()) end)
+      assert.has_no.errors(function() player_cursor:render(board_class()) end)
     end)
   end)
 end)

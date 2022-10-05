@@ -7,7 +7,7 @@ describe('garbage_gate', function()
   local board
 
   before_each(function()
-    board = board_class:new()
+    board = board_class()
   end)
 
   describe("gate type", function()

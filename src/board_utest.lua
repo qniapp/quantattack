@@ -1,4 +1,5 @@
 require("engine/test/bustedhelper")
+require("engine/debug/dump")
 
 local board_class = require("board")
 local h_gate = require("h_gate")
@@ -16,10 +17,10 @@ describe('board', function()
     local board
 
     before_each(function()
-      board = board_class:new()
+      board = board_class()
     end)
 
-    it('should reduce HH', function()
+    it('should reduce HH #solo', function()
       board:put(1, 11, h_gate())
       board:put(1, 12, h_gate())
 
@@ -285,7 +286,7 @@ describe('board', function()
     local board
 
     before_each(function()
-      board = board_class:new()
+      board = board_class()
     end)
 
     it('should drop gates', function()

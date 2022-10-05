@@ -10,7 +10,7 @@ describe('gate_reduction_rules', function()
     local board
 
     before_each(function()
-      board = board_class:new()
+      board = board_class()
     end)
 
     -- reduce -> H          I
