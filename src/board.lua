@@ -144,7 +144,7 @@ board = {
 
             local screen_x = self:screen_x(x)
             local screen_y = self:screen_y(y) + self:dy()
-            gate:draw(screen_x, screen_y)
+            gate:render(screen_x, screen_y)
 
             ::next::
           end
@@ -152,7 +152,7 @@ board = {
 
         -- draw falling garbage unitaries
         foreach(self._falling_garbages, function(each)
-          each:draw(self:screen_x(each.x))
+          each:render(self:screen_x(each.x))
         end)
 
         -- border left

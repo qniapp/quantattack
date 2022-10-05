@@ -18,10 +18,12 @@ describe('quantum_gate', function()
     assert.has_no.errors(function() gate:update() end)
   end)
 
-  it('should draw', function()
-    local gate = quantum_gate('h')
+  describe('render', function()
+    it('should render without errors', function()
+      local gate = quantum_gate('h')
 
-    assert.has_no.errors(function() gate:draw(0, 0) end)
+      assert.has_no.errors(function() gate:render(0, 0) end)
+    end)
   end)
 
   it('should replace with other gate', function()

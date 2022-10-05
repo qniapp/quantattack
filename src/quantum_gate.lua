@@ -148,7 +148,7 @@ function quantum_gate:update()
   end
 end
 
-function quantum_gate:draw(screen_x, screen_y)
+function quantum_gate:render(screen_x, screen_y)
   if self:is_i() then
     return
   end
