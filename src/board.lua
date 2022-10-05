@@ -182,7 +182,7 @@ function board:draw()
     colors.black)
 end
 
-function board:swap()
+function board:swap(x_left, x_right, y)
   -- if not self:is_swappable(x_left, x_right, y) then
   --   return false
   -- end

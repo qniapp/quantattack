@@ -5,7 +5,7 @@ local gameapp = require("engine/application/gameapp")
 local board_class = require("board")
 local player_cursor_class = require("player_cursor")
 local game = derived_class(gameapp)
-local board = board_class:new()
+local board = board_class()
 local player_cursor = player_cursor_class(board.cols, board.rows)
 
 local solo = require("solo")
@@ -24,7 +24,7 @@ function game:_init()
 end
 
 function game.instantiate_gamestates() -- override
-  return {solo()}
+  return { solo() }
 end
 
 function game.on_post_start() -- override
