@@ -2,14 +2,21 @@ require("engine/core/class")
 
 local quantum_gate = new_class()
 
+-------------------------------------------------------------------------------
+-- class constants
+-------------------------------------------------------------------------------
+
 quantum_gate.size = 8
+
+-- private
+
 quantum_gate._types = { "h", "x", "y", "z", "s", "t" }
 quantum_gate._num_frames_swap = 2
 quantum_gate._num_frames_match = 45
 quantum_gate._dy = 2
-quantum_gate.state_swapping_with_left = "swapping_with_left"
-quantum_gate.state_swapping_with_right = "swapping_with_right"
-quantum_gate.state_swap_finished = "swap_finished"
+quantum_gate._state_swapping_with_left = "swapping_with_left"
+quantum_gate._state_swapping_with_right = "swapping_with_right"
+quantum_gate._state_swap_finished = "swap_finished"
 
 quantum_gate.random_single_gate = function()
   local type = quantum_gate._types[flr(rnd(#quantum_gate._types)) + 1]
@@ -111,7 +118,7 @@ function quantum_gate:update()
     if self.tick_swap < quantum_gate._num_frames_swap then
       self.tick_swap = self.tick_swap + 1
     else
-      self.state = quantum_gate.state_swap_finished
+      self.state = quantum_gate._state_swap_finished
     end
   elseif self:is_swap_finished() then
     self.state = "idle"
@@ -246,7 +253,7 @@ function quantum_gate:is_swapping()
 end
 
 function quantum_gate:is_swap_finished()
-  return self.state == quantum_gate.state_swap_finished
+  return self.state == quantum_gate._state_swap_finished
 end
 
 function quantum_gate:swap_with_right(new_x)
@@ -256,7 +263,7 @@ function quantum_gate:swap_with_right(new_x)
 
   self.tick_swap = 0
   self.new_x_after_swap = new_x
-  self.state = quantum_gate.state_swapping_with_right
+  self.state = quantum_gate._state_swapping_with_right
 end
 
 function quantum_gate:swap_with_left(new_x)
@@ -266,17 +273,17 @@ function quantum_gate:swap_with_left(new_x)
 
   self.tick_swap = 0
   self.new_x_after_swap = new_x
-  self.state = quantum_gate.state_swapping_with_left
+  self.state = quantum_gate._state_swapping_with_left
 end
 
 -- private
 
 function quantum_gate:_is_swapping_with_right()
-  return self.state == quantum_gate.state_swapping_with_right
+  return self.state == quantum_gate._state_swapping_with_right
 end
 
 function quantum_gate:_is_swapping_with_left()
-  return self.state == quantum_gate.state_swapping_with_left
+  return self.state == quantum_gate._state_swapping_with_left
 end
 
 return quantum_gate
