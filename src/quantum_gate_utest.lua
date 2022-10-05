@@ -80,6 +80,14 @@ describe('quantum_gate', function()
     end)
   end)
 
+  describe('drop', function()
+    it('should drop the gate without errors', function()
+      local gate = quantum_gate('h')
+
+      assert.has_no.errors(function() gate:drop() end)
+    end)
+  end)
+
   it('should replace with other gate', function()
     local gate = quantum_gate('h')
     local other_gate = quantum_gate('x')

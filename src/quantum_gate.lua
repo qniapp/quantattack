@@ -12,7 +12,7 @@ quantum_gate.size = 8
 
 quantum_gate._num_frames_swap = 2
 quantum_gate._num_frames_match = 45
-quantum_gate._dy = 2
+quantum_gate.ddy = 2
 quantum_gate._state_swapping_with_left = "swapping_with_left"
 quantum_gate._state_swapping_with_right = "swapping_with_right"
 quantum_gate._state_swap_finished = "swap_finished"
@@ -83,24 +83,12 @@ function quantum_gate:is_busy()
   return not (self:is_i() or self:is_idle() or self:is_dropped())
 end
 
-function quantum_gate:is_dropping()
-  return self.state == "dropping"
-end
-
-function quantum_gate:is_dropped()
-  return self.state == "dropped"
-end
-
 function quantum_gate:is_match()
   return self.state == "match"
 end
 
 function quantum_gate:is_reducible()
   return self:is_garbage() or (not self:is_busy())
-end
-
-function quantum_gate:is_droppable()
-  return not (self:is_i() or self:is_dropping() or self:is_swapping())
 end
 
 function quantum_gate:update()
@@ -117,7 +105,11 @@ function quantum_gate:update()
   elseif self:is_swap_finished() then
     self.state = "idle"
   elseif self:is_dropping() then
-    if self.start_screen_y + self.dy == self.stop_screen_y then
+    local drop_distance = (self.stop_y - self.start_y) * quantum_gate.size
+
+    self.dy = self.dy + quantum_gate.ddy
+    if self.dy >= drop_distance then
+      self.dy = drop_distance
       self.state = "dropped"
     end
   elseif self:is_dropped() then
@@ -149,11 +141,6 @@ function quantum_gate:render(screen_x, screen_y)
     dx = self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
   elseif self:_is_swapping_with_left() then
     dx = -self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
-  elseif self:is_dropping() then
-    self.dy = self.dy + quantum_gate._dy
-    if screen_y + self.dy > self.stop_screen_y then
-      self.dy = self.stop_screen_y - screen_y
-    end
   end
 
   spr(self:_sprite(), screen_x + dx, screen_y + self.dy)
@@ -227,11 +214,27 @@ function quantum_gate:replace_with(other)
   self.state = "match"
 end
 
-function quantum_gate:drop(start_screen_y, stop_screen_y)
+-------------------------------------------------------------------------------
+-- drop
+-------------------------------------------------------------------------------
+
+function quantum_gate:is_droppable()
+  return not (self:is_i() or self:is_dropping() or self:is_swapping())
+end
+
+function quantum_gate:drop(start_y, stop_y)
   self.dy = 0
-  self.start_screen_y = start_screen_y
-  self.stop_screen_y = stop_screen_y
+  self.start_y = start_y
+  self.stop_y = stop_y
   self.state = "dropping"
+end
+
+function quantum_gate:is_dropping()
+  return self.state == "dropping"
+end
+
+function quantum_gate:is_dropped()
+  return self.state == "dropped"
 end
 
 -------------------------------------------------------------------------------
