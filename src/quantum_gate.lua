@@ -223,6 +223,14 @@ function quantum_gate:is_droppable()
 end
 
 function quantum_gate:drop(start_y, stop_y)
+  --#if assert
+  assert(1 <= start_y)
+  assert(start_y <= 12) -- todo: board の定数を持ってくる
+  assert(2 <= stop_y)
+  assert(stop_y <= 13) -- todo: board の定数を持ってくる
+  assert(start_y < stop_y)
+  --#endif
+
   self.dy = 0
   self.start_y = start_y
   self.stop_y = stop_y
