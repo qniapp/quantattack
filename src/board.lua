@@ -3,6 +3,7 @@ require("engine/core/class")
 local quantum_gate = require("quantum_gate")
 local gate_reduction_rules = require("gate_reduction_rules")
 local garbage_gate = require("garbage_gate")
+local gate_placeholder = require("gate_placeholder")
 
 board = {
   default_cols = 6,
@@ -79,7 +80,7 @@ board = {
                 stop_y = stop_y + 1
               end
               gate:drop(self:screen_y(y), self:screen_y(stop_y))
-              self:put(x, stop_y, quantum_gate("?"))
+              self:put(x, stop_y, gate_placeholder())
             end
 
             ::next::
@@ -105,7 +106,7 @@ board = {
         for x = 1, self.cols do
           for y = self.rows, 1, -1 do
             local gate = self:gate_at(x, y)
-            if (gate.type == "?") then
+            if gate:is_placeholder() then
               goto next
             end
 
