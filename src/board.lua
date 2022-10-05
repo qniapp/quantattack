@@ -1,9 +1,11 @@
 require("engine/core/class")
+require("engine/debug/dump")
 
-local quantum_gate = require("quantum_gate")
-local gate_reduction_rules = require("gate_reduction_rules")
 local garbage_gate = require("garbage_gate")
 local gate_placeholder = require("gate_placeholder")
+local gate_reduction_rules = require("gate_reduction_rules")
+local i_gate = require("i_gate")
+local quantum_gate = require("quantum_gate")
 
 board = {
   default_cols = 6,
@@ -13,7 +15,7 @@ board = {
     local board = {
       cols = board.default_cols,
       rows = board.default_rows,
-      row_next_gates = 13,
+      row_next_gates = board.default_rows + 1,
       _gates = {},
       _falling_garbages = {},
       _offset_x = 10,
@@ -28,7 +30,7 @@ board = {
                 self:put(x, y, quantum_gate:random_single_gate())
               until #gate_reduction_rules:reduce(self, x, y, true).to == 0
             else
-              self:put(x, y, quantum_gate("i"))
+              self:put(x, y, i_gate())
             end
           end
         end
@@ -36,7 +38,7 @@ board = {
 
       update = function(self)
         self:reduce()
-        self:_drop_gates()
+        self:drop_gates()
         self:_update_falling_garbages()
         self:_update_gates()
       end,
@@ -53,7 +55,7 @@ board = {
             for _index, r in pairs(reduction.to) do
               local dx = r.dx or 0
               local dy = r.dy or 0
-              local gate = r.gate or quantum_gate("i")
+              local gate = r.gate or i_gate()
 
               self:gate_at(x + dx, y + dy):replace_with(gate)
             end
@@ -63,7 +65,7 @@ board = {
         end
       end,
 
-      _drop_gates = function(self)
+      drop_gates = function(self)
         for x = 1, self.cols do
           for y = self.rows - 1, 1, -1 do
             local gate = self:gate_at(x, y)
@@ -76,7 +78,9 @@ board = {
 
             if self:gate_at(x, y + 1):is_i() then
               local stop_y = y
-              while self:gate_at(x, stop_y + 1):is_i() or self:gate_at(x, stop_y + 1):is_dropping() do
+              while stop_y < self.row_next_gates and
+                  (self:gate_at(x, stop_y + 1):is_i() or
+                      self:gate_at(x, stop_y + 1):is_dropping()) do
                 stop_y = stop_y + 1
               end
               gate:drop(self:screen_y(y), self:screen_y(stop_y))
@@ -117,7 +121,7 @@ board = {
             end
             if gate:is_dropped() then
               self:put(x, self:y(gate.stop_screen_y), gate)
-              self:put(x, self:y(gate.start_screen_y), quantum_gate("i"))
+              self:put(x, self:y(gate.start_screen_y), i_gate())
             end
 
             ::next::
@@ -203,7 +207,20 @@ board = {
       end,
 
       gate_at = function(self, x, y)
-        return self._gates[x][y]
+        --#if assert
+        assert(x >= 1)
+        assert(x <= self.cols)
+        assert(y >= 1)
+        assert(y <= self.row_next_gates)
+        --#endif
+
+        local gate = self._gates[x][y]
+
+        --#if assert
+        assert(gate)
+        --#endif
+
+        return gate
       end,
 
       reducible_gate_at = function(self, x, y)
@@ -212,7 +229,7 @@ board = {
         if gate:is_reducible() then
           return gate
         end
-        return quantum_gate("i")
+        return i_gate()
       end,
 
       put = function(self, x, y, gate)
@@ -250,17 +267,28 @@ board = {
         end
         return 1
       end,
+
+      _tostring = function(self)
+         local str = ''
+
+         for y = 1, self.row_next_gates do
+            for x = 1, self.cols do
+               str = str..stringify(self:gate_at(x, y)).." "
+            end
+            str = str.."\n"
+         end
+
+         return str
+      end,
     }
 
     -- initialize the board
     for x = 1, board.cols do
       board._gates[x] = {}
       for y = 1, board.row_next_gates do
-        board._gates[x][y] = quantum_gate("i")
+        board:put(x, y, i_gate())
       end
     end
-
-    -- board:initialize_with_random_gates()
 
     return board
   end

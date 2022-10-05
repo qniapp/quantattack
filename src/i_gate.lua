@@ -7,4 +7,10 @@ function i_gate:_init()
   quantum_gate._init(self, 'i')
 end
 
+--#if debug
+function i_gate:_tostring()
+  return "_"
+end
+--#endif
+
 return i_gate

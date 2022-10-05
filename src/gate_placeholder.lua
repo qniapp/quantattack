@@ -7,4 +7,10 @@ function gate_placeholder:_init()
   quantum_gate._init(self, '?')
 end
 
+--#if debug
+function gate_placeholder:_tostring()
+  return "?"
+end
+--#endif
+
 return gate_placeholder

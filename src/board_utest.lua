@@ -280,4 +280,21 @@ describe('board', function()
       assert.are.equals('i', board:gate_at(3, 12).reduce_to.type)
     end)
   end)
+
+  describe('drop_gates', function()
+    local board
+
+    before_each(function()
+      board = board_class:new()
+    end)
+
+    it('should drop gates', function()
+      board:put(1, 1, h_gate())
+
+      board:drop_gates()
+
+      assert.is_true(board:gate_at(1, 1):is_dropping())
+      assert.is_true(board:gate_at(1, 13):is_placeholder())
+    end)
+  end)
 end)

@@ -16,4 +16,10 @@ function h_gate:_init()
   }
 end
 
+--#if debug
+function h_gate:_tostring()
+  return "H"
+end
+--#endif
+
 return h_gate

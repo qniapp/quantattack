@@ -1,4 +1,5 @@
 require("engine/test/bustedhelper")
+require("engine/debug/dump")
 
 local h_gate_class = require("h_gate")
 
@@ -128,6 +129,12 @@ describe('h_gate', function()
   describe("dy", function()
     it("should return 0", function()
       assert.are.equals(0, h_gate.dy)
+    end)
+  end)
+
+  describe("stringify", function()
+    it("should return 'H'", function()
+      assert.are.equals("H", stringify(h_gate))
     end)
   end)
 end)

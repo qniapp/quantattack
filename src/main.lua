@@ -8,6 +8,7 @@ local game_class = require("game")
 local game = game_class()
 
 function _init()
+  game.initial_gamestate = ':solo'
   game:start()
 end
 

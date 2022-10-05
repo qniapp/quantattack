@@ -8,6 +8,8 @@ local game = derived_class(gameapp)
 local board = board_class:new()
 local player_cursor = player_cursor_class(board.cols, board.rows)
 
+local solo = require("solo")
+
 game.button = {
   left = 0,
   right = 1,
@@ -19,6 +21,10 @@ game.button = {
 
 function game:_init()
   gameapp._init(self, fps60)
+end
+
+function game.instantiate_gamestates() -- override
+  return {solo()}
 end
 
 function game.on_post_start() -- override
