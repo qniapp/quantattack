@@ -116,7 +116,7 @@ function quantum_gate:is_droppable()
 end
 
 function quantum_gate:update()
-  if self.type == "?" then
+  if self:is_placeholder() then
     return
   end
 
@@ -152,7 +152,7 @@ function quantum_gate:render(screen_x, screen_y)
   if self:is_i() then
     return
   end
-  if self.type == "?" then
+  if self:is_placeholder() then
     return
   end
 
