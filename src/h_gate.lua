@@ -18,7 +18,11 @@ end
 
 --#if debug
 function h_gate:_tostring()
-  return "H"
+  if self:is_idle() then
+    return "H"
+  else
+    return "H".." ("..self.state..")"
+  end
 end
 --#endif
 

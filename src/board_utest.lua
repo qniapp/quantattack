@@ -13,14 +13,53 @@ local control_gate = require("control_gate")
 local cnot_x_gate = require("cnot_x_gate")
 
 describe('board', function()
-  describe('reduce', function()
-    local board
+  local board
 
-    before_each(function()
-      board = board_class()
+  before_each(function()
+    board = board_class()
+  end)
+
+  describe('swap', function()
+    it('should swap gates next to each other', function()
+      board:put(1, 12, h_gate())
+      board:put(2, 12, x_gate())
+
+      local swapped = board:swap(1, 2, 12)
+
+      assert.is_true(swapped)
+      assert.is_true(board:gate_at(1, 12):is_h())
+      assert.is_true(board:gate_at(2, 12):is_x())
+      assert.is_true(board:gate_at(1, 12):is_swapping_with_right())
+      assert.is_true(board:gate_at(2, 12):is_swapping_with_left())
     end)
 
-    it('should reduce HH #solo', function()
+    it('should not swap gates if the left gate is in swap', function()
+      board:put(2, 12, h_gate())
+      board:gate_at(2, 12):swap_with_left(1)
+      board:put(3, 12, x_gate())
+
+      local swapped = board:swap(2, 3, 12)
+
+      assert.is_false(swapped)
+      assert.is_true(board:gate_at(3, 12):is_x())
+      assert.is_true(board:gate_at(3, 12):is_idle())
+    end)
+
+    it('should not swap gates if the right gate is in swap', function()
+      board:put(1, 12, h_gate())
+      board:put(2, 12, x_gate())
+      board:gate_at(2, 12):swap_with_right(3)
+
+      local swapped = board:swap(1, 2, 12)
+
+      assert.is_false(swapped)
+      assert.is_true(board:gate_at(1, 12):is_h())
+      assert.is_true(board:gate_at(1, 12):is_idle())
+    end)
+  end)
+
+  describe('reduce', function()
+    it('should reduce HH', function()
       board:put(1, 11, h_gate())
       board:put(1, 12, h_gate())
 
@@ -283,12 +322,6 @@ describe('board', function()
   end)
 
   describe('drop_gates', function()
-    local board
-
-    before_each(function()
-      board = board_class()
-    end)
-
     it('should drop gates', function()
       board:put(1, 1, h_gate())
 
