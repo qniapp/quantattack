@@ -251,6 +251,10 @@ function quantum_gate:swap_with_left(swap_new_x)
   self.state = "swapping_with_left"
 end
 
+function quantum_gate:is_swappable()
+  return self.state == 'idle'
+end
+
 function quantum_gate:drop(start_screen_y, stop_screen_y)
   self.dy = 0
   self.start_screen_y = start_screen_y

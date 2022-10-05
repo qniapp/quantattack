@@ -183,12 +183,17 @@ function board:draw()
 end
 
 function board:swap(x_left, x_right, y)
-  -- if not self:is_swappable(x_left, x_right, y) then
-  --   return false
-  -- end
+  --#if assert
+  assert(x_left < x_right)
+  assert(y <= self.rows)
+  --#endif
 
   local left_gate = self:gate_at(x_left, y)
   local right_gate = self:gate_at(x_right, y)
+
+  if not (left_gate:is_swappable() and right_gate:is_swappable()) then
+    return false
+  end
 
   left_gate:swap_with_right(x_right)
   right_gate:swap_with_left(x_left)
