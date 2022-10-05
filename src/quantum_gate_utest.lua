@@ -26,6 +26,21 @@ describe('quantum_gate', function()
     end)
   end)
 
+  describe('is_swappable', function()
+    it('should return true if the gate is idle', function()
+      local gate = quantum_gate('h')
+
+      assert.is_true(gate:is_swappable())
+    end)
+
+    it('should return true if the state is swap_finished', function()
+      local gate = quantum_gate('h')
+      gate.state = 'swap_finished'
+
+      assert.is_true(gate:is_swappable())
+    end)
+  end)
+
   describe('swap_with_left', function()
     it('should swap with the left gate without errors', function()
       local gate = quantum_gate('h')
@@ -33,12 +48,12 @@ describe('quantum_gate', function()
       assert.has_no.errors(function() gate:swap_with_left(1) end)
     end)
 
-    it('should transition its state to swapping_with_left', function()
+    it('should transition its state to swapping', function()
       local gate = quantum_gate('h')
 
       gate:swap_with_left(1)
 
-      assert.is_true(gate:is_swapping_with_left())
+      assert.is_true(gate:is_swapping())
     end)
 
     it('should set new_x_after_swap', function()
@@ -57,12 +72,12 @@ describe('quantum_gate', function()
       assert.has_no.errors(function() gate:swap_with_right(2) end)
     end)
 
-    it('should transition its state to swapping_with_right', function()
+    it('should transition its state to swapping', function()
       local gate = quantum_gate('h')
 
       gate:swap_with_right(2)
 
-      assert.is_true(gate:is_swapping_with_right())
+      assert.is_true(gate:is_swapping())
     end)
 
     it('should set new_x_after_swap', function()
