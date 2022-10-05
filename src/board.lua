@@ -138,7 +138,7 @@ function board:_update_gates()
   end
 
   foreach(gates_to_swap, function(each)
-    self:put(each.gate.swap_new_x, each.y, each.gate)
+    self:put(each.gate.new_x_after_swap, each.y, each.gate)
   end)
 end
 
