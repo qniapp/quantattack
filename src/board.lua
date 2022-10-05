@@ -5,6 +5,12 @@ local garbage_gate = require("garbage_gate")
 local gate_placeholder = require("gate_placeholder")
 local gate_reduction_rules = require("gate_reduction_rules")
 local i_gate = require("i_gate")
+local h_gate = require("h_gate")
+local x_gate = require("x_gate")
+local y_gate = require("y_gate")
+local z_gate = require("z_gate")
+local s_gate = require("s_gate")
+local t_gate = require("t_gate")
 local quantum_gate = require("quantum_gate")
 
 local board = new_class()
@@ -36,13 +42,20 @@ function board:initialize_with_random_gates()
       if y >= self.rows - 2 or
           (y < self.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and (not self:gate_at(x, y + 1):is_i())) then
         repeat
-          self:put(x, y, quantum_gate:random_single_gate())
+          self:put(x, y, self:_random_single_gate())
         until #gate_reduction_rules:reduce(self, x, y, true).to == 0
       else
         self:put(x, y, i_gate())
       end
     end
   end
+end
+
+function board:_random_single_gate()
+  local single_gate_types = { h_gate, x_gate, y_gate, z_gate, s_gate, t_gate }
+  local gate_type = single_gate_types[flr(rnd(#single_gate_types)) + 1]
+
+  return gate_type()
 end
 
 function board:update()

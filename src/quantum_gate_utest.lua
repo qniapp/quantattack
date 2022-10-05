@@ -3,14 +3,6 @@ require("engine/test/bustedhelper")
 local quantum_gate = require("quantum_gate")
 
 describe('quantum_gate', function()
-  describe('random_single_gate', function()
-    it('should create a random gate', function()
-      local gate = quantum_gate.random_single_gate()
-
-      assert.is_true(contains({ "h", "x", "y", "z", "s", "t" }, gate.type))
-    end)
-  end)
-
   it('should update', function()
     local gate = quantum_gate('h')
 

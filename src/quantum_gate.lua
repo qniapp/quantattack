@@ -10,18 +10,12 @@ quantum_gate.size = 8
 
 -- private
 
-quantum_gate._types = { "h", "x", "y", "z", "s", "t" }
 quantum_gate._num_frames_swap = 2
 quantum_gate._num_frames_match = 45
 quantum_gate._dy = 2
 quantum_gate._state_swapping_with_left = "swapping_with_left"
 quantum_gate._state_swapping_with_right = "swapping_with_right"
 quantum_gate._state_swap_finished = "swap_finished"
-
-quantum_gate.random_single_gate = function()
-  local type = quantum_gate._types[flr(rnd(#quantum_gate._types)) + 1]
-  return quantum_gate(type)
-end
 
 function quantum_gate:_init(type)
   self.type = type
