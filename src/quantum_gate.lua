@@ -61,8 +61,12 @@ function quantum_gate:is_cnot_x()
   return self.type == "cnot_x"
 end
 
-function quantum_gate:is_garbage_gate()
+function quantum_gate:is_garbage()
   return self.type == "g"
+end
+
+function quantum_gate:is_placeholder()
+  return self.type == "?"
 end
 
 -- gate state
@@ -104,7 +108,7 @@ function quantum_gate:is_match()
 end
 
 function quantum_gate:is_reducible()
-  return self:is_garbage_gate() or (not self:is_busy())
+  return self:is_garbage() or (not self:is_busy())
 end
 
 function quantum_gate:is_droppable()

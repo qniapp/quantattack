@@ -66,10 +66,7 @@ board = {
         for x = 1, self.cols do
           for y = self.rows - 1, 1, -1 do
             local gate = self:gate_at(x, y)
-            if (gate.type == "?") then
-              goto next
-            end
-            if gate:is_garbage_gate() then
+            if gate:is_placeholder() or gate:is_garbage() then
               goto next
             end
             if not gate:is_droppable() then
