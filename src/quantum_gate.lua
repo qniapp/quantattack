@@ -7,6 +7,8 @@ quantum_gate._types = { "h", "x", "y", "z", "s", "t" }
 quantum_gate._num_frames_swap = 2
 quantum_gate._num_frames_match = 45
 quantum_gate._dy = 2
+quantum_gate.state_swapping_with_left = "swapping_with_left"
+quantum_gate.state_swapping_with_right = "swapping_with_right"
 
 quantum_gate.random_single_gate = function()
   local type = quantum_gate._types[flr(rnd(#quantum_gate._types)) + 1]
@@ -77,22 +79,6 @@ end
 
 function quantum_gate:is_busy()
   return not (self:is_i() or self:is_idle() or self:is_dropped())
-end
-
-function quantum_gate:is_swapping()
-  return self:is_swapping_with_right() or self:is_swapping_with_left()
-end
-
-function quantum_gate:is_swapping_with_right()
-  return self.state == "swapping_with_right"
-end
-
-function quantum_gate:is_swapping_with_left()
-  return self.state == "swapping_with_left"
-end
-
-function quantum_gate:is_swap_finished()
-  return self.state == "swap_finished"
 end
 
 function quantum_gate:is_dropping()
@@ -239,27 +225,55 @@ function quantum_gate:replace_with(other)
   self.state = "match"
 end
 
-function quantum_gate:swap_with_right(swap_new_x)
-  self.tick_swap = 0
-  self.swap_new_x = swap_new_x
-  self.state = "swapping_with_right"
-end
-
-function quantum_gate:swap_with_left(swap_new_x)
-  self.tick_swap = 0
-  self.swap_new_x = swap_new_x
-  self.state = "swapping_with_left"
-end
-
-function quantum_gate:is_swappable()
-  return self.state == 'idle'
-end
-
 function quantum_gate:drop(start_screen_y, stop_screen_y)
   self.dy = 0
   self.start_screen_y = start_screen_y
   self.stop_screen_y = stop_screen_y
   self.state = "dropping"
+end
+
+-------------------------------------------------------------------------------
+-- swap
+-------------------------------------------------------------------------------
+
+function quantum_gate:is_swappable()
+  return self:is_idle()
+end
+
+function quantum_gate:is_swapping()
+  return self:is_swapping_with_right() or self:is_swapping_with_left()
+end
+
+function quantum_gate:is_swapping_with_right()
+  return self.state == quantum_gate.state_swapping_with_right
+end
+
+function quantum_gate:is_swapping_with_left()
+  return self.state == quantum_gate.state_swapping_with_left
+end
+
+function quantum_gate:is_swap_finished()
+  return self.state == "swap_finished"
+end
+
+function quantum_gate:swap_with_right(new_x)
+  --#if assert
+  assert(2 <= new_x)
+  --#endif
+
+  self.tick_swap = 0
+  self.new_x_after_swap = new_x
+  self.state = quantum_gate.state_swapping_with_right
+end
+
+function quantum_gate:swap_with_left(new_x)
+  --#if assert
+  assert(1 <= new_x)
+  --#endif
+
+  self.tick_swap = 0
+  self.new_x_after_swap = new_x
+  self.state = quantum_gate.state_swapping_with_left
 end
 
 return quantum_gate
