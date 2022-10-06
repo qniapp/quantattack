@@ -20,7 +20,7 @@ function garbage_gate:_init(span, x, board)
   self._state = "fall"
   self.x = x
   self.y = start_screen_y
-  self.stop_screen_y = stop_screen_y
+  self._stop_screen_y = stop_screen_y
   self._gate_top_y = stop_screen_y + quantum_gate.size
   self._sink_y = stop_screen_y + quantum_gate.size * 2
   self._dy = 16
@@ -59,13 +59,13 @@ function garbage_gate:_update_state()
     end
   else
     -- bounce
-    if self.y > self.stop_screen_y and self._dy > 0 then
-      self.y = self.stop_screen_y
+    if self.y > self._stop_screen_y and self._dy > 0 then
+      self.y = self._stop_screen_y
       self._dy = -self._dy * 0.6
     end
   end
 
-  if (self.y == self.stop_screen_y and
+  if (self.y == self._stop_screen_y and
       self.y == self.y_prev) then
     self._state = "idle"
   end
@@ -80,7 +80,7 @@ end
 
 function garbage_gate:effect_dy()
   if self._state == "sink" or self._state == "bounce" then
-    return self.y - self.stop_screen_y
+    return self.y - self._stop_screen_y
   else
     return 0
   end
