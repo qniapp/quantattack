@@ -14,7 +14,7 @@ describe('garbage_gate', function()
     local garbage_gate
 
     before_each(function()
-      garbage_gate = garbage_gate_class(1, board)
+      garbage_gate = garbage_gate_class(1, 1, board)
     end)
 
     describe("type", function()
@@ -87,10 +87,10 @@ describe('garbage_gate', function()
   end)
 
   describe("state", function()
-    local garbage_gate = garbage_gate_class(1, board)
+    local garbage_gate
 
     before_each(function()
-      garbage_gate = garbage_gate_class(1, board)
+      garbage_gate = garbage_gate_class(1, 1, board)
     end)
 
     it("should return 'fall'", function()

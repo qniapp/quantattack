@@ -8,18 +8,17 @@ garbage_gate._sprite_left = 56
 garbage_gate._sprite_right = 58
 garbage_gate._ddy = 0.98
 
-function garbage_gate:_init(span, board)
+function garbage_gate:_init(span, x, board)
   assert(span ~= nil, "span is nil")
   assert(board ~= nil, "board is nil")
 
-  local random_x = flr(rnd(board.cols - span + 1)) + 1
   local start_screen_y = board:screen_y(1)
-  local stop_screen_y = board:screen_y(board:gate_top_y(random_x, random_x + span - 1) - 1)
+  local stop_screen_y = board:screen_y(board:gate_top_y(x, x + span - 1) - 1)
 
   quantum_gate._init(self, 'g')
   self.span = span
   self._state = "fall"
-  self.x = random_x
+  self.x = x
   self.y = start_screen_y
   self.stop_screen_y = stop_screen_y
   self._gate_top_y = stop_screen_y + quantum_gate.size

@@ -263,9 +263,10 @@ function board:put(x, y, gate)
 end
 
 function board:put_garbage()
-  local width = flr(rnd(4)) + 3
+  local span = flr(rnd(4)) + 3
+  local x = flr(rnd(self.cols - span + 1)) + 1
 
-  add(self._falling_garbages, garbage_gate(width, self))
+  add(self._falling_garbages, garbage_gate(span, x, self))
 end
 
 function board:gate_top_y(x_start, x_end)
