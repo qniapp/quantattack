@@ -105,7 +105,7 @@ function board:drop_gates()
                 self:gate_at(x, stop_y + 1):is_dropping()) do
           stop_y = stop_y + 1
         end
-        gate:drop(self:screen_y(y), self:screen_y(stop_y))
+        gate:drop(y, stop_y)
         self:put(x, stop_y, gate_placeholder())
       end
 
@@ -142,8 +142,8 @@ function board:_update_gates()
         add(gates_to_swap, { gate = gate, y = y })
       end
       if gate:is_dropped() then
-        self:put(x, self:y(gate.stop_screen_y), gate)
-        self:put(x, self:y(gate.start_screen_y), i_gate())
+        self:put(x, gate.start_y, i_gate())
+        self:put(x, gate.stop_y, gate)
       end
 
       ::next::
@@ -263,7 +263,7 @@ function board:put(x, y, gate)
   self._gates[x][y] = gate
 end
 
-function board:put_garbate()
+function board:put_garbage()
   local width = flr(rnd(4)) + 3
 
   add(self._falling_garbages, garbage_gate(width, self))
