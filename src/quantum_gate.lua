@@ -149,7 +149,12 @@ function quantum_gate:render(screen_x, screen_y)
     dx = -self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
   end
 
-  spr(self:_sprite(), screen_x + dx, screen_y + self._distance_dropped)
+  local dy = 0
+  if self:is_dropping() then
+    dy = self._distance_dropped
+  end
+
+  spr(self:_sprite(), screen_x + dx, screen_y + dy)
 end
 
 function quantum_gate:_sprite()
