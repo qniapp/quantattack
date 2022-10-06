@@ -16,15 +16,4 @@ function x_gate:_init()
   }
 end
 
---#if debug
-function x_gate:_tostring()
-  if self:is_idle() then
-    return "X"
-  else
-    return "X" .. " (" .. self._state .. ")"
-  end
-end
-
---#endif
-
 return x_gate

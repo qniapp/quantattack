@@ -158,8 +158,10 @@ function quantum_gate:render(screen_x, screen_y)
 end
 
 function quantum_gate:_sprite()
+  --#if assert
   assert(self.sprites, self._type)
   assert(self.sprites[self._state], self._state)
+  --#endif
 
   if self:is_match() then
     local mod = self.tick_match % 12
@@ -250,6 +252,19 @@ function quantum_gate:swap_with_left(new_x)
   self.new_x_after_swap = new_x
   self._state = quantum_gate._state_swapping_with_left
 end
+
+-- debug
+
+--#if debug
+function quantum_gate:_tostring()
+  if self:is_idle() then
+    return self._type
+  else
+    return self._type .. " (" .. self._state .. ")"
+  end
+end
+
+--#endif
 
 -- private
 

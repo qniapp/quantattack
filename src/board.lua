@@ -1,5 +1,4 @@
 require("engine/core/class")
-require("engine/debug/dump")
 
 local garbage_gate = require("garbage_gate")
 local gate_placeholder = require("gate_placeholder")

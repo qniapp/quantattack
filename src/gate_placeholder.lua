@@ -11,6 +11,7 @@ end
 function gate_placeholder:_tostring()
   return "?"
 end
+
 --#endif
 
 return gate_placeholder
