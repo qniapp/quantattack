@@ -122,7 +122,8 @@ function quantum_gate:update()
       self.tick_match = self.tick_match + 1
     else
       self.tick_match = nil
-      self._type = self.reduce_to.type
+      self._type = self.reduce_to._type
+      self.sprites = self.reduce_to.sprites
       self._state = "idle"
     end
   end
@@ -147,65 +148,24 @@ function quantum_gate:render(screen_x, screen_y)
 end
 
 function quantum_gate:_sprite()
-  local _sprites = {
-    h = {
-      idle = 0,
-      match_up = 8,
-      match_middle = 24,
-      match_down = 40
-    },
-    x = {
-      idle = 1,
-      match_up = 9,
-      match_middle = 25,
-      match_down = 41,
-    },
-    y = {
-      idle = 2,
-      match_up = 10,
-      match_middle = 26,
-      match_down = 42,
-    },
-    z = {
-      idle = 3,
-      match_up = 11,
-      match_middle = 27,
-      match_down = 43,
-    },
-    s = {
-      idle = 4,
-      match_up = 12,
-      match_middle = 28,
-      match_down = 44,
-    },
-    t = {
-      idle = 5,
-      match_up = 13,
-      match_middle = 29,
-      match_down = 45,
-    },
-  }
-  local sprites = _sprites[self._type]
+  assert(self.sprites, self._type)
+  assert(self.sprites[self._state], self._state)
 
-  if self:is_idle() or
-      self:is_swapping() or
-      self:is_swap_finished() or
-      self:is_dropping() or
-      self:is_dropped() then
-    return sprites.idle
-  elseif self:is_match() then
+  if self:is_match() then
     local mod = self.tick_match % 12
+    local sub_state
     if mod <= 2 then
-      return sprites.match_up
+      sub_state = 'up'
     elseif mod <= 5 then
-      return sprites.match_middle
+      sub_state = 'middle'
     elseif mod <= 8 then
-      return sprites.match_down
+      sub_state = 'down'
     elseif mod <= 11 then
-      return sprites.match_middle
+      sub_state = 'middle'
     end
+    return self.sprites[self._state][sub_state]
   else
-    assert(false, "unknown state: " .. self._state)
+    return self.sprites[self._state]
   end
 end
 

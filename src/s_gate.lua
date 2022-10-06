@@ -5,14 +5,14 @@ local s_gate = derived_class(quantum_gate)
 
 function s_gate:_init()
   quantum_gate._init(self, 's')
-  self._sprites = {
+  self.sprites = {
     idle = 4,
-    dropped = 20,
-    jumping = 52,
-    falling = 36,
-    match_up = 12,
-    match_middle = 28,
-    match_down = 44,
+    swapping_with_left = 4,
+    swapping_with_right = 4,
+    swap_finished = 4,
+    dropping = 4,
+    dropped = 4,
+    match = { up = 12, middle = 28, down = 44 }
   }
 end
 

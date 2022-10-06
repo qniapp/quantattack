@@ -5,14 +5,14 @@ local t_gate = derived_class(quantum_gate)
 
 function t_gate:_init()
   quantum_gate._init(self, 't')
-  self._sprites = {
+  self.sprites = {
     idle = 5,
-    dropped = 21,
-    jumping = 53,
-    falling = 37,
-    match_up = 13,
-    match_middle = 29,
-    match_down = 45,
+    swapping_with_left = 5,
+    swapping_with_right = 5,
+    swap_finished = 5,
+    dropping = 5,
+    dropped = 5,
+    match = { up = 13, middle = 29, down = 45 }
   }
 end
 

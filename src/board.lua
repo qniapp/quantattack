@@ -279,7 +279,7 @@ function board:gate_top_y(x_start, x_end)
 
     for x = 1, self.cols do
       local gate = self:gate_at(x, y)
-      if (gate.type ~= "g") then
+      if (gate._type ~= "g") then
         goto next
       end
 
