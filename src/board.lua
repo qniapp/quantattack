@@ -155,7 +155,7 @@ function board:_update_gates()
   end)
 end
 
-function board:draw()
+function board:render()
   -- draw idle gates
   for x = 1, self.cols do
     for y = 1, self.row_next_gates do
@@ -293,6 +293,24 @@ function board:gate_top_y(x_start, x_end)
     end
   end
   return 1
+end
+
+function board:gates_to_puff()
+  local gates = {}
+
+  for x = 1, self.cols do
+    for y = 1, self.rows do
+      local gate = self:gate_at(x, y)
+
+      if gate.puff then
+        gate.x = x
+        gate.y = y
+        add(gates, gate)
+      end
+    end
+  end
+
+  return gates
 end
 
 function board:_tostring()

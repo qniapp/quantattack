@@ -96,7 +96,9 @@ function quantum_gate:update()
     return
   end
 
-  if self:is_swapping() then
+  if self:is_idle() then
+    self.puff = false
+  elseif self:is_swapping() then
     if self.tick_swap < quantum_gate._num_frames_swap then
       self.tick_swap = self.tick_swap + 1
     else
@@ -109,7 +111,7 @@ function quantum_gate:update()
 
     self._distance_dropped = self._distance_dropped + quantum_gate._dy
     if self._distance_dropped >= max_drop_distance then
-      self._distance_dropped = max_drop_distance
+      self._distance_dropped = 0
       self._state = "dropped"
     end
   elseif self:is_dropped() then
@@ -125,6 +127,9 @@ function quantum_gate:update()
       self._type = self.reduce_to._type
       self.sprites = self.reduce_to.sprites
       self._state = "idle"
+      if self:is_i() then
+        self.puff = true
+      end
     end
   end
 end

@@ -100,7 +100,7 @@ function garbage_gate:is_fall()
   return self._state == "fall"
 end
 
-function garbage_gate:draw(screen_x, screen_y)
+function garbage_gate:render(screen_x, screen_y)
   for x = 0, self.width - 1 do
     local spr_id = self._spr
     if (x == 0) then

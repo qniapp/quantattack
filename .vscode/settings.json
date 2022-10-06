@@ -17,7 +17,14 @@
     "_update60",
     "fps60",
     "rnd",
-    "flr"
+    "flr",
+    "add",
+    "foreach",
+    "del",
+    "circfill",
+    "line",
+    "rectfill",
+    "stringify"
   ],
   "Lua.workspace.library": [
     "${3rd}/lfs/library"
