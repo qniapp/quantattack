@@ -17,9 +17,9 @@ function garbage_gate:_init(span, x, board)
 
   quantum_gate._init(self, 'g')
   self.span = span
-  self._state = "fall"
   self.x = x
-  self.y = start_screen_y
+  self._state = "fall"
+  self._start_screen_y = start_screen_y
   self._stop_screen_y = stop_screen_y
   self._gate_top_y = stop_screen_y + quantum_gate.size
   self._sink_y = stop_screen_y + quantum_gate.size * 2
@@ -33,8 +33,8 @@ function garbage_gate:update()
 end
 
 function garbage_gate:_update_y()
-  self.y_prev = self.y
-  self.y = self.y + self._dy
+  self.y_prev = self._start_screen_y
+  self._start_screen_y = self._start_screen_y + self._dy
 end
 
 function garbage_gate:_update_state()
@@ -44,9 +44,9 @@ function garbage_gate:_update_state()
       self._dy = -7
     end
 
-    if self.y > self._gate_top_y and self._dy > 0 then
-      if (self.y > self._sink_y) then
-        self.y = self._sink_y
+    if self._start_screen_y > self._gate_top_y and self._dy > 0 then
+      if (self._start_screen_y > self._sink_y) then
+        self._start_screen_y = self._sink_y
       end
       self._dy = self._dy * 0.2
 
@@ -59,14 +59,14 @@ function garbage_gate:_update_state()
     end
   else
     -- bounce
-    if self.y > self._stop_screen_y and self._dy > 0 then
-      self.y = self._stop_screen_y
+    if self._start_screen_y > self._stop_screen_y and self._dy > 0 then
+      self._start_screen_y = self._stop_screen_y
       self._dy = -self._dy * 0.6
     end
   end
 
-  if (self.y == self._stop_screen_y and
-      self.y == self.y_prev) then
+  if (self._start_screen_y == self._stop_screen_y and
+      self._start_screen_y == self.y_prev) then
     self._state = "idle"
   end
 end
@@ -80,7 +80,7 @@ end
 
 function garbage_gate:effect_dy()
   if self._state == "sink" or self._state == "bounce" then
-    return self.y - self._stop_screen_y
+    return self._start_screen_y - self._stop_screen_y
   else
     return 0
   end
@@ -105,7 +105,7 @@ function garbage_gate:render(screen_x, screen_y)
     if screen_y then
       spr(spr_id, screen_x + x * quantum_gate.size, screen_y)
     elseif self._state == "fall" then
-      spr(spr_id, screen_x + x * quantum_gate.size, self.y)
+      spr(spr_id, screen_x + x * quantum_gate.size, self._start_screen_y)
     end
   end
 end
