@@ -18,7 +18,7 @@ quantum_gate._state_swapping_with_right = "swapping_with_right"
 quantum_gate._state_swap_finished = "swap_finished"
 
 function quantum_gate:_init(type)
-  self.type = type
+  self._type = type
   self._state = "idle"
   self._distance_dropped = 0 -- ゲートが落下した距離
 end
@@ -26,51 +26,51 @@ end
 -- gate type
 
 function quantum_gate:is_i()
-  return self.type == "i"
+  return self._type == "i"
 end
 
 function quantum_gate:is_h()
-  return self.type == "h"
+  return self._type == "h"
 end
 
 function quantum_gate:is_x()
-  return self.type == "x"
+  return self._type == "x"
 end
 
 function quantum_gate:is_y()
-  return self.type == "y"
+  return self._type == "y"
 end
 
 function quantum_gate:is_z()
-  return self.type == "z"
+  return self._type == "z"
 end
 
 function quantum_gate:is_s()
-  return self.type == "s"
+  return self._type == "s"
 end
 
 function quantum_gate:is_t()
-  return self.type == "t"
+  return self._type == "t"
 end
 
 function quantum_gate:is_swap()
-  return self.type == "swap"
+  return self._type == "swap"
 end
 
 function quantum_gate:is_control()
-  return self.type == "control"
+  return self._type == "control"
 end
 
 function quantum_gate:is_cnot_x()
-  return self.type == "cnot_x"
+  return self._type == "cnot_x"
 end
 
 function quantum_gate:is_garbage()
-  return self.type == "g"
+  return self._type == "g"
 end
 
 function quantum_gate:is_placeholder()
-  return self.type == "?"
+  return self._type == "?"
 end
 
 -- gate state
@@ -122,7 +122,7 @@ function quantum_gate:update()
       self.tick_match = self.tick_match + 1
     else
       self.tick_match = nil
-      self.type = self.reduce_to.type
+      self._type = self.reduce_to.type
       self._state = "idle"
     end
   end
@@ -185,7 +185,7 @@ function quantum_gate:_sprite()
       match_down = 45,
     },
   }
-  local sprites = _sprites[self.type]
+  local sprites = _sprites[self._type]
 
   if self:is_idle() or
       self:is_swapping() or

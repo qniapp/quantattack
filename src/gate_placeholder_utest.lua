@@ -10,12 +10,6 @@ describe('gate_placeholder', function()
   end)
 
   describe("gate type", function()
-    describe("type", function()
-      it("should return '?'", function()
-        assert.are.equals('?', gate_placeholder.type)
-      end)
-    end)
-
     describe("is_i", function()
       it("should return false", function()
         assert.is_false(gate_placeholder:is_i())

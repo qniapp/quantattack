@@ -11,12 +11,6 @@ describe('h_gate', function()
   end)
 
   describe("gate type", function()
-    describe("type", function()
-      it("should return 'h'", function()
-        assert.are.equals('h', h_gate.type)
-      end)
-    end)
-
     describe("is_i", function()
       it("should return false", function()
         assert.is_false(h_gate:is_i())
