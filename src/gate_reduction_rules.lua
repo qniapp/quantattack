@@ -399,6 +399,22 @@ local gate_reduction_rules = {
       }
     end
 
+    --  C-------X          I       I
+    --  SWAP-SWAP          SWAP-SWAP
+    --  X-------C  ----->  I       I
+    if gate:is_control() and board:reducible_gate_at(gate.cnot_x_x, y):is_cnot_x() and
+        gate_y1:is_swap() and board:reducible_gate_at(gate.cnot_x_x, y1):is_swap() and gate.cnot_x_x == gate_y1.other_x
+        and
+        gate_y2:is_cnot_x() and board:reducible_gate_at(gate.cnot_x_x, y2):is_control() then
+      local dx = gate.cnot_x_x - x
+      return {
+        type = "swap swap cnot x2",
+        score = 800,
+        to = { {}, { dx = dx },
+          { dy = 2 }, { dx = dx, dy = 2 } }
+      }
+    end
+
     return { to = {} }
   end,
 }
