@@ -10,6 +10,7 @@ local y_gate = require("y_gate")
 local z_gate = require("z_gate")
 local s_gate = require("s_gate")
 local t_gate = require("t_gate")
+local swap_gate = require("swap_gate")
 local quantum_gate = require("quantum_gate")
 
 local board = new_class()
@@ -35,16 +36,37 @@ function board:_init()
 end
 
 function board:initialize_with_random_gates()
-  for x = 1, self.cols do
-    for y = self.row_next_gates, 1, -1 do
+  for y = self.row_next_gates, 6, -1 do
+    for x = 1, self.cols do
       if y >= self.rows - 2 or
-          (y < self.rows - 2 and y >= 6 and rnd(1) > (y - 11) * -0.1 and (not self:gate_at(x, y + 1):is_i())) then
+          (y < self.rows - 2 and rnd(1) > (y - 11) * -0.1 and (not self:is_empty(x, y + 1))) then
         repeat
           self:put(x, y, self:_random_single_gate())
         until #gate_reduction_rules:reduce(self, x, y, true).to == 0
-      else
-        self:put(x, y, i_gate())
       end
+    end
+  end
+
+  -- ランダムに swap を 1 つ置く
+  local swap_x
+  local swap_other_x
+  local swap_y
+  repeat
+    swap_x = flr(rnd(self.cols)) + 1
+    swap_other_x = flr(rnd(self.cols)) + 1
+    swap_y = flr(rnd(self.rows)) + 1
+  until not self:is_empty(swap_x, swap_y + 1) and swap_other_x ~= swap_x
+
+  self:put(swap_x, swap_y, swap_gate(swap_other_x))
+  self:put(swap_other_x, swap_y, swap_gate(swap_x))
+
+  if swap_x < swap_other_x then
+    for x = swap_x + 1, swap_other_x - 1 do
+      self:put(x, swap_y, i_gate())
+    end
+  else
+    for x = swap_other_x + 1, swap_x - 1 do
+      self:put(x, swap_y, i_gate())
     end
   end
 end
@@ -96,9 +118,16 @@ function board:drop_gates()
         goto next
       end
 
-      for tmp_x = x, x + gate.span - 1 do
-        if not self:is_empty(tmp_x, y + 1) then
+      -- swap ゲートでは、ペアのどちらかが接地している場合は drop しない
+      if gate:is_swap() then
+        if not (self:is_empty(x, y + 1) and self:is_empty(gate.other_x, y + 1)) then
           goto next
+        end
+      else
+        for tmp_x = x, x + gate.span - 1 do
+          if not self:is_empty(tmp_x, y + 1) then
+            goto next
+          end
         end
       end
 
@@ -143,15 +172,17 @@ function board:render()
   for x = 1, self.cols do
     for y = 1, self.row_next_gates do
       local gate = self:gate_at(x, y)
-      if (not gate) then
-        goto next
-      end
-
       local screen_x = self:screen_x(x)
       local screen_y = self:screen_y(y) + self:dy()
-      gate:render(screen_x, screen_y)
 
-      ::next::
+      if gate:is_swap() and x < gate.other_x then
+        local connection_y = self:screen_y(y) + 3
+        line(self:screen_x(x) + 3, connection_y,
+             self:screen_x(gate.other_x) + 3, connection_y,
+             colors.yellow)
+      end
+
+      gate:render(screen_x, screen_y)
     end
   end
 
@@ -186,8 +217,30 @@ function board:swap(x_left, x_right, y)
     return false
   end
 
+  -- 回路が X--[XH] のようになっている場合 (X は SWAP ゲートを表す)、
+  -- [XH] は入れ替えできない。
+  if left_gate:is_swap() and not right_gate:is_i() then
+    assert(left_gate.other_x < x_left)
+    return false
+  end
+  -- 回路が [HX]--X のようになっている場合も、
+  -- [HX] は入れ替えできない。
+  if right_gate:is_swap() and not left_gate:is_i() then
+    assert(x_right < right_gate.other_x)
+    return false
+  end
+
   left_gate:swap_with_right(x_right)
   right_gate:swap_with_left(x_left)
+
+  if left_gate:is_swap() then
+    local other_gate = self:gate_at(left_gate.other_x, y)
+    other_gate.other_x = other_gate.other_x + 1
+  end
+  if right_gate:is_swap() then
+    local other_gate = self:gate_at(right_gate.other_x, y)
+    other_gate.other_x = other_gate.other_x - 1
+  end
 
   return true
 end
@@ -226,12 +279,15 @@ function board:gate_at(x, y)
 end
 
 -- x, y が空かどうかを返す
--- garbage がある場合も考慮する
+-- garbage と swap ゲートも考慮する
 function board:is_empty(x, y)
   for tmp_x = 1, x - 1 do
     local gate = self:gate_at(tmp_x, y)
 
     if gate:is_garbage() and x <= tmp_x + gate.span - 1 then
+      return false
+    end
+    if gate:is_swap() and x <= gate.other_x then
       return false
     end
   end
@@ -249,6 +305,13 @@ function board:reducible_gate_at(x, y)
 end
 
 function board:put(x, y, gate)
+  --#if assert
+  assert(x >= 1, x)
+  assert(x <= self.cols, x)
+  assert(y >= 1, "y = " .. y .. " >= 1")
+  assert(y <= self.row_next_gates, "y = " .. y .. " > board.row_next_gates")
+  --#endif
+
   self._gates[x][y] = gate
 end
 
@@ -282,7 +345,7 @@ function board:_tostring()
 
   for y = 1, self.row_next_gates do
     for x = 1, self.cols do
-      str = str .. stringify(self:gate_at(x, y)) .. " "
+      str = str .. self:gate_at(x, y):_tostring() .. " "
     end
     str = str .. "\n"
   end

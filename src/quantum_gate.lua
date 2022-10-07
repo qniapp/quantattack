@@ -129,6 +129,23 @@ function quantum_gate:update(board)
       if not board:is_empty(x, next_y) then
         droppable = false
       end
+
+      -- SWAP ゲートでは、ペアのゲートの下も空でなければ drop できない
+      if self:is_swap() then
+        if self.x < self.other_x then
+          for tmp_x = self.x + 1, self.other_x do
+            if not board:is_empty(tmp_x, next_y) then
+              droppable = false
+            end
+          end
+        else
+          for tmp_x = self.other_x, self.x - 1 do
+            if not board:is_empty(tmp_x, next_y) then
+              droppable = false
+            end
+          end
+        end
+      end
     end
 
     if next_y <= board.rows and droppable then
