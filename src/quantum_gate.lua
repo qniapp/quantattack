@@ -115,7 +115,7 @@ function quantum_gate:update(board)
     local next_screen_y = screen_y + quantum_gate._dy
     local next_y = board:y(next_screen_y)
 
-    if next_y <= board.row_next_gates and board:gate_at(self.x, next_y):is_empty() then
+    if next_y <= board.rows and board:gate_at(self.x, next_y):is_empty() then
       self._distance_dropped = self._distance_dropped + quantum_gate._dy
     else
       self._distance_dropped = 0

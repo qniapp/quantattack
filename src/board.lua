@@ -22,7 +22,7 @@ function board:_init()
   self.rows = board.default_rows
   self.row_next_gates = board.default_rows + 1
   self._gates = {}
-  self._falling_garbages = {}
+  -- self._falling_garbages = {}
   self._offset_x = 10
   self._offset_y = 10
 
@@ -60,7 +60,7 @@ end
 function board:update()
   self:reduce()
   self:drop_gates()
-  self:_update_falling_garbages()
+  -- self:_update_falling_garbages()
   self:_update_gates()
 end
 
@@ -106,17 +106,17 @@ function board:drop_gates()
   end
 end
 
-function board:_update_falling_garbages()
-  foreach(self._falling_garbages, function(each)
-    if each.state == "hit gate" then
-      self:put(each.x, self:y(each.stop_y), each)
-    elseif each:is_idle() then
-      del(self._falling_garbages, each)
-    end
+-- function board:_update_falling_garbages()
+--   foreach(self._falling_garbages, function(each)
+--     if each.state == "hit gate" then
+--       self:put(each.x, self:y(each.stop_y), each)
+--     elseif each:is_idle() then
+--       del(self._falling_garbages, each)
+--     end
 
-    each:update()
-  end)
-end
+--     each:update()
+--   end)
+-- end
 
 function board:_update_gates()
   local gates_to_swap = {}
@@ -165,9 +165,9 @@ function board:render()
   end
 
   -- draw falling garbage unitaries
-  foreach(self._falling_garbages, function(each)
-    each:render(self:screen_x(each.x))
-  end)
+  -- foreach(self._falling_garbages, function(each)
+  --   each:render(self:screen_x(each.x))
+  -- end)
 
   -- border left
   line(self._offset_x - 2, self._offset_y,
@@ -207,9 +207,9 @@ function board:swap(x_left, x_right, y)
 end
 
 function board:dy()
-  if (#self._falling_garbages ~= 0) then
-    return self._falling_garbages[#self._falling_garbages]:effect_dy()
-  end
+  -- if (#self._falling_garbages ~= 0) then
+  --   return self._falling_garbages[#self._falling_garbages]:effect_dy()
+  -- end
   return 0
 end
 
@@ -242,6 +242,20 @@ function board:gate_at(x, y)
   return gate
 end
 
+-- x, y が空かどうかを返す
+-- garbage がある場合も考慮する
+function board:is_empty(x, y)
+  for tmp_x = 1, x - 1 do
+    local gate = self:gate_at(tmp_x, y)
+
+    if gate:is_garbage() and x <= tmp_x + gate.span - 1 then
+      return false
+    end
+  end
+
+  return self:gate_at(x, y):is_empty()
+end
+
 function board:reducible_gate_at(x, y)
   local gate = self:gate_at(x, y)
 
@@ -259,33 +273,7 @@ function board:put_garbage()
   local span = flr(rnd(4)) + 3
   local x = flr(rnd(self.cols - span + 1)) + 1
 
-  add(self._falling_garbages, garbage_gate(span, x, self))
-end
-
-function board:gate_top_y(x_start, x_end)
-  for y = 1, self.rows do
-    for x = x_start, x_end do
-      if not self:gate_at(x, y):is_i() then
-        return y
-      end
-    end
-
-    for x = 1, self.cols do
-      local gate = self:gate_at(x, y)
-      if (gate._type ~= "g") then
-        goto next
-      end
-
-      for gx = x, x + gate.width - 1, 1 do
-        if (x_start <= gx and gx <= x_end) then
-          return y
-        end
-      end
-
-      ::next::
-    end
-  end
-  return 1
+  self:put(x, 1, garbage_gate(span, x))
 end
 
 function board:gates_to_puff()
