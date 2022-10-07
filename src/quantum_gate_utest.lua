@@ -93,27 +93,18 @@ describe('quantum_gate', function()
     end)
 
     it('should drop the gate without errors', function()
-      assert.has_no.errors(function() gate:drop(1, 2) end)
+      assert.has_no.errors(function() gate:drop(1, 1) end)
     end)
 
     it('should transition its state to dropping', function()
-      gate:drop(1, 2)
+      gate:drop(1, 1)
 
       assert.is_true(gate:is_dropping())
     end)
 
     it('should throw an error if start_y is out of range', function()
-      assert.has_error(function() gate:drop(0, 1) end)
-      assert.has_error(function() gate:drop(13, 14) end)
-    end)
-
-    it('should throw an error if stop_y is out of range', function()
-      assert.has_error(function() gate:drop(1, 1) end)
-      assert.has_error(function() gate:drop(1, 14) end)
-    end)
-
-    it('should throw an error if start_y > stop_y', function()
-      assert.has_error(function() gate:drop(3, 2) end)
+      assert.has_error(function() gate:drop(1, 0) end)
+      assert.has_error(function() gate:drop(1, 13) end)
     end)
   end)
 

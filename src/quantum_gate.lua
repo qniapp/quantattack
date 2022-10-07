@@ -12,7 +12,7 @@ quantum_gate.size = 8
 
 quantum_gate._num_frames_swap = 2
 quantum_gate._num_frames_match = 45
-quantum_gate._dy = 2 -- ゲートの落下速度
+quantum_gate._dy = 3 -- ゲートの落下速度
 quantum_gate._state_swapping_with_left = "swapping_with_left"
 quantum_gate._state_swapping_with_right = "swapping_with_right"
 quantum_gate._state_swap_finished = "swap_finished"
@@ -91,7 +91,7 @@ function quantum_gate:is_reducible()
   return self:is_garbage() or (not self:is_busy())
 end
 
-function quantum_gate:update()
+function quantum_gate:update(board)
   if self:is_placeholder() then
     return
   end
@@ -107,11 +107,17 @@ function quantum_gate:update()
   elseif self:is_swap_finished() then
     self._state = "idle"
   elseif self:is_dropping() then
-    local max_drop_distance = (self.stop_y - self.start_y) * quantum_gate.size
+    local screen_y = board:screen_y(self.start_y) + self._distance_dropped
+    local next_screen_y = screen_y + quantum_gate._dy
+    local next_y = board:y(next_screen_y)
 
-    self._distance_dropped = self._distance_dropped + quantum_gate._dy
-    if self._distance_dropped >= max_drop_distance then
+    -- fixme: is_i() → is_empty() に変更する
+    -- I ならもちろん empty で、状態が dropping なものも empty とする
+    if next_y <= board.row_next_gates and board:gate_at(self.x, next_y):is_i() then
+      self._distance_dropped = self._distance_dropped + quantum_gate._dy
+    else
       self._distance_dropped = 0
+      self.y = board:y(screen_y)
       self._state = "dropped"
     end
   elseif self:is_dropped() then
@@ -194,18 +200,17 @@ function quantum_gate:is_droppable()
   return not (self:is_i() or self:is_dropping() or self:is_swapping())
 end
 
-function quantum_gate:drop(start_y, stop_y)
+function quantum_gate:drop(x, start_y)
   --#if assert
+  assert(1 <= x)
+  assert(x <= 6) -- todo: board の定数を持ってくる
   assert(1 <= start_y)
   assert(start_y <= 12) -- todo: board の定数を持ってくる
-  assert(2 <= stop_y)
-  assert(stop_y <= 13) -- todo: board の定数を持ってくる
-  assert(start_y < stop_y)
   --#endif
 
+  self.x = x
   self._distance_dropped = 0
   self.start_y = start_y
-  self.stop_y = stop_y
   self._state = "dropping"
 end
 

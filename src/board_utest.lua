@@ -328,7 +328,6 @@ describe('board', function()
       board:drop_gates()
 
       assert.is_true(board:gate_at(1, 1):is_dropping())
-      assert.is_true(board:gate_at(1, 13):is_placeholder())
     end)
   end)
 end)

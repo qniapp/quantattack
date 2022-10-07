@@ -98,14 +98,7 @@ function board:drop_gates()
       end
 
       if self:gate_at(x, y + 1):is_i() then
-        local stop_y = y
-        while stop_y < self.row_next_gates and
-            (self:gate_at(x, stop_y + 1):is_i() or
-                self:gate_at(x, stop_y + 1):is_dropping()) do
-          stop_y = stop_y + 1
-        end
-        gate:drop(y, stop_y)
-        self:put(x, stop_y, gate_placeholder())
+        gate:drop(x, y)
       end
 
       ::next::
@@ -135,14 +128,14 @@ function board:_update_gates()
         goto next
       end
 
-      gate:update()
+      gate:update(self)
 
       if gate:is_swap_finished() then
         add(gates_to_swap, { gate = gate, y = y })
       end
       if gate:is_dropped() then
-        self:put(x, gate.start_y, i_gate())
-        self:put(x, gate.stop_y, gate)
+        self:put(x, y, i_gate())
+        self:put(x, gate.y, gate)
       end
 
       ::next::
@@ -229,15 +222,15 @@ function board:screen_y(y)
 end
 
 function board:y(screen_y)
-  return (screen_y - self._offset_y) / quantum_gate.size + 1
+  return ceil((screen_y - self._offset_y) / quantum_gate.size + 1)
 end
 
 function board:gate_at(x, y)
   --#if assert
-  assert(x >= 1)
-  assert(x <= self.cols)
-  assert(y >= 1)
-  assert(y <= self.row_next_gates)
+  assert(x >= 1, x)
+  assert(x <= self.cols, x)
+  assert(y >= 1, "y = "..y.." >= 1")
+  assert(y <= self.row_next_gates, "y = "..y.." > board.row_next_gates")
   --#endif
 
   local gate = self._gates[x][y]
