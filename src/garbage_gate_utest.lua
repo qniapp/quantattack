@@ -94,8 +94,8 @@ describe('garbage_gate', function()
     end)
 
     describe("is_idle", function()
-      it("should return false", function()
-        assert.is_false(garbage_gate:is_idle())
+      it("should return true", function()
+        assert.is_true(garbage_gate:is_idle())
       end)
     end)
 
@@ -112,8 +112,8 @@ describe('garbage_gate', function()
     end)
 
     describe("is_dropping", function()
-      it("should return true", function()
-        assert.is_true(garbage_gate:is_dropping())
+      it("should return false", function()
+        assert.is_false(garbage_gate:is_dropping())
       end)
     end)
 
