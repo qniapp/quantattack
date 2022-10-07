@@ -333,7 +333,7 @@ local gate_reduction_rules = {
     -- SWAP-SWAP  ----->  SWAP-SWAP
     --         X                  I
     if gate:is_x() and
-        gate_y1:is_swap() and
+        gate_y1:is_swap() and board:reducible_gate_at(gate_y1.other_x, y1):is_swap() and
         board:reducible_gate_at(gate_y1.other_x, y2):is_x() then
       local dx = gate_y1.other_x - x
       return {
@@ -347,7 +347,7 @@ local gate_reduction_rules = {
     -- SWAP-SWAP  ----->  SWAP-SWAP
     --         Y                  I
     if gate:is_y() and
-        gate_y1:is_swap() and
+        gate_y1:is_swap() and board:reducible_gate_at(gate_y1.other_x, y1):is_swap() and
         board:reducible_gate_at(gate_y1.other_x, y2):is_y() then
       local dx = gate_y1.other_x - x
       return {
@@ -361,7 +361,7 @@ local gate_reduction_rules = {
     -- SWAP-SWAP  ----->  SWAP-SWAP
     --         Z                  I
     if gate:is_z() and
-        gate_y1:is_swap() and
+        gate_y1:is_swap() and board:reducible_gate_at(gate_y1.other_x, y1):is_swap() and
         board:reducible_gate_at(gate_y1.other_x, y2):is_z() then
       local dx = gate_y1.other_x - x
       return {
@@ -375,7 +375,7 @@ local gate_reduction_rules = {
     -- SWAP-SWAP  ----->  SWAP-SWAP
     --         S                  I
     if gate:is_s() and
-        gate_y1:is_swap() and
+        gate_y1:is_swap() and board:reducible_gate_at(gate_y1.other_x, y1):is_swap() and
         board:reducible_gate_at(gate_y1.other_x, y2):is_s() then
       local dx = gate_y1.other_x - x
       return {
@@ -389,7 +389,7 @@ local gate_reduction_rules = {
     -- SWAP-SWAP  ----->  SWAP-SWAP
     --         T                  I
     if gate:is_t() and
-        gate_y1:is_swap() and
+        gate_y1:is_swap() and board:reducible_gate_at(gate_y1.other_x, y1):is_swap() and
         board:reducible_gate_at(gate_y1.other_x, y2):is_t() then
       local dx = gate_y1.other_x - x
       return {
