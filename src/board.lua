@@ -118,9 +118,16 @@ function board:drop_gates()
         goto next
       end
 
-      for tmp_x = x, x + gate.span - 1 do
-        if not self:is_empty(tmp_x, y + 1) then
+      -- swap ゲートでは、ペアのどちらかが接地している場合は drop しない
+      if gate:is_swap() then
+        if not (self:is_empty(x, y + 1) and self:is_empty(gate.other_x, y + 1)) then
           goto next
+        end
+      else
+        for tmp_x = x, x + gate.span - 1 do
+          if not self:is_empty(tmp_x, y + 1) then
+            goto next
+          end
         end
       end
 
