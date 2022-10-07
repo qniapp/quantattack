@@ -12,13 +12,14 @@ quantum_gate.size = 8
 
 quantum_gate._num_frames_swap = 2
 quantum_gate._num_frames_match = 45
-quantum_gate._dy = 2 -- ゲートの落下速度
 quantum_gate._state_swapping_with_left = "swapping_with_left"
 quantum_gate._state_swapping_with_right = "swapping_with_right"
 quantum_gate._state_swap_finished = "swap_finished"
+quantum_gate._dy = 3 -- ゲートの落下速度
 
-function quantum_gate:_init(type)
+function quantum_gate:_init(type, span)
   self._type = type
+  self.span = span or 1
   self._state = "idle"
   self._distance_dropped = 0 -- ゲートが落下した距離
 end
@@ -79,6 +80,10 @@ function quantum_gate:is_idle()
   return self._state == "idle"
 end
 
+function quantum_gate:is_empty()
+  return self:is_i() or self:is_dropping()
+end
+
 function quantum_gate:is_busy()
   return not (self:is_i() or self:is_idle() or self:is_dropped())
 end
@@ -91,7 +96,7 @@ function quantum_gate:is_reducible()
   return self:is_garbage() or (not self:is_busy())
 end
 
-function quantum_gate:update()
+function quantum_gate:update(board)
   if self:is_placeholder() then
     return
   end
@@ -99,25 +104,48 @@ function quantum_gate:update()
   if self:is_idle() then
     self.puff = false
   elseif self:is_swapping() then
+    --#if assert
+    assert(not self:is_garbage())
+    --#endif
+
     if self.tick_swap < quantum_gate._num_frames_swap then
       self.tick_swap = self.tick_swap + 1
     else
       self._state = quantum_gate._state_swap_finished
     end
   elseif self:is_swap_finished() then
+    --#if assert
+    assert(not self:is_garbage())
+    --#endif
+
     self._state = "idle"
   elseif self:is_dropping() then
-    local max_drop_distance = (self.stop_y - self.start_y) * quantum_gate.size
+    local screen_y = board:screen_y(self.start_y) + self._distance_dropped
+    local next_screen_y = screen_y + quantum_gate._dy
+    local next_y = board:y(next_screen_y)
 
-    self._distance_dropped = self._distance_dropped + quantum_gate._dy
-    if self._distance_dropped >= max_drop_distance then
+    local droppable = true
+    for x = self.x, self.x + self.span - 1 do
+      if not board:is_empty(x, next_y) then
+        droppable = false
+      end
+    end
+
+    if next_y <= board.rows and droppable then
+      self._distance_dropped = self._distance_dropped + quantum_gate._dy
+    else
       self._distance_dropped = 0
+      self.y = board:y(screen_y)
       self._state = "dropped"
     end
   elseif self:is_dropped() then
     self._distance_dropped = 0
     self._state = "idle"
   elseif self:is_match() then
+    --#if assert
+    assert(not self:is_garbage())
+    --#endif
+
     if self.tick_match == nil then
       self.tick_match = 0
     elseif self.tick_match < quantum_gate._num_frames_match then
@@ -194,18 +222,17 @@ function quantum_gate:is_droppable()
   return not (self:is_i() or self:is_dropping() or self:is_swapping())
 end
 
-function quantum_gate:drop(start_y, stop_y)
+function quantum_gate:drop(x, start_y)
   --#if assert
+  assert(1 <= x)
+  assert(x <= 6) -- todo: board の定数を持ってくる
   assert(1 <= start_y)
   assert(start_y <= 12) -- todo: board の定数を持ってくる
-  assert(2 <= stop_y)
-  assert(stop_y <= 13) -- todo: board の定数を持ってくる
-  assert(start_y < stop_y)
   --#endif
 
+  self.x = x
   self._distance_dropped = 0
   self.start_y = start_y
-  self.stop_y = stop_y
   self._state = "dropping"
 end
 

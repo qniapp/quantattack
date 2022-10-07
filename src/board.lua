@@ -22,7 +22,6 @@ function board:_init()
   self.rows = board.default_rows
   self.row_next_gates = board.default_rows + 1
   self._gates = {}
-  self._falling_garbages = {}
   self._offset_x = 10
   self._offset_y = 10
 
@@ -60,7 +59,6 @@ end
 function board:update()
   self:reduce()
   self:drop_gates()
-  self:_update_falling_garbages()
   self:_update_gates()
 end
 
@@ -90,39 +88,25 @@ function board:drop_gates()
   for x = 1, self.cols do
     for y = self.rows - 1, 1, -1 do
       local gate = self:gate_at(x, y)
-      if gate:is_placeholder() or gate:is_garbage() then
+
+      if gate:is_placeholder() then
         goto next
       end
       if not gate:is_droppable() then
         goto next
       end
 
-      if self:gate_at(x, y + 1):is_i() then
-        local stop_y = y
-        while stop_y < self.row_next_gates and
-            (self:gate_at(x, stop_y + 1):is_i() or
-                self:gate_at(x, stop_y + 1):is_dropping()) do
-          stop_y = stop_y + 1
+      for tmp_x = x, x + gate.span - 1 do
+        if not self:is_empty(tmp_x, y + 1) then
+          goto next
         end
-        gate:drop(y, stop_y)
-        self:put(x, stop_y, gate_placeholder())
       end
+
+      gate:drop(x, y)
 
       ::next::
     end
   end
-end
-
-function board:_update_falling_garbages()
-  foreach(self._falling_garbages, function(each)
-    if each.state == "hit gate" then
-      self:put(each.x, self:y(each.stop_y), each)
-    elseif each:is_idle() then
-      del(self._falling_garbages, each)
-    end
-
-    each:update()
-  end)
 end
 
 function board:_update_gates()
@@ -135,14 +119,14 @@ function board:_update_gates()
         goto next
       end
 
-      gate:update()
+      gate:update(self)
 
       if gate:is_swap_finished() then
         add(gates_to_swap, { gate = gate, y = y })
       end
       if gate:is_dropped() then
-        self:put(x, gate.start_y, i_gate())
-        self:put(x, gate.stop_y, gate)
+        self:put(x, y, i_gate())
+        self:put(x, gate.y, gate)
       end
 
       ::next::
@@ -170,11 +154,6 @@ function board:render()
       ::next::
     end
   end
-
-  -- draw falling garbage unitaries
-  foreach(self._falling_garbages, function(each)
-    each:render(self:screen_x(each.x))
-  end)
 
   -- border left
   line(self._offset_x - 2, self._offset_y,
@@ -214,9 +193,6 @@ function board:swap(x_left, x_right, y)
 end
 
 function board:dy()
-  if (#self._falling_garbages ~= 0) then
-    return self._falling_garbages[#self._falling_garbages]:effect_dy()
-  end
   return 0
 end
 
@@ -229,15 +205,15 @@ function board:screen_y(y)
 end
 
 function board:y(screen_y)
-  return (screen_y - self._offset_y) / quantum_gate.size + 1
+  return ceil((screen_y - self._offset_y) / quantum_gate.size + 1)
 end
 
 function board:gate_at(x, y)
   --#if assert
-  assert(x >= 1)
-  assert(x <= self.cols)
-  assert(y >= 1)
-  assert(y <= self.row_next_gates)
+  assert(x >= 1, x)
+  assert(x <= self.cols, x)
+  assert(y >= 1, "y = " .. y .. " >= 1")
+  assert(y <= self.row_next_gates, "y = " .. y .. " > board.row_next_gates")
   --#endif
 
   local gate = self._gates[x][y]
@@ -247,6 +223,20 @@ function board:gate_at(x, y)
   --#endif
 
   return gate
+end
+
+-- x, y が空かどうかを返す
+-- garbage がある場合も考慮する
+function board:is_empty(x, y)
+  for tmp_x = 1, x - 1 do
+    local gate = self:gate_at(tmp_x, y)
+
+    if gate:is_garbage() and x <= tmp_x + gate.span - 1 then
+      return false
+    end
+  end
+
+  return self:gate_at(x, y):is_empty()
 end
 
 function board:reducible_gate_at(x, y)
@@ -266,33 +256,7 @@ function board:put_garbage()
   local span = flr(rnd(4)) + 3
   local x = flr(rnd(self.cols - span + 1)) + 1
 
-  add(self._falling_garbages, garbage_gate(span, x, self))
-end
-
-function board:gate_top_y(x_start, x_end)
-  for y = 1, self.rows do
-    for x = x_start, x_end do
-      if not self:gate_at(x, y):is_i() then
-        return y
-      end
-    end
-
-    for x = 1, self.cols do
-      local gate = self:gate_at(x, y)
-      if (gate._type ~= "g") then
-        goto next
-      end
-
-      for gx = x, x + gate.width - 1, 1 do
-        if (x_start <= gx and gx <= x_end) then
-          return y
-        end
-      end
-
-      ::next::
-    end
-  end
-  return 1
+  self:put(x, 1, garbage_gate(x, span))
 end
 
 function board:gates_to_puff()
