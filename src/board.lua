@@ -233,6 +233,15 @@ function board:swap(x_left, x_right, y)
   left_gate:swap_with_right(x_right)
   right_gate:swap_with_left(x_left)
 
+  if left_gate:is_swap() then
+    local other_gate = self:gate_at(left_gate.other_x, y)
+    other_gate.other_x = other_gate.other_x + 1
+  end
+  if right_gate:is_swap() then
+    local other_gate = self:gate_at(right_gate.other_x, y)
+    other_gate.other_x = other_gate.other_x - 1
+  end
+
   return true
 end
 

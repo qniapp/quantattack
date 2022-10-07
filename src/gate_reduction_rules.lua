@@ -315,6 +315,62 @@ local gate_reduction_rules = {
       }
     end
 
+    -- H                  I
+    -- SWAP-SWAP  ----->  SWAP-SWAP
+    --         H                  I
+    if gate:is_h() and
+       gate_y1:is_swap() and
+       board:reducible_gate_at(gate_y1.other_x, y2):is_h() then
+       local dx = gate_y1.other_x - x
+       return {
+          type = "swap swap hh",
+          score = 600,
+          to = { {}, { dx = dx, dy = 2 } }
+       }
+    end
+
+    -- X                  I
+    -- SWAP-SWAP  ----->  SWAP-SWAP
+    --         X                  I
+    if gate:is_x() and
+       gate_y1:is_swap() and
+       board:reducible_gate_at(gate_y1.other_x, y2):is_x() then
+       local dx = gate_y1.other_x - x
+       return {
+          type = "swap swap xx",
+          score = 600,
+          to = { {}, { dx = dx, dy = 2 } }
+       }
+    end
+
+    -- Y                  I
+    -- SWAP-SWAP  ----->  SWAP-SWAP
+    --         Y                  I
+    if gate:is_y() and
+       gate_y1:is_swap() and
+       board:reducible_gate_at(gate_y1.other_x, y2):is_y() then
+       local dx = gate_y1.other_x - x
+       return {
+          type = "swap swap yy",
+          score = 600,
+          to = { {}, { dx = dx, dy = 2 } }
+       }
+    end
+
+    -- Z                  I
+    -- SWAP-SWAP  ----->  SWAP-SWAP
+    --         Z                  I
+    if gate:is_z() and
+       gate_y1:is_swap() and
+       board:reducible_gate_at(gate_y1.other_x, y2):is_z() then
+       local dx = gate_y1.other_x - x
+       return {
+          type = "swap swap zz",
+          score = 600,
+          to = { {}, { dx = dx, dy = 2 } }
+       }
+    end
+
     return { to = {} }
   end,
 }
