@@ -175,7 +175,7 @@ function quantum_gate:render(screen_x, screen_y)
     dy = self._distance_dropped
   end
 
-  if self:is_garbage() then
+  if self.span > 1 then
     for x = 0, self.span - 1 do
       local sprite_id = self._sprite_middle
       if (x == 0) then -- 左端
