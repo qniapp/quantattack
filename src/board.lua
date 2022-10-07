@@ -217,16 +217,33 @@ function board:swap(x_left, x_right, y)
     return false
   end
 
-  -- 回路が X--[XH] のようになっている場合 (X は SWAP ゲートを表す)、
+  -- 回路が [X-X] のようになっている場合 (X は SWAP ゲートを表す)、
+  -- 実際には入れ替えしないが true を返す
+  if left_gate:is_swap() and right_gate:is_swap() then
+    if left_gate.other_x == x_right then
+      --#if assert
+      assert(right_gate.other_x == x_left)
+      --#endif
+      return true
+    else
+      return false
+    end
+  end
+
+  -- 回路が X--[XH] のようになっている場合
   -- [XH] は入れ替えできない。
   if left_gate:is_swap() and not right_gate:is_i() then
+    --#if assert
     assert(left_gate.other_x < x_left)
+    --#endif
     return false
   end
   -- 回路が [HX]--X のようになっている場合も、
   -- [HX] は入れ替えできない。
   if right_gate:is_swap() and not left_gate:is_i() then
+    --#if assert
     assert(x_right < right_gate.other_x)
+    --#endif
     return false
   end
 
