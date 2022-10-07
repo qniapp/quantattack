@@ -170,19 +170,33 @@ function quantum_gate:render(screen_x, screen_y)
     return
   end
 
-  local dx = 0
-  if self:_is_swapping_with_right() then
-    dx = self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
-  elseif self:_is_swapping_with_left() then
-    dx = -self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
-  end
-
   local dy = 0
   if self:is_dropping() then
     dy = self._distance_dropped
   end
 
-  spr(self:_sprite(), screen_x + dx, screen_y + dy)
+  if self:is_garbage() then
+    for x = 0, self.span - 1 do
+      local sprite_id = self._sprite_middle
+      if (x == 0) then -- 左端
+        sprite_id = self._sprite_left
+      end
+      if (x == self.span - 1) then -- 右端
+        sprite_id = self._sprite_right
+      end
+
+      spr(sprite_id, screen_x + x * quantum_gate.size, screen_y + dy)
+    end
+  else
+    local dx = 0
+    if self:_is_swapping_with_right() then
+      dx = self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
+    elseif self:_is_swapping_with_left() then
+      dx = -self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
+    end
+
+    spr(self:_sprite(), screen_x + dx, screen_y + dy)
+  end
 end
 
 function quantum_gate:_sprite()
