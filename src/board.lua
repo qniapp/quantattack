@@ -172,15 +172,17 @@ function board:render()
   for x = 1, self.cols do
     for y = 1, self.row_next_gates do
       local gate = self:gate_at(x, y)
-      if (not gate) then
-        goto next
-      end
-
       local screen_x = self:screen_x(x)
       local screen_y = self:screen_y(y) + self:dy()
-      gate:render(screen_x, screen_y)
 
-      ::next::
+      if gate:is_swap() and x < gate.other_x then
+        local connection_y = self:screen_y(y) + 3
+        line(self:screen_x(x) + 3, connection_y,
+             self:screen_x(gate.other_x) + 3, connection_y,
+             colors.yellow)
+      end
+
+      gate:render(screen_x, screen_y)
     end
   end
 
