@@ -79,6 +79,10 @@ function quantum_gate:is_idle()
   return self._state == "idle"
 end
 
+function quantum_gate:is_empty()
+  return self:is_i() or self:is_dropping()
+end
+
 function quantum_gate:is_busy()
   return not (self:is_i() or self:is_idle() or self:is_dropped())
 end
@@ -111,9 +115,7 @@ function quantum_gate:update(board)
     local next_screen_y = screen_y + quantum_gate._dy
     local next_y = board:y(next_screen_y)
 
-    -- fixme: is_i() → is_empty() に変更する
-    -- I ならもちろん empty で、状態が dropping なものも empty とする
-    if next_y <= board.row_next_gates and board:gate_at(self.x, next_y):is_i() then
+    if next_y <= board.row_next_gates and board:gate_at(self.x, next_y):is_empty() then
       self._distance_dropped = self._distance_dropped + quantum_gate._dy
     else
       self._distance_dropped = 0

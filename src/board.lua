@@ -97,7 +97,7 @@ function board:drop_gates()
         goto next
       end
 
-      if self:gate_at(x, y + 1):is_i() then
+      if self:gate_at(x, y + 1):is_empty() then
         gate:drop(x, y)
       end
 
