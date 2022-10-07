@@ -8,19 +8,14 @@ garbage_gate._sprite_left = 56
 garbage_gate._sprite_right = 58
 garbage_gate._ddy = 0.98
 
-function garbage_gate:_init(span, x)
+function garbage_gate:_init(x, span)
+  --#if assert
   assert(span ~= nil, "span is nil")
+  --#endif
 
-  -- local start_screen_y = board:screen_y(1)
-  -- local stop_screen_y = board:screen_y(board:gate_top_y(x, x + span - 1) - 1)
-
-  quantum_gate._init(self, 'g')
-  self.span = span
+  quantum_gate._init(self, 'g', span)
   self:drop(x, 1)
 
-  -- self._start_screen_y = start_screen_y
-  -- self._stop_screen_y = stop_screen_y
-  -- self._gate_top_y = stop_screen_y + quantum_gate.size
   -- self._sink_y = stop_screen_y + quantum_gate.size * 2
   -- self._dy = 16
 end

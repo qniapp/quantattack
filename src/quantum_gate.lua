@@ -17,8 +17,9 @@ quantum_gate._state_swapping_with_left = "swapping_with_left"
 quantum_gate._state_swapping_with_right = "swapping_with_right"
 quantum_gate._state_swap_finished = "swap_finished"
 
-function quantum_gate:_init(type)
+function quantum_gate:_init(type, span)
   self._type = type
+  self.span = span or 1
   self._state = "idle"
   self._distance_dropped = 0 -- ゲートが落下した距離
 end

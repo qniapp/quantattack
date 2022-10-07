@@ -229,8 +229,8 @@ function board:gate_at(x, y)
   --#if assert
   assert(x >= 1, x)
   assert(x <= self.cols, x)
-  assert(y >= 1, "y = "..y.." >= 1")
-  assert(y <= self.row_next_gates, "y = "..y.." > board.row_next_gates")
+  assert(y >= 1, "y = " .. y .. " >= 1")
+  assert(y <= self.row_next_gates, "y = " .. y .. " > board.row_next_gates")
   --#endif
 
   local gate = self._gates[x][y]
@@ -273,7 +273,7 @@ function board:put_garbage()
   local span = flr(rnd(4)) + 3
   local x = flr(rnd(self.cols - span + 1)) + 1
 
-  self:put(x, 1, garbage_gate(span, x))
+  self:put(x, 1, garbage_gate(x, span))
 end
 
 function board:gates_to_puff()
