@@ -1,5 +1,6 @@
 require("engine/core/class")
 
+-- TODO: pico-boots の colors に入れ換え
 local colors = require("colors")
 local board_class = require("board")
 
@@ -72,9 +73,12 @@ function player_cursor:render(board)
   local y = board:screen_y(self.y)
   local dy = board:dy()
 
+  -- TODO: .cannot_swap のテスト
   if self.cannot_swap then
     pal(color, colors.red)
   end
+
+  -- TODO: .game_over のテスト
   if self.game_over then
     pal(color, colors.dark_grey)
   end
