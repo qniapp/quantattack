@@ -35,25 +35,21 @@ end
 
 function game:on_update() -- override
   if btnp(game.button.left) then
-    sfx(0)
     player_cursor:move_left()
   end
   if btnp(game.button.right) then
-    sfx(0)
     player_cursor:move_right()
   end
   if btnp(game.button.up) then
-    sfx(0)
     player_cursor:move_up()
   end
   if btnp(game.button.down) then
-    sfx(0)
     player_cursor:move_down()
   end
   if btnp(game.button.x) then
     local swapped = board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y)
     if swapped then
-      sfx(player_cursor_class.sfx_swap)
+      player_cursor:sfx_swap()
     end
   end
   if btnp(game.button.o) then

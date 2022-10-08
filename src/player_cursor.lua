@@ -7,8 +7,11 @@ local board_class = require("board")
 -- ゲートを入れ換える位置を指定するのに使われる。
 local player_cursor = new_class()
 
-
-player_cursor.sfx_swap = 2
+-- SFX
+--   - sfx_move: 移動したときの音
+--   - sfx_swap: ゲート入れ替えの音
+local sfx_move = 0
+local sfx_swap = 2
 
 -- カーソルの色。
 -- ボードの端に到達したためこれ以上カーソルが動かせない場合や、
@@ -36,6 +39,7 @@ end
 
 -- カーソルを左に移動
 function player_cursor:move_left()
+  sfx(sfx_move)
   if self.x > 1 then
     self.x = self.x - 1
   end
@@ -43,6 +47,7 @@ end
 
 -- カーソルを右に移動
 function player_cursor:move_right()
+  sfx(sfx_move)
   if self.x < board_class.cols - 1 then
     self.x = self.x + 1
   end
@@ -50,6 +55,7 @@ end
 
 -- カーソルを上に移動
 function player_cursor:move_up()
+  sfx(sfx_move)
   if self.y > 1 then
     self.y = self.y - 1
   end
@@ -57,9 +63,15 @@ end
 
 -- カーソルを下に移動
 function player_cursor:move_down()
+  sfx(sfx_move)
   if self.y < board_class.rows then
     self.y = self.y + 1
   end
+end
+
+-- ゲート入れ替えの効果音を鳴らす
+function player_cursor:sfx_swap()
+  sfx(sfx_swap)
 end
 
 -- カーソルの状態を更新
