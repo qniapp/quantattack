@@ -73,16 +73,6 @@ function player_cursor:render(board)
   local y = board:screen_y(self.y)
   local dy = board:dy()
 
-  -- TODO: .cannot_swap のテスト
-  if self.cannot_swap then
-    pal(color, colors.red)
-  end
-
-  -- TODO: .game_over のテスト
-  if self.game_over then
-    pal(color, colors.dark_grey)
-  end
-
   local d = self._tick >= animation_frame_count and 1 or 0
   local x_left = x - 5 + d
   local x_middle = x + 4
