@@ -7,6 +7,9 @@ local board_class = require("board")
 -- ゲートを入れ換える位置を指定するのに使われる。
 local player_cursor = new_class()
 
+
+player_cursor.sfx_swap = 2
+
 -- カーソルの色。
 -- ボードの端に到達したためこれ以上カーソルが動かせない場合や、
 -- ゲームオーバー時に色が変わる。

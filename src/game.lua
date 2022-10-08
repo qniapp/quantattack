@@ -53,8 +53,7 @@ function game:on_update() -- override
   if btnp(game.button.x) then
     local swapped = board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y)
     if swapped then
-      -- TODO: 2 は player_cursor の定数 (player_cursor_class.sfx_swap) にする
-      sfx(2)
+      sfx(player_cursor_class.sfx_swap)
     end
   end
   if btnp(game.button.o) then
