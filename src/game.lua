@@ -1,11 +1,11 @@
 require("engine/application/constants")
 require("engine/core/class")
+require("engine/render/color")
 
 local gameapp = require("engine/application/gameapp")
 local board_class = require("board")
 local player_cursor_class = require("player_cursor")
 local puff_particle = require("puff_particle")
-local colors = require("colors")
 
 local game = derived_class(gameapp)
 local board = board_class()
