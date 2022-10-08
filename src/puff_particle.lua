@@ -1,5 +1,5 @@
 require("engine/core/class")
-require("colors")
+require("engine/render/color")
 
 local puff_particle = new_class()
 local all_particles = {}
