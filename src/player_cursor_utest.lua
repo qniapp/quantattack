@@ -3,7 +3,7 @@ require("engine/test/bustedhelper")
 local player_cursor_class = require("player_cursor")
 local board_class = require("board")
 
-describe('player_cursor #solo', function()
+describe('player_cursor', function()
   local player_cursor
 
   before_each(function()
