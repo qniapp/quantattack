@@ -1,7 +1,6 @@
 require("engine/core/class")
+require("engine/render/color")
 
--- TODO: pico-boots の colors に入れ換え
-local colors = require("colors")
 local board_class = require("board")
 
 -- プレイヤーのカーソル。
