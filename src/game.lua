@@ -9,7 +9,7 @@ local colors = require("colors")
 
 local game = derived_class(gameapp)
 local board = board_class()
-local player_cursor = player_cursor_class(board.cols, board.rows)
+local player_cursor = player_cursor_class()
 local solo = require("solo")
 
 game.button = {
