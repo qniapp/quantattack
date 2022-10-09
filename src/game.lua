@@ -1,15 +1,15 @@
 require("engine/application/constants")
 require("engine/core/class")
+require("engine/render/color")
 
 local gameapp = require("engine/application/gameapp")
 local board_class = require("board")
 local player_cursor_class = require("player_cursor")
 local puff_particle = require("puff_particle")
-local colors = require("colors")
 
 local game = derived_class(gameapp)
 local board = board_class()
-local player_cursor = player_cursor_class(board.cols, board.rows)
+local player_cursor = player_cursor_class()
 local solo = require("solo")
 
 game.button = {
@@ -35,29 +35,20 @@ end
 
 function game:on_update() -- override
   if btnp(game.button.left) then
-    sfx(0)
     player_cursor:move_left()
   end
   if btnp(game.button.right) then
-    sfx(0)
     player_cursor:move_right()
   end
   if btnp(game.button.up) then
-    sfx(0)
     player_cursor:move_up()
   end
   if btnp(game.button.down) then
-    sfx(0)
     player_cursor:move_down()
   end
   if btnp(game.button.x) then
-    local swapped = board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y)
-    -- if swapped == false then
-    --   player_cursor.cannot_swap = true
-    -- end
-
-    if swapped then
-      sfx(2)
+    if board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y) then
+      player_cursor:sfx_swap()
     end
   end
   if btnp(game.button.o) then

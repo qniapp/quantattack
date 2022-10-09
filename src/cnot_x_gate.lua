@@ -1,8 +1,8 @@
 require("engine/core/class")
+require("engine/render/color")
 
 local quantum_gate = require("quantum_gate")
 local cnot_x_gate = derived_class(quantum_gate)
-local colors = require("colors")
 
 function cnot_x_gate:_init(cnot_c_x)
   assert(cnot_c_x)

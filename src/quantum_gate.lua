@@ -280,7 +280,7 @@ end
 -------------------------------------------------------------------------------
 
 function quantum_gate:is_swappable()
-  return self:is_idle() or self:is_swap_finished()
+  return self:is_idle() or self:is_dropped() or self:is_swap_finished()
 end
 
 function quantum_gate:is_swapping()

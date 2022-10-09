@@ -1,7 +1,6 @@
 require("engine/core/class")
 
 local garbage_gate = require("garbage_gate")
-local gate_placeholder = require("gate_placeholder")
 local gate_reduction_rules = require("gate_reduction_rules")
 local i_gate = require("i_gate")
 local h_gate = require("h_gate")
@@ -15,19 +14,17 @@ local quantum_gate = require("quantum_gate")
 
 local board = new_class()
 
-board.default_cols = 6
-board.default_rows = 12
+board.cols = 6 -- board の列数
+board.rows = 12 -- board の行数
 
 function board:_init()
-  self.cols = board.default_cols
-  self.rows = board.default_rows
-  self.row_next_gates = board.default_rows + 1
+  self.row_next_gates = board.rows + 1
   self._gates = {}
   self._offset_x = 10
   self._offset_y = 10
 
   -- fill the board with I gates
-  for x = 1, self.cols do
+  for x = 1, board.cols do
     self._gates[x] = {}
     for y = 1, self.row_next_gates do
       self:put(x, y, i_gate())
@@ -37,9 +34,9 @@ end
 
 function board:initialize_with_random_gates()
   for y = self.row_next_gates, 6, -1 do
-    for x = 1, self.cols do
-      if y >= self.rows - 2 or
-          (y < self.rows - 2 and rnd(1) > (y - 11) * -0.1 and (not self:is_empty(x, y + 1))) then
+    for x = 1, board.cols do
+      if y >= board.rows - 2 or
+          (y < board.rows - 2 and rnd(1) > (y - 11) * -0.1 and (not self:is_empty(x, y + 1))) then
         repeat
           self:put(x, y, self:_random_single_gate())
         until #gate_reduction_rules:reduce(self, x, y, true).to == 0
@@ -52,9 +49,9 @@ function board:initialize_with_random_gates()
   local swap_other_x
   local swap_y
   repeat
-    swap_x = flr(rnd(self.cols)) + 1
-    swap_other_x = flr(rnd(self.cols)) + 1
-    swap_y = flr(rnd(self.rows)) + 1
+    swap_x = flr(rnd(board.cols)) + 1
+    swap_other_x = flr(rnd(board.cols)) + 1
+    swap_y = flr(rnd(board.rows)) + 1
   until not self:is_empty(swap_x, swap_y + 1) and swap_other_x ~= swap_x
 
   self:put(swap_x, swap_y, swap_gate(swap_other_x))
@@ -85,8 +82,8 @@ function board:update()
 end
 
 function board:reduce()
-  for x = 1, self.cols do
-    for y = 1, self.rows - 1 do
+  for x = 1, board.cols do
+    for y = 1, board.rows - 1 do
       if not self:gate_at(x, y):is_reducible() then
         goto next
       end
@@ -107,8 +104,8 @@ function board:reduce()
 end
 
 function board:drop_gates()
-  for x = 1, self.cols do
-    for y = self.rows - 1, 1, -1 do
+  for x = 1, board.cols do
+    for y = board.rows - 1, 1, -1 do
       local gate = self:gate_at(x, y)
 
       if gate:is_placeholder() then
@@ -141,8 +138,8 @@ end
 function board:_update_gates()
   local gates_to_swap = {}
 
-  for x = 1, self.cols do
-    for y = self.rows, 1, -1 do
+  for x = 1, board.cols do
+    for y = board.rows, 1, -1 do
       local gate = self:gate_at(x, y)
       if gate:is_placeholder() then
         goto next
@@ -169,7 +166,7 @@ end
 
 function board:render()
   -- draw idle gates
-  for x = 1, self.cols do
+  for x = 1, board.cols do
     for y = 1, self.row_next_gates do
       local gate = self:gate_at(x, y)
       local screen_x = self:screen_x(x)
@@ -178,8 +175,8 @@ function board:render()
       if gate:is_swap() and x < gate.other_x then
         local connection_y = self:screen_y(y) + 3
         line(self:screen_x(x) + 3, connection_y,
-             self:screen_x(gate.other_x) + 3, connection_y,
-             colors.yellow)
+          self:screen_x(gate.other_x) + 3, connection_y,
+          colors.yellow)
       end
 
       gate:render(screen_x, screen_y)
@@ -188,26 +185,27 @@ function board:render()
 
   -- border left
   line(self._offset_x - 2, self._offset_y,
-    self._offset_x - 2, self:screen_y(self.rows + 1),
+    self._offset_x - 2, self:screen_y(board.rows + 1),
     colors.white)
   -- border bottom
-  line(self._offset_x - 1, self:screen_y(self.rows + 1),
-    self._offset_x + self.cols * quantum_gate.size - 1, self:screen_y(self.rows + 1),
+  line(self._offset_x - 1, self:screen_y(board.rows + 1),
+    self._offset_x + board.cols * quantum_gate.size - 1, self:screen_y(board.rows + 1),
     colors.white)
   -- border right
-  line(self._offset_x + self.cols * quantum_gate.size, self._offset_y,
-    self._offset_x + self.cols * quantum_gate.size, self:screen_y(self.rows + 1),
+  line(self._offset_x + board.cols * quantum_gate.size, self._offset_y,
+    self._offset_x + board.cols * quantum_gate.size, self:screen_y(board.rows + 1),
     colors.white)
   -- mask under the border bottom
-  rectfill(self._offset_x - 1, self:screen_y(self.rows + 1) + 1,
-    self._offset_x + self.cols * quantum_gate.size - 1, 127,
+  rectfill(self._offset_x - 1, self:screen_y(board.rows + 1) + 1,
+    self._offset_x + board.cols * quantum_gate.size - 1, 127,
     colors.black)
 end
 
 function board:swap(x_left, x_right, y)
   --#if assert
   assert(x_left < x_right)
-  assert(y <= self.rows)
+  assert(x_right <= board.cols)
+  assert(y <= board.rows)
   --#endif
 
   local left_gate = self:gate_at(x_left, y)
@@ -281,7 +279,7 @@ end
 function board:gate_at(x, y)
   --#if assert
   assert(x >= 1, x)
-  assert(x <= self.cols, x)
+  assert(x <= board.cols, x)
   assert(y >= 1, "y = " .. y .. " >= 1")
   assert(y <= self.row_next_gates, "y = " .. y .. " > board.row_next_gates")
   --#endif
@@ -324,7 +322,7 @@ end
 function board:put(x, y, gate)
   --#if assert
   assert(x >= 1, x)
-  assert(x <= self.cols, x)
+  assert(x <= board.cols, x)
   assert(y >= 1, "y = " .. y .. " >= 1")
   assert(y <= self.row_next_gates, "y = " .. y .. " > board.row_next_gates")
   --#endif
@@ -334,7 +332,7 @@ end
 
 function board:put_garbage()
   local span = flr(rnd(4)) + 3
-  local x = flr(rnd(self.cols - span + 1)) + 1
+  local x = flr(rnd(board.cols - span + 1)) + 1
 
   self:put(x, 1, garbage_gate(x, span))
 end
@@ -342,8 +340,8 @@ end
 function board:gates_to_puff()
   local gates = {}
 
-  for x = 1, self.cols do
-    for y = 1, self.rows do
+  for x = 1, board.cols do
+    for y = 1, board.rows do
       local gate = self:gate_at(x, y)
 
       if gate.puff then
@@ -361,7 +359,7 @@ function board:_tostring()
   local str = ''
 
   for y = 1, self.row_next_gates do
-    for x = 1, self.cols do
+    for x = 1, board.cols do
       str = str .. self:gate_at(x, y):_tostring() .. " "
     end
     str = str .. "\n"
