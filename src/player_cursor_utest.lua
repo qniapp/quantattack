@@ -53,8 +53,12 @@ describe('player_cursor', function()
     end)
   end)
 
+  describe('sfx_swap', function()
+    assert.has_no.errors(function() player_cursor:sfx_swap() end)
+  end)
+
   describe('update', function()
-    it("should update", function()
+    it("should increment its tick", function()
       local tick = player_cursor._tick
 
       player_cursor:update()
