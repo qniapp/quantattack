@@ -21,23 +21,4 @@ function swap_gate:_init(other_x)
   }
 end
 
--- function swap_gate:before_update()
---   if self.tick_connection == nil then
---     self.tick_connection = 0
---     if self.connection == nil then
---       self.connection = flr(rnd(2)) == 0
---     end
---     if self.connection then
---       self.connection_duration = flr(rnd(5)) * 30
---     else
---       self.connection_duration = flr(rnd(5)) + 5
---     end
---   elseif self.tick_connection == self.connection_duration then
---     self.tick_connection = nil
---     self.connection = not self.connection
---   else
---     self.tick_connection = self.tick_connection + 1
---   end
--- end
-
 return swap_gate
