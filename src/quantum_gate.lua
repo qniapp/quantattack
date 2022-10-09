@@ -26,73 +26,86 @@ end
 
 -- gate type
 
+-- I ゲートである場合 true を返す
 function quantum_gate:is_i()
   return self._type == "i"
 end
 
+-- H ゲートである場合 true を返す
 function quantum_gate:is_h()
   return self._type == "h"
 end
 
+-- X ゲートである場合 true を返す
 function quantum_gate:is_x()
   return self._type == "x"
 end
 
+-- Y ゲートである場合 true を返す
 function quantum_gate:is_y()
   return self._type == "y"
 end
 
+-- Z ゲートである場合 true を返す
 function quantum_gate:is_z()
   return self._type == "z"
 end
 
+-- S ゲートである場合 true を返す
 function quantum_gate:is_s()
   return self._type == "s"
 end
 
+-- T ゲートである場合 true を返す
 function quantum_gate:is_t()
   return self._type == "t"
 end
 
+-- SWAP ゲートである場合 true を返す
 function quantum_gate:is_swap()
   return self._type == "swap"
 end
 
+-- Control ゲートである場合 true を返す
 function quantum_gate:is_control()
   return self._type == "control"
 end
 
+-- CNOT ゲート内の X ゲートである場合 true を返す
 function quantum_gate:is_cnot_x()
   return self._type == "cnot_x"
 end
 
+-- おじゃまゲートの先頭 (左端) である場合 true を返す
 function quantum_gate:is_garbage()
   return self._type == "g"
 end
 
 -- gate state
 
+-- ゲートが idle である場合 true を返す
 function quantum_gate:is_idle()
   return self._state == "idle"
 end
 
+-- 他のゲートが通過 (ドロップ) できる場合 true を返す
 function quantum_gate:is_empty()
-  return self:is_i() or self:is_dropping()
+  return (self:is_i() and not self:is_swapping()) or
+      self:is_dropping()
 end
 
-function quantum_gate:is_busy()
-  return not (self:is_i() or self:is_idle() or self:is_dropped())
-end
-
+-- マッチ状態である場合 true を返す
 function quantum_gate:is_match()
   return self._state == "match"
 end
 
+-- マッチできる場合 true を返す
 function quantum_gate:is_reducible()
-  return self:is_garbage() or (not self:is_busy())
+  local is_busy = not (self:is_idle() or self:is_dropped())
+  return (not self:is_i()) and (not is_busy) or self:is_garbage()
 end
 
-function quantum_gate:update(board)
+function quantum_gate:update(board, x, y)
   if self:is_idle() then
     self.puff = false
   elseif self:is_swapping() then
@@ -103,6 +116,16 @@ function quantum_gate:update(board)
     if self.tick_swap < quantum_gate._num_frames_swap then
       self.tick_swap = self.tick_swap + 1
     else
+      -- SWAP ゲートの場合、ペアのゲートの other_x を更新する
+      if self:is_swap() then
+        if self:_is_swapping_with_left() then
+          board:gate_at(self.other_x, y).other_x = x - 1
+        elseif self:_is_swapping_with_right() then
+          board:gate_at(self.other_x, y).other_x = x + 1
+        end
+      end
+
+      -- [???] swap_finished ステートいる？ いらないなら、idle にする
       self._state = quantum_gate._state_swap_finished
     end
   elseif self:is_swap_finished() then
@@ -117,30 +140,21 @@ function quantum_gate:update(board)
     local next_y = board:y(next_screen_y)
 
     local droppable = true
-    for x = self.x, self.x + self.span - 1 do
+    local start_x, end_x
+
+    if self:is_swap() then
+      start_x, end_x = min(self.x, self.other_x), max(self.x, self.other_x)
+    else
+      start_x, end_x = self.x, self.x + self.span - 1
+    end
+
+    for x = start_x, end_x do
       if not board:is_empty(x, next_y) then
         droppable = false
       end
-
-      -- SWAP ゲートでは、ペアのゲートの下も空でなければ drop できない
-      if self:is_swap() then
-        if self.x < self.other_x then
-          for tmp_x = self.x + 1, self.other_x do
-            if not board:is_empty(tmp_x, next_y) then
-              droppable = false
-            end
-          end
-        else
-          for tmp_x = self.other_x, self.x - 1 do
-            if not board:is_empty(tmp_x, next_y) then
-              droppable = false
-            end
-          end
-        end
-      end
     end
 
-    if next_y <= board.rows and droppable then
+    if droppable and next_y <= board.rows then
       self._distance_dropped = self._distance_dropped + quantum_gate._dy
     else
       self._distance_dropped = 0
@@ -238,6 +252,9 @@ end
 -- drop
 -------------------------------------------------------------------------------
 
+-- ゲートが下に落とせる状態にあるかどうかを返す
+-- 注意: SWAP と CNOT ゲートでは、2 つのゲートがともに droppable であることを
+-- 別途チェックする必要がある。
 function quantum_gate:is_droppable()
   return not (self:is_i() or self:is_dropping() or self:is_swapping())
 end
@@ -245,9 +262,10 @@ end
 function quantum_gate:drop(x, start_y)
   --#if assert
   assert(1 <= x)
-  assert(x <= 6) -- todo: board の定数を持ってくる
+  assert(x <= 6)
   assert(1 <= start_y)
-  assert(start_y <= 12) -- todo: board の定数を持ってくる
+  assert(start_y <= 12)
+  assert(self:is_droppable())
   --#endif
 
   self.x = x
@@ -315,12 +333,12 @@ end
 
 -- private
 
-function quantum_gate:_is_swapping_with_right()
-  return self._state == quantum_gate._state_swapping_with_right
-end
-
 function quantum_gate:_is_swapping_with_left()
   return self._state == quantum_gate._state_swapping_with_left
+end
+
+function quantum_gate:_is_swapping_with_right()
+  return self._state == quantum_gate._state_swapping_with_right
 end
 
 return quantum_gate

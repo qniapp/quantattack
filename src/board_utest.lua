@@ -56,6 +56,21 @@ describe('board', function()
       assert.is_true(board:gate_at(1, 12):is_h())
       assert.is_true(board:gate_at(1, 12):is_idle())
     end)
+
+    -- (S は SWAP ゲート)
+    --
+    --  S-S →(右 の S を左と入れ換え)→ SS
+    it('should update swap_gate.other_x after a swap #solo', function()
+      board:put(1, 12, swap_gate(3))
+      board:put(3, 12, swap_gate(1))
+
+      board:swap(2, 3, 12)
+      board:update()
+      board:update()
+      board:update()
+
+      assert.are_equal(2, board:gate_at(1, 12).other_x)
+    end)
   end)
 
   describe('reduce', function()
@@ -328,6 +343,22 @@ describe('board', function()
       board:drop_gates()
 
       assert.is_true(board:gate_at(1, 1):is_dropping())
+    end)
+
+    it('should drop swap pair', function()
+      board:put(1, 11, swap_gate(3))
+      board:put(3, 11, swap_gate(1))
+      board:put(3, 12, h_gate())
+
+      board:swap(2, 3, 11)
+
+      board:update()
+      board:update()
+      board:update()
+      board:update()
+
+      assert.is_true(board:gate_at(1, 11):is_dropping())
+      assert.is_true(board:gate_at(2, 11):is_dropping())
     end)
   end)
 end)

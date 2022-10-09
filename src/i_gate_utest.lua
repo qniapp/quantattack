@@ -84,12 +84,6 @@ describe('i_gate', function()
       end)
     end)
 
-    describe("is_busy", function()
-      it("should return false", function()
-        assert.is_false(i_gate:is_busy())
-      end)
-    end)
-
     describe("is_swapping", function()
       it("should return false", function()
         assert.is_false(i_gate:is_swapping())

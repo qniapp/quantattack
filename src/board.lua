@@ -112,20 +112,55 @@ function board:drop_gates()
         goto next
       end
 
-      -- swap ゲートでは、ペアのどちらかが接地している場合は drop しない
+      local start_x, end_x
+
+      -- TODO: CNOT の場合も追加する (if gate:is_swap() or ...)
       if gate:is_swap() then
-        if not (self:is_empty(x, y + 1) and self:is_empty(gate.other_x, y + 1)) then
-          goto next
-        end
+        -- SWAP ゲートと CNOT ゲートの場合、
+        -- 2 つのゲートの下だけでなく、ゲート間の下がすべて空いている必要がある
+        --
+        -- (droppable な場合)
+        --   C---X
+        --  H
+        --
+        -- (droppable でない場合)
+        --   C---X
+        --    H
+        start_x, end_x = min(x, gate.other_x), max(x, gate.other_x)
       else
-        for tmp_x = x, x + gate.span - 1 do
-          if not self:is_empty(tmp_x, y + 1) then
-            goto next
-          end
+        -- それ以外の場合、ゲートの下だけをチェックする。
+        -- ただし Garbage ゲートのように幅 (span) が 2 以上の場合があるので、
+        -- span を考慮してチェックする
+        --
+        -- (droppable な場合)
+        --   X
+        --  H
+        --
+        -- (droppable でない場合)
+        --    X
+        --    H
+        --
+        -- (Garbage ゲートが droppable な場合)
+        --   GGGGG
+        --  H
+        --
+        -- (Garbage ゲートが droppable でない場合)
+        --   GGGGG
+        --    H
+        --
+        start_x, end_x = x, x + gate.span - 1
+      end
+
+      for tmp_x = start_x, end_x do
+        if not self:is_empty(tmp_x, y + 1) then
+          goto next
         end
       end
 
       gate:drop(x, y)
+      if gate:is_swap() then -- SWAP ゲートの場合、もう一方のゲートも下に落とす
+        self:gate_at(gate.other_x, y):drop(gate.other_x, y)
+      end
 
       ::next::
     end
@@ -139,7 +174,7 @@ function board:_update_gates()
     for y = board.rows, 1, -1 do
       local gate = self:gate_at(x, y)
 
-      gate:update(self)
+      gate:update(self, x, y)
 
       if gate:is_swap_finished() then
         add(gates_to_swap, { gate = gate, y = y })
@@ -241,15 +276,6 @@ function board:swap(x_left, x_right, y)
 
   left_gate:swap_with_right(x_right)
   right_gate:swap_with_left(x_left)
-
-  if left_gate:is_swap() then
-    local other_gate = self:gate_at(left_gate.other_x, y)
-    other_gate.other_x = other_gate.other_x + 1
-  end
-  if right_gate:is_swap() then
-    local other_gate = self:gate_at(right_gate.other_x, y)
-    other_gate.other_x = other_gate.other_x - 1
-  end
 
   return true
 end
