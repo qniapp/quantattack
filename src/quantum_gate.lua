@@ -70,10 +70,6 @@ function quantum_gate:is_garbage()
   return self._type == "g"
 end
 
-function quantum_gate:is_placeholder()
-  return self._type == "?"
-end
-
 -- gate state
 
 function quantum_gate:is_idle()
@@ -97,10 +93,6 @@ function quantum_gate:is_reducible()
 end
 
 function quantum_gate:update(board)
-  if self:is_placeholder() then
-    return
-  end
-
   if self:is_idle() then
     self.puff = false
   elseif self:is_swapping() then
@@ -181,9 +173,6 @@ end
 
 function quantum_gate:render(screen_x, screen_y)
   if self:is_i() then
-    return
-  end
-  if self:is_placeholder() then
     return
   end
 

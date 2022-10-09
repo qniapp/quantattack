@@ -108,9 +108,6 @@ function board:drop_gates()
     for y = board.rows - 1, 1, -1 do
       local gate = self:gate_at(x, y)
 
-      if gate:is_placeholder() then
-        goto next
-      end
       if not gate:is_droppable() then
         goto next
       end
@@ -141,9 +138,6 @@ function board:_update_gates()
   for x = 1, board.cols do
     for y = board.rows, 1, -1 do
       local gate = self:gate_at(x, y)
-      if gate:is_placeholder() then
-        goto next
-      end
 
       gate:update(self)
 
