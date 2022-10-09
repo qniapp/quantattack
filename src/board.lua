@@ -204,6 +204,7 @@ end
 function board:swap(x_left, x_right, y)
   --#if assert
   assert(x_left < x_right)
+  assert(x_right <= board.cols)
   assert(y <= board.rows)
   --#endif
 
