@@ -678,9 +678,9 @@ function board:reduce(x, y, include_next_gates)
     }
   end
 
-  -- H                  I
-  -- SWAP-SWAP  ----->  SWAP-SWAP
-  --         H                  I
+  --  H            I
+  --  S-S  ----->  S-S
+  --    H            I
   if gate:is_h() and
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
       self:reducible_gate_at(gate_y1.other_x, y2):is_h() then
@@ -690,9 +690,9 @@ function board:reduce(x, y, include_next_gates)
     }
   end
 
-  -- X                  I
-  -- SWAP-SWAP  ----->  SWAP-SWAP
-  --         X                  I
+  --  X            I
+  --  S-S  ----->  S-S
+  --    X            I
   if gate:is_x() and
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
       self:reducible_gate_at(gate_y1.other_x, y2):is_x() then
@@ -702,9 +702,9 @@ function board:reduce(x, y, include_next_gates)
     }
   end
 
-  -- Y                  I
-  -- SWAP-SWAP  ----->  SWAP-SWAP
-  --         Y                  I
+  --  Y            I
+  --  S-S  ----->  S-S
+  --    Y            I
   if gate:is_y() and
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
       self:reducible_gate_at(gate_y1.other_x, y2):is_y() then
@@ -714,9 +714,9 @@ function board:reduce(x, y, include_next_gates)
     }
   end
 
-  -- Z                  I
-  -- SWAP-SWAP  ----->  SWAP-SWAP
-  --         Z                  I
+  --  Z            I
+  --  S-S  ----->  S-S
+  --    Z            I
   if gate:is_z() and
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
       self:reducible_gate_at(gate_y1.other_x, y2):is_z() then
@@ -726,9 +726,9 @@ function board:reduce(x, y, include_next_gates)
     }
   end
 
-  -- S                  Z
-  -- SWAP-SWAP  ----->  SWAP-SWAP
-  --         S                  I
+  --  S            Z
+  --  S-S  ----->  S-S
+  --    S            I
   if gate:is_s() and
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
       self:reducible_gate_at(gate_y1.other_x, y2):is_s() then
@@ -738,9 +738,9 @@ function board:reduce(x, y, include_next_gates)
     }
   end
 
-  -- T                  S
-  -- SWAP-SWAP  ----->  SWAP-SWAP
-  --         T                  I
+  --  T            S
+  --  S-S  ----->  S-S
+  --    T            I
   if gate:is_t() and
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
       self:reducible_gate_at(gate_y1.other_x, y2):is_t() then
@@ -750,9 +750,9 @@ function board:reduce(x, y, include_next_gates)
     }
   end
 
-  --  C-------X          I       I
-  --  SWAP-SWAP          SWAP-SWAP
-  --  X-------C  ----->  I       I
+  --  C-X          I I
+  --  S-S  ----->  S-S
+  --  X-C          I I
   if gate:is_control() and other_gate:is_cnot_x() and
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
       gate_y2:is_cnot_x() and gate_y2_other_gate:is_control() and
