@@ -376,6 +376,7 @@ function board:gates_to_puff()
   return gates
 end
 
+--#if debug
 function board:_tostring()
   local str = ''
 
@@ -388,5 +389,6 @@ function board:_tostring()
 
   return str
 end
+--#endif
 
 return board
