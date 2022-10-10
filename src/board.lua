@@ -39,14 +39,13 @@ function board:initialize_with_random_gates()
     for x = 1, board.cols do
       if y >= board.rows - 2 or
           (y < board.rows - 2 and rnd(1) > (y - 11) * -0.1 and (not self:is_empty(x, y + 1))) then
-        repeat
-          self:put(x, y, self:_random_single_gate())
-        until #self:reduce(x, y, true).to == 0
+        self:put_random_gate(x, y)
       end
     end
   end
 
   -- ランダムに swap を 1 つ置く
+  -- TODO: あとで消す
   local swap_x
   local swap_other_x
   local swap_y
@@ -75,6 +74,32 @@ function board:_random_single_gate()
   local gate_type = single_gate_types[flr(rnd(#single_gate_types)) + 1]
 
   return gate_type()
+end
+
+function board:is_busy()
+  for x = 1, self.cols do
+    for y = 1, self.row_next_gates do
+      if not self:gate_at(x, y):is_idle() then
+        return true
+      end
+    end
+  end
+
+  return false
+end
+
+function board:insert_gates_at_bottom()
+  -- 各ゲートを 1 つ上にずらす
+  for y = 1, self.row_next_gates - 1 do
+    for x = 1, self.cols do
+      self:put(x, y, self:gate_at(x, y + 1))
+    end
+  end
+
+  -- 最下段に新しいゲートを置く
+  for x = 1, self.cols do
+    self:put_random_gate(x, self.row_next_gates)
+  end
 end
 
 function board:update()
@@ -353,6 +378,12 @@ function board:put(x, y, gate)
   --#endif
 
   self._gates[x][y] = gate
+end
+
+function board:put_random_gate(x, y)
+  repeat
+    self:put(x, y, self:_random_single_gate())
+  until #self:reduce(x, y, true).to == 0
 end
 
 function board:remove_gate(x, y)

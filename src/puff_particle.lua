@@ -10,7 +10,7 @@ puff_particle.update = function()
       del(all_particles, each)
     end
     if (each.tick > each.max_tick - 5) then
-      each.color = colors.dark_grey
+      each.color = colors.dark_gray
     end
 
     each.x = each.x + each.dx
