@@ -377,7 +377,6 @@ function board:gates_to_puff()
   return gates
 end
 
-
 -------------------------------------------------------------------------------
 -- gate reduction
 -------------------------------------------------------------------------------
@@ -495,18 +494,6 @@ function board:reduce(x, y, include_next_gates)
     }
   end
 
-  --  SWAP-SWAP          I I
-  --  SWAP-SWAP  ----->  I I
-  if gate.other_x == gate_y1.other_x and
-      gate:is_swap() and other_gate:is_swap() and
-      gate_y1:is_swap() and gate_y1_other_gate:is_swap() then
-    local dx = gate.other_x - x
-    return {
-      to = { {}, { dx = dx },
-        { dy = 1 }, { dx = dx, dy = 1 } },
-    }
-  end
-
   --  C-X          I I
   --  C-X  ----->  I I
   if gate.other_x == gate_y1.other_x and
@@ -515,6 +502,19 @@ function board:reduce(x, y, include_next_gates)
     local dx = gate.other_x - x
     return {
       score = 200,
+      to = { {}, { dx = dx },
+        { dy = 1 }, { dx = dx, dy = 1 } },
+    }
+  end
+
+  --  S-S          I I
+  --  S-S  ----->  I I
+  if gate:is_swap() and other_gate:is_swap() and
+      gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
+      gate.other_x == gate_y1.other_x then
+    local dx = gate.other_x - x
+    return {
+      score = 3000,
       to = { {}, { dx = dx },
         { dy = 1 }, { dx = dx, dy = 1 } },
     }
@@ -678,14 +678,22 @@ function board:reduce(x, y, include_next_gates)
     }
   end
 
+  --
+  -- SWAP gate rules
+  --
+  local gate_y2_other_gate_under_swap = i_gate()
+  if gate_y1:is_swap() then
+    gate_y2_other_gate_under_swap = self:reducible_gate_at(gate_y1.other_x, y2)
+  end
+
   --  H            I
   --  S-S  ----->  S-S
   --    H            I
   if gate:is_h() and
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-      self:reducible_gate_at(gate_y1.other_x, y2):is_h() then
+      gate_y2_other_gate_under_swap:is_h() then
     return {
-      score = 600,
+      score = 1000,
       to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
     }
   end
@@ -695,9 +703,9 @@ function board:reduce(x, y, include_next_gates)
   --    X            I
   if gate:is_x() and
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-      self:reducible_gate_at(gate_y1.other_x, y2):is_x() then
+      gate_y2_other_gate_under_swap:is_x() then
     return {
-      score = 600,
+      score = 1000,
       to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
     }
   end
@@ -707,9 +715,9 @@ function board:reduce(x, y, include_next_gates)
   --    Y            I
   if gate:is_y() and
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-      self:reducible_gate_at(gate_y1.other_x, y2):is_y() then
+      gate_y2_other_gate_under_swap:is_y() then
     return {
-      score = 600,
+      score = 1000,
       to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
     }
   end
@@ -719,9 +727,9 @@ function board:reduce(x, y, include_next_gates)
   --    Z            I
   if gate:is_z() and
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-      self:reducible_gate_at(gate_y1.other_x, y2):is_z() then
+      gate_y2_other_gate_under_swap:is_z() then
     return {
-      score = 600,
+      score = 1000,
       to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
     }
   end
@@ -731,9 +739,9 @@ function board:reduce(x, y, include_next_gates)
   --    S            I
   if gate:is_s() and
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-      self:reducible_gate_at(gate_y1.other_x, y2):is_s() then
+      gate_y2_other_gate_under_swap:is_s() then
     return {
-      score = 600,
+      score = 1200,
       to = { { gate = z_gate() }, { dx = gate_y1.other_x - x, dy = 2 } }
     }
   end
@@ -743,9 +751,9 @@ function board:reduce(x, y, include_next_gates)
   --    T            I
   if gate:is_t() and
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-      self:reducible_gate_at(gate_y1.other_x, y2):is_t() then
+      gate_y2_other_gate_under_swap:is_t() then
     return {
-      score = 600,
+      score = 1200,
       to = { { gate = s_gate() }, { dx = gate_y1.other_x - x, dy = 2 } }
     }
   end
@@ -759,7 +767,7 @@ function board:reduce(x, y, include_next_gates)
       gate.other_x == gate_y1.other_x and gate.other_x == gate_y2.other_x then
     local dx = gate.other_x - x
     return {
-      score = 800,
+      score = 2000,
       to = { {}, { dx = dx },
         { dy = 2 }, { dx = dx, dy = 2 } }
     }
@@ -785,6 +793,7 @@ function board:_tostring()
 
   return str
 end
+
 --#endif
 
 return board
