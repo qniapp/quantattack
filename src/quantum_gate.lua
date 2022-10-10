@@ -305,7 +305,9 @@ function quantum_gate:swap_with_left(new_x)
   self._state = state_swapping_with_left
 end
 
+-------------------------------------------------------------------------------
 -- debug
+-------------------------------------------------------------------------------
 
 --#if debug
 function quantum_gate:_tostring()

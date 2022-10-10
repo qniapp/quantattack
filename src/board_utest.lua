@@ -76,11 +76,50 @@ describe('board', function()
   end)
 
   describe('reduce', function()
+    --
+    -- reduce -> H
+    --           -
+    --           X (next gates)
+    it('should not reduce when y is the last and include_next_gates = true', function()
+      board:put(1, board.rows, h_gate())
+      board:put(1, board.row_next_gates, x_gate())
+
+      local reduction = board:reduce(1, board.rows, true)
+
+      assert.are.same({}, reduction.to)
+    end)
+
+    --
+    -- reduce -> H
+    --           -
+    --           X (next gates)
+    it('should not reduce when y is the last and include_next_gates = true', function()
+      board:put(1, board.rows, h_gate())
+      board:put(1, board.row_next_gates, x_gate())
+
+      local reduction = board:reduce(1, board.rows, true)
+
+      assert.are.same({}, reduction.to)
+    end)
+
+    --           -
+    -- reduce -> I (next gates)
+    it('should not reduce when y is the next gates row and include_next_gates = true', function()
+      local reduction = board:reduce(1, board.row_next_gates, true)
+
+      assert.are.same({}, reduction.to)
+    end)
+  end)
+
+  describe('reduce_gates', function()
+    -- reduce -> H          I
+    --           -          -
+    --           H  ----->  I (next gates)
     it('should reduce HH', function()
       board:put(1, 11, h_gate())
       board:put(1, 12, h_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 12).reduce_to:is_i())
@@ -90,7 +129,7 @@ describe('board', function()
       board:put(1, 11, x_gate())
       board:put(1, 12, x_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 12).reduce_to:is_i())
@@ -100,7 +139,7 @@ describe('board', function()
       board:put(1, 11, y_gate())
       board:put(1, 12, y_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 12).reduce_to:is_i())
@@ -110,7 +149,7 @@ describe('board', function()
       board:put(1, 11, z_gate())
       board:put(1, 12, z_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 12).reduce_to:is_i())
@@ -120,7 +159,7 @@ describe('board', function()
       board:put(1, 11, z_gate())
       board:put(1, 12, x_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 12).reduce_to:is_y())
@@ -130,7 +169,7 @@ describe('board', function()
       board:put(1, 11, x_gate())
       board:put(1, 12, z_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 12).reduce_to:is_y())
@@ -140,7 +179,7 @@ describe('board', function()
       board:put(1, 11, s_gate())
       board:put(1, 12, s_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 12).reduce_to:is_z())
@@ -150,7 +189,7 @@ describe('board', function()
       board:put(1, 11, t_gate())
       board:put(1, 12, t_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 12).reduce_to:is_s())
@@ -162,7 +201,7 @@ describe('board', function()
       board:put(1, 12, swap_gate(3))
       board:put(3, 12, swap_gate(1))
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11).reduce_to:is_i())
       assert.is_true(board:gate_at(3, 11).reduce_to:is_i())
@@ -175,7 +214,7 @@ describe('board', function()
       board:put(1, 11, x_gate())
       board:put(1, 12, h_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 10).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 11).reduce_to:is_i())
@@ -187,7 +226,7 @@ describe('board', function()
       board:put(1, 11, z_gate())
       board:put(1, 12, h_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 10).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 11).reduce_to:is_i())
@@ -199,7 +238,7 @@ describe('board', function()
       board:put(1, 11, z_gate())
       board:put(1, 12, s_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 10).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 11).reduce_to:is_i())
@@ -212,7 +251,7 @@ describe('board', function()
       board:put(1, 12, control_gate(3))
       board:put(3, 12, cnot_x_gate(1))
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11).reduce_to:is_i())
       assert.is_true(board:gate_at(3, 11).reduce_to:is_i())
@@ -228,7 +267,7 @@ describe('board', function()
       board:put(1, 12, control_gate(3))
       board:put(3, 12, cnot_x_gate(1))
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 10).reduce_to:is_i())
       assert.is_true(board:gate_at(3, 10).reduce_to:is_i())
@@ -246,7 +285,7 @@ describe('board', function()
       board:put(1, 12, h_gate())
       board:put(3, 12, h_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 10).reduce_to:is_i())
       assert.is_true(board:gate_at(3, 10).reduce_to:is_i())
@@ -263,7 +302,7 @@ describe('board', function()
       board:put(3, 11, cnot_x_gate(1))
       board:put(1, 12, x_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 10).reduce_to:is_i())
       assert.is_true(board:gate_at(3, 10).reduce_to:is_i())
@@ -279,7 +318,7 @@ describe('board', function()
       board:put(3, 11, cnot_x_gate(1))
       board:put(3, 12, z_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 10).reduce_to:is_i())
       assert.is_true(board:gate_at(3, 10).reduce_to:is_i())
@@ -295,7 +334,7 @@ describe('board', function()
       board:put(3, 11, control_gate(1))
       board:put(1, 12, x_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 10).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 11):is_cnot_x())
@@ -309,7 +348,7 @@ describe('board', function()
       board:put(3, 11, cnot_x_gate(1))
       board:put(1, 12, z_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 10).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 11):is_control())
@@ -326,7 +365,7 @@ describe('board', function()
       board:put(1, 12, h_gate())
       board:put(3, 12, x_gate())
 
-      board:reduce()
+      board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 9).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 10):is_h())
