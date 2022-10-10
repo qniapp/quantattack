@@ -103,8 +103,7 @@ end
 
 -- マッチできる場合 true を返す
 function quantum_gate:is_reducible()
-  local is_busy = not (self:is_idle() or self:is_dropped())
-  return (not self:is_i()) and (not is_busy) or self:is_garbage()
+  return (not self:is_i()) and self:is_idle() or self:is_garbage()
 end
 
 function quantum_gate:update(board, x, y)
@@ -170,13 +169,15 @@ function quantum_gate:update(board, x, y)
     if droppable and next_y <= board.rows then
       self._distance_dropped = self._distance_dropped + quantum_gate._dy
     else
+      -- dropped
       self._distance_dropped = 0
       self.y = board:y(screen_y)
-      self._state = "dropped"
+
+      board:remove_gate(x, y)
+      board:put(x, board:y(screen_y), self)
+
+      self._state = state_idle
     end
-  elseif self:is_dropped() then
-    self._distance_dropped = 0
-    self._state = state_idle
   elseif self:is_match() then
     --#if assert
     assert(not self:is_garbage())
@@ -291,16 +292,13 @@ function quantum_gate:is_dropping()
   return self._state == "dropping"
 end
 
-function quantum_gate:is_dropped()
-  return self._state == "dropped"
-end
-
 -------------------------------------------------------------------------------
 -- swap
 -------------------------------------------------------------------------------
 
+-- TODO: is_swappable() → is_idle()
 function quantum_gate:is_swappable()
-  return self:is_idle() or self:is_dropped()
+  return self:is_idle()
 end
 
 function quantum_gate:is_swapping()

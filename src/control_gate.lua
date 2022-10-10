@@ -10,7 +10,6 @@ function control_gate:_init(cnot_x_x)
   self.cnot_x_x = cnot_x_x
   self._sprites = {
     idle = 6,
-    dropped = 22,
     jumping = 54,
     falling = 38,
     match_up = 14,

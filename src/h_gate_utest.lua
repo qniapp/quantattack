@@ -97,12 +97,6 @@ describe('h_gate', function()
       end)
     end)
 
-    describe("is_dropped", function()
-      it("should return false", function()
-        assert.is_false(h_gate:is_dropped())
-      end)
-    end)
-
     describe("is_match", function()
       it("should return false", function()
         assert.is_false(h_gate:is_match())

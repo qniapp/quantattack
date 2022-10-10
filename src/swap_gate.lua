@@ -15,7 +15,6 @@ function swap_gate:_init(other_x)
     swapping_with_left = 7,
     swapping_with_right = 7,
     dropping = 7,
-    dropped = 7,
     match = { up = 15, middle = 31, down = 47 }
   }
 end

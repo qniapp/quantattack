@@ -10,7 +10,6 @@ function h_gate:_init()
     swapping_with_left = 0,
     swapping_with_right = 0,
     dropping = 0,
-    dropped = 0,
     match = { up = 8, middle = 24, down = 40 }
   }
 end

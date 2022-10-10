@@ -170,14 +170,7 @@ end
 function board:_update_gates()
   for x = 1, board.cols do
     for y = board.rows, 1, -1 do
-      local gate = self:gate_at(x, y)
-
-      gate:update(self, x, y)
-
-      if gate:is_dropped() then
-        self:put(x, y, i_gate())
-        self:put(x, gate.y, gate)
-      end
+      self:gate_at(x, y):update(self, x, y)
     end
   end
 end
@@ -337,6 +330,10 @@ function board:put(x, y, gate)
   --#endif
 
   self._gates[x][y] = gate
+end
+
+function board:remove_gate(x, y)
+  self:put(x, y, i_gate())
 end
 
 function board:put_garbage()
