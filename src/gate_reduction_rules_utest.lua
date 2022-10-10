@@ -22,7 +22,7 @@ describe('gate_reduction_rules', function()
 
       local reduction = gate_reduction_rules:reduce(board, 1, board.rows, true)
 
-      assert.are.equals('hh', reduction.type)
+      assert.are.same({ {}, { dy = 1 } }, reduction.to)
     end)
 
     it('should not reduce when y is the last row', function()
