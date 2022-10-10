@@ -178,8 +178,6 @@ function board:_update_gates()
         self:put(x, y, i_gate())
         self:put(x, gate.y, gate)
       end
-
-      ::next::
     end
   end
 end

@@ -10,16 +10,19 @@ quantum_gate.size = 8
 
 -- private
 
-quantum_gate._num_frames_swap = 2
-quantum_gate._num_frames_match = 45
-quantum_gate._state_swapping_with_left = "swapping_with_left"
-quantum_gate._state_swapping_with_right = "swapping_with_right"
+local swap_animation_frame_count = 4
+local match_animation_frame_count = 45
+
+local state_idle = "idle"
+local state_swapping_with_left = "swapping_with_left"
+local state_swapping_with_right = "swapping_with_right"
+
 quantum_gate._dy = 3 -- ゲートの落下速度
 
 function quantum_gate:_init(type, span)
   self._type = type
   self.span = span or 1
-  self._state = "idle"
+  self._state = state_idle
   self._distance_dropped = 0 -- ゲートが落下した距離
 end
 
@@ -84,7 +87,7 @@ end
 
 -- ゲートが idle である場合 true を返す
 function quantum_gate:is_idle()
-  return self._state == "idle"
+  return self._state == state_idle
 end
 
 -- 他のゲートが通過 (ドロップ) できる場合 true を返す
@@ -112,7 +115,7 @@ function quantum_gate:update(board, x, y)
     assert(not self:is_garbage())
     --#endif
 
-    if self.tick_swap < quantum_gate._num_frames_swap then
+    if self.tick_swap < swap_animation_frame_count then
       self.tick_swap = self.tick_swap + 1
     else
       -- SWAP 完了
@@ -126,7 +129,7 @@ function quantum_gate:update(board, x, y)
         if not left_gate:is_swap() then
           board:put(x - 1, y, self)
           board:put(x, y, left_gate)
-          left_gate._state = 'idle'
+          left_gate._state = state_idle
         end
       elseif self:_is_swapping_with_right() then
         -- SWAP ゲートの場合、ペアのゲートの other_x を更新する
@@ -138,11 +141,11 @@ function quantum_gate:update(board, x, y)
         if not right_gate:is_swap() then
           board:put(x + 1, y, self)
           board:put(x, y, right_gate)
-          right_gate._state = 'idle'
+          right_gate._state = state_idle
         end
       end
 
-      self._state = 'idle'
+      self._state = state_idle
     end
   elseif self:is_dropping() then
     local screen_y = board:screen_y(self.start_y) + self._distance_dropped
@@ -173,7 +176,7 @@ function quantum_gate:update(board, x, y)
     end
   elseif self:is_dropped() then
     self._distance_dropped = 0
-    self._state = "idle"
+    self._state = state_idle
   elseif self:is_match() then
     --#if assert
     assert(not self:is_garbage())
@@ -181,13 +184,13 @@ function quantum_gate:update(board, x, y)
 
     if self.tick_match == nil then
       self.tick_match = 0
-    elseif self.tick_match < quantum_gate._num_frames_match then
+    elseif self.tick_match < match_animation_frame_count then
       self.tick_match = self.tick_match + 1
     else
       self.tick_match = nil
       self._type = self.reduce_to._type
       self.sprites = self.reduce_to.sprites
-      self._state = "idle"
+      self._state = state_idle
       if self:is_i() then
         self.puff = true
       end
@@ -220,9 +223,9 @@ function quantum_gate:render(screen_x, screen_y)
   else
     local dx = 0
     if self:_is_swapping_with_right() then
-      dx = self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
+      dx = self.tick_swap * (quantum_gate.size / swap_animation_frame_count)
     elseif self:_is_swapping_with_left() then
-      dx = -self.tick_swap * (quantum_gate.size / quantum_gate._num_frames_swap)
+      dx = -self.tick_swap * (quantum_gate.size / swap_animation_frame_count)
     end
 
     spr(self:_sprite(), screen_x + dx, screen_y + dy)
@@ -311,7 +314,7 @@ function quantum_gate:swap_with_right(new_x)
 
   self.tick_swap = 0
   self.new_x_after_swap = new_x
-  self._state = quantum_gate._state_swapping_with_right
+  self._state = state_swapping_with_right
 end
 
 function quantum_gate:swap_with_left(new_x)
@@ -321,7 +324,7 @@ function quantum_gate:swap_with_left(new_x)
 
   self.tick_swap = 0
   self.new_x_after_swap = new_x
-  self._state = quantum_gate._state_swapping_with_left
+  self._state = state_swapping_with_left
 end
 
 -- debug
@@ -340,11 +343,11 @@ end
 -- private
 
 function quantum_gate:_is_swapping_with_left()
-  return self._state == quantum_gate._state_swapping_with_left
+  return self._state == state_swapping_with_left
 end
 
 function quantum_gate:_is_swapping_with_right()
-  return self._state == quantum_gate._state_swapping_with_right
+  return self._state == state_swapping_with_right
 end
 
 return quantum_gate
