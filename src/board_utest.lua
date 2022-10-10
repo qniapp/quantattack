@@ -567,4 +567,17 @@ describe('board', function()
       assert.has_no.errors(function() board:render() end)
     end)
   end)
+
+  describe('raised_dots', function()
+    it('raised_dots > 0 のとき、最後の行も有効になる', function()
+      board.raised_dots = 1
+      board:put(1, 1, h_gate())
+
+      for i = 1, 100 do
+        board:update()
+      end
+
+      assert.is_true(board:gate_at(1, 13):is_h())
+    end)
+  end)
 end)
