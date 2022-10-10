@@ -210,22 +210,21 @@ function board:render()
     end
   end
 
+  local width = board.cols * quantum_gate.size
+  local height = board.rows * quantum_gate.size
+
   -- border left
   line(self._offset_x - 2, self._offset_y,
-    self._offset_x - 2, self:screen_y(board.rows + 1),
-    colors.white)
-  -- border bottom
-  line(self._offset_x - 1, self:screen_y(board.rows + 1),
-    self._offset_x + board.cols * quantum_gate.size - 1, self:screen_y(board.rows + 1),
+    self._offset_x - 2, self._offset_y + height,
     colors.white)
   -- border right
-  line(self._offset_x + board.cols * quantum_gate.size, self._offset_y,
-    self._offset_x + board.cols * quantum_gate.size, self:screen_y(board.rows + 1),
+  line(self._offset_x + width, self._offset_y,
+    self._offset_x + width, self._offset_y + height,
     colors.white)
-  -- mask under the border bottom
-  rectfill(self._offset_x - 1, self:screen_y(board.rows + 1) + 1,
-    self._offset_x + board.cols * quantum_gate.size - 1, 127,
-    colors.black)
+  -- border bottom
+  line(self._offset_x - 1, self._offset_y + height,
+    self._offset_x + width - 1, self._offset_y + height,
+    colors.white)
 end
 
 function board:swap(x_left, x_right, y)
