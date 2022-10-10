@@ -9,7 +9,6 @@ function y_gate:_init()
     idle = 2,
     swapping_with_left = 2,
     swapping_with_right = 2,
-    swap_finished = 2,
     dropping = 2,
     dropped = 2,
     match = { up = 10, middle = 26, down = 42 }

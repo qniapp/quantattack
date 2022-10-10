@@ -168,17 +168,12 @@ function board:drop_gates()
 end
 
 function board:_update_gates()
-  local gates_to_swap = {}
-
   for x = 1, board.cols do
     for y = board.rows, 1, -1 do
       local gate = self:gate_at(x, y)
 
       gate:update(self, x, y)
 
-      if gate:is_swap_finished() then
-        add(gates_to_swap, { gate = gate, y = y })
-      end
       if gate:is_dropped() then
         self:put(x, y, i_gate())
         self:put(x, gate.y, gate)
@@ -187,10 +182,6 @@ function board:_update_gates()
       ::next::
     end
   end
-
-  foreach(gates_to_swap, function(each)
-    self:put(each.gate.new_x_after_swap, each.y, each.gate)
-  end)
 end
 
 function board:render()

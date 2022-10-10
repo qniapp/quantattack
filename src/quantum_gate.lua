@@ -14,7 +14,6 @@ quantum_gate._num_frames_swap = 2
 quantum_gate._num_frames_match = 45
 quantum_gate._state_swapping_with_left = "swapping_with_left"
 quantum_gate._state_swapping_with_right = "swapping_with_right"
-quantum_gate._state_swap_finished = "swap_finished"
 quantum_gate._dy = 3 -- ゲートの落下速度
 
 function quantum_gate:_init(type, span)
@@ -116,24 +115,35 @@ function quantum_gate:update(board, x, y)
     if self.tick_swap < quantum_gate._num_frames_swap then
       self.tick_swap = self.tick_swap + 1
     else
-      -- SWAP ゲートの場合、ペアのゲートの other_x を更新する
-      if self:is_swap() then
-        if self:_is_swapping_with_left() then
+      -- SWAP 完了
+      if self:_is_swapping_with_left() then
+        -- SWAP ゲートの場合、ペアのゲートの other_x を更新する
+        if self:is_swap() then
           board:gate_at(self.other_x, y).other_x = x - 1
-        elseif self:_is_swapping_with_right() then
+        end
+
+        local left_gate = board:gate_at(x - 1, y)
+        if not left_gate:is_swap() then
+          board:put(x - 1, y, self)
+          board:put(x, y, left_gate)
+          left_gate._state = 'idle'
+        end
+      elseif self:_is_swapping_with_right() then
+        -- SWAP ゲートの場合、ペアのゲートの other_x を更新する
+        if self:is_swap() then
           board:gate_at(self.other_x, y).other_x = x + 1
+        end
+
+        local right_gate = board:gate_at(x + 1, y)
+        if not right_gate:is_swap() then
+          board:put(x + 1, y, self)
+          board:put(x, y, right_gate)
+          right_gate._state = 'idle'
         end
       end
 
-      -- [???] swap_finished ステートいる？ いらないなら、idle にする
-      self._state = quantum_gate._state_swap_finished
+      self._state = 'idle'
     end
-  elseif self:is_swap_finished() then
-    --#if assert
-    assert(not self:is_garbage())
-    --#endif
-
-    self._state = "idle"
   elseif self:is_dropping() then
     local screen_y = board:screen_y(self.start_y) + self._distance_dropped
     local next_screen_y = screen_y + quantum_gate._dy
@@ -287,15 +297,11 @@ end
 -------------------------------------------------------------------------------
 
 function quantum_gate:is_swappable()
-  return self:is_idle() or self:is_dropped() or self:is_swap_finished()
+  return self:is_idle() or self:is_dropped()
 end
 
 function quantum_gate:is_swapping()
   return self:_is_swapping_with_right() or self:_is_swapping_with_left()
-end
-
-function quantum_gate:is_swap_finished()
-  return self._state == quantum_gate._state_swap_finished
 end
 
 function quantum_gate:swap_with_right(new_x)

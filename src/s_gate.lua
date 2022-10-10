@@ -9,7 +9,6 @@ function s_gate:_init()
     idle = 4,
     swapping_with_left = 4,
     swapping_with_right = 4,
-    swap_finished = 4,
     dropping = 4,
     dropped = 4,
     match = { up = 12, middle = 28, down = 44 }

@@ -90,12 +90,6 @@ describe('i_gate', function()
       end)
     end)
 
-    describe("is_swap_finished", function()
-      it("should return false", function()
-        assert.is_false(i_gate:is_swap_finished())
-      end)
-    end)
-
     describe("is_dropping", function()
       it("should return false", function()
         assert.is_false(i_gate:is_dropping())

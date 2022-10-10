@@ -9,7 +9,6 @@ function z_gate:_init()
     idle = 3,
     swapping_with_left = 3,
     swapping_with_right = 3,
-    swap_finished = 3,
     dropping = 3,
     dropped = 3,
     match = { up = 11, middle = 27, down = 43 }

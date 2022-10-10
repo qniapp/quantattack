@@ -29,12 +29,6 @@ describe('quantum_gate', function()
     it('should return true if the gate is idle', function()
       assert.is_true(gate:is_swappable())
     end)
-
-    it('should return true if the state is swap_finished', function()
-      gate._state = 'swap_finished'
-
-      assert.is_true(gate:is_swappable())
-    end)
   end)
 
   describe('swap_with_left', function()
