@@ -101,7 +101,9 @@ describe('player_cursor', function()
   end)
 
   describe('sfx_swap', function()
-    assert.has_no.errors(function() player_cursor:sfx_swap() end)
+    it("should play an sfx without errors", function()
+      assert.has_no.errors(function() player_cursor:sfx_swap() end)
+    end)
   end)
 
   describe('update', function()

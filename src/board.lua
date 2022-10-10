@@ -20,6 +20,7 @@ board.rows = 12 -- board の行数
 board.row_next_gates = board.rows + 1
 
 function board:_init()
+  self.raised_dots = 0
   self._gates = {}
   self._offset_x = 10
   self._offset_y = 10
@@ -84,12 +85,12 @@ end
 
 function board:reduce_gates()
   for x = 1, board.cols do
-    for y = 1, board.rows - 1 do
+    for y = 1, board.rows do
       if not self:gate_at(x, y):is_reducible() then
         goto next
       end
 
-      local reduction = self:reduce(x, y)
+      local reduction = self:reduce(x, y, self.raised_dots > 0)
 
       for _index, r in pairs(reduction.to) do
         local dx = r.dx or 0
@@ -105,8 +106,10 @@ function board:reduce_gates()
 end
 
 function board:drop_gates()
+  local max_y = self.raised_dots > 0 and board.rows or board.rows - 1
+
   for x = 1, board.cols do
-    for y = board.rows - 1, 1, -1 do
+    for y = max_y, 1, -1 do
       local gate = self:gate_at(x, y)
 
       if gate:is_droppable(x, y) and self:is_gate_droppable(x, y) then
@@ -123,22 +126,21 @@ end
 
 -- 指定したゲートが行 y に落とせるかどうかを返す。
 -- y を省略した場合、すぐ下の行 y + 1 に落とせるかどうかを返す。
---
--- 注意: 行 board.rows + 1 にあるゲートは絶対に消えないため、
--- 落下可能なゲートの行番号は board.rows - 1 までとなる。
--- このため、gate_y にこれを超える値を指定した場合はエラーとなる。
 function board:is_gate_droppable(gate_x, gate_y, y)
   --#if assert
   assert(1 <= gate_x)
   assert(gate_x <= board.cols)
   assert(1 <= gate_y)
-  assert(gate_y <= self.rows - 1)
+  assert(gate_y <= board.row_next_gates)
   --#endif
+
+  if gate_y == board.row_next_gates then
+    return false
+  end
 
   local gate, start_x, end_x = self:gate_at(gate_x, gate_y)
 
-  -- TODO: CNOT の場合も追加する (if gate:is_swap() or ...)
-  if gate:is_swap() then
+  if gate.other_x then
     -- SWAP ゲートと CNOT ゲートの場合、
     -- 2 つのゲートの下だけでなく、ゲート間の下がすべて空いている必要がある
     --
@@ -184,8 +186,10 @@ function board:is_gate_droppable(gate_x, gate_y, y)
 end
 
 function board:_update_gates()
-  for x = 1, board.cols do
-    for y = board.rows, 1, -1 do
+  -- swap などのペアとなるゲートを正しく落とすために、
+  -- 一番下の行から上に向かって順番に update していく
+  for y = board.row_next_gates, 1, -1 do
+    for x = 1, board.cols do
       self:gate_at(x, y):update(self, x, y)
     end
   end
@@ -286,7 +290,7 @@ function board:screen_x(x)
 end
 
 function board:screen_y(y)
-  return self._offset_y + (y - 1) * quantum_gate.size
+  return self._offset_y + (y - 1) * quantum_gate.size - self.raised_dots
 end
 
 function board:y(screen_y)
@@ -313,6 +317,10 @@ end
 -- x, y が空かどうかを返す
 -- garbage と swap ゲートも考慮する
 function board:is_empty(x, y)
+  if y > board.row_next_gates then
+    return false
+  end
+
   for tmp_x = 1, x - 1 do
     local gate = self:gate_at(tmp_x, y)
 

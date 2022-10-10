@@ -508,7 +508,9 @@ describe('board', function()
 
       assert.is_true(board:gate_at(1, 1):is_dropping())
     end)
+  end)
 
+  describe('update', function()
     it('should drop swap pair', function()
       board:put(1, 11, swap_gate(3))
       board:put(3, 11, swap_gate(1))
@@ -525,6 +527,38 @@ describe('board', function()
 
       assert.is_true(board:gate_at(1, 11):is_dropping())
       assert.is_true(board:gate_at(2, 11):is_dropping())
+    end)
+
+    --
+    -- S-S
+    --  ?
+    --  ?
+    --  ? ←
+    --  ? ← ここを消した時に S-S が正しく落ちる
+    it('swap ペアの真ん中が消えた時に正しく落ちる #solo', function()
+      board:put(1, 1, swap_gate(3))
+      board:put(3, 1, swap_gate(1))
+      board:put(2, 2, x_gate())
+      board:put(2, 3, y_gate())
+      board:put(2, 4, h_gate())
+      board:put(2, 5, x_gate())
+      board:put(2, 6, y_gate())
+      board:put(2, 7, h_gate())
+      board:put(2, 8, x_gate())
+      board:put(2, 9, y_gate())
+      board:put(2, 10, h_gate())
+      board:put(2, 11, x_gate())
+      board:put(2, 12, y_gate())
+      board:put(1, 12, x_gate())
+
+      board:swap(1, 2, 12)
+
+      for i = 1, 100 do
+        board:update()
+      end
+
+      assert.is_true(board:gate_at(1, 3):is_swap())
+      assert.is_true(board:gate_at(3, 3):is_swap())
     end)
   end)
 
