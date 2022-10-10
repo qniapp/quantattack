@@ -108,9 +108,11 @@ function board:drop_gates()
     for y = board.rows - 1, 1, -1 do
       local gate = self:gate_at(x, y)
 
-      if gate:is_droppable(x, y) and self:is_droppable(x, y) then
+      if gate:is_droppable(x, y) and self:is_gate_droppable(x, y) then
         gate:drop(x, y)
-        if gate:is_swap() then -- SWAP ゲートの場合、もう一方のゲートも下に落とす
+
+        -- SWAP ゲートの場合、もう一方のゲートも下に落とす
+        if gate:is_swap() then
           self:gate_at(gate.other_x, y):drop(gate.other_x, y)
         end
       end
@@ -118,14 +120,21 @@ function board:drop_gates()
   end
 end
 
-function board:is_droppable(x, y, next_y)
+-- 指定したゲートが行 y に落とせるかどうかを返す。
+-- y を省略した場合、すぐ下の行 y + 1 に落とせるかどうかを返す。
+--
+-- 注意: 行 board.rows + 1 にあるゲートは絶対に消えないため、
+-- 落下可能なゲートの行番号は board.rows - 1 までとなる。
+-- このため、gate_y にこれを超える値を指定した場合はエラーとなる。
+function board:is_gate_droppable(gate_x, gate_y, y)
   --#if assert
-  assert(x)
-  assert(y)
+  assert(1 <= gate_x)
+  assert(gate_x <= board.cols)
+  assert(1 <= gate_y)
+  assert(gate_y <= self.rows - 1)
   --#endif
 
-  local gate = self:gate_at(x, y)
-  local start_x, end_x
+  local gate, start_x, end_x = self:gate_at(gate_x, gate_y)
 
   -- TODO: CNOT の場合も追加する (if gate:is_swap() or ...)
   if gate:is_swap() then
@@ -139,7 +148,7 @@ function board:is_droppable(x, y, next_y)
     -- (droppable でない場合)
     --   C---X
     --    H
-    start_x, end_x = min(x, gate.other_x), max(x, gate.other_x)
+    start_x, end_x = min(gate_x, gate.other_x), max(gate_x, gate.other_x)
   else
     -- それ以外の場合、ゲートの下だけをチェックする。
     -- ただし Garbage ゲートのように幅 (span) が 2 以上の場合があるので、
@@ -161,11 +170,11 @@ function board:is_droppable(x, y, next_y)
     --   GGGGG
     --    H
     --
-    start_x, end_x = x, x + gate.span - 1
+    start_x, end_x = gate_x, gate_x + gate.span - 1
   end
 
   for tmp_x = start_x, end_x do
-    if not self:is_empty(tmp_x, next_y or y + 1) then
+    if not self:is_empty(tmp_x, y or gate_y + 1) then
       return false
     end
   end
