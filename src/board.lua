@@ -1,7 +1,7 @@
 require("engine/core/class")
 
 local garbage_gate = require("garbage_gate")
-local gate_reduction_rules = require("gate_reduction_rules")
+local reduce = require("gate_reduction_rules")
 local i_gate = require("i_gate")
 local h_gate = require("h_gate")
 local x_gate = require("x_gate")
@@ -39,7 +39,7 @@ function board:initialize_with_random_gates()
           (y < board.rows - 2 and rnd(1) > (y - 11) * -0.1 and (not self:is_empty(x, y + 1))) then
         repeat
           self:put(x, y, self:_random_single_gate())
-        until #gate_reduction_rules:reduce(self, x, y, true).to == 0
+        until #reduce(self, x, y, true).to == 0
       end
     end
   end
@@ -88,7 +88,7 @@ function board:reduce()
         goto next
       end
 
-      local reduction = gate_reduction_rules:reduce(self, x, y)
+      local reduction = reduce(self, x, y)
 
       for _index, r in pairs(reduction.to) do
         local dx = r.dx or 0
