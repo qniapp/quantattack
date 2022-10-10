@@ -115,34 +115,27 @@ function quantum_gate:update(board, x, y)
     assert(not self:is_garbage())
     --#endif
 
-    if self.tick_swap < swap_animation_frame_count then
-      self.tick_swap = self.tick_swap + 1
+    if self._tick_swap < swap_animation_frame_count then
+      self._tick_swap = self._tick_swap + 1
     else
+      local new_x
+
       -- SWAP 完了
       if self:_is_swapping_with_left() then
-        -- SWAP ゲートの場合、ペアのゲートの other_x を更新する
-        if self:is_swap() then
-          board:gate_at(self.other_x, y).other_x = x - 1
-        end
+        new_x = x - 1
+      else
+        new_x = x + 1
+      end
 
-        local left_gate = board:gate_at(x - 1, y)
-        if not left_gate:is_swap() then
-          board:put(x - 1, y, self)
-          board:put(x, y, left_gate)
-          left_gate._state = state_idle
-        end
-      elseif self:_is_swapping_with_right() then
-        -- SWAP ゲートの場合、ペアのゲートの other_x を更新する
-        if self:is_swap() then
-          board:gate_at(self.other_x, y).other_x = x + 1
-        end
+      if self:is_swap() then
+        board:gate_at(self.other_x, y).other_x = new_x
+      end
 
-        local right_gate = board:gate_at(x + 1, y)
-        if not right_gate:is_swap() then
-          board:put(x + 1, y, self)
-          board:put(x, y, right_gate)
-          right_gate._state = state_idle
-        end
+      local gate_to_swap_with = board:gate_at(new_x, y)
+      if not gate_to_swap_with:is_swap() then
+        board:put(new_x, y, self)
+        board:put(x, y, gate_to_swap_with)
+        gate_to_swap_with._state = state_idle
       end
 
       self._state = state_idle
@@ -210,9 +203,9 @@ function quantum_gate:render(screen_x, screen_y)
   else
     local dx = 0
     if self:_is_swapping_with_right() then
-      dx = self.tick_swap * (quantum_gate.size / swap_animation_frame_count)
+      dx = self._tick_swap * (quantum_gate.size / swap_animation_frame_count)
     elseif self:_is_swapping_with_left() then
-      dx = -self.tick_swap * (quantum_gate.size / swap_animation_frame_count)
+      dx = -self._tick_swap * (quantum_gate.size / swap_animation_frame_count)
     end
 
     spr(self:_sprite(), screen_x + dx, screen_y + dy)
@@ -286,12 +279,20 @@ function quantum_gate:is_swapping()
   return self:_is_swapping_with_right() or self:_is_swapping_with_left()
 end
 
+function quantum_gate:_is_swapping_with_left()
+  return self._state == state_swapping_with_left
+end
+
+function quantum_gate:_is_swapping_with_right()
+  return self._state == state_swapping_with_right
+end
+
 function quantum_gate:swap_with_right(new_x)
   --#if assert
   assert(2 <= new_x)
   --#endif
 
-  self.tick_swap = 0
+  self._tick_swap = 0
   self._state = state_swapping_with_right
 end
 
@@ -300,7 +301,7 @@ function quantum_gate:swap_with_left(new_x)
   assert(1 <= new_x)
   --#endif
 
-  self.tick_swap = 0
+  self._tick_swap = 0
   self._state = state_swapping_with_left
 end
 
@@ -316,15 +317,5 @@ function quantum_gate:_tostring()
 end
 
 --#endif
-
--- private
-
-function quantum_gate:_is_swapping_with_left()
-  return self._state == state_swapping_with_left
-end
-
-function quantum_gate:_is_swapping_with_right()
-  return self._state == state_swapping_with_right
-end
 
 return quantum_gate
