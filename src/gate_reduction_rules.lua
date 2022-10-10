@@ -272,9 +272,9 @@ local gate_reduction_rules = {
     -- X-C  ----->  X-C
     -- X            I
     if gate:is_x() and
-        gate_y1:is_cnot_x() and board:reducible_gate_at(gate_y1.cnot_c_x, y1):is_control() and
+        gate_y1:is_cnot_x() and board:reducible_gate_at(gate_y1.other_x, y1):is_control() and
         gate_y2:is_x() then
-      local dx = gate_y1.cnot_c_x - x
+      local dx = gate_y1.other_x - x
       return {
         type = "x cnot x",
         score = 800,
@@ -300,12 +300,12 @@ local gate_reduction_rules = {
     -- H X          H I
     -- X-C  ----->  X-C
     -- H X          H I
-    local x2 = gate_y2.cnot_c_x
+    local x2 = gate_y2.other_x
     if y <= 9 and gate:is_z() and
         gate_y1:is_h() and gate_y2:is_cnot_x() and board:reducible_gate_at(x2, y1):is_x() and
         board:reducible_gate_at(x2, y2):is_control() and
         board:reducible_gate_at(x, y3):is_h() and board:reducible_gate_at(x2, y3):is_x() then
-      local dx = gate_y2.cnot_c_x - x
+      local dx = gate_y2.other_x - x
       return {
         type = "xz cz x",
         score = 800,

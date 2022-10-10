@@ -4,7 +4,9 @@ local quantum_gate = require("quantum_gate")
 local control_gate = derived_class(quantum_gate)
 
 function control_gate:_init(other_x)
+  --#if assert
   assert(other_x)
+  --#endif
 
   quantum_gate._init(self, 'control')
   self.other_x = other_x
