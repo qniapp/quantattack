@@ -17,9 +17,9 @@ local board = new_class()
 
 board.cols = 6 -- board の列数
 board.rows = 12 -- board の行数
+board.row_next_gates = board.rows + 1
 
 function board:_init()
-  self.row_next_gates = board.rows + 1
   self._gates = {}
   self._offset_x = 10
   self._offset_y = 10
@@ -27,14 +27,14 @@ function board:_init()
   -- fill the board with I gates
   for x = 1, board.cols do
     self._gates[x] = {}
-    for y = 1, self.row_next_gates do
+    for y = 1, board.row_next_gates do
       self:put(x, y, i_gate())
     end
   end
 end
 
 function board:initialize_with_random_gates()
-  for y = self.row_next_gates, 6, -1 do
+  for y = board.row_next_gates, 6, -1 do
     for x = 1, board.cols do
       if y >= board.rows - 2 or
           (y < board.rows - 2 and rnd(1) > (y - 11) * -0.1 and (not self:is_empty(x, y + 1))) then
@@ -194,7 +194,7 @@ end
 function board:render()
   -- draw idle gates
   for x = 1, board.cols do
-    for y = 1, self.row_next_gates do
+    for y = 1, board.row_next_gates do
       local gate = self:gate_at(x, y)
       local screen_x = self:screen_x(x)
       local screen_y = self:screen_y(y) + self:dy()
@@ -298,7 +298,7 @@ function board:gate_at(x, y)
   assert(x >= 1, x)
   assert(x <= board.cols, x)
   assert(y >= 1, "y = " .. y .. " >= 1")
-  assert(y <= self.row_next_gates, "y = " .. y .. " > board.row_next_gates")
+  assert(y <= board.row_next_gates, "y = " .. y .. " > board.row_next_gates")
   --#endif
 
   local gate = self._gates[x][y]
@@ -341,7 +341,7 @@ function board:put(x, y, gate)
   assert(x >= 1, x)
   assert(x <= board.cols, x)
   assert(y >= 1, "y = " .. y .. " >= 1")
-  assert(y <= self.row_next_gates, "y = " .. y .. " > board.row_next_gates")
+  assert(y <= board.row_next_gates, "y = " .. y .. " > board.row_next_gates")
   --#endif
 
   self._gates[x][y] = gate
@@ -389,7 +389,7 @@ function board:reduce(x, y, include_next_gates)
   local y3 = y + 3
 
   if include_next_gates then
-    if y1 > self.row_next_gates then
+    if y1 > board.row_next_gates then
       return default
     end
   else
@@ -520,7 +520,7 @@ function board:reduce(x, y, include_next_gates)
   end
 
   if include_next_gates then
-    if y2 > self.row_next_gates then
+    if y2 > board.row_next_gates then
       return default
     end
   else
@@ -783,7 +783,7 @@ end
 function board:_tostring()
   local str = ''
 
-  for y = 1, self.row_next_gates do
+  for y = 1, board.row_next_gates do
     for x = 1, board.cols do
       str = str .. self:gate_at(x, y):_tostring() .. " "
     end

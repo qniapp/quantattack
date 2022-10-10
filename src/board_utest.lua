@@ -82,7 +82,7 @@ describe('board', function()
     --           X (next gates)
     it('should not reduce when y is the last and include_next_gates = true', function()
       board:put(1, board.rows, h_gate())
-      board:put(1, board.row_next_gates, x_gate())
+      board:put(1, board_class.row_next_gates, x_gate())
 
       local reduction = board:reduce(1, board.rows, true)
 
@@ -95,7 +95,7 @@ describe('board', function()
     --           X (next gates)
     it('should not reduce when y is the last and include_next_gates = true', function()
       board:put(1, board.rows, h_gate())
-      board:put(1, board.row_next_gates, x_gate())
+      board:put(1, board_class.row_next_gates, x_gate())
 
       local reduction = board:reduce(1, board.rows, true)
 
@@ -105,7 +105,7 @@ describe('board', function()
     --           -
     -- reduce -> I (next gates)
     it('should not reduce when y is the next gates row and include_next_gates = true', function()
-      local reduction = board:reduce(1, board.row_next_gates, true)
+      local reduction = board:reduce(1, board_class.row_next_gates, true)
 
       assert.are.same({}, reduction.to)
     end)
