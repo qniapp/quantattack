@@ -152,22 +152,7 @@ function quantum_gate:update(board, x, y)
     local next_screen_y = screen_y + quantum_gate._dy
     local next_y = board:y(next_screen_y)
 
-    local droppable = true
-    local start_x, end_x
-
-    if self:is_swap() then
-      start_x, end_x = min(self.x, self.other_x), max(self.x, self.other_x)
-    else
-      start_x, end_x = self.x, self.x + self.span - 1
-    end
-
-    for x = start_x, end_x do
-      if not board:is_empty(x, next_y) then
-        droppable = false
-      end
-    end
-
-    if droppable and next_y <= board.rows then
+    if board:is_droppable(x, y, next_y) and next_y <= board.rows then
       self._distance_dropped = self._distance_dropped + quantum_gate._dy
     else
       -- dropped

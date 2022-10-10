@@ -108,63 +108,69 @@ function board:drop_gates()
     for y = board.rows - 1, 1, -1 do
       local gate = self:gate_at(x, y)
 
-      if not gate:is_droppable() then
-        goto next
-      end
-
-      local start_x, end_x
-
-      -- TODO: CNOT の場合も追加する (if gate:is_swap() or ...)
-      if gate:is_swap() then
-        -- SWAP ゲートと CNOT ゲートの場合、
-        -- 2 つのゲートの下だけでなく、ゲート間の下がすべて空いている必要がある
-        --
-        -- (droppable な場合)
-        --   C---X
-        --  H
-        --
-        -- (droppable でない場合)
-        --   C---X
-        --    H
-        start_x, end_x = min(x, gate.other_x), max(x, gate.other_x)
-      else
-        -- それ以外の場合、ゲートの下だけをチェックする。
-        -- ただし Garbage ゲートのように幅 (span) が 2 以上の場合があるので、
-        -- span を考慮してチェックする
-        --
-        -- (droppable な場合)
-        --   X
-        --  H
-        --
-        -- (droppable でない場合)
-        --    X
-        --    H
-        --
-        -- (Garbage ゲートが droppable な場合)
-        --   GGGGG
-        --  H
-        --
-        -- (Garbage ゲートが droppable でない場合)
-        --   GGGGG
-        --    H
-        --
-        start_x, end_x = x, x + gate.span - 1
-      end
-
-      for tmp_x = start_x, end_x do
-        if not self:is_empty(tmp_x, y + 1) then
-          goto next
+      if gate:is_droppable(x, y) and self:is_droppable(x, y) then
+        gate:drop(x, y)
+        if gate:is_swap() then -- SWAP ゲートの場合、もう一方のゲートも下に落とす
+          self:gate_at(gate.other_x, y):drop(gate.other_x, y)
         end
       end
-
-      gate:drop(x, y)
-      if gate:is_swap() then -- SWAP ゲートの場合、もう一方のゲートも下に落とす
-        self:gate_at(gate.other_x, y):drop(gate.other_x, y)
-      end
-
-      ::next::
     end
   end
+end
+
+function board:is_droppable(x, y, next_y)
+  --#if assert
+  assert(x)
+  assert(y)
+  --#endif
+
+  local gate = self:gate_at(x, y)
+  local start_x, end_x
+
+  -- TODO: CNOT の場合も追加する (if gate:is_swap() or ...)
+  if gate:is_swap() then
+    -- SWAP ゲートと CNOT ゲートの場合、
+    -- 2 つのゲートの下だけでなく、ゲート間の下がすべて空いている必要がある
+    --
+    -- (droppable な場合)
+    --   C---X
+    --  H
+    --
+    -- (droppable でない場合)
+    --   C---X
+    --    H
+    start_x, end_x = min(x, gate.other_x), max(x, gate.other_x)
+  else
+    -- それ以外の場合、ゲートの下だけをチェックする。
+    -- ただし Garbage ゲートのように幅 (span) が 2 以上の場合があるので、
+    -- span を考慮してチェックする
+    --
+    -- (droppable な場合)
+    --   X
+    --  H
+    --
+    -- (droppable でない場合)
+    --    X
+    --    H
+    --
+    -- (Garbage ゲートが droppable な場合)
+    --   GGGGG
+    --  H
+    --
+    -- (Garbage ゲートが droppable でない場合)
+    --   GGGGG
+    --    H
+    --
+    start_x, end_x = x, x + gate.span - 1
+  end
+
+  for tmp_x = start_x, end_x do
+    if not self:is_empty(tmp_x, next_y or y + 1) then
+      return false
+    end
+  end
+
+  return true
 end
 
 function board:_update_gates()
