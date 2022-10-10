@@ -14,6 +14,8 @@ local swap_animation_frame_count = 4
 local match_animation_frame_count = 45
 
 local state_idle = "idle"
+local state_dropping = "dropping"
+local state_match = "match"
 local state_swapping_with_left = "swapping_with_left"
 local state_swapping_with_right = "swapping_with_right"
 
@@ -23,7 +25,6 @@ function quantum_gate:_init(type, span)
   self._type = type
   self.span = span or 1
   self._state = state_idle
-  self._distance_dropped = 0 -- ゲートが落下した距離
 end
 
 -- gate type
@@ -98,7 +99,7 @@ end
 
 -- マッチ状態である場合 true を返す
 function quantum_gate:is_match()
-  return self._state == "match"
+  return self._state == state_match
 end
 
 -- マッチできる場合 true を返す
@@ -259,7 +260,7 @@ end
 
 function quantum_gate:replace_with(other)
   self.reduce_to = other
-  self._state = "match"
+  self._state = state_match
 end
 
 -------------------------------------------------------------------------------
@@ -285,11 +286,11 @@ function quantum_gate:drop(x, start_y)
   self.x = x
   self._distance_dropped = 0
   self.start_y = start_y
-  self._state = "dropping"
+  self._state = state_dropping
 end
 
 function quantum_gate:is_dropping()
-  return self._state == "dropping"
+  return self._state == state_dropping
 end
 
 -------------------------------------------------------------------------------
@@ -306,7 +307,6 @@ function quantum_gate:swap_with_right(new_x)
   --#endif
 
   self.tick_swap = 0
-  self.new_x_after_swap = new_x
   self._state = state_swapping_with_right
 end
 
@@ -316,7 +316,6 @@ function quantum_gate:swap_with_left(new_x)
   --#endif
 
   self.tick_swap = 0
-  self.new_x_after_swap = new_x
   self._state = state_swapping_with_left
 end
 

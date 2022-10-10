@@ -35,12 +35,6 @@ describe('quantum_gate', function()
 
       assert.is_true(gate:is_swapping())
     end)
-
-    it('should set new_x_after_swap', function()
-      gate:swap_with_left(1)
-
-      assert.are.equals(1, gate.new_x_after_swap)
-    end)
   end)
 
   describe('swap_with_right', function()
@@ -58,12 +52,6 @@ describe('quantum_gate', function()
       gate:swap_with_right(2)
 
       assert.is_true(gate:is_swapping())
-    end)
-
-    it('should set new_x_after_swap', function()
-      gate:swap_with_right(2)
-
-      assert.are.equals(2, gate.new_x_after_swap)
     end)
   end)
 

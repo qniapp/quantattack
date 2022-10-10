@@ -24,7 +24,9 @@
     "circfill",
     "line",
     "rectfill",
-    "stringify"
+    "stringify",
+    "min",
+    "max"
   ],
   "Lua.workspace.library": [
     "${3rd}/lfs/library"
