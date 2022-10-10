@@ -19,18 +19,6 @@ describe('quantum_gate', function()
     end)
   end)
 
-  describe('is_swappable', function()
-    local gate
-
-    before_each(function()
-      gate = h_gate()
-    end)
-
-    it('should return true if the gate is idle', function()
-      assert.is_true(gate:is_swappable())
-    end)
-  end)
-
   describe('swap_with_left', function()
     local gate
 

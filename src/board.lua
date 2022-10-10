@@ -222,7 +222,7 @@ function board:swap(x_left, x_right, y)
   local left_gate = self:gate_at(x_left, y)
   local right_gate = self:gate_at(x_right, y)
 
-  if not (left_gate:is_swappable() and right_gate:is_swappable()) then
+  if not (left_gate:is_idle() and right_gate:is_idle()) then
     return false
   end
 

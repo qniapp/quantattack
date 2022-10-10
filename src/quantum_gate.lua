@@ -296,11 +296,6 @@ end
 -- swap
 -------------------------------------------------------------------------------
 
--- TODO: is_swappable() → is_idle()
-function quantum_gate:is_swappable()
-  return self:is_idle()
-end
-
 function quantum_gate:is_swapping()
   return self:_is_swapping_with_right() or self:_is_swapping_with_left()
 end
