@@ -91,11 +91,11 @@ function solo:render() -- override
   cls()
   board:render()
   player_cursor:render(board)
+  self:render_score()
   puff_particle:render()
-  self:render_steps()
 end
 
-function solo:render_steps()
+function solo:render_score()
   color(colors.white)
 
   cursor(board.offset_x * 2 + board.width, board.offset_y)
