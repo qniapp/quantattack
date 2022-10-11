@@ -109,16 +109,23 @@ function board:insert_gates_at_bottom()
 end
 
 function board:update()
-  self:reduce_gates()
+  local score = 0
+
+  score = score + self:reduce_gates()
   self:drop_gates()
   self:_update_gates()
+
+  return score
 end
 
 function board:reduce_gates()
+  local score = 0
+
   for y = board.rows, 1, -1 do
     for x = 1, board.cols do
       if self:gate_at(x, y):is_reducible() then
         local reduction = self:reduce(x, y, self.raised_dots > 0)
+        score = score + (#reduction.to == 0 and 0 or (reduction.score or 100)) -- デフォルト 100 点
 
         for _index, r in pairs(reduction.to) do
           local dx = r.dx or 0
@@ -130,6 +137,8 @@ function board:reduce_gates()
       end
     end
   end
+
+  return score
 end
 
 function board:drop_gates()
