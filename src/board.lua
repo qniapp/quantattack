@@ -115,23 +115,19 @@ function board:update()
 end
 
 function board:reduce_gates()
-  for x = 1, board.cols do
-    for y = 1, board.rows do
-      if not self:gate_at(x, y):is_reducible() then
-        goto next
+  for y = board.rows, 1, -1 do
+    for x = 1, board.cols do
+      if self:gate_at(x, y):is_reducible() then
+        local reduction = self:reduce(x, y, self.raised_dots > 0)
+
+        for _index, r in pairs(reduction.to) do
+          local dx = r.dx or 0
+          local dy = r.dy or 0
+          local gate = r.gate or i_gate()
+
+          self:gate_at(x + dx, y + dy):replace_with(gate)
+        end
       end
-
-      local reduction = self:reduce(x, y, self.raised_dots > 0)
-
-      for _index, r in pairs(reduction.to) do
-        local dx = r.dx or 0
-        local dy = r.dy or 0
-        local gate = r.gate or i_gate()
-
-        self:gate_at(x + dx, y + dy):replace_with(gate)
-      end
-
-      ::next::
     end
   end
 end
