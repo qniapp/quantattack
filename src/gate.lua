@@ -176,12 +176,10 @@ function gate:update(board, x, y)
     if self._tick_match < match_animation_frame_count then
       self._tick_match = self._tick_match + 1
     else
-      self._type = self.reduce_to._type
-      self.other_x = self.reduce_to.other_x
-      self.sprites = self.reduce_to.sprites
-      self._state = state_idle
-      if self:is_i() then
-        self.puff = true
+      local new_gate = self.reduce_to
+      board:put(x, y, new_gate)
+      if new_gate:is_i() then
+        new_gate.puff = true
       end
     end
   end
