@@ -41,7 +41,9 @@ function board:initialize_with_random_gates()
     for x = 1, board.cols do
       if y >= board.rows - 2 or
           (y < board.rows - 2 and rnd(1) > (y - 11) * -0.1 and (not self:is_empty(x, y + 1))) then
-        self:put_random_gate(x, y)
+        repeat
+          self:put(x, y, self:_random_single_gate())
+        until #self:reduce(x, y, true).to == 0
       end
     end
   end
@@ -100,7 +102,9 @@ function board:insert_gates_at_bottom()
 
   -- 最下段に新しいゲートを置く
   for x = 1, self.cols do
-    self:put_random_gate(x, self.row_next_gates)
+    repeat
+      self:put(x, self.row_next_gates, self:_random_single_gate())
+    until #self:reduce(x, self.rows, true).to == 0 and #self:reduce(x, self.rows - 1, true).to == 0
   end
 end
 
