@@ -186,7 +186,7 @@ function quantum_gate:update(board, x, y)
     else
       self.tick_match = nil
       self._type = self.reduce_to._type
-      self.other_x = nil
+      self.other_x = self.reduce_to.other_x
       self.sprites = self.reduce_to.sprites
       self._state = state_idle
       if self:is_i() then

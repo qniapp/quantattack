@@ -274,6 +274,9 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 12).reduce_to:is_i())
     end)
 
+    --  C-X             I I
+    --  X-C             I I
+    --  C-X  ----->  SWAP-SWAP
     it('should reduce CNOT x3', function()
       board:put(1, 10, control_gate(3))
       board:put(3, 10, cnot_x_gate(1))
@@ -290,6 +293,15 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 11).reduce_to:is_i())
       assert.is_true(board:gate_at(1, 12).reduce_to:is_swap())
       assert.is_true(board:gate_at(3, 12).reduce_to:is_swap())
+
+      for i = 1, 100 do
+         board:_update_gates()
+      end
+
+      assert.is_true(board:gate_at(1, 12):is_swap())
+      assert.are_equal(3, board:gate_at(1, 12).other_x)
+      assert.is_true(board:gate_at(3, 12):is_swap())
+      assert.are_equal(1, board:gate_at(3, 12).other_x)
     end)
 
     it('should reduce HH CNOT HH', function()
