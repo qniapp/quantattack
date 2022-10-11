@@ -47,30 +47,6 @@ function board:initialize_with_random_gates()
       end
     end
   end
-
-  -- ランダムに swap を 1 つ置く
-  -- TODO: あとで消す
-  local swap_x
-  local swap_other_x
-  local swap_y
-  repeat
-    swap_x = flr(rnd(board.cols)) + 1
-    swap_other_x = flr(rnd(board.cols)) + 1
-    swap_y = flr(rnd(board.rows)) + 1
-  until not self:is_empty(swap_x, swap_y + 1) and swap_other_x ~= swap_x
-
-  self:put(swap_x, swap_y, swap_gate(swap_other_x))
-  self:put(swap_other_x, swap_y, swap_gate(swap_x))
-
-  if swap_x < swap_other_x then
-    for x = swap_x + 1, swap_other_x - 1 do
-      self:put(x, swap_y, i_gate())
-    end
-  else
-    for x = swap_other_x + 1, swap_x - 1 do
-      self:put(x, swap_y, i_gate())
-    end
-  end
 end
 
 function board:_random_single_gate()
