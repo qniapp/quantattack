@@ -190,14 +190,6 @@ function gate:render(screen_x, screen_y)
     return
   end
 
-  -- CNOT_X の場合は X ゲートのスプライトを流用するので、色を変える
-  -- TODO スプライトを流用せずに CNOT_X のスプライトを準備することで
-  -- トークン数を削減する
-  if self:is_cnot_x() and not self:is_match() then
-    pal(colors.blue, colors.orange)
-    pal(colors.light_gray, colors.brown)
-  end
-
   local screen_dy = self:is_dropping() and self._distance_dropped or 0
 
   if self.span > 1 then
@@ -222,11 +214,6 @@ function gate:render(screen_x, screen_y)
     end
 
     spr(self:_sprite(), screen_x + screen_dx, screen_y + screen_dy)
-  end
-
-  if self:is_cnot_x() then
-    pal(colors.blue, colors.blue)
-    pal(colors.light_gray, colors.light_gray)
   end
 end
 

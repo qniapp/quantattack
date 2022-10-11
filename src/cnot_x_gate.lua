@@ -11,11 +11,11 @@ function cnot_x_gate:_init(other_x)
   gate._init(self, 'cnot_x')
   self.other_x = other_x
   self.sprites = {
-    idle = 1,
-    swapping_with_left = 1,
-    swapping_with_right = 1,
-    dropping = 1,
-    match = { up = 9, middle = 25, down = 41 }
+    idle = 7,
+    swapping_with_left = 7,
+    swapping_with_right = 7,
+    dropping = 7,
+    match = { up = 10, middle = 26, down = 42 }
   }
 end
 

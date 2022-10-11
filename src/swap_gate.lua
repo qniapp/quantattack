@@ -11,11 +11,11 @@ function swap_gate:_init(other_x)
   gate._init(self, 'swap')
   self.other_x = other_x
   self.sprites = {
-    idle = 7,
-    swapping_with_left = 7,
-    swapping_with_right = 7,
-    dropping = 7,
-    match = { up = 15, middle = 31, down = 47 }
+    idle = 8,
+    swapping_with_left = 8,
+    swapping_with_right = 8,
+    dropping = 8,
+    match = { up = 64, middle = 80, down = 96 }
   }
 end
 

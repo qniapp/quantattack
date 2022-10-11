@@ -10,7 +10,7 @@ function x_gate:_init()
     swapping_with_left = 1,
     swapping_with_right = 1,
     dropping = 1,
-    match = { up = 9, middle = 25, down = 41 }
+    match = { up = 10, middle = 26, down = 42 }
   }
 end
 
