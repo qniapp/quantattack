@@ -4,11 +4,16 @@ require("engine/render/color")
 local gamestate = require("engine/application/gamestate")
 local solo = derived_class(gamestate)
 
-local board_class = require("board")
-local board = board_class()
+local player_class = require("player")
+local player = player_class()
 
 local player_cursor_class = require("player_cursor")
 local player_cursor = player_cursor_class()
+
+local board_class = require("board")
+local board = board_class()
+
+local quantum_gate = require("quantum_gate")
 
 local puff_particle = require("puff_particle")
 
@@ -72,10 +77,11 @@ function solo:_maybe_raise_gates()
 
   board.raised_dots = board.raised_dots + 1
 
-  if board.raised_dots == 8 then -- FIXME: 定数を quantum_gate.size にする
+  if board.raised_dots == quantum_gate.size then
     board.raised_dots = 0
     board:insert_gates_at_bottom()
     player_cursor:move_up()
+    player.steps = player.steps + 1
   end
 
   return true
@@ -92,7 +98,7 @@ end
 function solo:render_steps()
   cursor(board.offset_x * 2 + board.width, board.offset_y)
   color(colors.white)
-  print(0 .. " steps")
+  print(player.steps .. " steps")
 end
 
 function solo:_create_gate_puff_particles()
