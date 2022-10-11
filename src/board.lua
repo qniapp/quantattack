@@ -133,16 +133,18 @@ end
 function board:drop_gates()
   local max_y = self.raised_dots > 0 and board.rows or board.rows - 1
 
-  for x = 1, board.cols do
-    for y = max_y, 1, -1 do
+  for y = max_y, 1, -1 do
+    for x = 1, board.cols do
       local gate = self:gate_at(x, y)
 
       if gate:is_droppable(x, y) and self:is_gate_droppable(x, y) then
-        gate:drop(x, y)
-
-        -- SWAP ゲートの場合、もう一方のゲートも下に落とす
-        if gate:is_swap() then
-          self:gate_at(gate.other_x, y):drop(gate.other_x, y)
+        if gate.other_x then
+          if x < gate.other_x then
+            gate:drop(x, y)
+            self:gate_at(gate.other_x, y):drop(gate.other_x, y)
+          end
+        else
+          gate:drop(x, y)
         end
       end
     end
@@ -166,43 +168,17 @@ function board:is_gate_droppable(gate_x, gate_y, y)
   local gate, start_x, end_x = self:gate_at(gate_x, gate_y)
 
   if gate.other_x then
-    -- SWAP ゲートと CNOT ゲートの場合、
-    -- 2 つのゲートの下だけでなく、ゲート間の下がすべて空いている必要がある
-    --
-    -- (droppable な場合)
-    --   C---X
-    --  H
-    --
-    -- (droppable でない場合)
-    --   C---X
-    --    H
+    if gate.other_x < gate_x then
+      return self:is_gate_droppable(gate.other_x, gate_y, y)
+    end
+
     start_x, end_x = min(gate_x, gate.other_x), max(gate_x, gate.other_x)
   else
-    -- それ以外の場合、ゲートの下だけをチェックする。
-    -- ただし Garbage ゲートのように幅 (span) が 2 以上の場合があるので、
-    -- span を考慮してチェックする
-    --
-    -- (droppable な場合)
-    --   X
-    --  H
-    --
-    -- (droppable でない場合)
-    --    X
-    --    H
-    --
-    -- (Garbage ゲートが droppable な場合)
-    --   GGGGG
-    --  H
-    --
-    -- (Garbage ゲートが droppable でない場合)
-    --   GGGGG
-    --    H
-    --
     start_x, end_x = gate_x, gate_x + gate.span - 1
   end
 
-  for tmp_x = start_x, end_x do
-    if not self:is_empty(tmp_x, y or gate_y + 1) then
+  for x = start_x, end_x do
+    if not self:is_empty(x, y or gate_y + 1) then
       return false
     end
   end

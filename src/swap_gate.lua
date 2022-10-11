@@ -19,4 +19,19 @@ function swap_gate:_init(other_x)
   }
 end
 
+-------------------------------------------------------------------------------
+-- debug
+-------------------------------------------------------------------------------
+
+--#if debug
+function swap_gate:_tostring()
+  if self:is_idle() then
+    return 'S'
+  else
+    return 'S' .. " (" .. self._state .. ")"
+  end
+end
+
+--#endif
+
 return swap_gate

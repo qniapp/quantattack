@@ -535,7 +535,7 @@ describe('board', function()
     --  ?
     --  ? ←
     --  ? ← ここを消した時に S-S が正しく落ちる
-    it('swap ペアの真ん中が消えた時に正しく落ちる #solo', function()
+    it('swap ペアの真ん中が消えた時に正しく落ちる', function()
       board:put(1, 1, swap_gate(3))
       board:put(3, 1, swap_gate(1))
       board:put(2, 2, x_gate())
@@ -553,7 +553,43 @@ describe('board', function()
 
       board:swap(1, 2, 12)
 
-      for i = 1, 100 do
+      for i = 1, 58 do
+        board:update()
+      end
+
+      assert.is_true(board:gate_at(1, 3):is_swap())
+      assert.is_true(board:gate_at(3, 3):is_swap())
+    end)
+
+    --
+    -- S-S
+    --  ?
+    --  ?
+    --  ? ←
+    --  ? ← ここを消した時に S-S が正しく落ちる
+    it('swap ペアの真ん中が消えた時に正しく落ちる (raised_dots > 0)', function()
+      board.raised_dots = 3
+
+      board:put(1, 1, swap_gate(3))
+      board:put(3, 1, swap_gate(1))
+      board:put(2, 2, x_gate())
+      board:put(2, 3, y_gate())
+      board:put(2, 4, h_gate())
+      board:put(2, 5, x_gate())
+      board:put(2, 6, y_gate())
+      board:put(2, 7, h_gate())
+      board:put(2, 8, x_gate())
+      board:put(2, 9, y_gate())
+      board:put(2, 10, h_gate())
+      board:put(2, 11, x_gate())
+      board:put(2, 12, y_gate())
+      board:put(1, 12, x_gate())
+      board:put(1, 13, y_gate())
+      board:put(2, 13, h_gate())
+
+      board:swap(1, 2, 12)
+
+      for i = 1, 59 do
         board:update()
       end
 
@@ -566,6 +602,67 @@ describe('board', function()
     it('should render without errors', function()
       assert.has_no.errors(function() board:render() end)
     end)
+  end)
+
+  describe('is_gate_droppable', function()
+    it('SWAP ゲートの下にゲートが無い場合 true を返す', function()
+      board:put(1, 1, swap_gate(2))
+      board:put(2, 1, swap_gate(1))
+
+      assert.is_true(board:is_gate_droppable(1, 1))
+      assert.is_true(board:is_gate_droppable(2, 1))
+    end)
+
+    -- S-S
+    -- H
+    it('SWAP ゲートが下に落とせない場合 false を返す (左端下にゲート)', function()
+      board:put(1, 11, swap_gate(3))
+      board:put(3, 11, swap_gate(1))
+      board:put(1, 12, h_gate())
+
+      assert.is_false(board:is_gate_droppable(1, 11))
+      assert.is_false(board:is_gate_droppable(3, 11))
+    end)
+
+    -- S-S
+    --  H
+    it('SWAP ゲートが下に落とせない場合 false を返す (真ん中下にゲート)', function()
+      board:put(1, 11, swap_gate(3))
+      board:put(3, 11, swap_gate(1))
+      board:put(2, 12, h_gate())
+
+      assert.is_false(board:is_gate_droppable(1, 11))
+      assert.is_false(board:is_gate_droppable(3, 11))
+    end)
+
+    -- S-S
+    --   H
+    it('SWAP ゲートが下に落とせない場合 false を返す (右端下にゲート)', function()
+      board:put(1, 11, swap_gate(3))
+      board:put(3, 11, swap_gate(1))
+      board:put(3, 12, h_gate())
+
+      assert.is_false(board:is_gate_droppable(1, 11))
+      assert.is_false(board:is_gate_droppable(3, 11))
+    end)
+
+    -- S-S
+    -- H (dropping)
+    it('SWAP ゲートの下にゲートがあるが落下中の場合 true を返す', function()
+      local h = h_gate()
+      h._state = "dropping"
+
+      board:put(1, 11, swap_gate(3))
+      board:put(3, 11, swap_gate(1))
+      board:put(1, 12, h)
+
+      assert.is_true(board:is_gate_droppable(1, 11))
+      assert.is_true(board:is_gate_droppable(3, 11))
+    end)
+  end)
+
+  describe('is_empty', function()
+
   end)
 
   describe('raised_dots', function()
