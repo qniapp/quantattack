@@ -86,6 +86,13 @@ function solo:render() -- override
   board:render()
   player_cursor:render(board)
   puff_particle:render()
+  self:render_steps()
+end
+
+function solo:render_steps()
+  cursor(board.offset_x * 2 + board.width, board.offset_y)
+  color(colors.white)
+  print(0 .. " steps")
 end
 
 function solo:_create_gate_puff_particles()

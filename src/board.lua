@@ -22,8 +22,10 @@ board.row_next_gates = board.rows + 1
 function board:_init()
   self.raised_dots = 0
   self._gates = {}
-  self._offset_x = 10
-  self._offset_y = 10
+  self.width = board.cols * quantum_gate.size
+  self.height = board.rows * quantum_gate.size
+  self.offset_x = 10
+  self.offset_y = 10
 
   -- fill the board with I gates
   for x = 1, board.cols do
@@ -215,20 +217,17 @@ function board:render()
     end
   end
 
-  local width = board.cols * quantum_gate.size
-  local height = board.rows * quantum_gate.size
-
   -- border left
-  line(self._offset_x - 2, self._offset_y,
-    self._offset_x - 2, self._offset_y + height,
+  line(self.offset_x - 2, self.offset_y,
+    self.offset_x - 2, self.offset_y + self.height,
     colors.white)
   -- border right
-  line(self._offset_x + width, self._offset_y,
-    self._offset_x + width, self._offset_y + height,
+  line(self.offset_x + self.width, self.offset_y,
+    self.offset_x + self.width, self.offset_y + self.height,
     colors.white)
   -- border bottom
-  line(self._offset_x - 1, self._offset_y + height,
-    self._offset_x + width - 1, self._offset_y + height,
+  line(self.offset_x - 1, self.offset_y + self.height,
+    self.offset_x + self.width - 1, self.offset_y + self.height,
     colors.white)
 end
 
@@ -287,15 +286,15 @@ function board:dy()
 end
 
 function board:screen_x(x)
-  return self._offset_x + (x - 1) * quantum_gate.size
+  return self.offset_x + (x - 1) * quantum_gate.size
 end
 
 function board:screen_y(y)
-  return self._offset_y + (y - 1) * quantum_gate.size - self.raised_dots
+  return self.offset_y + (y - 1) * quantum_gate.size - self.raised_dots
 end
 
 function board:y(screen_y)
-  return ceil((screen_y - self._offset_y) / quantum_gate.size + 1)
+  return ceil((screen_y - self.offset_y) / quantum_gate.size + 1)
 end
 
 function board:gate_at(x, y)
