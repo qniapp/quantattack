@@ -1,6 +1,5 @@
 require("engine/core/class")
 require("engine/core/fun_helper")
-require("engine/core/helper")
 require("engine/core/string")
 require("engine/render/color")
 
@@ -15,9 +14,9 @@ local title = derived_class(gamestate)
 title.type = ':title'
 
 -- sequence of menu items to display, with their target states
-title._items = transform({
-  { "1 player", ':solo' },
-}, unpacking(menu_item))
+title._items = {
+  menu_item("1 player", ':solo')
+}
 
 -- text_menu: text_menu    component handling menu display and selection
 function title:_init()
