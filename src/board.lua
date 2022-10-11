@@ -179,10 +179,6 @@ function board:is_gate_droppable(gate_x, gate_y, y)
   local gate, start_x, end_x = self:gate_at(gate_x, gate_y)
 
   if gate.other_x then
-    if gate.other_x < gate_x then
-      return self:is_gate_droppable(gate.other_x, gate_y, y)
-    end
-
     start_x, end_x = min(gate_x, gate.other_x), max(gate_x, gate.other_x)
   else
     start_x, end_x = gate_x, gate_x + gate.span - 1
