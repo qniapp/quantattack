@@ -10,7 +10,7 @@ function z_gate:_init()
     swapping_with_left = 3,
     swapping_with_right = 3,
     dropping = 3,
-    match = { up = 11, middle = 27, down = 43 }
+    match = { up = 12, middle = 28, down = 44 }
   }
 end
 

@@ -10,7 +10,7 @@ function t_gate:_init()
     swapping_with_left = 5,
     swapping_with_right = 5,
     dropping = 5,
-    match = { up = 13, middle = 29, down = 45 }
+    match = { up = 14, middle = 30, down = 46 }
   }
 end
 

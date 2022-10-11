@@ -15,7 +15,7 @@ function control_gate:_init(other_x)
     swapping_with_left = 6,
     swapping_with_right = 6,
     dropping = 6,
-    match = { up = 14, middle = 30, down = 46 }
+    match = { up = 15, middle = 31, down = 47 }
   }
 end
 
