@@ -92,19 +92,38 @@ function board:is_busy()
   return false
 end
 
-function board:insert_gates_at_bottom()
+function board:insert_gates_at_bottom(steps)
   -- 各ゲートを 1 つ上にずらす
   for y = 1, self.row_next_gates - 1 do
     for x = 1, self.cols do
       self:put(x, y, self:gate_at(x, y + 1))
+      self:remove_gate(x, y + 1)
     end
   end
 
+  -- TODO: あとで確率的に CNOT を入れるか入れないかを決める
+  -- local min_cnot_probability = 0.3
+  -- local max_cnot_probability = 0.7
+  -- local p = min_cnot_probability + flr(steps / 5) * 0.1
+  -- p = p > max_cnot_probability and 0.7 or p
+
+  local control_x
+  local cnot_x_x
+  repeat
+    control_x = flr(rnd(board.cols)) + 1
+    cnot_x_x = flr(rnd(board.cols)) + 1
+  until control_x ~= cnot_x_x
+
+  self:put(control_x, self.row_next_gates, control_gate(cnot_x_x))
+  self:put(cnot_x_x, self.row_next_gates, cnot_x_gate(control_x))
+
   -- 最下段に新しいゲートを置く
   for x = 1, self.cols do
-    repeat
-      self:put(x, self.row_next_gates, self:_random_single_gate())
-    until #self:reduce(x, self.rows, true).to == 0 and #self:reduce(x, self.rows - 1, true).to == 0
+    if self:is_empty(x, self.row_next_gates) then
+      repeat
+        self:put(x, self.row_next_gates, self:_random_single_gate())
+      until #self:reduce(x, self.rows, true).to == 0 and #self:reduce(x, self.rows - 1, true).to == 0
+    end
   end
 end
 
@@ -211,7 +230,7 @@ function board:render()
       local screen_x = self:screen_x(x)
       local screen_y = self:screen_y(y) + self:dy()
 
-      if gate:is_swap() and x < gate.other_x then
+      if gate.other_x and x < gate.other_x then
         local connection_y = self:screen_y(y) + 3
         line(self:screen_x(x) + 3, connection_y,
           self:screen_x(gate.other_x) + 3, connection_y,
@@ -236,6 +255,8 @@ function board:render()
     colors.white)
 end
 
+-- (x_left, y) と (x_right, y) のゲートを入れ替える
+-- 入れ替えできた場合は true を、そうでない場合は false を返す
 function board:swap(x_left, x_right, y)
   --#if assert
   assert(x_left < x_right)
@@ -250,33 +271,23 @@ function board:swap(x_left, x_right, y)
     return false
   end
 
-  -- 回路が [X-X] のようになっている場合 (X は SWAP ゲートを表す)、
-  -- 実際には入れ替えしないが true を返す
-  if left_gate:is_swap() and right_gate:is_swap() then
-    if left_gate.other_x == x_right then
-      --#if assert
-      assert(right_gate.other_x == x_left)
-      --#endif
-      return true
-    else
+  -- 回路が A--[AB]--B のようになっている場合
+  -- [AB] は入れ替えできない
+  if left_gate.other_x and right_gate.other_x then
+    if left_gate.other_x ~= x_right then
       return false
     end
   end
 
-  -- 回路が X--[XH] のようになっている場合
-  -- [XH] は入れ替えできない。
-  if left_gate:is_swap() and not right_gate:is_i() then
-    --#if assert
-    assert(left_gate.other_x < x_left)
-    --#endif
+  -- 回路が A--[A?] のようになっている場合
+  -- [A?] は入れ替えできない。
+  if left_gate.other_x and left_gate.other_x < x_left and not right_gate:is_i() then
     return false
   end
-  -- 回路が [HX]--X のようになっている場合も、
-  -- [HX] は入れ替えできない。
-  if right_gate:is_swap() and not left_gate:is_i() then
-    --#if assert
-    assert(x_right < right_gate.other_x)
-    --#endif
+
+  -- 回路が [?A]--A のようになっている場合も、
+  -- [?A] は入れ替えできない。
+  if not left_gate:is_i() and right_gate.other_x and x_right < right_gate.other_x then
     return false
   end
 
@@ -332,7 +343,7 @@ function board:is_empty(x, y)
     if gate:is_garbage() and x <= tmp_x + gate.span - 1 then
       return false
     end
-    if gate:is_swap() and x <= gate.other_x then
+    if gate.other_x and x <= gate.other_x then
       return false
     end
   end

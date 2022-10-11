@@ -1,4 +1,5 @@
 require("engine/core/class")
+require("engine/render/color")
 
 local quantum_gate = new_class()
 
@@ -118,27 +119,44 @@ function quantum_gate:update(board, x, y)
     if self._tick_swap < swap_animation_frame_count then
       self._tick_swap = self._tick_swap + 1
     else
-      local new_x
-
       -- SWAP 完了
-      if self:_is_swapping_with_left() then
-        new_x = x - 1
-      else
-        new_x = x + 1
-      end
 
-      if self:is_swap() then
-        board:gate_at(self.other_x, y).other_x = new_x
-      end
+      --#if assert
+      assert(self:_is_swapping_with_right())
+      --#endif
 
+      local new_x = x + 1
+
+      -- A を SWAP や CNOT と一部とすると、
+      --
+      --   [BC]
+      -- --[A_], [A-]--
+      -- --[-A], [_A]--
+      --   [AA]
+      --
+      -- の 4 パターンで左側だけ考える
       local gate_to_swap_with = board:gate_at(new_x, y)
-      if not gate_to_swap_with:is_swap() then
+
+      if self.other_x == nil and gate_to_swap_with.other_x == nil then
         board:put(new_x, y, self)
         board:put(x, y, gate_to_swap_with)
-        gate_to_swap_with._state = state_idle
+      elseif not self:is_i() and gate_to_swap_with:is_i() then
+        board:put(new_x, y, self)
+        board:put(x, y, gate_to_swap_with)
+        board:gate_at(self.other_x, y).other_x = new_x
+      elseif self:is_i() and not gate_to_swap_with:is_i() then
+        board:put(new_x, y, self)
+        board:put(x, y, gate_to_swap_with)
+        board:gate_at(gate_to_swap_with.other_x, y).other_x = x
+      elseif self.other_x and gate_to_swap_with.other_x then
+        board:put(new_x, y, self)
+        board:put(x, y, gate_to_swap_with)
+        self.other_x = x
+        gate_to_swap_with.other_x = new_x
       end
 
       self._state = state_idle
+      gate_to_swap_with._state = state_idle
     end
   elseif self:is_dropping() then
     local screen_y = board:screen_y(self.start_y) + self._distance_dropped
@@ -147,7 +165,7 @@ function quantum_gate:update(board, x, y)
     local max_next_y = board.raised_dots > 0 and board.row_next_gates or board.rows
 
     if self.start_y == next_y or
-      (board:is_gate_droppable(x, y, next_y) and next_y <= max_next_y) then
+        (board:is_gate_droppable(x, y, next_y) and next_y <= max_next_y) then
       self._distance_dropped = self._distance_dropped + quantum_gate._dy
     else
       self._distance_dropped = 0
@@ -170,6 +188,7 @@ function quantum_gate:update(board, x, y)
     else
       self.tick_match = nil
       self._type = self.reduce_to._type
+      self.other_x = nil
       self.sprites = self.reduce_to.sprites
       self._state = state_idle
       if self:is_i() then
@@ -187,6 +206,12 @@ function quantum_gate:render(screen_x, screen_y)
   local dy = 0
   if self:is_dropping() then
     dy = self._distance_dropped
+  end
+
+  -- CNOT_X の場合は X ゲートのスプライトを流用するので、色を変える
+  if self._type == "cnot_x" and not self:is_match() then
+    pal(colors.blue, colors.orange)
+    pal(colors.light_gray, colors.brown)
   end
 
   if self.span > 1 then
@@ -210,6 +235,11 @@ function quantum_gate:render(screen_x, screen_y)
     end
 
     spr(self:_sprite(), screen_x + dx, screen_y + dy)
+  end
+
+  if self._type == "cnot_x" then
+    pal(colors.blue, colors.blue)
+    pal(colors.light_gray, colors.light_gray)
   end
 end
 

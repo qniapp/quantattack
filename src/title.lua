@@ -32,7 +32,7 @@ function title:render()
   cls()
 
   local title_y = 48
-  ui.print_centered("qitaev", 64, title_y, colors.white)
+  ui.print_centered("q i t a e v", 64, title_y, colors.white)
 
   -- skip 4 lines and draw menu content
   self.text_menu:draw(title_y + 4 * character_height)
