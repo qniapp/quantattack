@@ -77,23 +77,24 @@ function board:insert_gates_at_bottom(steps)
     end
   end
 
-  -- TODO: あとで確率的に CNOT を入れるか入れないかを決める
-  -- local min_cnot_probability = 0.3
-  -- local max_cnot_probability = 0.7
-  -- local p = min_cnot_probability + flr(steps / 5) * 0.1
-  -- p = p > max_cnot_probability and 0.7 or p
+  local min_cnot_probability = 0.3
+  local max_cnot_probability = 0.7
+  local p = min_cnot_probability + flr(steps / 5) * 0.1
+  p = p > max_cnot_probability and max_cnot_probability or p
 
-  local control_x
-  local cnot_x_x
-  repeat
-    control_x = flr(rnd(board.cols)) + 1
-    cnot_x_x = flr(rnd(board.cols)) + 1
-  until control_x ~= cnot_x_x
+  if rnd(1) < p then
+    local control_x
+    local cnot_x_x
+    repeat
+      control_x = flr(rnd(board.cols)) + 1
+      cnot_x_x = flr(rnd(board.cols)) + 1
+    until control_x ~= cnot_x_x
 
-  self:put(control_x, self.row_next_gates, control_gate(cnot_x_x))
-  self:put(cnot_x_x, self.row_next_gates, cnot_x_gate(control_x))
+    self:put(control_x, self.row_next_gates, control_gate(cnot_x_x))
+    self:put(cnot_x_x, self.row_next_gates, cnot_x_gate(control_x))
+  end
 
-  -- 最下段に新しいゲートを置く
+  -- 最下段の空いている部分に新しいゲートを置く
   for x = 1, self.cols do
     if self:is_empty(x, self.row_next_gates) then
       repeat
