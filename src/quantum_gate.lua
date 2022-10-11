@@ -148,42 +148,15 @@ function quantum_gate:update(board, x, y)
 
     if self.start_y == next_y or
       (board:is_gate_droppable(x, y, next_y) and next_y <= max_next_y) then
-      if self.other_x then
-        if x < self.other_x then
-          local other_gate = board:gate_at(self.other_x, y)
-          self._distance_dropped = self._distance_dropped + quantum_gate._dy
-          other_gate._distance_dropped = self._distance_dropped
-        end
-      else
-        self._distance_dropped = self._distance_dropped + quantum_gate._dy
-      end
+      self._distance_dropped = self._distance_dropped + quantum_gate._dy
     else
-      -- dropped
-      if self.other_x then
-        if x < self.other_x then
-          local other_gate = board:gate_at(self.other_x, y)
+      self._distance_dropped = 0
+      self.y = board:y(screen_y)
 
-          self._distance_dropped = 0
-          self.y = board:y(screen_y)
-          board:remove_gate(x, y)
-          board:put(x, self.y, self)
-          self._state = state_idle
+      board:remove_gate(x, y)
+      board:put(x, board:y(screen_y), self)
 
-          other_gate._distance_dropped = 0
-          other_gate.y = self.y
-          board:remove_gate(self.other_x, y)
-          board:put(self.other_x, other_gate.y, other_gate)
-          other_gate._state = state_idle
-        end
-      else
-        self._distance_dropped = 0
-        self.y = board:y(screen_y)
-
-        board:remove_gate(x, y)
-        board:put(x, board:y(screen_y), self)
-
-        self._state = state_idle
-      end
+      self._state = state_idle
     end
   elseif self:is_match() then
     --#if assert
