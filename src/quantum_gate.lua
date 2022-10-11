@@ -126,8 +126,9 @@ function quantum_gate:update(board, x, y)
       --#endif
 
       local new_x = x + 1
+      local gate_to_swap_with = board:gate_at(new_x, y)
 
-      -- A を SWAP や CNOT と一部とすると、
+      -- A を SWAP や CNOT の一部とすると、
       --
       --   [BC]
       -- --[A_], [A-]--
@@ -135,7 +136,6 @@ function quantum_gate:update(board, x, y)
       --   [AA]
       --
       -- の 4 パターンで左側だけ考える
-      local gate_to_swap_with = board:gate_at(new_x, y)
 
       if self.other_x == nil and gate_to_swap_with.other_x == nil then
         board:put(new_x, y, self)
@@ -151,12 +151,10 @@ function quantum_gate:update(board, x, y)
       elseif self.other_x and gate_to_swap_with.other_x then
         board:put(new_x, y, self)
         board:put(x, y, gate_to_swap_with)
-        self.other_x = x
-        gate_to_swap_with.other_x = new_x
+        self.other_x, gate_to_swap_with.other_x = x, new_x
       end
 
-      self._state = state_idle
-      gate_to_swap_with._state = state_idle
+      self._state, gate_to_swap_with._state = state_idle, state_idle
     end
   elseif self:is_dropping() then
     local screen_y = board:screen_y(self.start_y) + self._distance_dropped
