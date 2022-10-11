@@ -10,13 +10,12 @@ function control_gate:_init(other_x)
 
   quantum_gate._init(self, 'control')
   self.other_x = other_x
-  self._sprites = {
+  self.sprites = {
     idle = 6,
-    jumping = 54,
-    falling = 38,
-    match_up = 14,
-    match_middle = 30,
-    match_down = 46
+    swapping_with_left = 6,
+    swapping_with_right = 6,
+    dropping = 6,
+    match = { up = 14, middle = 30, down = 46 }
   }
 end
 

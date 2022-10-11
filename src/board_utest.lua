@@ -59,8 +59,8 @@ describe('board', function()
 
     -- (S は SWAP ゲート)
     --
-    --  S-S →(右 の S を左と入れ換え)→ SS
-    it('should update swap_gate.other_x after a swap', function()
+    --  S-S →(右 の S を左の I と入れ換え)→ SS
+    it('should update swap_gate.other_x after a swap #solo', function()
       board:put(1, 12, swap_gate(3))
       board:put(3, 12, swap_gate(1))
 
@@ -72,6 +72,21 @@ describe('board', function()
       board:update()
 
       assert.are_equal(2, board:gate_at(1, 12).other_x)
+    end)
+
+    it('SWAP 同士の入れ替え', function()
+      board:put(1, 12, swap_gate(2))
+      board:put(2, 12, swap_gate(1))
+
+      board:swap(1, 2, 12)
+      board:update()
+      board:update()
+      board:update()
+      board:update()
+      board:update()
+
+      assert.are_equal(2, board:gate_at(1, 12).other_x)
+      assert.are_equal(1, board:gate_at(2, 12).other_x)
     end)
   end)
 
@@ -662,7 +677,29 @@ describe('board', function()
   end)
 
   describe('is_empty', function()
+    it('swap と swap の間は空ではない', function()
+      board:put(1, 11, swap_gate(3))
+      board:put(3, 11, swap_gate(1))
 
+      assert.is_false(board:is_empty(1, 11))
+      assert.is_false(board:is_empty(2, 11))
+      assert.is_false(board:is_empty(3, 11))
+      assert.is_true(board:is_empty(4, 11))
+      assert.is_true(board:is_empty(5, 11))
+      assert.is_true(board:is_empty(6, 11))
+    end)
+
+    it('control と cnot_x の間は空ではない #solo', function()
+      board:put(1, 11, control_gate(3))
+      board:put(3, 11, cnot_x_gate(1))
+
+      assert.is_false(board:is_empty(1, 11))
+      assert.is_false(board:is_empty(2, 11))
+      assert.is_false(board:is_empty(3, 11))
+      assert.is_true(board:is_empty(4, 11))
+      assert.is_true(board:is_empty(5, 11))
+      assert.is_true(board:is_empty(6, 11))
+    end)
   end)
 
   describe('raised_dots', function()

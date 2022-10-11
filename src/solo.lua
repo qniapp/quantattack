@@ -83,7 +83,7 @@ function solo:_maybe_raise_gates()
 
   if board.raised_dots == quantum_gate.size then
     board.raised_dots = 0
-    board:insert_gates_at_bottom()
+    board:insert_gates_at_bottom(player.steps)
     player_cursor:move_up()
     player.steps = player.steps + 1
   end
