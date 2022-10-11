@@ -173,12 +173,9 @@ function quantum_gate:update(board, x, y)
     assert(not self:is_garbage())
     --#endif
 
-    if self.tick_match == nil then
-      self.tick_match = 0
-    elseif self.tick_match < match_animation_frame_count then
-      self.tick_match = self.tick_match + 1
+    if self._tick_match < match_animation_frame_count then
+      self._tick_match = self._tick_match + 1
     else
-      self.tick_match = nil
       self._type = self.reduce_to._type
       self.other_x = self.reduce_to.other_x
       self.sprites = self.reduce_to.sprites
@@ -242,7 +239,7 @@ function quantum_gate:_sprite()
   --#endif
 
   if self:is_match() then
-    local mod = self.tick_match % 12
+    local mod = self._tick_match % 12
     local sub_state
     if mod <= 2 then
       sub_state = 'up'
@@ -262,6 +259,7 @@ end
 function quantum_gate:replace_with(other)
   self.reduce_to = other
   self._state = state_match
+  self._tick_match = 0
 end
 
 -------------------------------------------------------------------------------
