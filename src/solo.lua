@@ -55,7 +55,7 @@ function solo:update()
     board:put_garbage()
   end
 
-  board:update()
+  player.score = player.score + board:update()
   self:_create_gate_puff_particles()
   player_cursor:update()
   puff_particle:update()
@@ -91,14 +91,19 @@ function solo:render() -- override
   cls()
   board:render()
   player_cursor:render(board)
+  self:render_score()
   puff_particle:render()
-  self:render_steps()
 end
 
-function solo:render_steps()
-  cursor(board.offset_x * 2 + board.width, board.offset_y)
+function solo:render_score()
   color(colors.white)
+
+  cursor(board.offset_x * 2 + board.width, board.offset_y)
   print(player.steps .. " steps")
+
+  -- skip 2 lines and draw score
+  cursor(board.offset_x * 2 + board.width, board.offset_y + 2 * character_height)
+  print("score " .. player.score)
 end
 
 function solo:_create_gate_puff_particles()
