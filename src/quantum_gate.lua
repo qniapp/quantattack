@@ -15,7 +15,7 @@ local state_match = "match"
 local state_swapping_with_left = "swapping_with_left"
 local state_swapping_with_right = "swapping_with_right"
 
-quantum_gate._dy = 3 -- ゲートの落下速度
+local drop_dy = 3 -- ゲートの落下速度
 
 function quantum_gate:_init(type, span)
   self._type = type
@@ -153,19 +153,18 @@ function quantum_gate:update(board, x, y)
     end
   elseif self:is_dropping() then
     local screen_y = board:screen_y(self.start_y) + self._distance_dropped
-    local next_screen_y = screen_y + quantum_gate._dy
-    local next_y = board:y(next_screen_y)
+    local next_y = board:y(screen_y + drop_dy)
     local max_next_y = board.raised_dots > 0 and board.row_next_gates or board.rows
 
     if self.start_y == next_y or
         (board:is_gate_droppable(x, y, next_y) and next_y <= max_next_y) then
-      self._distance_dropped = self._distance_dropped + quantum_gate._dy
+      self._distance_dropped = self._distance_dropped + drop_dy
     else
       self._distance_dropped = 0
       self.y = board:y(screen_y)
 
       board:remove_gate(x, y)
-      board:put(x, board:y(screen_y), self)
+      board:put(x, self.y, self)
 
       self._state = state_idle
     end
