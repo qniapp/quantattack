@@ -4,8 +4,6 @@ require("engine/render/color")
 
 local gate = new_class()
 
--- private
-
 local swap_animation_frame_count = 4
 local match_animation_frame_count = 45
 
@@ -15,12 +13,13 @@ local state_match = "match"
 local state_swapping_with_left = "swapping_with_left"
 local state_swapping_with_right = "swapping_with_right"
 
-local drop_dy = 3 -- ゲートの落下速度
+local drop_speed = 3
 
 function gate:_init(type, span)
   self._type = type
   self.span = span or 1
   self._state = state_idle
+  self._screen_dy = 0
 end
 
 -- gate type
@@ -152,15 +151,15 @@ function gate:update(board, x, y)
       self._state, right_gate._state = state_idle, state_idle
     end
   elseif self:is_dropping() then
-    local screen_y = board:screen_y(self.start_y) + self._distance_dropped
-    local next_y = board:y(screen_y + drop_dy)
+    local screen_y = board:screen_y(self._start_y) + self._screen_dy
+    local next_y = board:y(screen_y + drop_speed)
     local max_next_y = board.raised_dots > 0 and board.row_next_gates or board.rows
 
-    if self.start_y == next_y or
+    if self._start_y == next_y or
         (board:is_gate_droppable(x, y, next_y) and next_y <= max_next_y) then
-      self._distance_dropped = self._distance_dropped + drop_dy
+      self._screen_dy = self._screen_dy + drop_speed
     else
-      self._distance_dropped = 0
+      self._screen_dy = 0
       self.y = board:y(screen_y)
 
       board:remove_gate(x, y)
@@ -176,7 +175,7 @@ function gate:update(board, x, y)
     if self._tick_match < match_animation_frame_count then
       self._tick_match = self._tick_match + 1
     else
-      local new_gate = self.reduce_to
+      local new_gate = self._reduce_to
       board:put(x, y, new_gate)
       if new_gate:is_i() then
         new_gate.puff = true
@@ -190,8 +189,6 @@ function gate:render(screen_x, screen_y)
     return
   end
 
-  local screen_dy = self:is_dropping() and self._distance_dropped or 0
-
   if self.span > 1 then
     for x = 0, self.span - 1 do
       local sprite_id = self._sprite_middle
@@ -202,7 +199,7 @@ function gate:render(screen_x, screen_y)
         sprite_id = self._sprite_right
       end
 
-      spr(sprite_id, screen_x + x * tile_size, screen_y + screen_dy)
+      spr(sprite_id, screen_x + x * tile_size, screen_y + self._screen_dy)
     end
   else
     local screen_dx = 0
@@ -213,7 +210,7 @@ function gate:render(screen_x, screen_y)
       screen_dx = -diff
     end
 
-    spr(self:_sprite(), screen_x + screen_dx, screen_y + screen_dy)
+    spr(self:_sprite(), screen_x + screen_dx, screen_y + self._screen_dy)
   end
 end
 
@@ -242,8 +239,8 @@ function gate:_sprite()
 end
 
 function gate:replace_with(other)
-  self.reduce_to = other
   self._state = state_match
+  self._reduce_to = other
   self._tick_match = 0
 end
 
@@ -265,10 +262,9 @@ function gate:drop(x, start_y)
   assert(self:is_droppable())
   --#endif
 
-  self.x = x
-  self._distance_dropped = 0
-  self.start_y = start_y
   self._state = state_dropping
+  self._screen_dy = 0
+  self._start_y = start_y
 end
 
 function gate:is_dropping()
@@ -296,8 +292,8 @@ function gate:swap_with_right(new_x)
   assert(2 <= new_x)
   --#endif
 
-  self._tick_swap = 0
   self._state = state_swapping_with_right
+  self._tick_swap = 0
 end
 
 function gate:swap_with_left(new_x)
@@ -305,8 +301,8 @@ function gate:swap_with_left(new_x)
   assert(1 <= new_x)
   --#endif
 
-  self._tick_swap = 0
   self._state = state_swapping_with_left
+  self._tick_swap = 0
 end
 
 -------------------------------------------------------------------------------
