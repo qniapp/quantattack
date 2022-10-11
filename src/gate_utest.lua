@@ -1,10 +1,10 @@
 require("engine/test/bustedhelper")
 
-local quantum_gate = require("quantum_gate")
+local gate = require("gate")
 local h_gate = require("h_gate")
 local x_gate = require("x_gate")
 
-describe('quantum_gate', function()
+describe('gate', function()
   it('should update', function()
     local gate = h_gate()
 

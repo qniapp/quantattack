@@ -12,7 +12,7 @@ local t_gate = require("t_gate")
 local control_gate = require("control_gate")
 local cnot_x_gate = require("cnot_x_gate")
 local swap_gate = require("swap_gate")
-local quantum_gate = require("quantum_gate")
+local gate = require("gate")
 
 local board = new_class()
 
@@ -100,7 +100,7 @@ function board:insert_gates_at_bottom(steps)
     if self:is_empty(x, self.row_next_gates) then
       repeat
         self:put(x, self.row_next_gates, self:_random_single_gate())
-      until #self:reduce(x, self.rows, true).to == 0 and #self:reduce(x, self.rows - 1, true).to == 0
+      until #self:reduce(x, self.rows, true).to == 0
     end
   end
 end

@@ -1,10 +1,10 @@
 require("engine/core/class")
 
-local quantum_gate = require("quantum_gate")
-local z_gate = derived_class(quantum_gate)
+local gate = require("gate")
+local z_gate = derived_class(gate)
 
 function z_gate:_init()
-  quantum_gate._init(self, 'z')
+  gate._init(self, 'z')
   self.sprites = {
     idle = 3,
     swapping_with_left = 3,

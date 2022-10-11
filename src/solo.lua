@@ -14,7 +14,7 @@ local player_cursor = player_cursor_class()
 local board_class = require("board")
 local board = board_class()
 
-local quantum_gate = require("quantum_gate")
+local gate = require("gate")
 
 local puff_particle = require("puff_particle")
 

@@ -1,14 +1,14 @@
 require("engine/core/class")
 
-local quantum_gate = require("quantum_gate")
-local swap_gate = derived_class(quantum_gate)
+local gate = require("gate")
+local swap_gate = derived_class(gate)
 
 function swap_gate:_init(other_x)
   --#if assert
   assert(other_x)
   --#endif
 
-  quantum_gate._init(self, 'swap')
+  gate._init(self, 'swap')
   self.other_x = other_x
   self.sprites = {
     idle = 7,
