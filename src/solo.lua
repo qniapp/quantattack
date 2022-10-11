@@ -25,6 +25,7 @@ local buttons = {
 
 function solo:on_enter()
   board:initialize_with_random_gates()
+  self.tick = 0
 end
 
 function solo:update()
@@ -53,6 +54,31 @@ function solo:update()
   self:_create_gate_puff_particles()
   player_cursor:update()
   puff_particle:update()
+
+  self:_maybe_raise_gates()
+  self.tick = self.tick + 1
+end
+
+function solo:_maybe_raise_gates()
+  if (self.tick < 30) then -- TODO: 30 をどこか定数化
+    return false
+  end
+
+  self.tick = 0
+
+  if (board:is_busy()) then
+    return false
+  end
+
+  board.raised_dots = board.raised_dots + 1
+
+  if board.raised_dots == 8 then -- FIXME: 定数を quantum_gate.size にする
+    board.raised_dots = 0
+    board:insert_gates_at_bottom()
+    player_cursor:move_up()
+  end
+
+  return true
 end
 
 function solo:render() -- override

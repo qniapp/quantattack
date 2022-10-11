@@ -144,18 +144,46 @@ function quantum_gate:update(board, x, y)
     local screen_y = board:screen_y(self.start_y) + self._distance_dropped
     local next_screen_y = screen_y + quantum_gate._dy
     local next_y = board:y(next_screen_y)
+    local max_next_y = board.raised_dots > 0 and board.row_next_gates or board.rows
 
-    if board:is_gate_droppable(x, y, next_y) and next_y <= board.rows then
-      self._distance_dropped = self._distance_dropped + quantum_gate._dy
+    if self.start_y == next_y or
+      (board:is_gate_droppable(x, y, next_y) and next_y <= max_next_y) then
+      if self.other_x then
+        if x < self.other_x then
+          local other_gate = board:gate_at(self.other_x, y)
+          self._distance_dropped = self._distance_dropped + quantum_gate._dy
+          other_gate._distance_dropped = self._distance_dropped
+        end
+      else
+        self._distance_dropped = self._distance_dropped + quantum_gate._dy
+      end
     else
       -- dropped
-      self._distance_dropped = 0
-      self.y = board:y(screen_y)
+      if self.other_x then
+        if x < self.other_x then
+          local other_gate = board:gate_at(self.other_x, y)
 
-      board:remove_gate(x, y)
-      board:put(x, board:y(screen_y), self)
+          self._distance_dropped = 0
+          self.y = board:y(screen_y)
+          board:remove_gate(x, y)
+          board:put(x, self.y, self)
+          self._state = state_idle
 
-      self._state = state_idle
+          other_gate._distance_dropped = 0
+          other_gate.y = self.y
+          board:remove_gate(self.other_x, y)
+          board:put(self.other_x, other_gate.y, other_gate)
+          other_gate._state = state_idle
+        end
+      else
+        self._distance_dropped = 0
+        self.y = board:y(screen_y)
+
+        board:remove_gate(x, y)
+        board:put(x, board:y(screen_y), self)
+
+        self._state = state_idle
+      end
     end
   elseif self:is_match() then
     --#if assert
@@ -246,8 +274,6 @@ end
 -------------------------------------------------------------------------------
 
 -- ゲートが下に落とせる状態にあるかどうかを返す
--- 注意: SWAP と CNOT ゲートでは、2 つのゲートがともに droppable であることを
--- 別途チェックする必要がある。
 function quantum_gate:is_droppable()
   return not (self:is_i() or self:is_dropping() or self:is_swapping())
 end

@@ -103,6 +103,12 @@ describe('i_gate', function()
     end)
   end)
 
+  describe("is_empty", function()
+    it("should return true", function()
+      assert.is_true(i_gate:is_empty())
+    end)
+  end)
+
   describe("stringify", function()
     it("should return '_'", function()
       assert.are.equals("_", stringify(i_gate))
