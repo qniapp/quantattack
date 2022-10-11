@@ -1,3 +1,4 @@
+require("engine/application/constants")
 require("engine/core/class")
 require("engine/render/color")
 
@@ -81,7 +82,7 @@ function solo:_maybe_raise_gates()
 
   board.raised_dots = board.raised_dots + 1
 
-  if board.raised_dots == quantum_gate.size then
+  if board.raised_dots == tile_size then
     board.raised_dots = 0
     board:insert_gates_at_bottom(player.steps)
     player_cursor:move_up()

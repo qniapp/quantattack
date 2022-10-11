@@ -1,3 +1,4 @@
+require("engine/application/constants")
 require("engine/core/class")
 
 local garbage_gate = require("garbage_gate")
@@ -22,8 +23,8 @@ board.row_next_gates = board.rows + 1
 function board:_init()
   self.raised_dots = 0
   self._gates = {}
-  self.width = board.cols * quantum_gate.size
-  self.height = board.rows * quantum_gate.size
+  self.width = board.cols * tile_size
+  self.height = board.rows * tile_size
   self.offset_x = 10
   self.offset_y = 10
 
@@ -279,15 +280,15 @@ function board:dy()
 end
 
 function board:screen_x(x)
-  return self.offset_x + (x - 1) * quantum_gate.size
+  return self.offset_x + (x - 1) * tile_size
 end
 
 function board:screen_y(y)
-  return self.offset_y + (y - 1) * quantum_gate.size - self.raised_dots
+  return self.offset_y + (y - 1) * tile_size - self.raised_dots
 end
 
 function board:y(screen_y)
-  return ceil((screen_y - self.offset_y) / quantum_gate.size + 1)
+  return ceil((screen_y - self.offset_y) / tile_size + 1)
 end
 
 function board:gate_at(x, y)

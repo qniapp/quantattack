@@ -1,13 +1,8 @@
+require("engine/application/constants")
 require("engine/core/class")
 require("engine/render/color")
 
 local quantum_gate = new_class()
-
--------------------------------------------------------------------------------
--- class constants
--------------------------------------------------------------------------------
-
-quantum_gate.size = 8
 
 -- private
 
@@ -222,14 +217,14 @@ function quantum_gate:render(screen_x, screen_y)
         sprite_id = self._sprite_right
       end
 
-      spr(sprite_id, screen_x + x * quantum_gate.size, screen_y + dy)
+      spr(sprite_id, screen_x + x * tile_size, screen_y + dy)
     end
   else
     local dx = 0
     if self:_is_swapping_with_right() then
-      dx = self._tick_swap * (quantum_gate.size / swap_animation_frame_count)
+      dx = self._tick_swap * (tile_size / swap_animation_frame_count)
     elseif self:_is_swapping_with_left() then
-      dx = -self._tick_swap * (quantum_gate.size / swap_animation_frame_count)
+      dx = -self._tick_swap * (tile_size / swap_animation_frame_count)
     end
 
     spr(self:_sprite(), screen_x + dx, screen_y + dy)
