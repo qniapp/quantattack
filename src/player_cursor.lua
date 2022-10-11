@@ -39,7 +39,6 @@ end
 
 -- カーソルを左に移動
 function player_cursor:move_left()
-  sfx(sfx_move)
   if self.x > 1 then
     self.x = self.x - 1
   end
@@ -47,7 +46,6 @@ end
 
 -- カーソルを右に移動
 function player_cursor:move_right()
-  sfx(sfx_move)
   if self.x < board_class.cols - 1 then
     self.x = self.x + 1
   end
@@ -55,7 +53,6 @@ end
 
 -- カーソルを上に移動
 function player_cursor:move_up()
-  sfx(sfx_move)
   if self.y > 1 then
     self.y = self.y - 1
   end
@@ -63,10 +60,14 @@ end
 
 -- カーソルを下に移動
 function player_cursor:move_down()
-  sfx(sfx_move)
   if self.y < board_class.rows then
     self.y = self.y + 1
   end
+end
+
+-- カーソル移動の効果音を鳴らす
+function player_cursor:sfx_move()
+  sfx(sfx_move)
 end
 
 -- ゲート入れ替えの効果音を鳴らす

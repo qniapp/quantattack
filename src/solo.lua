@@ -35,15 +35,19 @@ end
 
 function solo:update()
   if btnp(buttons.left) then
+    player_cursor:sfx_move()
     player_cursor:move_left()
   end
   if btnp(buttons.right) then
+    player_cursor:sfx_move()
     player_cursor:move_right()
   end
   if btnp(buttons.up) then
+    player_cursor:sfx_move()
     player_cursor:move_up()
   end
   if btnp(buttons.down) then
+    player_cursor:sfx_move()
     player_cursor:move_down()
   end
   if btnp(buttons.x) then
