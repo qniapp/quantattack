@@ -181,7 +181,7 @@ function gate:update(board, x, y)
     assert(not self:is_garbage())
     --#endif
 
-    if self._tick_match < match_animation_frame_count then
+    if self._tick_match <= match_animation_frame_count then
       self._tick_match = self._tick_match + 1
     else
       local new_gate = self._reduce_to
@@ -227,7 +227,7 @@ function gate:_sprite()
   if self:is_idle() and self._tick_dropped then
     return split(self.sprites.dropped)[self._tick_dropped]
   elseif self:is_match() then
-    return split(self.sprites.match)[self._tick_match % 12 + 1]
+    return split(self.sprites.match)[self._tick_match]
   else
     return self.sprites.default
   end
@@ -236,7 +236,7 @@ end
 function gate:replace_with(other)
   self._state = state_match
   self._reduce_to = other
-  self._tick_match = 0
+  self._tick_match = 1
 end
 
 -------------------------------------------------------------------------------

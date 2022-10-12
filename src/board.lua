@@ -221,11 +221,11 @@ function board:render()
 
   -- border left
   line(self.offset_x - 2, self.offset_y,
-    self.offset_x - 2, self.offset_y + self.height,
+    self.offset_x - 2, self.offset_y + self.height - 1,
     colors.white)
   -- border right
   line(self.offset_x + self.width, self.offset_y,
-    self.offset_x + self.width, self.offset_y + self.height,
+    self.offset_x + self.width, self.offset_y + self.height - 1,
     colors.white)
   -- border bottom
   line(self.offset_x - 1, self.offset_y + self.height,
