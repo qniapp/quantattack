@@ -10,6 +10,7 @@ function z_gate:_init()
     swapping_with_left = 3,
     swapping_with_right = 3,
     dropping = 3,
+    dropped = "19,19,19,19,51,51,35,35,35,19,19,19",
     match = { up = 12, middle = 28, down = 44 }
   }
 end

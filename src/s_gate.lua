@@ -10,6 +10,7 @@ function s_gate:_init()
     swapping_with_left = 4,
     swapping_with_right = 4,
     dropping = 4,
+    dropped = "20,20,20,20,52,52,36,36,36,20,20,20",
     match = { up = 13, middle = 29, down = 45 }
   }
 end

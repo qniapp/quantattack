@@ -15,6 +15,7 @@ function cnot_x_gate:_init(other_x)
     swapping_with_left = 7,
     swapping_with_right = 7,
     dropping = 7,
+    dropped = "23,23,23,23,55,55,39,39,39,23,23,23",
     match = { up = 10, middle = 26, down = 42 }
   }
 end

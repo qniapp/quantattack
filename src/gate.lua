@@ -105,6 +105,14 @@ end
 function gate:update(board, x, y)
   if self:is_idle() then
     self.puff = false
+
+    if self._tick_dropped then
+      self._tick_dropped = self._tick_dropped + 1
+
+      if self._tick_dropped == 12 then
+        self._tick_dropped = nil
+      end
+    end
   elseif self:is_swapping() then
     --#if assert
     assert(not self:is_garbage())
@@ -166,6 +174,7 @@ function gate:update(board, x, y)
       board:put(x, self.y, self)
 
       self._state = state_idle
+      self._tick_dropped = 0
     end
   elseif self:is_match() then
     --#if assert
@@ -219,6 +228,10 @@ function gate:_sprite()
   assert(self.sprites, self._type)
   assert(self.sprites[self._state], self._state)
   --#endif
+
+  if self:is_idle() and self._tick_dropped then
+    return split(self.sprites.dropped)[self._tick_dropped]
+  end
 
   if self:is_match() then
     local mod = self._tick_match % 12
@@ -311,8 +324,19 @@ end
 
 --#if debug
 function gate:_tostring()
+  local type = self._type
+  type = type == "control" and "•" or type
+  type = type == "cnot_x" and "x" or type
+  type = type == "swap" and "S" or type
+
   if self:is_idle() then
-    return self._type
+    return type
+  elseif self:is_swapping() then -- yellow
+    return "\27[30;43m" .. type .. "\27[39;49m"
+  elseif self:is_dropping() then -- blue
+    return "\27[37;44m" .. type .. "\27[39;49m"
+  elseif self:is_match() then -- red
+    return "\27[37;41m" .. type .. "\27[39;49m"
   else
     return self._type .. " (" .. self._state .. ")"
   end
