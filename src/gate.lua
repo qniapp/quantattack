@@ -181,7 +181,7 @@ function gate:update(board, x, y)
     assert(not self:is_garbage())
     --#endif
 
-    if self._tick_match <= match_animation_frame_count then
+    if self._tick_match <= match_animation_frame_count + (self._match_index - 1) * 20 then -- TODO: 20 をどっかに定数化
       self._tick_match = self._tick_match + 1
     else
       local new_gate = self._reduce_to
@@ -227,15 +227,17 @@ function gate:_sprite()
   if self:is_idle() and self._tick_dropped then
     return split(self.sprites.dropped)[self._tick_dropped]
   elseif self:is_match() then
-    return split(self.sprites.match)[self._tick_match]
+    local sequence = split(self.sprites.match)
+    return self._tick_match <= 15 and sequence[self._tick_match] or sequence[#sequence]
   else
     return self.sprites.default
   end
 end
 
-function gate:replace_with(other)
+function gate:replace_with(other, match_index)
   self._state = state_match
   self._reduce_to = other
+  self._match_index = match_index or 1
   self._tick_match = 1
 end
 

@@ -124,12 +124,12 @@ function board:reduce_gates()
         local reduction = self:reduce(x, y, self.raised_dots > 0)
         score = score + (#reduction.to == 0 and 0 or (reduction.score or 100)) -- デフォルト 100 点
 
-        for _index, r in pairs(reduction.to) do
+        for index, r in pairs(reduction.to) do
           local dx = r.dx or 0
           local dy = r.dy or 0
           local gate = r.gate or i_gate()
 
-          self:gate_at(x + dx, y + dy):replace_with(gate)
+          self:gate_at(x + dx, y + dy):replace_with(gate, index)
         end
       end
     end

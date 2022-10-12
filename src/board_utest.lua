@@ -294,7 +294,7 @@ describe('board', function()
       assert.is_true(board:gate_at(1, 12)._reduce_to:is_swap())
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_swap())
 
-      for i = 1, 100 do
+      for i = 1, 200 do
         board:_update_gates()
       end
 
@@ -580,7 +580,7 @@ describe('board', function()
 
       board:swap(1, 2, 12)
 
-      for i = 1, 58 do
+      for i = 1, 100 do
         board:update()
       end
 
@@ -616,7 +616,7 @@ describe('board', function()
 
       board:swap(1, 2, 12)
 
-      for i = 1, 59 do
+      for i = 1, 100 do
         board:update()
       end
 
