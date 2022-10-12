@@ -11,12 +11,9 @@ function control_gate:_init(other_x)
   gate._init(self, 'control')
   self.other_x = other_x
   self.sprites = {
-    idle = 6,
-    swapping_with_left = 6,
-    swapping_with_right = 6,
-    dropping = 6,
+    default = 6,
     dropped = "22,22,22,22,54,54,38,38,38,22,22,22",
-    match = { up = 15, middle = 31, down = 47 }
+    match = "15,15,15,31,31,31,47,47,47,31,31,31"
   }
 end
 

@@ -60,7 +60,7 @@ describe('board', function()
     -- (S は SWAP ゲート)
     --
     --  S-S →(右 の S を左の I と入れ換え)→ SS
-    it('should update swap_gate.other_x after a swap #solo', function()
+    it('should update swap_gate.other_x after a swap', function()
       board:put(1, 12, swap_gate(3))
       board:put(3, 12, swap_gate(1))
 
@@ -701,7 +701,7 @@ describe('board', function()
       assert.is_true(board:is_empty(6, 11))
     end)
 
-    it('control と cnot_x の間は空ではない #solo', function()
+    it('control と cnot_x の間は空ではない', function()
       board:put(1, 11, control_gate(3))
       board:put(3, 11, cnot_x_gate(1))
 

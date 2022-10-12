@@ -7,7 +7,7 @@ local gate = new_class()
 local swap_animation_frame_count = 4
 local match_animation_frame_count = 45
 
-local state_idle = "idle"
+local state_default = "idle"
 local state_dropping = "dropping"
 local state_match = "match"
 local state_swapping_with_left = "swapping_with_left"
@@ -224,30 +224,12 @@ function gate:render(screen_x, screen_y)
 end
 
 function gate:_sprite()
-  --#if assert
-  assert(self.sprites, self._type)
-  assert(self.sprites[self._state], self._state)
-  --#endif
-
   if self:is_idle() and self._tick_dropped then
     return split(self.sprites.dropped)[self._tick_dropped]
-  end
-
-  if self:is_match() then
-    local mod = self._tick_match % 12
-    local sub_state
-    if mod <= 2 then
-      sub_state = 'up'
-    elseif mod <= 5 then
-      sub_state = 'middle'
-    elseif mod <= 8 then
-      sub_state = 'down'
-    elseif mod <= 11 then
-      sub_state = 'middle'
-    end
-    return self.sprites[self._state][sub_state]
+  elseif self:is_match() then
+    return split(self.sprites.match)[self._tick_match % 12 + 1]
   else
-    return self.sprites[self._state]
+    return self.sprites.default
   end
 end
 

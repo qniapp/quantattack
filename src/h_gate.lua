@@ -6,12 +6,9 @@ local h_gate = derived_class(gate)
 function h_gate:_init()
   gate._init(self, 'h')
   self.sprites = {
-    idle = 0,
-    swapping_with_left = 0,
-    swapping_with_right = 0,
-    dropping = 0,
+    default = 0,
     dropped = "16,16,16,16,48,48,32,32,32,16,16,16",
-    match = { up = 9, middle = 25, down = 41 }
+    match = "9,9,9,25,25,25,41,41,41,25,25,25"
   }
 end
 

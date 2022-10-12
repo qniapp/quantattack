@@ -11,12 +11,9 @@ function swap_gate:_init(other_x)
   gate._init(self, 'swap')
   self.other_x = other_x
   self.sprites = {
-    idle = 8,
-    swapping_with_left = 8,
-    swapping_with_right = 8,
-    dropping = 8,
+    default = 8,
     dropped = "24,24,24,24,56,56,40,40,40,24,24,24",
-    match = { up = 64, middle = 80, down = 96 }
+    match = "64,64,64,80,80,80,96,96,96,80,80,80"
   }
 end
 
