@@ -366,24 +366,6 @@ function board:put_garbage()
   self:put(x, 1, garbage_gate(x, span))
 end
 
-function board:gates_to_puff()
-  local gates = {}
-
-  for x = 1, board.cols do
-    for y = 1, board.rows do
-      local gate = self:gate_at(x, y)
-
-      if gate.puff then
-        gate.x = x
-        gate.y = y
-        add(gates, gate)
-      end
-    end
-  end
-
-  return gates
-end
-
 -------------------------------------------------------------------------------
 -- gate reduction
 -------------------------------------------------------------------------------

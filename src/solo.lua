@@ -61,7 +61,6 @@ function solo:update()
   end
 
   player.score = player.score + board:update()
-  self:_create_gate_puff_particles()
   player_cursor:update()
   puff_particle:update()
 
@@ -109,26 +108,6 @@ function solo:render_score()
   -- skip 2 lines and draw score
   cursor(board.offset_x * 2 + board.width, board.offset_y + 2 * character_height)
   print("score " .. player.score)
-end
-
-function solo:_create_gate_puff_particles()
-  foreach(board:gates_to_puff(), function(each)
-    local x = board:screen_x(each.x) + 3
-    local y = board:screen_y(each.y) + 3
-
-    puff_particle(x, y, 3)
-    puff_particle(x, y, 3)
-    puff_particle(x, y, 2)
-    puff_particle(x, y, 2, colors.dark_purple)
-    puff_particle(x, y, 2, colors.light_grey)
-    puff_particle(x, y, 1)
-    puff_particle(x, y, 1)
-    puff_particle(x, y, 1, colors.light_grey)
-    puff_particle(x, y, 1, colors.light_grey)
-    puff_particle(x, y, 0, colors.dark_purple)
-
-    -- sfx(self.sfx.puff)
-  end)
 end
 
 return solo

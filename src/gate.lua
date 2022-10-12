@@ -2,12 +2,13 @@ require("engine/application/constants")
 require("engine/core/class")
 require("engine/render/color")
 
+local puff_particle = require("puff_particle")
 local gate = new_class()
 
 local swap_animation_frame_count = 4
 local match_animation_frame_count = 45
 
-local state_default = "idle"
+local state_idle = "idle"
 local state_dropping = "dropping"
 local state_match = "match"
 local state_swapping_with_left = "swapping_with_left"
@@ -104,8 +105,6 @@ end
 
 function gate:update(board, x, y)
   if self:is_idle() then
-    self.puff = false
-
     if self._tick_dropped then
       self._tick_dropped = self._tick_dropped + 1
 
@@ -181,16 +180,32 @@ function gate:update(board, x, y)
     assert(not self:is_garbage())
     --#endif
 
-    if self._tick_match <= match_animation_frame_count + (self._match_index - 1) * 20 then -- TODO: 20 をどっかに定数化
+    if self._tick_match <= match_animation_frame_count + (self._match_index - 1) * 15 then -- TODO: 15 をどっかに定数化
       self._tick_match = self._tick_match + 1
     else
       local new_gate = self._reduce_to
       board:put(x, y, new_gate)
-      if new_gate:is_i() then
-        new_gate.puff = true
-      end
+      new_gate:_puff(board, x, y)
     end
   end
+end
+
+function gate:_puff(board, board_x, board_y)
+  local x = board:screen_x(board_x) + 3
+  local y = board:screen_y(board_y) + 3
+
+  sfx(3)
+
+  puff_particle(x, y, 3)
+  puff_particle(x, y, 3)
+  puff_particle(x, y, 2)
+  puff_particle(x, y, 2, colors.dark_purple)
+  puff_particle(x, y, 2, colors.light_grey)
+  puff_particle(x, y, 1)
+  puff_particle(x, y, 1)
+  puff_particle(x, y, 1, colors.light_grey)
+  puff_particle(x, y, 1, colors.light_grey)
+  puff_particle(x, y, 0, colors.dark_purple)
 end
 
 function gate:render(screen_x, screen_y)
