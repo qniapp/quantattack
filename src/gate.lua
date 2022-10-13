@@ -324,6 +324,7 @@ end
 --#if debug
 function gate:_tostring()
   local type = self._type
+  type = type == "i" and "_" or type
   type = type == "control" and "•" or type
   type = type == "cnot_x" and "x" or type
   type = type == "swap" and "S" or type

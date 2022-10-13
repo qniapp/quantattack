@@ -201,6 +201,14 @@ function board:_update_gates()
 end
 
 function board:render()
+  for x = 1, board.cols do
+    -- draw wires
+    local line_x = self:screen_x(x) + 3
+    line(line_x, self.offset_y,
+         line_x, self.offset_y + self.height,
+         colors.dark_gray)
+  end
+
   -- draw idle gates
   for x = 1, board.cols do
     for y = 1, board.row_next_gates do
