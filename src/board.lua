@@ -345,10 +345,10 @@ function board:is_empty(x, y)
   for tmp_x = 1, x - 1 do
     local gate = self:gate_at(tmp_x, y)
 
-    if gate:is_garbage() and x <= tmp_x + gate.span - 1 then
+    if gate:is_garbage() and (not gate:is_empty()) and x <= tmp_x + gate.span - 1 then
       return false
     end
-    if gate.other_x and x < gate.other_x then
+    if gate.other_x and (not gate:is_empty()) and x < gate.other_x then
       return false
     end
   end
@@ -386,11 +386,14 @@ function board:remove_gate(x, y)
   self:put(x, y, i_gate())
 end
 
+-- TODO: drop_garbage に名前変更
 function board:put_garbage()
   local span = flr(rnd(4)) + 3
   local x = flr(rnd(board.cols - span + 1)) + 1
+  local garbage = garbage_gate(span)
 
-  self:put(x, 1, garbage_gate(span))
+  self:put(x, 1, garbage)
+  garbage:drop()
 end
 
 -------------------------------------------------------------------------------
@@ -798,7 +801,7 @@ function board:is_game_over()
   end
 
   for x = 1, self.cols do
-    if not self:gate_at(x, 1):is_i() then
+    if not self:is_empty(x, 1) then
       return true
     end
   end

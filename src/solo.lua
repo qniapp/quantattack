@@ -64,15 +64,15 @@ function solo:update()
         player_cursor:sfx_swap()
       end
     end
-    if btnp(buttons.o) then
-      board:put_garbage()
-    end
 
     player.score = player.score + board:update()
     player_cursor:update()
     puff_particle:update()
 
-    self:_maybe_raise_gates()
+    if self:_maybe_raise_gates() and rnd(1) < 0.1 then
+      board:put_garbage()
+    end
+
     self.tick = self.tick + 1
   end
 end
