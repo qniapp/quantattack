@@ -1,3 +1,6 @@
+local flow = require("engine/application/flow")
+local ui = require("engine/ui/ui")
+
 require("engine/application/constants")
 require("engine/core/class")
 require("engine/render/color")
@@ -35,37 +38,43 @@ function solo:on_enter()
 end
 
 function solo:update()
-  if btnp(buttons.left) then
-    player_cursor:sfx_move()
-    player_cursor:move_left()
-  end
-  if btnp(buttons.right) then
-    player_cursor:sfx_move()
-    player_cursor:move_right()
-  end
-  if btnp(buttons.up) then
-    player_cursor:sfx_move()
-    player_cursor:move_up()
-  end
-  if btnp(buttons.down) then
-    player_cursor:sfx_move()
-    player_cursor:move_down()
-  end
-  if btnp(buttons.x) then
-    if board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y) then
-      player_cursor:sfx_swap()
+  if board:is_game_over() then
+    if btnp(buttons.o) then
+      flow:query_gamestate_type(':title')
     end
-  end
-  if btnp(buttons.o) then
-    board:put_garbage()
-  end
+  else
+    if btnp(buttons.left) then
+      player_cursor:sfx_move()
+      player_cursor:move_left()
+    end
+    if btnp(buttons.right) then
+      player_cursor:sfx_move()
+      player_cursor:move_right()
+    end
+    if btnp(buttons.up) then
+      player_cursor:sfx_move()
+      player_cursor:move_up()
+    end
+    if btnp(buttons.down) then
+      player_cursor:sfx_move()
+      player_cursor:move_down()
+    end
+    if btnp(buttons.x) then
+      if board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y) then
+        player_cursor:sfx_swap()
+      end
+    end
+    if btnp(buttons.o) then
+      board:put_garbage()
+    end
 
-  player.score = player.score + board:update()
-  player_cursor:update()
-  puff_particle:update()
+    player.score = player.score + board:update()
+    player_cursor:update()
+    puff_particle:update()
 
-  self:_maybe_raise_gates()
-  self.tick = self.tick + 1
+    self:_maybe_raise_gates()
+    self.tick = self.tick + 1
+  end
 end
 
 function solo:_maybe_raise_gates()
@@ -97,6 +106,12 @@ function solo:render() -- override
   player_cursor:render(board)
   self:render_score()
   puff_particle:render()
+
+  if board:is_game_over() then
+    ui.draw_rounded_box(10, 47, 117, 70, colors.dark_gray, colors.white)
+    ui.print_centered("game over", 64, 55, colors.red)
+    ui.print_centered("push x to replay", 64, 63, colors.black)
+  end
 end
 
 function solo:render_score()

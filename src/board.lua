@@ -20,12 +20,16 @@ board.rows = 12 -- board の行数
 board.row_next_gates = board.rows + 1
 
 function board:_init()
-  self.raised_dots = 0
   self._gates = {}
   self.width = board.cols * tile_size
   self.height = board.rows * tile_size
   self.offset_x = 10
   self.offset_y = screen_height - self.height
+  self:init()
+end
+
+function board:init()
+  self.raised_dots = 0
 
   -- fill the board with I gates
   for x = 1, board.cols do
@@ -37,6 +41,8 @@ function board:_init()
 end
 
 function board:initialize_with_random_gates()
+  self:init()
+
   for y = board.row_next_gates, 6, -1 do
     for x = 1, board.cols do
       if y >= board.rows - 2 or
@@ -784,6 +790,20 @@ function board:reduce(x, y, include_next_gates)
   end
 
   return default
+end
+
+function board:is_game_over()
+  if self.raised_dots ~= tile_size - 1 then
+    return false
+  end
+
+  for x = 1, self.cols do
+    if not self:gate_at(x, 1):is_i() then
+      return true
+    end
+  end
+
+  return false
 end
 
 -------------------------------------------------------------------------------
