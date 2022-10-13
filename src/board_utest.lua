@@ -689,7 +689,7 @@ describe('board', function()
     end)
   end)
 
-  describe('is_empty #solo', function()
+  describe('is_empty', function()
     it('おじゃまユニタリの領域は空ではない', function()
       board:put(2, 11, garbage_gate(4))
 

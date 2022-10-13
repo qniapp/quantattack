@@ -148,11 +148,11 @@ function board:drop_gates()
       if gate:is_droppable(x, y) and self:is_gate_droppable(x, y) then
         if gate.other_x then
           if x < gate.other_x then
-            gate:drop(x, y)
-            self:gate_at(gate.other_x, y):drop(gate.other_x, y)
+            gate:drop()
+            self:gate_at(gate.other_x, y):drop()
           end
         else
-          gate:drop(x, y)
+          gate:drop()
         end
       end
     end

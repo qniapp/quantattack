@@ -158,11 +158,11 @@ function gate:update(board, x, y)
       self._state, right_gate._state = state_idle, state_idle
     end
   elseif self:is_dropping() then
-    local screen_y = board:screen_y(self._start_y) + self._screen_dy
+    local screen_y = board:screen_y(y) + self._screen_dy
     local next_y = board:y(screen_y + drop_speed)
     local max_next_y = board.raised_dots > 0 and board.row_next_gates or board.rows
 
-    if self._start_y == next_y or
+    if y == next_y or
         (board:is_gate_droppable(x, y, next_y) and next_y <= max_next_y) then
       self._screen_dy = self._screen_dy + drop_speed
     else
@@ -265,18 +265,13 @@ function gate:is_droppable()
   return not (self:is_i() or self:is_dropping() or self:is_swapping())
 end
 
-function gate:drop(x, start_y)
+function gate:drop()
   --#if assert
-  assert(1 <= x)
-  assert(x <= 6)
-  assert(1 <= start_y)
-  assert(start_y <= 12)
   assert(self:is_droppable())
   --#endif
 
   self._state = state_dropping
   self._screen_dy = 0
-  self._start_y = start_y
 end
 
 function gate:is_dropping()
@@ -325,8 +320,8 @@ end
 function gate:_tostring()
   local type = self._type
   type = type == "i" and "_" or type
-  type = type == "control" and "•" or type
-  type = type == "cnot_x" and "x" or type
+  type = type == "control" and "C" or type
+  type = type == "cnot_x" and "X" or type
   type = type == "swap" and "S" or type
 
   if self:is_idle() then
