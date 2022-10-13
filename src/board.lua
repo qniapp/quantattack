@@ -124,12 +124,12 @@ function board:reduce_gates()
         local reduction = self:reduce(x, y, self.raised_dots > 0)
         score = score + (#reduction.to == 0 and 0 or (reduction.score or 100)) -- デフォルト 100 点
 
-        for _index, r in pairs(reduction.to) do
+        for index, r in pairs(reduction.to) do
           local dx = r.dx or 0
           local dy = r.dy or 0
           local gate = r.gate or i_gate()
 
-          self:gate_at(x + dx, y + dy):replace_with(gate)
+          self:gate_at(x + dx, y + dy):replace_with(gate, index)
         end
       end
     end
@@ -221,11 +221,11 @@ function board:render()
 
   -- border left
   line(self.offset_x - 2, self.offset_y,
-    self.offset_x - 2, self.offset_y + self.height,
+    self.offset_x - 2, self.offset_y + self.height - 1,
     colors.white)
   -- border right
   line(self.offset_x + self.width, self.offset_y,
-    self.offset_x + self.width, self.offset_y + self.height,
+    self.offset_x + self.width, self.offset_y + self.height - 1,
     colors.white)
   -- border bottom
   line(self.offset_x - 1, self.offset_y + self.height,
@@ -364,24 +364,6 @@ function board:put_garbage()
   local x = flr(rnd(board.cols - span + 1)) + 1
 
   self:put(x, 1, garbage_gate(x, span))
-end
-
-function board:gates_to_puff()
-  local gates = {}
-
-  for x = 1, board.cols do
-    for y = 1, board.rows do
-      local gate = self:gate_at(x, y)
-
-      if gate.puff then
-        gate.x = x
-        gate.y = y
-        add(gates, gate)
-      end
-    end
-  end
-
-  return gates
 end
 
 -------------------------------------------------------------------------------

@@ -23,8 +23,8 @@ local color = colors.dark_green
 -- ┏  ┳  ┓
 --
 -- ┗  ┻  ┛
-local sprite_corner = 65 -- カーソルの四隅を表すスプライト番号
-local sprite_middle = 66 -- カーソルの中央 (T の字部分) を表すスプライト番号
+local sprite_corner = 66 -- カーソルの四隅を表すスプライト番号
+local sprite_middle = 67 -- カーソルの中央 (T の字部分) を表すスプライト番号
 
 -- アニメーションによって画面内のカーソルを目立たせる。
 -- アニメーションは 2 コマで、以下のフレーム数ごとに切り替わる。
