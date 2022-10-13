@@ -29,7 +29,8 @@
     "max",
     "color",
     "cursor",
-    "tile_size"
+    "tile_size",
+    "stat"
   ],
   "Lua.workspace.library": [
     "${3rd}/lfs/library"

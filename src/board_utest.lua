@@ -1,6 +1,8 @@
 require("engine/test/bustedhelper")
 require("engine/debug/dump")
 
+local profiler = require("profiler")
+
 local board_class = require("board")
 local h_gate = require("h_gate")
 local x_gate = require("x_gate")
@@ -539,7 +541,7 @@ describe('board', function()
   end)
 
   describe('update', function()
-    it('should drop swap pair #solo', function()
+    it('should drop swap pair', function()
       board:put(1, 11, swap_gate(3))
       board:put(3, 11, swap_gate(1))
       board:put(3, 12, h_gate())
@@ -627,7 +629,7 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 3):is_swap())
     end)
 
-    it('CNOT 下のゲートを入れ替えて落としたときに消えない', function()
+    it('CNOT 下のゲートを入れ替えて落としたときに消えない #solo', function()
       board:put(5, 4, control_gate(6))
       board:put(6, 4, cnot_x_gate(5))
       board:put(6, 5, s_gate())
@@ -640,9 +642,15 @@ describe('board', function()
       board:put(6, 12, x_gate())
 
       board:swap(5, 6, 5)
+
+      profiler.start()
+
       for i = 0, 100 do
         board:update()
       end
+
+      profiler.stop()
+      profiler.report("profiler.log")
 
       assert.is_true(board:gate_at(5, 12):is_s())
     end)
