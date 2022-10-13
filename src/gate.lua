@@ -185,16 +185,16 @@ function gate:update(board, x, y)
     else
       local new_gate = self._reduce_to
       board:put(x, y, new_gate)
-      new_gate:_puff(board, x, y)
+      new_gate:_puff(board, x, y, self._match_index)
     end
   end
 end
 
-function gate:_puff(board, board_x, board_y)
+function gate:_puff(board, board_x, board_y, puff_index)
   local x = board:screen_x(board_x) + 3
   local y = board:screen_y(board_y) + 3
 
-  sfx(3)
+  sfx(3, -1, (puff_index - 1) * 4, 4)
 
   puff_particle(x, y, 3)
   puff_particle(x, y, 3)
