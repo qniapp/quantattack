@@ -160,10 +160,9 @@ function gate:update(board, x, y)
   elseif self:is_dropping() then
     local screen_y = board:screen_y(y) + self._screen_dy
     local next_y = board:y(screen_y + drop_speed)
-    local max_next_y = board.raised_dots > 0 and board.row_next_gates or board.rows
 
     if y == next_y or
-        (board:is_gate_droppable(x, y, next_y) and next_y <= max_next_y) then
+        (board:is_gate_droppable(x, y, next_y) and next_y <= board.rows) then
       self._screen_dy = self._screen_dy + drop_speed
     else
       self._screen_dy = 0
