@@ -158,21 +158,38 @@ function gate:update(board, x, y)
       self._state, right_gate._state = state_idle, state_idle
     end
   elseif self:is_dropping() then
-    local screen_y = board:screen_y(y) + self._screen_dy
-    local next_y = board:y(screen_y + drop_speed)
+    self._screen_dy = self._screen_dy + drop_speed
+    local new_screen_y = board:screen_y(y) + self._screen_dy
+    local new_y = board:y(new_screen_y)
 
-    if y == next_y or
-        (board:is_gate_droppable(x, y, next_y) and next_y <= board.rows) then
-      self._screen_dy = self._screen_dy + drop_speed
-    else
-      self._screen_dy = 0
-      self.y = board:y(screen_y)
-
+    if new_y == y then
+      -- 同じ場所にとどまっているので、何もしない
+    elseif board:is_gate_droppable(x, y, new_y) and new_y <= board.rows then
+      -- 一個下が空いている場合そこに移動する
       board:remove_gate(x, y)
-      board:put(x, self.y, self)
+      board:put(x, new_y, self)
+      self._screen_dy = self._screen_dy - tile_size
 
+      -- SWAP または CNOT の場合、ペアとなるゲートもここで移動する
+      if self.other_x and x < self.other_x then
+        local other_gate = board:gate_at(self.other_x, y)
+        board:remove_gate(self.other_x, y)
+        board:put(self.other_x, new_y, other_gate)
+        other_gate._screen_dy = other_gate._screen_dy - tile_size
+      end
+    else
+      -- 一個下が空いていない場合、落下を終了する
+      self._screen_dy = 0
       self._state = state_idle
       self._tick_dropped = 0
+
+      if self.other_x and x < self.other_x then
+        local other_gate = board:gate_at(self.other_x, y)
+
+        other_gate._screen_dy = 0
+        other_gate._state = state_idle
+        other_gate._tick_dropped = 0
+      end
     end
   elseif self:is_match() then
     --#if assert
