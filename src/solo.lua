@@ -108,6 +108,18 @@ function solo:render_score()
   -- skip 2 lines and draw score
   cursor(board.offset_x * 2 + board.width, board.offset_y + 2 * character_height)
   print("score " .. player.score)
+
+  --#if debug
+  -- local fps = stat(7)
+  -- cursor(board.offset_x * 2 + board.width, screen_height - 2 * character_height)
+  -- color(fps < 60 and colors.red or colors.green)
+  -- print("fps: " .. fps .. "/60")
+
+  -- local cpu_usage = stat(1)
+  -- cursor(board.offset_x * 2 + board.width, screen_height - character_height)
+  -- color(cpu_usage < 1 and colors.green or colors.red)
+  -- print("cpu: " .. cpu_usage)
+  --#endif
 end
 
 return solo

@@ -2,6 +2,7 @@ require("engine/application/constants")
 require("engine/core/class")
 
 local garbage_gate = require("garbage_gate")
+local garbage_match_gate = require("garbage_match_gate")
 local i_gate = require("i_gate")
 local h_gate = require("h_gate")
 local x_gate = require("x_gate")
@@ -12,8 +13,6 @@ local t_gate = require("t_gate")
 local control_gate = require("control_gate")
 local cnot_x_gate = require("cnot_x_gate")
 local swap_gate = require("swap_gate")
-local gate = require("gate")
-
 local board = new_class()
 
 board.cols = 6 -- board の列数
@@ -135,13 +134,36 @@ function board:reduce_gates()
     end
   end
 
+  for y = board.rows, 1, -1 do
+    for x = 1, board.cols do
+      local gate = self:gate_at(x, y)
+      local match = false
+
+      if gate:is_garbage() then
+        if y < board.rows then
+          for gx = x, x + gate.span - 1 do
+            local g = self:gate_at(gx, y + 1)
+            if g:is_match() and not g:is_garbage_match() then
+              match = true
+            end
+          end
+        end
+
+        if match then
+          for dx = 0, gate.span - 1 do
+            self:put(x + dx, y, garbage_match_gate())
+            self:gate_at(x + dx, y):replace_with(self:_random_single_gate(), dx + 1)
+          end
+        end
+      end
+    end
+  end
+
   return score
 end
 
 function board:drop_gates()
-  local max_y = self.raised_dots > 0 and board.rows or board.rows - 1
-
-  for y = max_y, 1, -1 do
+  for y = board.rows - 1, 1, -1 do
     for x = 1, board.cols do
       local gate = self:gate_at(x, y)
 
@@ -294,10 +316,8 @@ end
 
 function board:gate_at(x, y)
   --#if assert
-  assert(x >= 1, x)
-  assert(x <= board.cols, x)
-  assert(y >= 1, "y = " .. y .. " >= 1")
-  assert(y <= board.row_next_gates, "y = " .. y .. " > board.row_next_gates")
+  assert(1 <= x and x <= board.cols, x)
+  assert(1 <= y and y <= board.row_next_gates, y)
   --#endif
 
   local gate = self._gates[x][y]
