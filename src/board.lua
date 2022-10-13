@@ -310,7 +310,7 @@ function board:gate_at(x, y)
 end
 
 -- x, y が空かどうかを返す
--- garbage と swap ゲートも考慮する
+-- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
 function board:is_empty(x, y)
   if y > board.row_next_gates then
     return false
