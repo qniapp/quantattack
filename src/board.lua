@@ -26,7 +26,7 @@ function board:_init()
   self.width = board.cols * tile_size
   self.height = board.rows * tile_size
   self.offset_x = 10
-  self.offset_y = 10
+  self.offset_y = screen_height - self.height
 
   -- fill the board with I gates
   for x = 1, board.cols do
@@ -121,7 +121,7 @@ function board:reduce_gates()
   for y = board.rows, 1, -1 do
     for x = 1, board.cols do
       if self:gate_at(x, y):is_reducible() then
-        local reduction = self:reduce(x, y, self.raised_dots > 0)
+        local reduction = self:reduce(x, y)
         score = score + (#reduction.to == 0 and 0 or (reduction.score or 100)) -- デフォルト 100 点
 
         for index, r in pairs(reduction.to) do
@@ -224,21 +224,14 @@ function board:render()
       end
 
       gate:render(screen_x, screen_y)
+
+      -- マスクを描画
+      if y == board.row_next_gates then
+        -- TODO: 98 を定数にする
+        spr(98, screen_x, screen_y)
+      end
     end
   end
-
-  -- border left
-  line(self.offset_x - 2, self.offset_y,
-    self.offset_x - 2, self.offset_y + self.height - 1,
-    colors.white)
-  -- border right
-  line(self.offset_x + self.width, self.offset_y,
-    self.offset_x + self.width, self.offset_y + self.height - 1,
-    colors.white)
-  -- border bottom
-  line(self.offset_x - 1, self.offset_y + self.height,
-    self.offset_x + self.width - 1, self.offset_y + self.height,
-    colors.white)
 end
 
 -- (x_left, y) と (x_right, y) のゲートを入れ替える
