@@ -205,8 +205,8 @@ function board:render()
     -- draw wires
     local line_x = self:screen_x(x) + 3
     line(line_x, self.offset_y,
-         line_x, self.offset_y + self.height,
-         colors.dark_gray)
+      line_x, self.offset_y + self.height,
+      colors.dark_gray)
   end
 
   -- draw idle gates
@@ -322,7 +322,7 @@ function board:is_empty(x, y)
     if gate:is_garbage() and x <= tmp_x + gate.span - 1 then
       return false
     end
-    if gate.other_x and x <= gate.other_x then
+    if gate.other_x and x < gate.other_x then
       return false
     end
   end
@@ -364,7 +364,7 @@ function board:put_garbage()
   local span = flr(rnd(4)) + 3
   local x = flr(rnd(board.cols - span + 1)) + 1
 
-  self:put(x, 1, garbage_gate(x, span))
+  self:put(x, 1, garbage_gate(span))
 end
 
 -------------------------------------------------------------------------------

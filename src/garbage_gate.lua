@@ -4,7 +4,7 @@ local gate = require("gate")
 
 local garbage_gate = derived_class(gate)
 
-function garbage_gate:_init(x, span)
+function garbage_gate:_init(span)
   --#if assert
   assert(span ~= nil, "span is nil")
   --#endif
