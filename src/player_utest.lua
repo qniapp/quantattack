@@ -1,7 +1,8 @@
 require("engine/test/bustedhelper")
+
 local player_class = require("player")
 
-describe('player #solo', function()
+describe('player', function()
   describe('constructor', function()
     it("初期状態は steps = 0, score = 0", function()
       local player = player_class()
