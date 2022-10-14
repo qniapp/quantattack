@@ -1,5 +1,4 @@
 require("engine/core/class")
-require("engine/render/color")
 
 local board_class = require("board")
 
@@ -7,33 +6,13 @@ local board_class = require("board")
 -- ゲートを入れ換える位置を指定するのに使われる。
 local player_cursor = new_class()
 
--- SFX
---   - sfx_move: 移動したときの音
---   - sfx_swap: ゲート入れ替えの音
-local sfx_move = 0
-local sfx_swap = 2
-
--- カーソルの色。
--- ボードの端に到達したためこれ以上カーソルが動かせない場合や、
--- ゲームオーバー時に色が変わる。
-local color = colors.dark_green
-
--- カーソルの見た目は次のようになる。
--- 2 種類のスプライトの組合わせによって表示される。
--- ┏  ┳  ┓
---
--- ┗  ┻  ┛
-local sprite_corner = 66 -- カーソルの四隅を表すスプライト番号
-local sprite_middle = 67 -- カーソルの中央 (T の字部分) を表すスプライト番号
-
 -- アニメーションによって画面内のカーソルを目立たせる。
--- アニメーションは 2 コマで、以下のフレーム数ごとに切り替わる。
+-- アニメーションは 2 コマで、ここに指定したフレーム数ごとに切り替わる。
 local animation_frame_count = 14
 
--- ボードの座標 x, y にカーソルを作る
-function player_cursor:_init(x, y)
-  self.x = x or 3
-  self.y = y or 6
+function player_cursor:_init()
+  self.x = 3
+  self.y = 6
   self._tick = 0
 end
 
@@ -67,19 +46,18 @@ end
 
 -- カーソル移動の効果音を鳴らす
 function player_cursor:sfx_move()
-  sfx(sfx_move)
+  sfx(0)
 end
 
 -- ゲート入れ替えの効果音を鳴らす
 function player_cursor:sfx_swap()
-  sfx(sfx_swap)
+  sfx(2)
 end
 
 -- カーソルの状態を更新
 -- _update から呼ばれる
 function player_cursor:update()
-  self._tick = self._tick + 1
-  self._tick = self._tick % (animation_frame_count * 2)
+  self._tick = (self._tick + 1) % (animation_frame_count * 2)
 end
 
 -- カーソルを描画
@@ -89,6 +67,14 @@ function player_cursor:render(board)
   local y = board:screen_y(self.y)
   local dy = board:dy()
 
+  -- カーソルは 2 種類のスプライトの組合わせによって表示する。
+  -- ┏  ┳  ┓
+  --
+  -- ┗  ┻  ┛
+  --
+  -- - 66: カーソルの四隅を表すスプライトの番号
+  -- - 67: カーソルの中央 (T の字部分) を表すスプライトの番号
+
   local d = self._tick >= animation_frame_count and 1 or 0
   local x_left = x - 5 + d
   local x_middle = x + 4
@@ -96,14 +82,12 @@ function player_cursor:render(board)
   local y_top = y - 5 + d + dy
   local y_bottom = y + 4 - d + dy
 
-  spr(sprite_corner, x_left, y_top)
-  spr(sprite_middle, x_middle, y_top)
-  spr(sprite_corner, x_right, y_top, 1, 1, true, false)
-  spr(sprite_corner, x_left, y_bottom, 1, 1, false, true)
-  spr(sprite_middle, x_middle, y_bottom, 1, 1, false, true)
-  spr(sprite_corner, x_right, y_bottom, 1, 1, true, true)
-
-  pal(color, color)
+  spr(66, x_left, y_top)
+  spr(67, x_middle, y_top)
+  spr(66, x_right, y_top, 1, 1, true, false)
+  spr(66, x_left, y_bottom, 1, 1, false, true)
+  spr(67, x_middle, y_bottom, 1, 1, false, true)
+  spr(66, x_right, y_bottom, 1, 1, true, true)
 end
 
 return player_cursor

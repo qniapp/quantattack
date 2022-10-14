@@ -100,6 +100,12 @@ describe('player_cursor', function()
     end)
   end)
 
+  describe('sfx_move', function()
+    it("should play an sfx without errors", function()
+      assert.has_no.errors(function() player_cursor:sfx_move() end)
+    end)
+  end)
+
   describe('sfx_swap', function()
     it("should play an sfx without errors", function()
       assert.has_no.errors(function() player_cursor:sfx_swap() end)
