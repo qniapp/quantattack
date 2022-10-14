@@ -69,8 +69,8 @@ function solo:update()
     player_cursor:update()
     puff_particle:update()
 
-    if self:_maybe_raise_gates() and rnd(1) < 0.1 then
-      board:put_garbage()
+    if self:_maybe_raise_gates() and rnd(1) < 0.05 then
+      board:drop_garbage()
     end
 
     self.tick = self.tick + 1

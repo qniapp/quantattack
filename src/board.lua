@@ -123,7 +123,7 @@ end
 function board:reduce_gates()
   local score = 0
 
-  for y = board.rows, 1, -1 do
+  for y = 1, board.rows do
     for x = 1, board.cols do
       if self:gate_at(x, y):is_reducible() then
         local reduction = self:reduce(x, y)
@@ -386,12 +386,17 @@ function board:remove_gate(x, y)
   self:put(x, y, i_gate())
 end
 
--- TODO: drop_garbage に名前変更
-function board:put_garbage()
+function board:drop_garbage()
   local span = flr(rnd(4)) + 3
   local x = flr(rnd(board.cols - span + 1)) + 1
-  local garbage = garbage_gate(span)
 
+  for i = x, x + span - 1 do
+    if not self:is_empty(x, 1) then
+      return
+    end
+  end
+
+  local garbage = garbage_gate(span)
   self:put(x, 1, garbage)
   garbage:drop()
 end
