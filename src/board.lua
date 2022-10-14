@@ -127,7 +127,7 @@ function board:reduce_gates()
     for x = 1, board.cols do
       if self:gate_at(x, y):is_reducible() then
         local reduction = self:reduce(x, y)
-        score = score + (#reduction.to == 0 and 0 or (reduction.score or 100)) -- デフォルト 100 点
+        score = score + (#reduction.to == 0 and 0 or (reduction.score or 1)) -- デフォルト 100 点
 
         for index, r in pairs(reduction.to) do
           local dx = r.dx or 0
@@ -462,7 +462,7 @@ function board:reduce(x, y, include_next_gates)
       --  X          I
       --  Z  ----->  Y
       return {
-        score = 200,
+        score = 2,
         to = { {},
           { dy = 1, gate = y_gate() } },
       }
@@ -491,7 +491,7 @@ function board:reduce(x, y, include_next_gates)
       --  Z          I
       --  X  ----->  Y
       return {
-        score = 200,
+        score = 2,
         to = { {},
           { dy = 1, gate = y_gate() } },
       }
@@ -525,7 +525,7 @@ function board:reduce(x, y, include_next_gates)
       gate_y1:is_control() and gate_y1_other_gate:is_cnot_x() then
     local dx = gate.other_x - x
     return {
-      score = 200,
+      score = 2,
       to = { {}, { dx = dx },
         { dy = 1 }, { dx = dx, dy = 1 } },
     }
@@ -538,7 +538,7 @@ function board:reduce(x, y, include_next_gates)
       gate.other_x == gate_y1.other_x then
     local dx = gate.other_x - x
     return {
-      score = 3000,
+      score = 30,
       to = { {}, { dx = dx },
         { dy = 1 }, { dx = dx, dy = 1 } },
     }
@@ -567,7 +567,7 @@ function board:reduce(x, y, include_next_gates)
       gate_y1:is_x() and
       gate_y2:is_h() then
     return {
-      score = 400,
+      score = 4,
       to = { {},
         { dy = 1 },
         { dy = 2, gate = z_gate() } },
@@ -581,7 +581,7 @@ function board:reduce(x, y, include_next_gates)
       gate_y1:is_z() and
       gate_y2:is_h() then
     return {
-      score = 400,
+      score = 4,
       to = { {},
         { dy = 1 },
         { dy = 2, gate = x_gate() } },
@@ -595,7 +595,7 @@ function board:reduce(x, y, include_next_gates)
       gate_y1:is_z() and
       gate_y2:is_s() then
     return {
-      score = 400,
+      score = 4,
       to = { {},
         { dy = 1 },
         { dy = 2, gate = z_gate() } },
@@ -612,7 +612,7 @@ function board:reduce(x, y, include_next_gates)
       gate.other_x == gate_y2.other_x then
     local dx = gate.other_x - x
     return {
-      score = 800,
+      score = 8,
       to = { {}, { dx = dx },
         { dy = 1 }, { dx = dx, dy = 1 },
         { dy = 2, gate = swap_gate(x + dx) }, { dx = dx, dy = 2, gate = swap_gate(x) } },
@@ -627,7 +627,7 @@ function board:reduce(x, y, include_next_gates)
       gate_y2:is_h() and self:reducible_gate_at(gate_y1.other_x, y2):is_h() then
     local dx = gate_y1.other_x - x
     return {
-      score = 800,
+      score = 8,
       to = { {}, { dx = dx },
         { dy = 1, gate = cnot_x_gate(x + dx) }, { dx = dx, dy = 1, gate = control_gate(x) },
         { dy = 2 }, { dx = dx, dy = 2 } },
@@ -641,7 +641,7 @@ function board:reduce(x, y, include_next_gates)
       gate_y1_other_gate:is_cnot_x() and
       gate_y2:is_x() then
     return {
-      score = 800,
+      score = 8,
       to = { {}, { dx = gate_y1.other_x - x }, { dy = 2 } },
     }
   end
@@ -654,7 +654,7 @@ function board:reduce(x, y, include_next_gates)
       self:reducible_gate_at(gate_y1.other_x, y2):is_z() then
     local dx = gate_y1.other_x - x
     return {
-      score = 800,
+      score = 8,
       to = { {}, { dx = dx }, { dx = dx, dy = 2 } },
     }
   end
@@ -666,7 +666,7 @@ function board:reduce(x, y, include_next_gates)
       gate_y1:is_cnot_x() and gate_y1_other_gate:is_control() and
       gate_y2:is_x() then
     return {
-      score = 800,
+      score = 8,
       to = { {}, { dy = 2 } },
     }
   end
@@ -678,7 +678,7 @@ function board:reduce(x, y, include_next_gates)
       gate_y1:is_control() and gate_y1_other_gate:is_cnot_x() and
       gate_y2:is_z() then
     return {
-      score = 800,
+      score = 8,
       to = { {}, { dy = 2 } },
     }
   end
@@ -695,7 +695,7 @@ function board:reduce(x, y, include_next_gates)
       self:reducible_gate_at(x, y3):is_h() and self:reducible_gate_at(x2, y3):is_x() then
     local dx = gate_y2.other_x - x
     return {
-      score = 800,
+      score = 8,
       to = { {},
         { dx = dx, dy = 1 },
         { dx = dx, dy = 3 } }
@@ -717,7 +717,7 @@ function board:reduce(x, y, include_next_gates)
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
       gate_y2_other_gate_under_swap:is_h() then
     return {
-      score = 1000,
+      score = 10,
       to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
     }
   end
@@ -729,7 +729,7 @@ function board:reduce(x, y, include_next_gates)
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
       gate_y2_other_gate_under_swap:is_x() then
     return {
-      score = 1000,
+      score = 10,
       to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
     }
   end
@@ -741,7 +741,7 @@ function board:reduce(x, y, include_next_gates)
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
       gate_y2_other_gate_under_swap:is_y() then
     return {
-      score = 1000,
+      score = 10,
       to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
     }
   end
@@ -753,7 +753,7 @@ function board:reduce(x, y, include_next_gates)
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
       gate_y2_other_gate_under_swap:is_z() then
     return {
-      score = 1000,
+      score = 10,
       to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
     }
   end
@@ -765,7 +765,7 @@ function board:reduce(x, y, include_next_gates)
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
       gate_y2_other_gate_under_swap:is_s() then
     return {
-      score = 1200,
+      score = 12,
       to = { { gate = z_gate() }, { dx = gate_y1.other_x - x, dy = 2 } }
     }
   end
@@ -777,7 +777,7 @@ function board:reduce(x, y, include_next_gates)
       gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
       gate_y2_other_gate_under_swap:is_t() then
     return {
-      score = 1200,
+      score = 12,
       to = { { gate = s_gate() }, { dx = gate_y1.other_x - x, dy = 2 } }
     }
   end
@@ -791,7 +791,7 @@ function board:reduce(x, y, include_next_gates)
       gate.other_x == gate_y1.other_x and gate.other_x == gate_y2.other_x then
     local dx = gate.other_x - x
     return {
-      score = 2000,
+      score = 20,
       to = { {}, { dx = dx },
         { dy = 2 }, { dx = dx, dy = 2 } }
     }

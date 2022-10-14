@@ -123,7 +123,7 @@ function solo:render_score()
 
   -- skip 2 lines and draw score
   cursor(board.offset_x * 2 + board.width, board.offset_y + 2 * character_height)
-  print("score " .. player.score)
+  print("score " .. player.score .. "00")
 
   --#if debug
   -- local fps = stat(7)
