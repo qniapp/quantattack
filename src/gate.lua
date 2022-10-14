@@ -13,6 +13,7 @@ local state_dropping = "dropping"
 local state_match = "match"
 local state_swapping_with_left = "swapping_with_left"
 local state_swapping_with_right = "swapping_with_right"
+local state_freeze = "freeze"
 
 local drop_speed = 3
 
@@ -100,6 +101,11 @@ end
 -- マッチ状態である場合 true を返す
 function gate:is_match()
   return self._state == state_match
+end
+
+-- おじゃまユニタリがゲートに変化した後の硬直中
+function gate:is_freeze()
+  return self._state == state_freeze
 end
 
 -- マッチできる場合 true を返す
@@ -202,12 +208,24 @@ function gate:update(board, x, y)
     assert(not self:is_garbage())
     --#endif
 
-    if self._tick_match <= match_animation_frame_count + (self._match_index - 1) * 15 then -- TODO: 15 をどっかに定数化
+    if self._tick_match <= match_animation_frame_count + self._match_index * 15 then -- TODO: 15 をどっかに定数化
       self._tick_match = self._tick_match + 1
     else
       local new_gate = self._reduce_to
       board:put(x, y, new_gate)
       new_gate:_puff(board, x, y, self._match_index)
+
+      if self._garbage_span then
+        new_gate._tick_freeze = 0
+        new_gate._freeze_frame_count = (self._garbage_span - self._match_index) * 15
+        new_gate._state = state_freeze
+      end
+    end
+  elseif self:is_freeze() then
+    if self._tick_freeze < self._freeze_frame_count then
+      self._tick_freeze = self._tick_freeze + 1
+    else
+      self._state = state_idle
     end
   end
 end
@@ -271,10 +289,11 @@ function gate:_sprite()
   end
 end
 
-function gate:replace_with(other, match_index)
+function gate:replace_with(other, match_index, garbage_span)
   self._state = state_match
   self._reduce_to = other
-  self._match_index = match_index or 1
+  self._match_index = match_index or 0
+  self._garbage_span = garbage_span
   self._tick_match = 1
 end
 
@@ -284,7 +303,7 @@ end
 
 -- ゲートが下に落とせる状態にあるかどうかを返す
 function gate:is_droppable()
-  return not (self:is_i() or self:is_garbage_match() or self:is_dropping() or self:is_swapping())
+  return not (self:is_i() or self:is_garbage_match() or self:is_dropping() or self:is_swapping() or self:is_freeze())
 end
 
 function gate:drop()

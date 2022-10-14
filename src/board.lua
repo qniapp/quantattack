@@ -158,7 +158,7 @@ function board:reduce_gates()
         if match then
           for dx = 0, gate.span - 1 do
             self:put(x + dx, y, garbage_match_gate())
-            self:gate_at(x + dx, y):replace_with(self:_random_single_gate(), dx + 1)
+            self:gate_at(x + dx, y):replace_with(self:_random_single_gate(), dx, gate.span)
           end
         end
       end
