@@ -34,6 +34,7 @@ local buttons = {
 
 function solo:on_enter()
   board:initialize_with_random_gates()
+  player:init()
   self.tick = 0
 end
 
