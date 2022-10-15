@@ -129,7 +129,7 @@ describe('board', function()
     end)
   end)
 
-  describe('reduce_gates #solo', function()
+  describe('reduce_gates', function()
     -- reduce -> H          I
     --           -          -
     --           H  ----->  I (next gates)
