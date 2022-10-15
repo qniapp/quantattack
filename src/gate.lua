@@ -133,11 +133,15 @@ function gate:update(board, x, y)
       -- SWAP 完了
 
       --#if assert
-      assert(self:_is_swapping_with_right())
+      assert(self:_is_swapping_with_right(), self._state)
       --#endif
 
       local new_x = x + 1
       local right_gate = board:gate_at(new_x, y)
+
+      --#if assert
+      assert(right_gate:_is_swapping_with_left(), right_gate._state)
+      --#endif
 
       -- A を SWAP や CNOT の一部とすると、
       --
@@ -163,9 +167,18 @@ function gate:update(board, x, y)
         board:put(new_x, y, self)
         board:put(x, y, right_gate)
         self.other_x, right_gate.other_x = x, new_x
+      else
+        --#if assert
+        assert(false, "we should not reach here")
+        --#endif
       end
 
       self._state, right_gate._state = state_idle, state_idle
+
+      --#if assert
+      assert(self:is_idle())
+      assert(right_gate:is_idle())
+      --#endif
     end
   elseif self:is_dropping() then
     self._screen_dy = self._screen_dy + drop_speed
@@ -280,9 +293,9 @@ end
 
 function gate:_sprite()
   if self:is_idle() and self._tick_dropped then
-    return split(self.sprites.dropped)[self._tick_dropped]
+    return self.sprites.dropped[self._tick_dropped]
   elseif self:is_match() then
-    local sequence = split(self.sprites.match)
+    local sequence = self.sprites.match
     return self._tick_match <= 15 and sequence[self._tick_match] or sequence[#sequence]
   else
     return self.sprites.default
@@ -367,12 +380,19 @@ function gate:_tostring()
 
   if self:is_idle() then
     return type
-  elseif self:is_swapping() then -- yellow
-    return "\27[30;43m" .. type .. "\27[39;49m"
+  elseif self:_is_swapping_with_left() then
+    return type .. "<"
+  elseif self:_is_swapping_with_right() then
+    return type .. ">"
+  -- elseif self:is_swapping() then -- yellow
+  --   return type .. "!"
+  --   -- return "\27[30;43m" .. type .. "\27[39;49m"
   elseif self:is_dropping() then -- blue
-    return "\27[37;44m" .. type .. "\27[39;49m"
+    return type
+    -- return "\27[37;44m" .. type .. "\27[39;49m"
   elseif self:is_match() then -- red
-    return "\27[37;41m" .. type .. "\27[39;49m"
+    return type
+    -- return "\27[37;41m" .. type .. "\27[39;49m"
   else
     return self._type .. " (" .. self._state .. ")"
   end

@@ -1,5 +1,6 @@
 require("engine/application/constants")
 require("engine/core/class")
+require("engine/core/helper")
 
 local garbage_gate = require("garbage_gate")
 local garbage_match_gate = require("garbage_match_gate")
@@ -13,6 +14,8 @@ local t_gate = require("t_gate")
 local control_gate = require("control_gate")
 local cnot_x_gate = require("cnot_x_gate")
 local swap_gate = require("swap_gate")
+local reduction_rules = require("reduction_rules")
+
 local board = new_class()
 
 board.cols = 6 -- board の列数
@@ -130,9 +133,18 @@ function board:reduce_gates()
         score = score + (#reduction.to == 0 and 0 or (reduction.score or 1)) -- デフォルト 100 点
 
         for index, r in pairs(reduction.to) do
-          local dx = r.dx or 0
+          local dx = r.dx and reduction.dx or 0
           local dy = r.dy or 0
-          local gate = r.gate or i_gate()
+          local gate_class = r.gate_class or i_gate
+          local gate = gate_class()
+
+          if gate:is_swap() or gate:is_cnot_x() or gate:is_control() then
+            if r.dx then
+              gate.other_x = x
+            else
+              gate.other_x = x + reduction.dx
+            end
+          end
 
           self:gate_at(x + dx, y + dy):replace_with(gate, index)
         end
@@ -173,9 +185,9 @@ function board:drop_gates()
     for x = 1, board.cols do
       local gate = self:gate_at(x, y)
 
-      if gate:is_droppable(x, y) and self:is_gate_droppable(x, y) then
+      if gate:is_droppable() and self:is_gate_droppable(x, y) then
         if gate.other_x then
-          if x < gate.other_x then
+          if x < gate.other_x and self:gate_at(gate.other_x, y):is_droppable() then
             gate:drop()
             self:gate_at(gate.other_x, y):drop()
           end
@@ -264,16 +276,22 @@ end
 
 -- (x_left, y) と (x_right, y) のゲートを入れ替える
 -- 入れ替えできた場合は true を、そうでない場合は false を返す
+--
+-- TODO: 引数の x_right をなくして x_left + 1 を使う
 function board:swap(x_left, x_right, y)
   --#if assert
-  assert(x_left < x_right)
-  assert(x_right <= board.cols)
-  assert(y <= board.rows)
+  assert(x_right == x_left + 1)
+  assert(1 <= x_left and x_left <= board.cols - 1)
+  assert(2 <= x_right and x_right <= board.cols)
+  assert(1 <= y and y <= board.rows)
   --#endif
 
   local left_gate = self:gate_at(x_left, y)
   local right_gate = self:gate_at(x_right, y)
 
+  if left_gate:is_garbage() or right_gate:is_garbage() then
+    return false
+  end
   if not (left_gate:is_idle() and right_gate:is_idle()) then
     return false
   end
@@ -312,6 +330,7 @@ function board:screen_x(x)
   return self.offset_x + (x - 1) * tile_size
 end
 
+-- ボード上の Y 座標を画面上の Y 座標に変換
 function board:screen_y(y)
   return self.offset_y + (y - 1) * tile_size - self.raised_dots
 end
@@ -322,8 +341,8 @@ end
 
 function board:gate_at(x, y)
   --#if assert
-  assert(1 <= x and x <= board.cols, x)
-  assert(1 <= y and y <= board.row_next_gates, y)
+  assert(1 <= x and x <= board.cols, "x = " .. x)
+  assert(1 <= y and y <= board.row_next_gates, "y = " .. y)
   --#endif
 
   local gate = self._gates[x][y]
@@ -406,398 +425,77 @@ end
 -------------------------------------------------------------------------------
 
 function board:reduce(x, y, include_next_gates)
-  local default = { to = {} }
+  local reduction = { to = {} }
+  local dx
 
-  include_next_gates = include_next_gates or false
-  local y1 = y + 1
-  local y2 = y + 2
-  local y3 = y + 3
+  for _, each in pairs(reduction_rules[self:gate_at(x, y)._type] or {}) do
+    -- other_x を決める
+    local other_x = nil
 
-  if include_next_gates then
-    if y1 > board.row_next_gates then
-      return default
+    if (include_next_gates and y + #each[1] - 1 > self.row_next_gates) or
+        (not include_next_gates and y + #each[1] - 1 > self.rows) then
+      goto next
     end
-  else
-    if y1 > board.rows then
-      return default
+
+    for i, types in pairs(each[1]) do
+      if #types == 2 then
+        local current_gate = self:reducible_gate_at(x, y + i - 1)
+
+        if current_gate.other_x then
+          if current_gate._type == types[1] then
+            other_x = current_gate.other_x
+            dx = other_x - x
+          else
+            goto next
+          end
+        end
+      end
     end
-  end
 
-  local gate = self:reducible_gate_at(x, y)
-  local other_gate = i_gate()
-  local gate_y1 = self:reducible_gate_at(x, y1)
-  local gate_y1_other_gate = i_gate()
+    -- マッチするかチェック
+    for i, types in pairs(each[1]) do
+      local current_y = y + i - 1
 
-  if gate.other_x then
-    other_gate = self:reducible_gate_at(gate.other_x, y)
-  end
-  if gate_y1.other_x then
-    gate_y1_other_gate = self:reducible_gate_at(gate_y1.other_x, y1)
-  end
+      local current_gate = self:reducible_gate_at(x, current_y)
+      if current_gate._type ~= types[1] then
+        goto next
+      end
 
-  if gate_y1:is_i() then
-    return default
-  end
-
-  --  H          I
-  --  H  ----->  I
-  if gate:is_h() and
-      gate_y1:is_h() then
-    return {
-      to = { {},
-        { dy = 1 } },
-    }
-  end
-
-  if gate:is_x() then
-    if gate_y1:is_x() then
-      --  X          I
-      --  X  ----->  I
-      return {
-        to = { {},
-          { dy = 1 } },
-      }
+      if types[2] and other_x then
+        local current_other_gate = self:reducible_gate_at(other_x, current_y)
+        if current_other_gate._type ~= types[2] then
+          goto next
+        end
+      end
     end
-    if gate_y1:is_z() then
-      --  X          I
-      --  Z  ----->  Y
-      return {
-        score = 2,
-        to = { {},
-          { dy = 1, gate = y_gate() } },
-      }
-    end
+
+    reduction = { to = each[2], dx = dx }
+    goto matched
+
+    ::next::
   end
 
-  --  Y          I
-  --  Y  ----->  I
-  if gate:is_y() and
-      gate_y1:is_y() then
-    return {
-      to = { {},
-        { dy = 1 } },
-    }
-  end
+  ::matched::
+  return reduction
 
-  if gate:is_z() then
-    if gate_y1:is_z() then
-      --  Z          I
-      --  Z  ----->  I
-      return {
-        to = { {},
-          { dy = 1 } },
-      }
-    elseif gate_y1:is_x() then
-      --  Z          I
-      --  X  ----->  Y
-      return {
-        score = 2,
-        to = { {},
-          { dy = 1, gate = y_gate() } },
-      }
-    end
-  end
-
-  --  S          I
-  --  S  ----->  Z
-  if gate:is_s() and
-      gate_y1:is_s() then
-    return {
-      to = { {},
-        { dy = 1, gate = z_gate() } },
-    }
-  end
-
-  --  T          I
-  --  T  ----->  S
-  if gate:is_t() and
-      gate_y1:is_t() then
-    return {
-      to = { {},
-        { dy = 1, gate = s_gate() } },
-    }
-  end
-
-  --  C-X          I I
-  --  C-X  ----->  I I
-  if gate.other_x == gate_y1.other_x and
-      gate:is_control() and other_gate:is_cnot_x() and
-      gate_y1:is_control() and gate_y1_other_gate:is_cnot_x() then
-    local dx = gate.other_x - x
-    return {
-      score = 2,
-      to = { {}, { dx = dx },
-        { dy = 1 }, { dx = dx, dy = 1 } },
-    }
-  end
-
-  --  S-S          I I
-  --  S-S  ----->  I I
-  if gate:is_swap() and other_gate:is_swap() and
-      gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-      gate.other_x == gate_y1.other_x then
-    local dx = gate.other_x - x
-    return {
-      score = 30,
-      to = { {}, { dx = dx },
-        { dy = 1 }, { dx = dx, dy = 1 } },
-    }
-  end
-
-  if include_next_gates then
-    if y2 > board.row_next_gates then
-      return default
-    end
-  else
-    if y2 > board.rows then
-      return default
-    end
-  end
-
-  local gate_y2 = self:reducible_gate_at(x, y2)
-  local gate_y2_other_gate = i_gate()
-  if gate_y2.other_x then
-    gate_y2_other_gate = self:reducible_gate_at(gate_y2.other_x, y2)
-  end
-
-  --  H          I
-  --  X          I
-  --  H  ----->  Z
-  if gate:is_h() and
-      gate_y1:is_x() and
-      gate_y2:is_h() then
-    return {
-      score = 4,
-      to = { {},
-        { dy = 1 },
-        { dy = 2, gate = z_gate() } },
-    }
-  end
-
-  --  H          I
-  --  Z          I
-  --  H  ----->  X
-  if gate:is_h() and
-      gate_y1:is_z() and
-      gate_y2:is_h() then
-    return {
-      score = 4,
-      to = { {},
-        { dy = 1 },
-        { dy = 2, gate = x_gate() } },
-    }
-  end
-
-  --  S          I
-  --  Z          I
-  --  S  ----->  Z
-  if gate:is_s() and
-      gate_y1:is_z() and
-      gate_y2:is_s() then
-    return {
-      score = 4,
-      to = { {},
-        { dy = 1 },
-        { dy = 2, gate = z_gate() } },
-    }
-  end
-
-  --  C-X             I I
-  --  X-C             I I
-  --  C-X  ----->  SWAP-SWAP
-  if gate:is_control() and other_gate:is_cnot_x() and
-      gate_y1:is_cnot_x() and gate_y1_other_gate:is_control() and
-      gate_y2:is_control() and gate_y2_other_gate:is_cnot_x() and
-      gate.other_x == gate_y1.other_x and
-      gate.other_x == gate_y2.other_x then
-    local dx = gate.other_x - x
-    return {
-      score = 8,
-      to = { {}, { dx = dx },
-        { dy = 1 }, { dx = dx, dy = 1 },
-        { dy = 2, gate = swap_gate(x + dx) }, { dx = dx, dy = 2, gate = swap_gate(x) } },
-    }
-  end
-
-  -- H H          I I
-  -- C-X  ----->  X-C
-  -- H H          I I
-  if gate:is_h() and gate_y1:is_control() and self:reducible_gate_at(gate_y1.other_x, y):is_h() and
-      gate_y1_other_gate:is_cnot_x() and
-      gate_y2:is_h() and self:reducible_gate_at(gate_y1.other_x, y2):is_h() then
-    local dx = gate_y1.other_x - x
-    return {
-      score = 8,
-      to = { {}, { dx = dx },
-        { dy = 1, gate = cnot_x_gate(x + dx) }, { dx = dx, dy = 1, gate = control_gate(x) },
-        { dy = 2 }, { dx = dx, dy = 2 } },
-    }
-  end
-
-  -- X X          I I
-  -- C-X  ----->  C-X
-  -- X            I
-  if gate:is_x() and gate_y1:is_control() and self:reducible_gate_at(gate_y1.other_x, y):is_x() and
-      gate_y1_other_gate:is_cnot_x() and
-      gate_y2:is_x() then
-    return {
-      score = 8,
-      to = { {}, { dx = gate_y1.other_x - x }, { dy = 2 } },
-    }
-  end
-
-  -- Z Z          I I
-  -- C-X  ----->  C-X
-  --   Z            I
-  if gate:is_z() and gate_y1:is_control() and self:reducible_gate_at(gate_y1.other_x, y):is_z() and
-      gate_y1_other_gate:is_cnot_x() and
-      self:reducible_gate_at(gate_y1.other_x, y2):is_z() then
-    local dx = gate_y1.other_x - x
-    return {
-      score = 8,
-      to = { {}, { dx = dx }, { dx = dx, dy = 2 } },
-    }
-  end
-
-  -- X            I
-  -- X-C  ----->  X-C
-  -- X            I
-  if gate:is_x() and
-      gate_y1:is_cnot_x() and gate_y1_other_gate:is_control() and
-      gate_y2:is_x() then
-    return {
-      score = 8,
-      to = { {}, { dy = 2 } },
-    }
-  end
-
-  -- Z            I
-  -- C-X  ----->  C-X
-  -- Z            I
-  if gate:is_z() and
-      gate_y1:is_control() and gate_y1_other_gate:is_cnot_x() and
-      gate_y2:is_z() then
-    return {
-      score = 8,
-      to = { {}, { dy = 2 } },
-    }
-  end
-
-  -- Z            I
-  -- H X          H I
-  -- X-C  ----->  X-C
-  -- H X          H I
-  local x2 = gate_y2.other_x
-  if y <= 9 and
-      gate:is_z() and
-      gate_y1:is_h() and gate_y2:is_cnot_x() and self:reducible_gate_at(x2, y1):is_x() and
-      self:reducible_gate_at(x2, y2):is_control() and
-      self:reducible_gate_at(x, y3):is_h() and self:reducible_gate_at(x2, y3):is_x() then
-    local dx = gate_y2.other_x - x
-    return {
-      score = 8,
-      to = { {},
-        { dx = dx, dy = 1 },
-        { dx = dx, dy = 3 } }
-    }
-  end
-
-  --
-  -- SWAP gate rules
-  --
-  local gate_y2_other_gate_under_swap = i_gate()
-  if gate_y1:is_swap() then
-    gate_y2_other_gate_under_swap = self:reducible_gate_at(gate_y1.other_x, y2)
-  end
-
-  --  H            I
-  --  S-S  ----->  S-S
-  --    H            I
-  if gate:is_h() and
-      gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-      gate_y2_other_gate_under_swap:is_h() then
-    return {
-      score = 10,
-      to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
-    }
-  end
-
-  --  X            I
-  --  S-S  ----->  S-S
-  --    X            I
-  if gate:is_x() and
-      gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-      gate_y2_other_gate_under_swap:is_x() then
-    return {
-      score = 10,
-      to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
-    }
-  end
-
-  --  Y            I
-  --  S-S  ----->  S-S
-  --    Y            I
-  if gate:is_y() and
-      gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-      gate_y2_other_gate_under_swap:is_y() then
-    return {
-      score = 10,
-      to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
-    }
-  end
-
-  --  Z            I
-  --  S-S  ----->  S-S
-  --    Z            I
-  if gate:is_z() and
-      gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-      gate_y2_other_gate_under_swap:is_z() then
-    return {
-      score = 10,
-      to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
-    }
-  end
-
-  --  S            Z
-  --  S-S  ----->  S-S
-  --    S            I
-  if gate:is_s() and
-      gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-      gate_y2_other_gate_under_swap:is_s() then
-    return {
-      score = 12,
-      to = { { gate = z_gate() }, { dx = gate_y1.other_x - x, dy = 2 } }
-    }
-  end
-
-  --  T            S
-  --  S-S  ----->  S-S
-  --    T            I
-  if gate:is_t() and
-      gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-      gate_y2_other_gate_under_swap:is_t() then
-    return {
-      score = 12,
-      to = { { gate = s_gate() }, { dx = gate_y1.other_x - x, dy = 2 } }
-    }
-  end
-
-  --  C-X          I I
-  --  S-S  ----->  S-S
-  --  X-C          I I
-  if gate:is_control() and other_gate:is_cnot_x() and
-      gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-      gate_y2:is_cnot_x() and gate_y2_other_gate:is_control() and
-      gate.other_x == gate_y1.other_x and gate.other_x == gate_y2.other_x then
-    local dx = gate.other_x - x
-    return {
-      score = 20,
-      to = { {}, { dx = dx },
-        { dy = 2 }, { dx = dx, dy = 2 } }
-    }
-  end
-
-  return default
+  -- -- Z            I
+  -- -- H X          H I
+  -- -- X-C  ----->  X-C
+  -- -- H X          H I
+  -- local x2 = gate_y2.other_x
+  -- if y <= 9 and
+  --     gate:is_z() and
+  --     gate_y1:is_h() and gate_y2:is_cnot_x() and self:reducible_gate_at(x2, y1):is_x() and
+  --     self:reducible_gate_at(x2, y2):is_control() and
+  --     self:reducible_gate_at(x, y3):is_h() and self:reducible_gate_at(x2, y3):is_x() then
+  --   local dx = gate_y2.other_x - x
+  --   return {
+  --     score = 8,
+  --     to = { {},
+  --       { dx = dx, dy = 1 },
+  --       { dx = dx, dy = 3 } }
+  --   }
+  -- end
 end
 
 function board:is_game_over()
