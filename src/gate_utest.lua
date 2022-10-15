@@ -1,8 +1,8 @@
 require("engine/test/bustedhelper")
+require("h_gate")
+require("x_gate")
 
 local gate = require("gate")
-local h_gate = require("h_gate")
-local x_gate = require("x_gate")
 
 describe('gate', function()
   it('should update', function()

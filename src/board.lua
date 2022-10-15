@@ -2,18 +2,20 @@ require("engine/application/constants")
 require("engine/core/class")
 require("engine/core/helper")
 
-local garbage_gate = require("garbage_gate")
-local garbage_match_gate = require("garbage_match_gate")
-local i_gate = require("i_gate")
-local h_gate = require("h_gate")
-local x_gate = require("x_gate")
-local y_gate = require("y_gate")
-local z_gate = require("z_gate")
-local s_gate = require("s_gate")
-local t_gate = require("t_gate")
-local control_gate = require("control_gate")
-local cnot_x_gate = require("cnot_x_gate")
-local swap_gate = require("swap_gate")
+require("garbage_gate")
+require("garbage_match_gate")
+require("i_gate")
+require("h_gate")
+require("x_gate")
+require("y_gate")
+require("z_gate")
+require("s_gate")
+require("t_gate")
+require("control_gate")
+require("cnot_x_gate")
+require("swap_gate")
+
+local gate_class = require("gate")
 local reduction_rules = require("reduction_rules")
 
 local board = new_class()
@@ -135,8 +137,7 @@ function board:reduce_gates()
         for index, r in pairs(reduction.to) do
           local dx = r.dx and reduction.dx or 0
           local dy = r.dy or 0
-          local gate_class = r.gate_class or i_gate
-          local gate = gate_class()
+          local gate = gate_class(r.gate_type)
 
           if gate:is_swap() or gate:is_cnot_x() or gate:is_control() then
             if r.dx then
