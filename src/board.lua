@@ -482,6 +482,21 @@ local reduction_rules = {
         { dy = 1 }, { dx = true, dy = 1 },
         { dy = 2, gate = swap_gate() }, { dx = true, dy = 2, gate = swap_gate() }
       }
+    },
+
+    --  C-X          I I
+    --  S-S  ----->  S-S
+    --  X-C          I I
+    {
+      match = {
+        "control,cnot_x",
+        "swap,swap",
+        "cnot_x,control"
+      },
+      to = {
+        {}, { dx = true },
+        { dy = 2 }, { dx = true, dy = 2 }
+      }
     }
   },
 
@@ -958,7 +973,6 @@ function board:reduce(x, y, include_next_gates)
   ::matched::
   return reduction
 
-
   -- -- Z            I
   -- -- H X          H I
   -- -- X-C  ----->  X-C
@@ -975,45 +989,6 @@ function board:reduce(x, y, include_next_gates)
   --     to = { {},
   --       { dx = dx, dy = 1 },
   --       { dx = dx, dy = 3 } }
-  --   }
-  -- end
-
-  -- --  S            Z
-  -- --  S-S  ----->  S-S
-  -- --    S            I
-  -- if gate:is_s() and
-  --     gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-  --     gate_y2_other_gate_under_swap:is_s() then
-  --   return {
-  --     score = 12,
-  --     to = { { gate = z_gate() }, { dx = gate_y1.other_x - x, dy = 2 } }
-  --   }
-  -- end
-
-  -- --  T            S
-  -- --  S-S  ----->  S-S
-  -- --    T            I
-  -- if gate:is_t() and
-  --     gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-  --     gate_y2_other_gate_under_swap:is_t() then
-  --   return {
-  --     score = 12,
-  --     to = { { gate = s_gate() }, { dx = gate_y1.other_x - x, dy = 2 } }
-  --   }
-  -- end
-
-  -- --  C-X          I I
-  -- --  S-S  ----->  S-S
-  -- --  X-C          I I
-  -- if gate:is_control() and other_gate:is_cnot_x() and
-  --     gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-  --     gate_y2:is_cnot_x() and gate_y2_other_gate:is_control() and
-  --     gate.other_x == gate_y1.other_x and gate.other_x == gate_y2.other_x then
-  --   local dx = gate.other_x - x
-  --   return {
-  --     score = 20,
-  --     to = { {}, { dx = dx },
-  --       { dy = 2 }, { dx = dx, dy = 2 } }
   --   }
   -- end
 

@@ -649,6 +649,27 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
+    --  C-X          I I
+    --  S-S  ----->  S-S
+    --  X-C          I I
+    it('should reduce C-X S-S X-C', function()
+      board:put(1, 10, control_gate(3))
+      board:put(3, 10, cnot_x_gate(1))
+      board:put(1, 11, swap_gate(3))
+      board:put(3, 11, swap_gate(1))
+      board:put(1, 12, cnot_x_gate(3))
+      board:put(3, 12, control_gate(1))
+
+      board:reduce_gates()
+
+      assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
+      assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
+      assert.is_true(board:gate_at(1, 11):is_swap())
+      assert.is_true(board:gate_at(3, 11):is_swap())
+      assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
+      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    end)
+
     -- it('should reduce xz cz x', function()
     --   board:put(1, 9, z_gate())
     --   board:put(1, 10, h_gate())
@@ -666,27 +687,6 @@ describe('board', function()
     --   assert.is_true(board:gate_at(1, 11):is_cnot_x())
     --   assert.is_true(board:gate_at(3, 11):is_control())
     --   assert.is_true(board:gate_at(1, 12):is_h())
-    --   assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
-    -- end)
-
-    -- --  C-X          I I
-    -- --  S-S  ----->  S-S
-    -- --  X-C          I I
-    -- it('should reduce C-X SWAP-SWAP X-C', function()
-    --   board:put(1, 10, control_gate(3))
-    --   board:put(3, 10, cnot_x_gate(1))
-    --   board:put(1, 11, swap_gate(3))
-    --   board:put(3, 11, swap_gate(1))
-    --   board:put(1, 12, cnot_x_gate(3))
-    --   board:put(3, 12, control_gate(1))
-
-    --   board:reduce_gates()
-
-    --   assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-    --   assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-    --   assert.is_true(board:gate_at(1, 11):is_swap())
-    --   assert.is_true(board:gate_at(3, 11):is_swap())
-    --   assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
     --   assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     -- end)
   end)
