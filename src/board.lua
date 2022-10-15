@@ -275,16 +275,22 @@ end
 
 -- (x_left, y) と (x_right, y) のゲートを入れ替える
 -- 入れ替えできた場合は true を、そうでない場合は false を返す
+--
+-- TODO: 引数の x_right をなくして x_left + 1 を使う
 function board:swap(x_left, x_right, y)
   --#if assert
-  assert(x_left < x_right)
-  assert(x_right <= board.cols)
-  assert(y <= board.rows)
+  assert(x_right == x_left + 1)
+  assert(1 <= x_left and x_left <= board.cols - 1)
+  assert(2 <= x_right and x_right <= board.cols)
+  assert(1 <= y and y <= board.rows)
   --#endif
 
   local left_gate = self:gate_at(x_left, y)
   local right_gate = self:gate_at(x_right, y)
 
+  if left_gate:is_garbage() or right_gate:is_garbage() then
+    return false
+  end
   if not (left_gate:is_idle() and right_gate:is_idle()) then
     return false
   end
@@ -323,6 +329,7 @@ function board:screen_x(x)
   return self.offset_x + (x - 1) * tile_size
 end
 
+-- ボード上の Y 座標を画面上の Y 座標に変換
 function board:screen_y(y)
   return self.offset_y + (y - 1) * tile_size - self.raised_dots
 end
@@ -333,8 +340,8 @@ end
 
 function board:gate_at(x, y)
   --#if assert
-  assert(1 <= x and x <= board.cols, x)
-  assert(1 <= y and y <= board.row_next_gates, y)
+  assert(1 <= x and x <= board.cols, "x = " .. x)
+  assert(1 <= y and y <= board.row_next_gates, "y = " .. y)
   --#endif
 
   local gate = self._gates[x][y]

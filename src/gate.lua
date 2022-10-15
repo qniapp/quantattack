@@ -133,7 +133,7 @@ function gate:update(board, x, y)
       -- SWAP 完了
 
       --#if assert
-      assert(self:_is_swapping_with_right())
+      assert(self:_is_swapping_with_right(), self._state)
       --#endif
 
       local new_x = x + 1
@@ -163,9 +163,18 @@ function gate:update(board, x, y)
         board:put(new_x, y, self)
         board:put(x, y, right_gate)
         self.other_x, right_gate.other_x = x, new_x
+      else
+        --#if assert
+        assert(false, "we should not reach here")
+        --#endif
       end
 
       self._state, right_gate._state = state_idle, state_idle
+
+      --#if assert
+      assert(self:is_idle())
+      assert(right_gate:is_idle())
+      --#endif
     end
   elseif self:is_dropping() then
     self._screen_dy = self._screen_dy + drop_speed
