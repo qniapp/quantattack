@@ -783,10 +783,17 @@ function board:reduce(x, y, include_next_gates)
         goto next
       end
 
-      local current_gate = self:reducible_gate_at(x, current_y)
-      if #types == 2 and current_gate.other_x then
-        other_x = current_gate.other_x
-        dx = other_x - x
+      if #types == 2 then
+        local current_gate = self:reducible_gate_at(x, current_y)
+
+        if current_gate.other_x then
+          if current_gate._type == types[1] then
+            other_x = current_gate.other_x
+            dx = other_x - x
+          else
+            goto next
+          end
+        end
       end
     end
 
@@ -804,7 +811,7 @@ function board:reduce(x, y, include_next_gates)
         goto next
       end
 
-      if types[2] then
+      if types[2] and other_x then
         local current_other_gate = self:reducible_gate_at(other_x, current_y)
         if current_other_gate._type ~= types[2] then
           goto next
