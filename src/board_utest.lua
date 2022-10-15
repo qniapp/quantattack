@@ -129,7 +129,7 @@ describe('board', function()
     end)
   end)
 
-  describe('reduce_gates #solo', function()
+  describe('reduce_gates', function()
     -- reduce -> H          I
     --           -          -
     --           H  ----->  I (next gates)
@@ -790,7 +790,7 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 3):is_swap())
     end)
 
-    it('CNOT 下のゲートを入れ替えて落としたときに消えない', function()
+    it('CNOT 下のゲートを入れ替えて落としたときに消えない #solo', function()
       board:put(5, 4, control_gate(6))
       board:put(6, 4, cnot_x_gate(5))
       board:put(6, 5, s_gate())

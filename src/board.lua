@@ -774,17 +774,16 @@ function board:reduce(x, y, include_next_gates)
     -- other_x を決める
     local other_x = nil
 
+    if (include_next_gates and y + #each.match - 1 > self.row_next_gates) or
+      (not include_next_gates and y + #each.match - 1 > self.rows) then
+      goto next
+    end
+
     for i, match_row in pairs(each.match) do
-      local current_y = y + i - 1
       local types = split(match_row)
 
-      if (include_next_gates and current_y > self.row_next_gates) or
-          (not include_next_gates and current_y > self.rows) then
-        goto next
-      end
-
       if #types == 2 then
-        local current_gate = self:reducible_gate_at(x, current_y)
+        local current_gate = self:reducible_gate_at(x, y + i - 1)
 
         if current_gate.other_x then
           if current_gate._type == types[1] then
@@ -800,11 +799,6 @@ function board:reduce(x, y, include_next_gates)
     for i, match_row in pairs(each.match) do
       local current_y = y + i - 1
       local types = split(match_row)
-
-      if (include_next_gates and current_y > self.row_next_gates) or
-          (not include_next_gates and current_y > self.rows) then
-        goto next
-      end
 
       local current_gate = self:reducible_gate_at(x, current_y)
       if current_gate._type ~= types[1] then
