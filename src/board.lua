@@ -677,7 +677,7 @@ function board:reduce(x, y, include_next_gates)
   for _, each in pairs(rules[self:gate_at(x, y)._type] or {}) do
     for i, match_row in pairs(each.match) do
       local current_y = y + i - 1
-      local types = split(match_row) -- "control,cnot_x" などの行をカンマで分割
+      local types = split(match_row)
 
       if (include_next_gates and current_y > self.row_next_gates) or
           (not include_next_gates and current_y > self.rows) then
