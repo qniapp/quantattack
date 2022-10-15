@@ -170,6 +170,25 @@ local reduction_rules = {
         {},
         { dy = 2 }
       }
+    },
+
+    -- X            I
+    -- S-S  ----->  S-S
+    --   X            I
+    --
+    --   X            I
+    -- S-S  ----->  S-S
+    -- X            I
+    {
+      match = {
+        "x",
+        "swap,swap",
+        "i,x"
+      },
+      to = {
+        {},
+        { dx = true, dy = 2 }
+      }
     }
   },
 
@@ -901,18 +920,6 @@ function board:reduce(x, y, include_next_gates)
   -- local gate_y2_other_gate_under_swap = i_gate()
   -- if gate_y1:is_swap() then
   --   gate_y2_other_gate_under_swap = self:reducible_gate_at(gate_y1.other_x, y2)
-  -- end
-
-  -- --  H            I
-  -- --  S-S  ----->  S-S
-  -- --    H            I
-  -- if gate:is_h() and
-  --     gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-  --     gate_y2_other_gate_under_swap:is_h() then
-  --   return {
-  --     score = 10,
-  --     to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
-  --   }
   -- end
 
   -- --  X            I
