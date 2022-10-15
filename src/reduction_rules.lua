@@ -299,17 +299,31 @@ local reduction_rules = {
   }
 }
 
+local function gate_class(type)
+  local classes = {
+    x = x_gate,
+    y = y_gate,
+    z = z_gate,
+    s = s_gate,
+    control = control_gate,
+    cnot_x = cnot_x_gate,
+    swap = swap_gate
+  }
+  return classes[type]
+end
+
 for first_gate, rules in pairs(reduction_rules) do
   foreach(reduction_rules[first_gate], function(rule)
     rule[1] = transform(split(rule[1], "\n"), split)
     rule[2] = transform(split(rule[2], "\n"), function(to)
       local attrs = split(to)
-      local gates = { x = x_gate(), y = y_gate(), z = z_gate(), s = s_gate(), control = control_gate(),
-        cnot_x = cnot_x_gate(), swap = swap_gate() }
 
+      -- 簡約でできるゲートはすべて異なるオブジェクトでなくてはならないので、
+      -- ルールにはゲートオブジェクトを入れるのではなく、
+      -- ゲートのクラス (gate_class) を入れ、board 側で new する
       return { dx = attrs[1] ~= "",
         dy = attrs[2] == "" and nil or tonum(attrs[2]),
-        gate = gates[attrs[3]] }
+        gate_class = gate_class(attrs[3]) }
     end)
   end)
 end

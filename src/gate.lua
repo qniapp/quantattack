@@ -139,6 +139,10 @@ function gate:update(board, x, y)
       local new_x = x + 1
       local right_gate = board:gate_at(new_x, y)
 
+      --#if assert
+      assert(right_gate:_is_swapping_with_left(), right_gate._state)
+      --#endif
+
       -- A を SWAP や CNOT の一部とすると、
       --
       --   [BC]
@@ -376,12 +380,19 @@ function gate:_tostring()
 
   if self:is_idle() then
     return type
-  elseif self:is_swapping() then -- yellow
-    return "\27[30;43m" .. type .. "\27[39;49m"
+  elseif self:_is_swapping_with_left() then
+    return type .. "<"
+  elseif self:_is_swapping_with_right() then
+    return type .. ">"
+  -- elseif self:is_swapping() then -- yellow
+  --   return type .. "!"
+  --   -- return "\27[30;43m" .. type .. "\27[39;49m"
   elseif self:is_dropping() then -- blue
-    return "\27[37;44m" .. type .. "\27[39;49m"
+    return type
+    -- return "\27[37;44m" .. type .. "\27[39;49m"
   elseif self:is_match() then -- red
-    return "\27[37;41m" .. type .. "\27[39;49m"
+    return type
+    -- return "\27[37;41m" .. type .. "\27[39;49m"
   else
     return self._type .. " (" .. self._state .. ")"
   end

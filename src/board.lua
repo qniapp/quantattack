@@ -135,7 +135,8 @@ function board:reduce_gates()
         for index, r in pairs(reduction.to) do
           local dx = r.dx and reduction.dx or 0
           local dy = r.dy or 0
-          local gate = r.gate or i_gate()
+          local gate_class = r.gate_class or i_gate
+          local gate = gate_class()
 
           if gate:is_swap() or gate:is_cnot_x() or gate:is_control() then
             if r.dx then
@@ -184,9 +185,9 @@ function board:drop_gates()
     for x = 1, board.cols do
       local gate = self:gate_at(x, y)
 
-      if gate:is_droppable(x, y) and self:is_gate_droppable(x, y) then
+      if gate:is_droppable() and self:is_gate_droppable(x, y) then
         if gate.other_x then
-          if x < gate.other_x then
+          if x < gate.other_x and self:gate_at(gate.other_x, y):is_droppable() then
             gate:drop()
             self:gate_at(gate.other_x, y):drop()
           end
