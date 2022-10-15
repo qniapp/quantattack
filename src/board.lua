@@ -84,6 +84,25 @@ local reduction_rules = {
         { dy = 1, gate = cnot_x_gate() }, { dx = true, dy = 1, gate = control_gate() },
         { dy = 2 }, { dx = true, dy = 2 }
       }
+    },
+
+    -- H            I
+    -- S-S  ----->  S-S
+    --   H            I
+    --
+    --   H            I
+    -- S-S  ----->  S-S
+    -- H            I
+    {
+      match = {
+        "h",
+        "swap,swap",
+        "i,h"
+      },
+      to = {
+        {},
+        { dx = true, dy = 2 }
+      }
     }
   },
 
@@ -856,19 +875,6 @@ function board:reduce(x, y, include_next_gates)
   --   }
   -- end
 
-
-  -- --  S-S          I I
-  -- --  S-S  ----->  I I
-  -- if gate:is_swap() and other_gate:is_swap() and
-  --     gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-  --     gate.other_x == gate_y1.other_x then
-  --   local dx = gate.other_x - x
-  --   return {
-  --     score = 30,
-  --     to = { {}, { dx = dx },
-  --       { dy = 1 }, { dx = dx, dy = 1 } },
-  --   }
-  -- end
 
   -- -- Z            I
   -- -- H X          H I
