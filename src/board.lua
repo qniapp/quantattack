@@ -25,8 +25,8 @@ local reduction_rules = {
     -- H          I
     -- H  ----->  I
     {
-      match = "h\nh",
-      to = {
+      "h\nh",
+      {
         {},
         { dy = 1 }
       }
@@ -36,8 +36,8 @@ local reduction_rules = {
     -- X          I
     -- H  ----->  Z
     {
-      match = "h\nx\nh",
-      to = {
+      "h\nx\nh",
+      {
         {},
         { dy = 1 },
         { dy = 2, gate = z_gate() }
@@ -48,8 +48,8 @@ local reduction_rules = {
     -- Z          I
     -- H  ----->  X
     {
-      match = "h\nz\nh",
-      to = {
+      "h\nz\nh",
+      {
         {},
         { dy = 1 },
         { dy = 2, gate = x_gate() }
@@ -64,8 +64,8 @@ local reduction_rules = {
     -- X-C  ----->  C-X
     -- H H          I I
     {
-      match = "h,h\ncontrol,cnot_x\nh,h",
-      to = {
+      "h,h\ncontrol,cnot_x\nh,h",
+      {
         {}, { dx = true },
         { dy = 1, gate = cnot_x_gate() }, { dx = true, dy = 1, gate = control_gate() },
         { dy = 2 }, { dx = true, dy = 2 }
@@ -80,8 +80,8 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- H            I
     {
-      match = "h\nswap,swap\ni,h",
-      to = {
+      "h\nswap,swap\ni,h",
+      {
         {},
         { dx = true, dy = 2 }
       }
@@ -92,8 +92,8 @@ local reduction_rules = {
     -- X          I
     -- X  ----->  I
     {
-      match = "x\nx",
-      to = {
+      "x\nx",
+      {
         {},
         { dy = 1 }
       }
@@ -103,8 +103,8 @@ local reduction_rules = {
     -- X          I
     -- Z  ----->  Y
     {
-      match = "x\nz",
-      to = {
+      "x\nz",
+      {
         {},
         { dy = 1, gate = y_gate() }
       }
@@ -118,8 +118,8 @@ local reduction_rules = {
     -- X-C  ----->  X-C
     --   X            I
     {
-      match = "x,x\ncontrol,cnot_x\nx",
-      to = {
+      "x,x\ncontrol,cnot_x\nx",
+      {
         {}, { dx = true },
         { dy = 2 }
       }
@@ -133,8 +133,8 @@ local reduction_rules = {
     -- C-X  ----->  C-X
     --   X            I
     {
-      match = "x\ncnot_x,control\nx",
-      to = {
+      "x\ncnot_x,control\nx",
+      {
         {},
         { dy = 2 }
       }
@@ -148,8 +148,8 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- X            I
     {
-      match = "x\nswap,swap\ni,x",
-      to = {
+      "x\nswap,swap\ni,x",
+      {
         {},
         { dx = true, dy = 2 }
       }
@@ -160,8 +160,8 @@ local reduction_rules = {
     -- Y          I
     -- Y  ----->  I
     {
-      match = "y\ny",
-      to = {
+      "y\ny",
+      {
         {},
         { dy = 1 }
       }
@@ -175,8 +175,8 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- Y            I
     {
-      match = "y\nswap,swap\ni,y",
-      to = {
+      "y\nswap,swap\ni,y",
+      {
         {},
         { dx = true, dy = 2 }
       }
@@ -187,8 +187,8 @@ local reduction_rules = {
     -- Z          I
     -- Z  ----->  I
     {
-      match = "z\nz",
-      to = {
+      "z\nz",
+      {
         {},
         { dy = 1 }
       }
@@ -197,8 +197,8 @@ local reduction_rules = {
     -- Z          I
     -- X  ----->  Y
     {
-      match = "z\nx",
-      to = {
+      "z\nx",
+      {
         {},
         { dy = 1, gate = y_gate() }
       }
@@ -212,8 +212,8 @@ local reduction_rules = {
     -- X-C  ----->  X-C
     -- Z            I
     {
-      match = "z,z\ncontrol,cnot_x\ni,z",
-      to = {
+      "z,z\ncontrol,cnot_x\ni,z",
+      {
         {}, { dx = true },
         { dx = true, dy = 2 }
       }
@@ -227,8 +227,8 @@ local reduction_rules = {
     -- X-C  ----->  X-C
     --   Z            I
     {
-      match = "z\ncontrol,cnot_x\nz",
-      to = {
+      "z\ncontrol,cnot_x\nz",
+      {
         {},
         { dy = 2 }
       }
@@ -242,8 +242,8 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- Z            I
     {
-      match = "z\nswap,swap\ni,z",
-      to = {
+      "z\nswap,swap\ni,z",
+      {
         {},
         { dx = true, dy = 2 }
       }
@@ -254,8 +254,8 @@ local reduction_rules = {
     -- S          I
     -- S  ----->  Z
     {
-      match = "s\ns",
-      to = {
+      "s\ns",
+      {
         {},
         { dy = 1, gate = z_gate() }
       }
@@ -265,8 +265,8 @@ local reduction_rules = {
     -- Z          I
     -- S  ----->  X
     {
-      match = "s\nz\ns",
-      to = {
+      "s\nz\ns",
+      {
         {},
         { dy = 1 },
         { dy = 2, gate = z_gate() }
@@ -281,8 +281,8 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- s            I
     {
-      match = "s\nswap,swap\ni,s",
-      to = {
+      "s\nswap,swap\ni,s",
+      {
         { gate = z_gate() },
         { dx = true, dy = 2 }
       }
@@ -293,8 +293,8 @@ local reduction_rules = {
     -- T          I
     -- T  ----->  S
     {
-      match = "t\nt",
-      to = {
+      "t\nt",
+      {
         {},
         { dy = 1, gate = s_gate() }
       }
@@ -304,8 +304,8 @@ local reduction_rules = {
     -- S          I
     -- T  ----->  Z
     {
-      match = "t\ns\nt",
-      to = {
+      "t\ns\nt",
+      {
         {},
         { dy = 1 },
         { dy = 2, gate = z_gate() }
@@ -317,8 +317,8 @@ local reduction_rules = {
     -- S          I
     -- T  ----->  I
     {
-      match = "t\nz\ns\nt",
-      to = {
+      "t\nz\ns\nt",
+      {
         {},
         { dy = 1 },
         { dy = 2 },
@@ -331,8 +331,8 @@ local reduction_rules = {
     -- Z          I
     -- T  ----->  I
     {
-      match = "t\ns\nz\nt",
-      to = {
+      "t\ns\nz\nt",
+      {
         {},
         { dy = 1 },
         { dy = 2 },
@@ -348,8 +348,8 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- T            I
     {
-      match = "t\nswap,swap\ni,t",
-      to = {
+      "t\nswap,swap\ni,t",
+      {
         { gate = s_gate() },
         { dx = true, dy = 2 }
       }
@@ -363,8 +363,8 @@ local reduction_rules = {
     -- X-C          I
     -- X-C  ----->  I
     {
-      match = "control,cnot_x\ncontrol,cnot_x",
-      to = {
+      "control,cnot_x\ncontrol,cnot_x",
+      {
         {}, { dx = true },
         { dy = 1 }, { dx = true, dy = 1 }
       }
@@ -378,8 +378,8 @@ local reduction_rules = {
     -- C-X          I I
     -- X-C  ----->  S-S
     {
-      match = "control,cnot_x\ncnot_x,control\ncontrol,cnot_x",
-      to = {
+      "control,cnot_x\ncnot_x,control\ncontrol,cnot_x",
+      {
         {}, { dx = true },
         { dy = 1 }, { dx = true, dy = 1 },
         { dy = 2, gate = swap_gate() }, { dx = true, dy = 2, gate = swap_gate() }
@@ -390,8 +390,8 @@ local reduction_rules = {
     --  S-S  ----->  S-S
     --  X-C          I I
     {
-      match = "control,cnot_x\nswap,swap\ncnot_x,control",
-      to = {
+      "control,cnot_x\nswap,swap\ncnot_x,control",
+      {
         {}, { dx = true },
         { dy = 2 }, { dx = true, dy = 2 }
       }
@@ -402,8 +402,8 @@ local reduction_rules = {
     -- S-S          I
     -- S-S  ----->  I
     {
-      match = "swap,swap\nswap,swap",
-      to = {
+      "swap,swap\nswap,swap",
+      {
         {}, { dx = true },
         { dy = 1 }, { dx = true, dy = 1 }
       }
@@ -415,7 +415,7 @@ local reduction_rules = {
 -- 実行時の split をなくし高速化する
 for first_gate, rules in pairs(reduction_rules) do
   foreach(reduction_rules[first_gate], function(rule)
-    rule.match = transform(split(rule.match, "\n"), split)
+    rule[1] = transform(split(rule[1], "\n"), split)
   end)
 end
 
@@ -821,12 +821,12 @@ function board:reduce(x, y, include_next_gates)
     -- other_x を決める
     local other_x = nil
 
-    if (include_next_gates and y + #each.match - 1 > self.row_next_gates) or
-        (not include_next_gates and y + #each.match - 1 > self.rows) then
+    if (include_next_gates and y + #each[1] - 1 > self.row_next_gates) or
+        (not include_next_gates and y + #each[1] - 1 > self.rows) then
       goto next
     end
 
-    for i, types in pairs(each.match) do
+    for i, types in pairs(each[1]) do
       if #types == 2 then
         local current_gate = self:reducible_gate_at(x, y + i - 1)
 
@@ -842,7 +842,7 @@ function board:reduce(x, y, include_next_gates)
     end
 
     -- マッチするかチェック
-    for i, types in pairs(each.match) do
+    for i, types in pairs(each[1]) do
       local current_y = y + i - 1
 
       local current_gate = self:reducible_gate_at(x, current_y)
@@ -858,7 +858,7 @@ function board:reduce(x, y, include_next_gates)
       end
     end
 
-    reduction = { to = each.to, dx = dx }
+    reduction = { to = each[2], dx = dx }
     goto matched
 
     ::next::
