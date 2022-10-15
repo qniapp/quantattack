@@ -287,6 +287,25 @@ local reduction_rules = {
         {},
         { dy = 2 }
       }
+    },
+
+    -- Z            I
+    -- S-S  ----->  S-S
+    --   Z            I
+    --
+    --   Z            I
+    -- S-S  ----->  S-S
+    -- Z            I
+    {
+      match = {
+        "z",
+        "swap,swap",
+        "i,z"
+      },
+      to = {
+        {},
+        { dx = true, dy = 2 }
+      }
     }
   },
 
@@ -901,18 +920,6 @@ function board:reduce(x, y, include_next_gates)
   ::matched::
   return reduction
 
-  -- -- Z            I
-  -- -- C-X  ----->  C-X
-  -- -- Z            I
-  -- if gate:is_z() and
-  --     gate_y1:is_control() and gate_y1_other_gate:is_cnot_x() and
-  --     gate_y2:is_z() then
-  --   return {
-  --     score = 8,
-  --     to = { {}, { dy = 2 } },
-  --   }
-  -- end
-
 
   -- -- Z            I
   -- -- H X          H I
@@ -930,50 +937,6 @@ function board:reduce(x, y, include_next_gates)
   --     to = { {},
   --       { dx = dx, dy = 1 },
   --       { dx = dx, dy = 3 } }
-  --   }
-  -- end
-
-  -- --
-  -- -- SWAP gate rules
-  -- --
-  -- local gate_y2_other_gate_under_swap = i_gate()
-  -- if gate_y1:is_swap() then
-  --   gate_y2_other_gate_under_swap = self:reducible_gate_at(gate_y1.other_x, y2)
-  -- end
-
-  -- --  X            I
-  -- --  S-S  ----->  S-S
-  -- --    X            I
-  -- if gate:is_x() and
-  --     gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-  --     gate_y2_other_gate_under_swap:is_x() then
-  --   return {
-  --     score = 10,
-  --     to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
-  --   }
-  -- end
-
-  -- --  Y            I
-  -- --  S-S  ----->  S-S
-  -- --    Y            I
-  -- if gate:is_y() and
-  --     gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-  --     gate_y2_other_gate_under_swap:is_y() then
-  --   return {
-  --     score = 10,
-  --     to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
-  --   }
-  -- end
-
-  -- --  Z            I
-  -- --  S-S  ----->  S-S
-  -- --    Z            I
-  -- if gate:is_z() and
-  --     gate_y1:is_swap() and gate_y1_other_gate:is_swap() and
-  --     gate_y2_other_gate_under_swap:is_z() then
-  --   return {
-  --     score = 10,
-  --     to = { {}, { dx = gate_y1.other_x - x, dy = 2 } }
   --   }
   -- end
 
