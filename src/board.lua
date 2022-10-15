@@ -19,6 +19,361 @@ board.cols = 6 -- board の列数
 board.rows = 12 -- board の行数
 board.row_next_gates = board.rows + 1
 
+-- TODO: あらかじめ "control,cnot_x" などの match 文字列を split しておくことで、
+-- 実行時の split をなくし高速化する
+local reduction_rules = {
+  h = {
+    -- H          I
+    -- H  ----->  I
+    {
+      match = {
+        "h",
+        "h",
+      },
+      to = {
+        {},
+        { dy = 1 }
+      }
+    },
+
+    -- H          I
+    -- X          I
+    -- H  ----->  Z
+    {
+      match = {
+        "h",
+        "x",
+        "h"
+      },
+      to = {
+        {},
+        { dy = 1 },
+        { dy = 2, gate = z_gate() }
+      }
+    },
+
+    -- H          I
+    -- Z          I
+    -- H  ----->  X
+    {
+      match = {
+        "h",
+        "z",
+        "h"
+      },
+      to = {
+        {},
+        { dy = 1 },
+        { dy = 2, gate = x_gate() }
+      }
+    },
+
+    -- H H          I I
+    -- C-X  ----->  X-C
+    -- H H          I I
+    --
+    -- H H          I I
+    -- X-C  ----->  C-X
+    -- H H          I I
+    {
+      match = {
+        "h,h",
+        "control,cnot_x",
+        "h,h"
+      },
+      to = {
+        {}, { dx = true },
+        { dy = 1, gate = cnot_x_gate() }, { dx = true, dy = 1, gate = control_gate() },
+        { dy = 2 }, { dx = true, dy = 2 }
+      }
+    }
+  },
+
+  x = {
+    -- X          I
+    -- X  ----->  I
+    {
+      match = {
+        "x",
+        "x",
+      },
+      to = {
+        {},
+        { dy = 1 }
+      }
+    },
+
+
+    -- X          I
+    -- Z  ----->  Y
+    {
+      match = {
+        "x",
+        "z",
+      },
+      to = {
+        {},
+        { dy = 1, gate = y_gate() }
+      }
+    },
+
+    -- X X          I I
+    -- C-X  ----->  C-X
+    -- X            I
+    --
+    -- X X          I I
+    -- X-C  ----->  X-C
+    --   X            I
+    {
+      match = {
+        "x,x",
+        "control,cnot_x",
+        "x"
+      },
+      to = {
+        {}, { dx = true },
+        { dy = 2 }
+      }
+    },
+
+    -- X            I
+    -- X-C  ----->  X-C
+    -- X            I
+    --
+    --   X            I
+    -- C-X  ----->  C-X
+    --   X            I
+    {
+      match = {
+        "x",
+        "cnot_x,control",
+        "x"
+      },
+      to = {
+        {},
+        { dy = 2 }
+      }
+    }
+  },
+
+  y = {
+    -- Y          I
+    -- Y  ----->  I
+    {
+      match = {
+        "y",
+        "y",
+      },
+      to = {
+        {},
+        { dy = 1 }
+      }
+    }
+  },
+
+  z = {
+    -- Z          I
+    -- Z  ----->  I
+    {
+      match = {
+        "z",
+        "z",
+      },
+      to = {
+        {},
+        { dy = 1 }
+      }
+    },
+
+    {
+      match = {
+        "z",
+        "x",
+      },
+      to = {
+        {},
+        { dy = 1, gate = y_gate() }
+      }
+    },
+
+    -- Z Z          I I
+    -- C-X  ----->  C-X
+    --   Z            I
+    --
+    -- Z Z          I I
+    -- X-C  ----->  X-C
+    -- Z            I
+    {
+      match = {
+        "z,z",
+        "control,cnot_x",
+        "i,z"
+      },
+      to = {
+        {}, { dx = true },
+        { dx = true, dy = 2 }
+      }
+    },
+
+    -- Z            I
+    -- C-X  ----->  C-X
+    -- Z            I
+    --
+    --   Z            I
+    -- X-C  ----->  X-C
+    --   Z            I
+    {
+      match = {
+        "z",
+        "control,cnot_x",
+        "z"
+      },
+      to = {
+        {},
+        { dy = 2 }
+      }
+    }
+  },
+
+  s = {
+    -- S          I
+    -- S  ----->  Z
+    {
+      match = {
+        "s",
+        "s",
+      },
+      to = {
+        {},
+        { dy = 1, gate = z_gate() }
+      }
+    },
+
+    -- S          I
+    -- Z          I
+    -- S  ----->  X
+    {
+      match = {
+        "s",
+        "z",
+        "s"
+      },
+      to = {
+        {},
+        { dy = 1 },
+        { dy = 2, gate = z_gate() }
+      }
+    }
+  },
+
+  t = {
+    -- T          I
+    -- T  ----->  S
+    {
+      match = {
+        "t",
+        "t",
+      },
+      to = {
+        {},
+        { dy = 1, gate = s_gate() }
+      }
+    },
+
+    -- T          I
+    -- S          I
+    -- T  ----->  Z
+    {
+      match = {
+        "t",
+        "s",
+        "t"
+      },
+      to = {
+        {},
+        { dy = 1 },
+        { dy = 2, gate = z_gate() }
+      }
+    },
+
+    -- T          I
+    -- Z          I
+    -- S          I
+    -- T  ----->  I
+    {
+      match = {
+        "t",
+        "z",
+        "s",
+        "t"
+      },
+      to = {
+        {},
+        { dy = 1 },
+        { dy = 2 },
+        { dy = 3 }
+      }
+    },
+
+    -- T          I
+    -- S          I
+    -- Z          I
+    -- T  ----->  I
+    {
+      match = {
+        "t",
+        "s",
+        "z",
+        "t"
+      },
+      to = {
+        {},
+        { dy = 1 },
+        { dy = 2 },
+        { dy = 3 }
+      }
+    }
+  },
+
+  control = {
+    -- C-X          I
+    -- C-X  ----->  I
+    --
+    -- X-C          I
+    -- X-C  ----->  I
+    {
+      match = {
+        "control,cnot_x",
+        "control,cnot_x"
+      },
+      to = {
+        {}, { dx = true },
+        { dy = 1 }, { dx = true, dy = 1 }
+      }
+    },
+
+    -- C-X          I I
+    -- X-C          I I
+    -- C-X  ----->  S-S
+    --
+    -- X-C          I I
+    -- C-X          I I
+    -- X-C  ----->  S-S
+    {
+      match = {
+        "control,cnot_x",
+        "cnot_x,control",
+        "control,cnot_x"
+      },
+      to = {
+        {}, { dx = true },
+        { dy = 1 }, { dx = true, dy = 1 },
+        { dy = 2, gate = swap_gate() }, { dx = true, dy = 2, gate = swap_gate() }
+      }
+    }
+  }
+}
+
 function board:_init()
   self._gates = {}
   self.width = board.cols * tile_size
@@ -414,368 +769,15 @@ end
 -------------------------------------------------------------------------------
 
 function board:reduce(x, y, include_next_gates)
-  local rules = {
-    h = {
-      -- H          I
-      -- H  ----->  I
-      {
-        match = {
-          "h",
-          "h",
-        },
-        to = {
-          {},
-          { dy = 1 }
-        }
-      },
-
-      -- H          I
-      -- X          I
-      -- H  ----->  Z
-      {
-        match = {
-          "h",
-          "x",
-          "h"
-        },
-        to = {
-          {},
-          { dy = 1 },
-          { dy = 2, gate = z_gate() }
-        }
-      },
-
-      -- H          I
-      -- Z          I
-      -- H  ----->  X
-      {
-        match = {
-          "h",
-          "z",
-          "h"
-        },
-        to = {
-          {},
-          { dy = 1 },
-          { dy = 2, gate = x_gate() }
-        }
-      },
-
-      -- H H          I I
-      -- C-X  ----->  X-C
-      -- H H          I I
-      --
-      -- H H          I I
-      -- X-C  ----->  C-X
-      -- H H          I I
-      {
-        match = {
-          "h,h",
-          "control,cnot_x",
-          "h,h"
-        },
-        to = {
-          {}, { dx = true },
-          { dy = 1, gate = cnot_x_gate() }, { dx = true, dy = 1, gate = control_gate() },
-          { dy = 2 }, { dx = true, dy = 2 }
-        }
-      }
-    },
-
-    x = {
-      -- X          I
-      -- X  ----->  I
-      {
-        match = {
-          "x",
-          "x",
-        },
-        to = {
-          {},
-          { dy = 1 }
-        }
-      },
-
-
-      -- X          I
-      -- Z  ----->  Y
-      {
-        match = {
-          "x",
-          "z",
-        },
-        to = {
-          {},
-          { dy = 1, gate = y_gate() }
-        }
-      },
-
-      -- X X          I I
-      -- C-X  ----->  C-X
-      -- X            I
-      --
-      -- X X          I I
-      -- X-C  ----->  X-C
-      --   X            I
-      {
-        match = {
-          "x,x",
-          "control,cnot_x",
-          "x"
-        },
-        to = {
-          {}, { dx = true },
-          { dy = 2 }
-        }
-      },
-
-      -- X            I
-      -- X-C  ----->  X-C
-      -- X            I
-      --
-      --   X            I
-      -- C-X  ----->  C-X
-      --   X            I
-      {
-        match = {
-          "x",
-          "cnot_x,control",
-          "x"
-        },
-        to = {
-          {},
-          { dy = 2 }
-        }
-      }
-    },
-
-    y = {
-      -- Y          I
-      -- Y  ----->  I
-      {
-        match = {
-          "y",
-          "y",
-        },
-        to = {
-          {},
-          { dy = 1 }
-        }
-      }
-    },
-
-    z = {
-      -- Z          I
-      -- Z  ----->  I
-      {
-        match = {
-          "z",
-          "z",
-        },
-        to = {
-          {},
-          { dy = 1 }
-        }
-      },
-
-      {
-        match = {
-          "z",
-          "x",
-        },
-        to = {
-          {},
-          { dy = 1, gate = y_gate() }
-        }
-      },
-
-      -- Z Z          I I
-      -- C-X  ----->  C-X
-      --   Z            I
-      --
-      -- Z Z          I I
-      -- X-C  ----->  X-C
-      -- Z            I
-      {
-        match = {
-          "z,z",
-          "control,cnot_x",
-          "i,z"
-        },
-        to = {
-          {}, { dx = true },
-          { dx = true, dy = 2 }
-        }
-      },
-
-      -- Z            I
-      -- C-X  ----->  C-X
-      -- Z            I
-      --
-      --   Z            I
-      -- X-C  ----->  X-C
-      --   Z            I
-      {
-        match = {
-          "z",
-          "control,cnot_x",
-          "z"
-        },
-        to = {
-          {},
-          { dy = 2 }
-        }
-      }
-    },
-
-    s = {
-      -- S          I
-      -- S  ----->  Z
-      {
-        match = {
-          "s",
-          "s",
-        },
-        to = {
-          {},
-          { dy = 1, gate = z_gate() }
-        }
-      },
-
-      -- S          I
-      -- Z          I
-      -- S  ----->  X
-      {
-        match = {
-          "s",
-          "z",
-          "s"
-        },
-        to = {
-          {},
-          { dy = 1 },
-          { dy = 2, gate = z_gate() }
-        }
-      }
-    },
-
-    t = {
-      -- T          I
-      -- T  ----->  S
-      {
-        match = {
-          "t",
-          "t",
-        },
-        to = {
-          {},
-          { dy = 1, gate = s_gate() }
-        }
-      },
-
-      -- T          I
-      -- S          I
-      -- T  ----->  Z
-      {
-        match = {
-          "t",
-          "s",
-          "t"
-        },
-        to = {
-          {},
-          { dy = 1 },
-          { dy = 2, gate = z_gate() }
-        }
-      },
-
-      -- T          I
-      -- Z          I
-      -- S          I
-      -- T  ----->  I
-      {
-        match = {
-          "t",
-          "z",
-          "s",
-          "t"
-        },
-        to = {
-          {},
-          { dy = 1 },
-          { dy = 2 },
-          { dy = 3 }
-        }
-      },
-
-      -- T          I
-      -- S          I
-      -- Z          I
-      -- T  ----->  I
-      {
-        match = {
-          "t",
-          "s",
-          "z",
-          "t"
-        },
-        to = {
-          {},
-          { dy = 1 },
-          { dy = 2 },
-          { dy = 3 }
-        }
-      }
-    },
-
-    control = {
-      -- C-X          I
-      -- C-X  ----->  I
-      --
-      -- X-C          I
-      -- X-C  ----->  I
-      {
-        match = {
-          "control,cnot_x",
-          "control,cnot_x"
-        },
-        to = {
-          {}, { dx = true },
-          { dy = 1 }, { dx = true, dy = 1 }
-        }
-      },
-
-      -- C-X          I I
-      -- X-C          I I
-      -- C-X  ----->  S-S
-      --
-      -- X-C          I I
-      -- C-X          I I
-      -- X-C  ----->  S-S
-      {
-        match = {
-          "control,cnot_x",
-          "cnot_x,control",
-          "control,cnot_x"
-        },
-        to = {
-          {}, { dx = true },
-          { dy = 1 }, { dx = true, dy = 1 },
-          { dy = 2, gate = swap_gate() }, { dx = true, dy = 2, gate = swap_gate() }
-        }
-      }
-    }
-  }
-
   local reduction = { to = {} }
   local dx
 
-  for _, each in pairs(rules[self:gate_at(x, y)._type] or {}) do
+  for _, each in pairs(reduction_rules[self:gate_at(x, y)._type] or {}) do
     -- other_x を決める
     local other_x = nil
 
     if (include_next_gates and y + #each.match - 1 > self.row_next_gates) or
-      (not include_next_gates and y + #each.match - 1 > self.rows) then
+        (not include_next_gates and y + #each.match - 1 > self.rows) then
       goto next
     end
 

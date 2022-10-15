@@ -280,7 +280,7 @@ end
 
 function gate:_sprite()
   if self:is_idle() and self._tick_dropped then
-    return split(self.sprites.dropped)[self._tick_dropped]
+    return self.sprites.dropped[self._tick_dropped]
   elseif self:is_match() then
     local sequence = split(self.sprites.match)
     return self._tick_match <= 15 and sequence[self._tick_match] or sequence[#sequence]

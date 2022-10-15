@@ -30,10 +30,9 @@
     "color",
     "cursor",
     "tile_size",
-    "stat"
+    "stat",
+    "split"
   ],
-  "Lua.workspace.library": [
-    "${3rd}/lfs/library"
-  ],
+  "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false
 }
