@@ -4,10 +4,6 @@ local gate = require("gate")
 local swap_gate = derived_class(gate)
 
 function swap_gate:_init(other_x)
-  --#if assert
-  assert(other_x)
-  --#endif
-
   gate._init(self, 'swap')
   self.other_x = other_x
   self.sprites = {

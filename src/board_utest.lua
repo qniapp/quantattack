@@ -129,10 +129,20 @@ describe('board', function()
     end)
   end)
 
-  describe('reduce_gates', function()
+  describe('reduce_gates #solo', function()
     -- reduce -> H          I
     --           -          -
     --           H  ----->  I (next gates)
+    -- it('should reduce HH', function()
+    --   board:put(1, 11, h_gate())
+    --   board:put(1, 12, h_gate())
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
+    -- end)
+
     it('should reduce HH', function()
       board:put(1, 11, h_gate())
       board:put(1, 12, h_gate())
@@ -173,26 +183,6 @@ describe('board', function()
       assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
     end)
 
-    it('should reduce ZX', function()
-      board:put(1, 11, z_gate())
-      board:put(1, 12, x_gate())
-
-      board:reduce_gates()
-
-      assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_y())
-    end)
-
-    it('should reduce XZ', function()
-      board:put(1, 11, x_gate())
-      board:put(1, 12, z_gate())
-
-      board:reduce_gates()
-
-      assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_y())
-    end)
-
     it('should reduce SS', function()
       board:put(1, 11, s_gate())
       board:put(1, 12, s_gate())
@@ -213,21 +203,27 @@ describe('board', function()
       assert.is_true(board:gate_at(1, 12)._reduce_to:is_s())
     end)
 
-    it('should reduce SWAP pairs in the same columns', function()
-      board:put(1, 11, swap_gate(3))
-      board:put(3, 11, swap_gate(1))
-      board:put(1, 12, swap_gate(3))
-      board:put(3, 12, swap_gate(1))
+    it('should reduce XZ', function()
+      board:put(1, 11, x_gate())
+      board:put(1, 12, z_gate())
 
       board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
-      assert.is_true(board:gate_at(3, 11)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
-      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+      assert.is_true(board:gate_at(1, 12)._reduce_to:is_y())
     end)
 
-    it('should reduce hxh', function()
+    it('should reduce ZX', function()
+      board:put(1, 11, z_gate())
+      board:put(1, 12, x_gate())
+
+      board:reduce_gates()
+
+      assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
+      assert.is_true(board:gate_at(1, 12)._reduce_to:is_y())
+    end)
+
+    it('should reduce HXH', function()
       board:put(1, 10, h_gate())
       board:put(1, 11, x_gate())
       board:put(1, 12, h_gate())
@@ -263,7 +259,47 @@ describe('board', function()
       assert.is_true(board:gate_at(1, 12)._reduce_to:is_z())
     end)
 
-    it('should reduce CNOT x2', function()
+    it('should reduce TST', function()
+      board:put(1, 10, t_gate())
+      board:put(1, 11, s_gate())
+      board:put(1, 12, t_gate())
+
+      board:reduce_gates()
+
+      assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
+      assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
+      assert.is_true(board:gate_at(1, 12)._reduce_to:is_z())
+    end)
+
+    it('should reduce TZST', function()
+      board:put(1, 9, t_gate())
+      board:put(1, 10, z_gate())
+      board:put(1, 11, s_gate())
+      board:put(1, 12, t_gate())
+
+      board:reduce_gates()
+
+      assert.is_true(board:gate_at(1, 9)._reduce_to:is_i())
+      assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
+      assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
+      assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
+    end)
+
+    it('should reduce TSZT', function()
+      board:put(1, 9, t_gate())
+      board:put(1, 10, s_gate())
+      board:put(1, 11, z_gate())
+      board:put(1, 12, t_gate())
+
+      board:reduce_gates()
+
+      assert.is_true(board:gate_at(1, 9)._reduce_to:is_i())
+      assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
+      assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
+      assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
+    end)
+
+    it('should reduce C-X x2', function()
       board:put(1, 11, control_gate(3))
       board:put(3, 11, cnot_x_gate(1))
       board:put(1, 12, control_gate(3))
@@ -277,10 +313,24 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
-    --  C-X             I I
-    --  X-C             I I
-    --  C-X  ----->  SWAP-SWAP
-    it('should reduce CNOT x3', function()
+    it('should reduce X-C x2', function()
+      board:put(1, 11, cnot_x_gate(3))
+      board:put(3, 11, control_gate(1))
+      board:put(1, 12, cnot_x_gate(3))
+      board:put(3, 12, control_gate(1))
+
+      board:reduce_gates()
+
+      assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
+      assert.is_true(board:gate_at(3, 11)._reduce_to:is_i())
+      assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
+      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    end)
+
+    -- C-X          I I
+    -- X-C          I I
+    -- C-X  ----->  S-S
+    it('should reduce C-X X-C C-X', function()
       board:put(1, 10, control_gate(3))
       board:put(3, 10, cnot_x_gate(1))
       board:put(1, 11, cnot_x_gate(3))
@@ -295,227 +345,19 @@ describe('board', function()
       assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
       assert.is_true(board:gate_at(3, 11)._reduce_to:is_i())
       assert.is_true(board:gate_at(1, 12)._reduce_to:is_swap())
+      assert.are_equal(3, board:gate_at(1, 12)._reduce_to.other_x)
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_swap())
-
-      for i = 1, 200 do
-        board:_update_gates()
-      end
-
-      assert.is_true(board:gate_at(1, 12):is_swap())
-      assert.are_equal(3, board:gate_at(1, 12).other_x)
-      assert.is_true(board:gate_at(3, 12):is_swap())
-      assert.are_equal(1, board:gate_at(3, 12).other_x)
+      assert.are_equal(1, board:gate_at(3, 12)._reduce_to.other_x)
     end)
 
-    it('should reduce HH CNOT HH', function()
-      board:put(1, 10, h_gate())
-      board:put(3, 10, h_gate())
+    -- X-C          I I
+    -- C-X          I I
+    -- X-C  ----->  S-S
+    it('should reduce C-X X-C C-X', function()
+      board:put(1, 10, cnot_x_gate(3))
+      board:put(3, 10, control_gate(1))
       board:put(1, 11, control_gate(3))
       board:put(3, 11, cnot_x_gate(1))
-      board:put(1, 12, h_gate())
-      board:put(3, 12, h_gate())
-
-      board:reduce_gates()
-
-      assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11)._reduce_to:is_cnot_x())
-      assert.is_true(board:gate_at(3, 11)._reduce_to:is_control())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
-      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
-    end)
-
-    it('should reduce XX CNOT X', function()
-      board:put(1, 10, x_gate())
-      board:put(3, 10, x_gate())
-      board:put(1, 11, control_gate(3))
-      board:put(3, 11, cnot_x_gate(1))
-      board:put(1, 12, x_gate())
-
-      board:reduce_gates()
-
-      assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_control())
-      assert.is_true(board:gate_at(3, 11):is_cnot_x())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
-    end)
-
-    it('should reduce zz cx z', function()
-      board:put(1, 10, z_gate())
-      board:put(3, 10, z_gate())
-      board:put(1, 11, control_gate(3))
-      board:put(3, 11, cnot_x_gate(1))
-      board:put(3, 12, z_gate())
-
-      board:reduce_gates()
-
-      assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_control())
-      assert.is_true(board:gate_at(3, 11):is_cnot_x())
-      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
-    end)
-
-
-    it('should reduce x xc x', function()
-      board:put(1, 10, x_gate())
-      board:put(1, 11, cnot_x_gate(3))
-      board:put(3, 11, control_gate(1))
-      board:put(1, 12, x_gate())
-
-      board:reduce_gates()
-
-      assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_cnot_x())
-      assert.is_true(board:gate_at(3, 11):is_control())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
-    end)
-
-    it('should reduce z cx z', function()
-      board:put(1, 10, z_gate())
-      board:put(1, 11, control_gate(3))
-      board:put(3, 11, cnot_x_gate(1))
-      board:put(1, 12, z_gate())
-
-      board:reduce_gates()
-
-      assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_control())
-      assert.is_true(board:gate_at(3, 11):is_cnot_x())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
-    end)
-
-    it('should reduce xz cz x', function()
-      board:put(1, 9, z_gate())
-      board:put(1, 10, h_gate())
-      board:put(3, 10, x_gate())
-      board:put(1, 11, cnot_x_gate(3))
-      board:put(3, 11, control_gate(1))
-      board:put(1, 12, h_gate())
-      board:put(3, 12, x_gate())
-
-      board:reduce_gates()
-
-      assert.is_true(board:gate_at(1, 9)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 10):is_h())
-      assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_cnot_x())
-      assert.is_true(board:gate_at(3, 11):is_control())
-      assert.is_true(board:gate_at(1, 12):is_h())
-      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
-    end)
-
-    --  H            I
-    --  S-S  ----->  S-S
-    --    H            I
-    it('should reduce H SWAP-SWAP H', function()
-      board:put(1, 10, h_gate())
-      board:put(1, 11, swap_gate(3))
-      board:put(3, 11, swap_gate(1))
-      board:put(3, 12, h_gate())
-
-      board:reduce_gates()
-
-      assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
-      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
-    end)
-
-    --  X            I
-    --  S-S  ----->  S-S
-    --    X            I
-    it('should reduce X SWAP-SWAP X', function()
-      board:put(1, 10, x_gate())
-      board:put(1, 11, swap_gate(3))
-      board:put(3, 11, swap_gate(1))
-      board:put(3, 12, x_gate())
-
-      board:reduce_gates()
-
-      assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
-      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
-    end)
-
-    --  Y            I
-    --  S-S  ----->  S-S
-    --    Y            I
-    it('should reduce Y SWAP-SWAP Y', function()
-      board:put(1, 10, y_gate())
-      board:put(1, 11, swap_gate(3))
-      board:put(3, 11, swap_gate(1))
-      board:put(3, 12, y_gate())
-
-      board:reduce_gates()
-
-      assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
-      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
-    end)
-
-    --  Z            I
-    --  S-S  ----->  S-S
-    --    Z            I
-    it('should reduce Z SWAP-SWAP Z', function()
-      board:put(1, 10, z_gate())
-      board:put(1, 11, swap_gate(3))
-      board:put(3, 11, swap_gate(1))
-      board:put(3, 12, z_gate())
-
-      board:reduce_gates()
-
-      assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
-      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
-    end)
-
-    --  S            Z
-    --  S-S  ----->  S-S
-    --    S            I
-    it('should reduce S SWAP-SWAP S', function()
-      board:put(1, 10, s_gate())
-      board:put(1, 11, swap_gate(3))
-      board:put(3, 11, swap_gate(1))
-      board:put(3, 12, s_gate())
-
-      board:reduce_gates()
-
-      assert.is_true(board:gate_at(1, 10)._reduce_to:is_z())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
-      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
-    end)
-
-    --  T            S
-    --  S-S  ----->  S-S
-    --    T            I
-    it('should reduce T SWAP-SWAP T', function()
-      board:put(1, 10, t_gate())
-      board:put(1, 11, swap_gate(3))
-      board:put(3, 11, swap_gate(1))
-      board:put(3, 12, t_gate())
-
-      board:reduce_gates()
-
-      assert.is_true(board:gate_at(1, 10)._reduce_to:is_s())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
-      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
-    end)
-
-    --  C-X          I I
-    --  S-S  ----->  S-S
-    --  X-C          I I
-    it('should reduce C-X SWAP-SWAP X-C', function()
-      board:put(1, 10, control_gate(3))
-      board:put(3, 10, cnot_x_gate(1))
-      board:put(1, 11, swap_gate(3))
-      board:put(3, 11, swap_gate(1))
       board:put(1, 12, cnot_x_gate(3))
       board:put(3, 12, control_gate(1))
 
@@ -523,11 +365,249 @@ describe('board', function()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
       assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
-      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+      assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
+      assert.is_true(board:gate_at(3, 11)._reduce_to:is_i())
+      assert.is_true(board:gate_at(1, 12)._reduce_to:is_swap())
+      assert.are_equal(3, board:gate_at(1, 12)._reduce_to.other_x)
+      assert.is_true(board:gate_at(3, 12)._reduce_to:is_swap())
+      assert.are_equal(1, board:gate_at(3, 12)._reduce_to.other_x)
     end)
+
+    -- it('should reduce SWAP pairs in the same columns', function()
+    --   board:put(1, 11, swap_gate(3))
+    --   board:put(3, 11, swap_gate(1))
+    --   board:put(1, 12, swap_gate(3))
+    --   board:put(3, 12, swap_gate(1))
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(3, 11)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    -- end)
+
+    -- it('should reduce HH CNOT HH', function()
+    --   board:put(1, 10, h_gate())
+    --   board:put(3, 10, h_gate())
+    --   board:put(1, 11, control_gate(3))
+    --   board:put(3, 11, cnot_x_gate(1))
+    --   board:put(1, 12, h_gate())
+    --   board:put(3, 12, h_gate())
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(1, 11)._reduce_to:is_cnot_x())
+    --   assert.is_true(board:gate_at(3, 11)._reduce_to:is_control())
+    --   assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    -- end)
+
+    -- it('should reduce XX CNOT X', function()
+    --   board:put(1, 10, x_gate())
+    --   board:put(3, 10, x_gate())
+    --   board:put(1, 11, control_gate(3))
+    --   board:put(3, 11, cnot_x_gate(1))
+    --   board:put(1, 12, x_gate())
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(1, 11):is_control())
+    --   assert.is_true(board:gate_at(3, 11):is_cnot_x())
+    --   assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
+    -- end)
+
+    -- it('should reduce zz cx z', function()
+    --   board:put(1, 10, z_gate())
+    --   board:put(3, 10, z_gate())
+    --   board:put(1, 11, control_gate(3))
+    --   board:put(3, 11, cnot_x_gate(1))
+    --   board:put(3, 12, z_gate())
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(1, 11):is_control())
+    --   assert.is_true(board:gate_at(3, 11):is_cnot_x())
+    --   assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    -- end)
+
+
+    -- it('should reduce x xc x', function()
+    --   board:put(1, 10, x_gate())
+    --   board:put(1, 11, cnot_x_gate(3))
+    --   board:put(3, 11, control_gate(1))
+    --   board:put(1, 12, x_gate())
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(1, 11):is_cnot_x())
+    --   assert.is_true(board:gate_at(3, 11):is_control())
+    --   assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
+    -- end)
+
+    -- it('should reduce z cx z', function()
+    --   board:put(1, 10, z_gate())
+    --   board:put(1, 11, control_gate(3))
+    --   board:put(3, 11, cnot_x_gate(1))
+    --   board:put(1, 12, z_gate())
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(1, 11):is_control())
+    --   assert.is_true(board:gate_at(3, 11):is_cnot_x())
+    --   assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
+    -- end)
+
+    -- it('should reduce xz cz x', function()
+    --   board:put(1, 9, z_gate())
+    --   board:put(1, 10, h_gate())
+    --   board:put(3, 10, x_gate())
+    --   board:put(1, 11, cnot_x_gate(3))
+    --   board:put(3, 11, control_gate(1))
+    --   board:put(1, 12, h_gate())
+    --   board:put(3, 12, x_gate())
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 9)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(1, 10):is_h())
+    --   assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(1, 11):is_cnot_x())
+    --   assert.is_true(board:gate_at(3, 11):is_control())
+    --   assert.is_true(board:gate_at(1, 12):is_h())
+    --   assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    -- end)
+
+    -- --  H            I
+    -- --  S-S  ----->  S-S
+    -- --    H            I
+    -- it('should reduce H SWAP-SWAP H', function()
+    --   board:put(1, 10, h_gate())
+    --   board:put(1, 11, swap_gate(3))
+    --   board:put(3, 11, swap_gate(1))
+    --   board:put(3, 12, h_gate())
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(1, 11):is_swap())
+    --   assert.is_true(board:gate_at(3, 11):is_swap())
+    --   assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    -- end)
+
+    -- --  X            I
+    -- --  S-S  ----->  S-S
+    -- --    X            I
+    -- it('should reduce X SWAP-SWAP X', function()
+    --   board:put(1, 10, x_gate())
+    --   board:put(1, 11, swap_gate(3))
+    --   board:put(3, 11, swap_gate(1))
+    --   board:put(3, 12, x_gate())
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(1, 11):is_swap())
+    --   assert.is_true(board:gate_at(3, 11):is_swap())
+    --   assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    -- end)
+
+    -- --  Y            I
+    -- --  S-S  ----->  S-S
+    -- --    Y            I
+    -- it('should reduce Y SWAP-SWAP Y', function()
+    --   board:put(1, 10, y_gate())
+    --   board:put(1, 11, swap_gate(3))
+    --   board:put(3, 11, swap_gate(1))
+    --   board:put(3, 12, y_gate())
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(1, 11):is_swap())
+    --   assert.is_true(board:gate_at(3, 11):is_swap())
+    --   assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    -- end)
+
+    -- --  Z            I
+    -- --  S-S  ----->  S-S
+    -- --    Z            I
+    -- it('should reduce Z SWAP-SWAP Z', function()
+    --   board:put(1, 10, z_gate())
+    --   board:put(1, 11, swap_gate(3))
+    --   board:put(3, 11, swap_gate(1))
+    --   board:put(3, 12, z_gate())
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(1, 11):is_swap())
+    --   assert.is_true(board:gate_at(3, 11):is_swap())
+    --   assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    -- end)
+
+    -- --  S            Z
+    -- --  S-S  ----->  S-S
+    -- --    S            I
+    -- it('should reduce S SWAP-SWAP S', function()
+    --   board:put(1, 10, s_gate())
+    --   board:put(1, 11, swap_gate(3))
+    --   board:put(3, 11, swap_gate(1))
+    --   board:put(3, 12, s_gate())
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 10)._reduce_to:is_z())
+    --   assert.is_true(board:gate_at(1, 11):is_swap())
+    --   assert.is_true(board:gate_at(3, 11):is_swap())
+    --   assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    -- end)
+
+    -- --  T            S
+    -- --  S-S  ----->  S-S
+    -- --    T            I
+    -- it('should reduce T SWAP-SWAP T', function()
+    --   board:put(1, 10, t_gate())
+    --   board:put(1, 11, swap_gate(3))
+    --   board:put(3, 11, swap_gate(1))
+    --   board:put(3, 12, t_gate())
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 10)._reduce_to:is_s())
+    --   assert.is_true(board:gate_at(1, 11):is_swap())
+    --   assert.is_true(board:gate_at(3, 11):is_swap())
+    --   assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    -- end)
+
+    -- --  C-X          I I
+    -- --  S-S  ----->  S-S
+    -- --  X-C          I I
+    -- it('should reduce C-X SWAP-SWAP X-C', function()
+    --   board:put(1, 10, control_gate(3))
+    --   board:put(3, 10, cnot_x_gate(1))
+    --   board:put(1, 11, swap_gate(3))
+    --   board:put(3, 11, swap_gate(1))
+    --   board:put(1, 12, cnot_x_gate(3))
+    --   board:put(3, 12, control_gate(1))
+
+    --   board:reduce_gates()
+
+    --   assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(1, 11):is_swap())
+    --   assert.is_true(board:gate_at(3, 11):is_swap())
+    --   assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
+    --   assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    -- end)
   end)
 
   describe('drop_gates', function()
@@ -629,7 +709,7 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 3):is_swap())
     end)
 
-    it('CNOT 下のゲートを入れ替えて落としたときに消えない #solo', function()
+    it('CNOT 下のゲートを入れ替えて落としたときに消えない', function()
       board:put(5, 4, control_gate(6))
       board:put(6, 4, cnot_x_gate(5))
       board:put(6, 5, s_gate())
