@@ -204,6 +204,25 @@ local reduction_rules = {
         {},
         { dy = 1 }
       }
+    },
+
+    -- Y            I
+    -- S-S  ----->  S-S
+    --   Y            I
+    --
+    --   Y            I
+    -- S-S  ----->  S-S
+    -- Y            I
+    {
+      match = {
+        "y",
+        "swap,swap",
+        "i,y"
+      },
+      to = {
+        {},
+        { dx = true, dy = 2 }
+      }
     }
   },
 
