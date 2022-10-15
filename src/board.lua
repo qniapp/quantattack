@@ -527,6 +527,25 @@ function board:reduce(x, y, include_next_gates)
           {}, { dx = true },
           { dy = 2 }
         }
+      },
+
+      -- X            I
+      -- X-C  ----->  X-C
+      -- X            I
+      --
+      --   X            I
+      -- C-X  ----->  C-X
+      --   X            I
+      {
+        match = {
+          "x",
+          "cnot_x,control",
+          "x"
+        },
+        to = {
+          {},
+          { dy = 2 }
+        }
       }
     },
 
@@ -586,6 +605,25 @@ function board:reduce(x, y, include_next_gates)
         to = {
           {}, { dx = true },
           { dx = true, dy = 2 }
+        }
+      },
+
+      -- Z            I
+      -- C-X  ----->  C-X
+      -- Z            I
+      --
+      --   Z            I
+      -- X-C  ----->  X-C
+      --   Z            I
+      {
+        match = {
+          "z",
+          "control,cnot_x",
+          "z"
+        },
+        to = {
+          {},
+          { dy = 2 }
         }
       }
     },
@@ -734,12 +772,18 @@ function board:reduce(x, y, include_next_gates)
 
   for _, each in pairs(rules[self:gate_at(x, y)._type] or {}) do
     -- other_x を決める
-    local other_x
+    local other_x = nil
+
     for i, match_row in pairs(each.match) do
       local current_y = y + i - 1
       local types = split(match_row)
-      local current_gate = self:reducible_gate_at(x, current_y)
 
+      if (include_next_gates and current_y > self.row_next_gates) or
+          (not include_next_gates and current_y > self.rows) then
+        goto next
+      end
+
+      local current_gate = self:reducible_gate_at(x, current_y)
       if #types == 2 and current_gate.other_x then
         other_x = current_gate.other_x
         dx = other_x - x
@@ -777,6 +821,18 @@ function board:reduce(x, y, include_next_gates)
   ::matched::
   return reduction
 
+  -- -- Z            I
+  -- -- C-X  ----->  C-X
+  -- -- Z            I
+  -- if gate:is_z() and
+  --     gate_y1:is_control() and gate_y1_other_gate:is_cnot_x() and
+  --     gate_y2:is_z() then
+  --   return {
+  --     score = 8,
+  --     to = { {}, { dy = 2 } },
+  --   }
+  -- end
+
 
   -- --  S-S          I I
   -- --  S-S  ----->  I I
@@ -788,46 +844,6 @@ function board:reduce(x, y, include_next_gates)
   --     score = 30,
   --     to = { {}, { dx = dx },
   --       { dy = 1 }, { dx = dx, dy = 1 } },
-  --   }
-  -- end
-
-  -- if include_next_gates then
-  --   if y2 > board.row_next_gates then
-  --     return default
-  --   end
-  -- else
-  --   if y2 > board.rows then
-  --     return default
-  --   end
-  -- end
-
-  -- local gate_y2 = self:reducible_gate_at(x, y2)
-  -- local gate_y2_other_gate = i_gate()
-  -- if gate_y2.other_x then
-  --   gate_y2_other_gate = self:reducible_gate_at(gate_y2.other_x, y2)
-  -- end
-
-  -- -- X            I
-  -- -- X-C  ----->  X-C
-  -- -- X            I
-  -- if gate:is_x() and
-  --     gate_y1:is_cnot_x() and gate_y1_other_gate:is_control() and
-  --     gate_y2:is_x() then
-  --   return {
-  --     score = 8,
-  --     to = { {}, { dy = 2 } },
-  --   }
-  -- end
-
-  -- -- Z            I
-  -- -- C-X  ----->  C-X
-  -- -- Z            I
-  -- if gate:is_z() and
-  --     gate_y1:is_control() and gate_y1_other_gate:is_cnot_x() and
-  --     gate_y2:is_z() then
-  --   return {
-  --     score = 8,
-  --     to = { {}, { dy = 2 } },
   --   }
   -- end
 
