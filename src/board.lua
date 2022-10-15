@@ -337,6 +337,25 @@ local reduction_rules = {
         { dy = 1 },
         { dy = 2, gate = z_gate() }
       }
+    },
+
+    -- s            Z
+    -- S-S  ----->  S-S
+    --   s            I
+    --
+    --   s            Z
+    -- S-S  ----->  S-S
+    -- s            I
+    {
+      match = {
+        "s",
+        "swap,swap",
+        "i,s"
+      },
+      to = {
+        { gate = z_gate() },
+        { dx = true, dy = 2 }
+      }
     }
   },
 
