@@ -4,10 +4,6 @@ local gate = require("gate")
 local cnot_x_gate = derived_class(gate)
 
 function cnot_x_gate:_init(other_x)
-  --#if assert
-  assert(other_x)
-  --#endif
-
   gate._init(self, 'cnot_x')
   self.other_x = other_x
   self.sprites = {
