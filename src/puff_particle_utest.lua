@@ -2,7 +2,7 @@ require("engine/test/bustedhelper")
 
 local puff_particle = require("puff_particle")
 
-describe('puff_particle #solo', function()
+describe('puff_particle', function()
   describe('constructor', function()
     it("x, y, color を指定してパーティクルを作ることができる", function()
       assert.has_no.errors(function()
