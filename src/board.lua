@@ -19,8 +19,6 @@ board.cols = 6 -- board の列数
 board.rows = 12 -- board の行数
 board.row_next_gates = board.rows + 1
 
--- TODO: あらかじめ "control,cnot_x" などの match 文字列を split しておくことで、
--- 実行時の split をなくし高速化する
 local reduction_rules = {
   h = {
     -- H          I
@@ -373,6 +371,16 @@ local reduction_rules = {
     }
   }
 }
+
+-- あらかじめ "control,cnot_x" などの match 文字列を split しておくことで、
+-- 実行時の split をなくし高速化する
+for first_gate, rules in pairs(reduction_rules) do
+  foreach(reduction_rules[first_gate], function(rule)
+    for i, types in pairs(rule.match) do
+      rule.match[i] = split(types)
+    end
+  end)
+end
 
 function board:_init()
   self._gates = {}
@@ -781,9 +789,7 @@ function board:reduce(x, y, include_next_gates)
       goto next
     end
 
-    for i, match_row in pairs(each.match) do
-      local types = split(match_row)
-
+    for i, types in pairs(each.match) do
       if #types == 2 then
         local current_gate = self:reducible_gate_at(x, y + i - 1)
 
@@ -798,9 +804,8 @@ function board:reduce(x, y, include_next_gates)
       end
     end
 
-    for i, match_row in pairs(each.match) do
+    for i, types in pairs(each.match) do
       local current_y = y + i - 1
-      local types = split(match_row)
 
       local current_gate = self:reducible_gate_at(x, current_y)
       if current_gate._type ~= types[1] then

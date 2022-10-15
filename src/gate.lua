@@ -133,7 +133,7 @@ function gate:update(board, x, y)
       -- SWAP 完了
 
       --#if assert
-      assert(self:_is_swapping_with_right())
+      -- assert(self:_is_swapping_with_right())
       --#endif
 
       local new_x = x + 1
