@@ -425,6 +425,25 @@ local reduction_rules = {
         { dy = 2 },
         { dy = 3 }
       }
+    },
+
+    -- T            S
+    -- S-S  ----->  S-S
+    --   T            I
+    --
+    --   T            S
+    -- S-S  ----->  S-S
+    -- T            I
+    {
+      match = {
+        "t",
+        "swap,swap",
+        "i,t"
+      },
+      to = {
+        { gate = s_gate() },
+        { dx = true, dy = 2 }
+      }
     }
   },
 
