@@ -26,10 +26,7 @@ local reduction_rules = {
     -- H  ----->  I
     {
       "h\nh",
-      {
-        {},
-        { dy = 1 }
-      }
+      ",,\n,1,"
     },
 
     -- H          I
@@ -37,11 +34,7 @@ local reduction_rules = {
     -- H  ----->  Z
     {
       "h\nx\nh",
-      {
-        {},
-        { dy = 1 },
-        { dy = 2, gate = z_gate() }
-      }
+      ",,\n,1,\n,2,z"
     },
 
     -- H          I
@@ -49,11 +42,7 @@ local reduction_rules = {
     -- H  ----->  X
     {
       "h\nz\nh",
-      {
-        {},
-        { dy = 1 },
-        { dy = 2, gate = x_gate() }
-      }
+      ",,\n,1,\n,2,x"
     },
 
     -- H H          I I
@@ -65,11 +54,7 @@ local reduction_rules = {
     -- H H          I I
     {
       "h,h\ncontrol,cnot_x\nh,h",
-      {
-        {}, { dx = true },
-        { dy = 1, gate = cnot_x_gate() }, { dx = true, dy = 1, gate = control_gate() },
-        { dy = 2 }, { dx = true, dy = 2 }
-      }
+      ",,\ntrue,,\n,1,cnot_x\ntrue,1,control\n,2,\ntrue,2,"
     },
 
     -- H            I
@@ -81,10 +66,7 @@ local reduction_rules = {
     -- H            I
     {
       "h\nswap,swap\ni,h",
-      {
-        {},
-        { dx = true, dy = 2 }
-      }
+      ",,\ntrue,2,"
     }
   },
 
@@ -93,21 +75,14 @@ local reduction_rules = {
     -- X  ----->  I
     {
       "x\nx",
-      {
-        {},
-        { dy = 1 }
-      }
+      ",,\n,1,"
     },
-
 
     -- X          I
     -- Z  ----->  Y
     {
       "x\nz",
-      {
-        {},
-        { dy = 1, gate = y_gate() }
-      }
+      ",,\n,1,y"
     },
 
     -- X X          I I
@@ -119,10 +94,7 @@ local reduction_rules = {
     --   X            I
     {
       "x,x\ncontrol,cnot_x\nx",
-      {
-        {}, { dx = true },
-        { dy = 2 }
-      }
+      ",,\ntrue,,\n,2,"
     },
 
     -- X            I
@@ -134,10 +106,7 @@ local reduction_rules = {
     --   X            I
     {
       "x\ncnot_x,control\nx",
-      {
-        {},
-        { dy = 2 }
-      }
+      ",,\n,2,"
     },
 
     -- X            I
@@ -149,10 +118,7 @@ local reduction_rules = {
     -- X            I
     {
       "x\nswap,swap\ni,x",
-      {
-        {},
-        { dx = true, dy = 2 }
-      }
+      ",,\ntrue,2,"
     }
   },
 
@@ -161,10 +127,7 @@ local reduction_rules = {
     -- Y  ----->  I
     {
       "y\ny",
-      {
-        {},
-        { dy = 1 }
-      }
+      ",,\n,1,"
     },
 
     -- Y            I
@@ -176,10 +139,7 @@ local reduction_rules = {
     -- Y            I
     {
       "y\nswap,swap\ni,y",
-      {
-        {},
-        { dx = true, dy = 2 }
-      }
+      ",,\ntrue,2,"
     }
   },
 
@@ -188,20 +148,14 @@ local reduction_rules = {
     -- Z  ----->  I
     {
       "z\nz",
-      {
-        {},
-        { dy = 1 }
-      }
+      ",,\n,1,"
     },
 
     -- Z          I
     -- X  ----->  Y
     {
       "z\nx",
-      {
-        {},
-        { dy = 1, gate = y_gate() }
-      }
+      ",,\n,1,y"
     },
 
     -- Z Z          I I
@@ -213,10 +167,7 @@ local reduction_rules = {
     -- Z            I
     {
       "z,z\ncontrol,cnot_x\ni,z",
-      {
-        {}, { dx = true },
-        { dx = true, dy = 2 }
-      }
+      ",,\ntrue,,\ntrue,2,"
     },
 
     -- Z            I
@@ -228,10 +179,7 @@ local reduction_rules = {
     --   Z            I
     {
       "z\ncontrol,cnot_x\nz",
-      {
-        {},
-        { dy = 2 }
-      }
+      ",,\n,2,"
     },
 
     -- Z            I
@@ -243,10 +191,7 @@ local reduction_rules = {
     -- Z            I
     {
       "z\nswap,swap\ni,z",
-      {
-        {},
-        { dx = true, dy = 2 }
-      }
+      ",,\ntrue,2,"
     }
   },
 
@@ -255,10 +200,7 @@ local reduction_rules = {
     -- S  ----->  Z
     {
       "s\ns",
-      {
-        {},
-        { dy = 1, gate = z_gate() }
-      }
+      ",,\n,1,z"
     },
 
     -- S          I
@@ -266,26 +208,19 @@ local reduction_rules = {
     -- S  ----->  X
     {
       "s\nz\ns",
-      {
-        {},
-        { dy = 1 },
-        { dy = 2, gate = z_gate() }
-      }
+      ",,\n,1,\n,2,z"
     },
 
-    -- s            Z
+    -- S            Z
     -- S-S  ----->  S-S
-    --   s            I
+    --   S            I
     --
-    --   s            Z
+    --   S            Z
     -- S-S  ----->  S-S
-    -- s            I
+    -- S            I
     {
       "s\nswap,swap\ni,s",
-      {
-        { gate = z_gate() },
-        { dx = true, dy = 2 }
-      }
+      ",,z\ntrue,2,"
     }
   },
 
@@ -294,10 +229,7 @@ local reduction_rules = {
     -- T  ----->  S
     {
       "t\nt",
-      {
-        {},
-        { dy = 1, gate = s_gate() }
-      }
+      ",,\n,1,s"
     },
 
     -- T          I
@@ -305,11 +237,7 @@ local reduction_rules = {
     -- T  ----->  Z
     {
       "t\ns\nt",
-      {
-        {},
-        { dy = 1 },
-        { dy = 2, gate = z_gate() }
-      }
+      ",,\n,1,\n,2,z"
     },
 
     -- T          I
@@ -318,12 +246,7 @@ local reduction_rules = {
     -- T  ----->  I
     {
       "t\nz\ns\nt",
-      {
-        {},
-        { dy = 1 },
-        { dy = 2 },
-        { dy = 3 }
-      }
+      ",,\n,1,\n,2,\n,3,"
     },
 
     -- T          I
@@ -332,12 +255,7 @@ local reduction_rules = {
     -- T  ----->  I
     {
       "t\ns\nz\nt",
-      {
-        {},
-        { dy = 1 },
-        { dy = 2 },
-        { dy = 3 }
-      }
+      ",,\n,1,\n,2,\n,3,"
     },
 
     -- T            S
@@ -349,10 +267,7 @@ local reduction_rules = {
     -- T            I
     {
       "t\nswap,swap\ni,t",
-      {
-        { gate = s_gate() },
-        { dx = true, dy = 2 }
-      }
+      ",,s\ntrue,2,"
     }
   },
 
@@ -364,10 +279,7 @@ local reduction_rules = {
     -- X-C  ----->  I
     {
       "control,cnot_x\ncontrol,cnot_x",
-      {
-        {}, { dx = true },
-        { dy = 1 }, { dx = true, dy = 1 }
-      }
+      ",,\ntrue,,\n,1,\ntrue,1,"
     },
 
     -- C-X          I I
@@ -379,11 +291,7 @@ local reduction_rules = {
     -- X-C  ----->  S-S
     {
       "control,cnot_x\ncnot_x,control\ncontrol,cnot_x",
-      {
-        {}, { dx = true },
-        { dy = 1 }, { dx = true, dy = 1 },
-        { dy = 2, gate = swap_gate() }, { dx = true, dy = 2, gate = swap_gate() }
-      }
+      ",,\ntrue,,\n,1,\ntrue,1,\n,2,swap\ntrue,2,swap"
     },
 
     --  C-X          I I
@@ -391,10 +299,7 @@ local reduction_rules = {
     --  X-C          I I
     {
       "control,cnot_x\nswap,swap\ncnot_x,control",
-      {
-        {}, { dx = true },
-        { dy = 2 }, { dx = true, dy = 2 }
-      }
+      ",,\ntrue,,\n,2,\ntrue,2,"
     }
   },
 
@@ -403,19 +308,39 @@ local reduction_rules = {
     -- S-S  ----->  I
     {
       "swap,swap\nswap,swap",
-      {
-        {}, { dx = true },
-        { dy = 1 }, { dx = true, dy = 1 }
-      }
-    },
+      ",,\ntrue,,\n,1,\ntrue,1,"
+    }
   }
 }
 
--- あらかじめ "control,cnot_x" などの match 文字列を split しておくことで、
--- 実行時の split をなくし高速化する
 for first_gate, rules in pairs(reduction_rules) do
   foreach(reduction_rules[first_gate], function(rule)
     rule[1] = transform(split(rule[1], "\n"), split)
+    rule[2] = transform(split(rule[2], "\n"), function(to)
+      local attrs = split(to)
+
+      local dy = attrs[2] == "" and nil or tonum(attrs[2])
+      local gate = attrs[3]
+      if gate == "" then
+        gate = nil
+      elseif gate == "x" then
+        gate = x_gate()
+      elseif gate == "y" then
+        gate = y_gate()
+      elseif gate == "z" then
+        gate = z_gate()
+      elseif gate == "s" then
+        gate = s_gate()
+      elseif gate == "control" then
+        gate = control_gate()
+      elseif gate == "cnot_x" then
+        gate = cnot_x_gate()
+      elseif gate == "swap" then
+        gate = swap_gate()
+      end
+
+      return { dx = attrs[1] ~= "", dy = dy, gate = gate }
+    end)
   end)
 end
 
