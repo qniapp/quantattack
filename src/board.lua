@@ -369,6 +369,21 @@ local reduction_rules = {
         { dy = 2, gate = swap_gate() }, { dx = true, dy = 2, gate = swap_gate() }
       }
     }
+  },
+
+  swap = {
+    -- S-S          I
+    -- S-S  ----->  I
+    {
+      match = {
+        "swap,swap",
+        "swap,swap"
+      },
+      to = {
+        {}, { dx = true },
+        { dy = 1 }, { dx = true, dy = 1 }
+      }
+    },
   }
 }
 
