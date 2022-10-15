@@ -44,8 +44,6 @@ function solo:update()
       flow:query_gamestate_type(':title')
     end
   else
-    printh(board:_tostring())
-
     if btnp(buttons.left) then
       player_cursor:sfx_move()
       player_cursor:move_left()

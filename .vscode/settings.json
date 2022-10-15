@@ -31,7 +31,9 @@
     "cursor",
     "tile_size",
     "stat",
-    "split"
+    "split",
+    "transform",
+    "tonum"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false
