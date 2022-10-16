@@ -90,6 +90,22 @@ describe('board', function()
       assert.are_equal(2, board:gate_at(1, 12).other_x)
       assert.are_equal(1, board:gate_at(2, 12).other_x)
     end)
+
+    it('おじゃまユニタリが左側にある場合、入れ替えできない', function()
+      -- !!!x__
+      board:put(1, 12, garbage_gate(3))
+      board:put(4, 12, x_gate())
+
+      assert.is_false(board:swap(3, 4, 12))
+    end)
+
+    it('おじゃまユニタリが右側にある場合、入れ替えできない', function()
+      -- __x!!!
+      board:put(3, 12, x_gate())
+      board:put(4, 12, garbage_gate(3))
+
+      assert.is_false(board:swap(3, 4, 12))
+    end)
   end)
 
   describe('reduce', function()

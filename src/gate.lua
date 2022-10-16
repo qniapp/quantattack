@@ -227,11 +227,6 @@ function gate:update(board, x, y)
       end
 
       self._state, right_gate._state = state_idle, state_idle
-
-      --#if assert
-      assert(self:is_idle())
-      assert(right_gate:is_idle())
-      --#endif
     end
   elseif self:is_dropping() then
     self._screen_dy = self._screen_dy + drop_speed
@@ -437,9 +432,9 @@ function gate:_tostring()
     return type .. "<"
   elseif self:_is_swapping_with_right() then
     return type .. ">"
-  -- elseif self:is_swapping() then -- yellow
-  --   return type .. "!"
-  --   -- return "\27[30;43m" .. type .. "\27[39;49m"
+    -- elseif self:is_swapping() then -- yellow
+    --   return type .. "!"
+    --   -- return "\27[30;43m" .. type .. "\27[39;49m"
   elseif self:is_dropping() then -- blue
     return type
     -- return "\27[37;44m" .. type .. "\27[39;49m"

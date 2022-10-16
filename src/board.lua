@@ -287,12 +287,13 @@ function board:swap(x_left, x_right, y)
   assert(1 <= y and y <= board.rows)
   --#endif
 
+  if self:is_garbage(x_left, y) or self:is_garbage(x_right, y) then
+    return false
+  end
+
   local left_gate = self:gate_at(x_left, y)
   local right_gate = self:gate_at(x_right, y)
 
-  if left_gate:is_garbage() or right_gate:is_garbage() then
-    return false
-  end
   if not (left_gate:is_idle() and right_gate:is_idle()) then
     return false
   end
@@ -358,10 +359,6 @@ end
 -- x, y が空かどうかを返す
 -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
 function board:is_empty(x, y)
-  if y > board.row_next_gates then
-    return false
-  end
-
   for tmp_x = 1, x - 1 do
     local gate = self:gate_at(tmp_x, y)
 
@@ -374,6 +371,18 @@ function board:is_empty(x, y)
   end
 
   return self:gate_at(x, y):is_empty()
+end
+
+function board:is_garbage(x, y)
+  for tmp_x = 1, x - 1 do
+    local gate = self:gate_at(tmp_x, y)
+
+    if gate:is_garbage() and x <= tmp_x + gate.span - 1 then
+      return true
+    end
+  end
+
+  return self:gate_at(x, y):is_garbage()
 end
 
 function board:reducible_gate_at(x, y)
@@ -455,7 +464,6 @@ function board:reduce(x, y, include_next_gates)
     end
 
     ::check_match::
-
     -- マッチするかチェック
     for i, types in pairs(each[1]) do
       local current_y = y + i - 1
