@@ -1,19 +1,18 @@
 require("engine/test/bustedhelper")
 require("engine/debug/dump")
+require("h_gate")
+require("x_gate")
+require("y_gate")
+require("z_gate")
+require("s_gate")
+require("t_gate")
+require("swap_gate")
+require("control_gate")
+require("cnot_x_gate")
+require("garbage_gate")
 
 local profiler = require("profiler")
-
 local board_class = require("board")
-local h_gate = require("h_gate")
-local x_gate = require("x_gate")
-local y_gate = require("y_gate")
-local z_gate = require("z_gate")
-local s_gate = require("s_gate")
-local t_gate = require("t_gate")
-local swap_gate = require("swap_gate")
-local control_gate = require("control_gate")
-local cnot_x_gate = require("cnot_x_gate")
-local garbage_gate = require("garbage_gate")
 
 describe('board', function()
   local board
@@ -130,19 +129,6 @@ describe('board', function()
   end)
 
   describe('reduce_gates', function()
-    -- reduce -> H          I
-    --           -          -
-    --           H  ----->  I (next gates)
-    -- it('should reduce HH', function()
-    --   board:put(1, 11, h_gate())
-    --   board:put(1, 12, h_gate())
-
-    --   board:reduce_gates()
-
-    --   assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
-    --   assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
-    -- end)
-
     it('should reduce HH', function()
       board:put(1, 11, h_gate())
       board:put(1, 12, h_gate())
@@ -554,6 +540,7 @@ describe('board', function()
       board:put(1, 10, h_gate())
       board:put(1, 11, swap_gate(3))
       board:put(3, 11, swap_gate(1))
+      board:put(1, 12, x_gate()) -- 適当なゴミを置いとく
       board:put(3, 12, h_gate())
 
       board:reduce_gates()

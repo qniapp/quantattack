@@ -17,6 +17,59 @@ local state_freeze = "freeze"
 
 local drop_speed = 3
 
+local sprites = {
+  h = {
+    default = 0,
+    dropped = split("16,16,16,16,48,48,32,32,32,16,16,16"),
+    match = split("9,9,9,25,25,25,9,9,9,41,41,41,0,0,0,57")
+  },
+  x = {
+    default = 1,
+    dropped = split("17,17,17,17,49,49,33,33,33,17,17,17"),
+    match = split("10,10,10,26,26,26,10,10,10,42,42,42,1,1,1,58")
+  },
+  y = {
+    default = 2,
+    dropped = split("18,18,18,18,50,50,34,34,34,18,18,18"),
+    match = split("11,11,11,27,27,27,11,11,11,43,43,43,2,2,2,59")
+  },
+  z = {
+    default = 3,
+    dropped = split("19,19,19,19,51,51,35,35,35,19,19,19"),
+    match = split("12,12,12,28,28,28,12,12,12,44,44,44,3,3,3,60")
+  },
+  s = {
+    default = 4,
+    dropped = split("20,20,20,20,52,52,36,36,36,20,20,20"),
+    match = split("13,13,13,29,29,29,13,13,13,45,45,45,4,4,4,61")
+  },
+  t = {
+    default = 5,
+    dropped = split("21,21,21,21,53,53,37,37,37,21,21,21"),
+    match = split("14,14,14,30,30,30,14,14,14,46,46,46,5,5,5,62")
+  },
+  control = {
+    default = 6,
+    dropped = split("22,22,22,22,54,54,38,38,38,22,22,22"),
+    match = split("15,15,15,31,31,31,15,15,15,47,47,47,6,6,6,63")
+  },
+  cnot_x = {
+    default = 7,
+    dropped = split("23,23,23,23,55,55,39,39,39,23,23,23"),
+    match = split("64,64,64,80,80,80,64,64,64,96,96,96,7,7,7,112")
+  },
+  swap = {
+    default = 8,
+    dropped = split("24,24,24,24,56,56,40,40,40,24,24,24"),
+    match = split("65,65,65,81,81,81,65,65,65,97,97,97,8,8,8,113")
+  },
+  ["!"] = {
+    default = 85,
+    dropped = split("85,85,85,85,85,85,85,85,85,85,85,85"),
+    match = split("85,85,85,85,85,85,85,85,85,85,85,85,85,85,85,85")
+  },
+}
+
 function gate:_init(type, span)
   self._type = type
   self.span = span or 1
@@ -293,12 +346,12 @@ end
 
 function gate:_sprite()
   if self:is_idle() and self._tick_dropped then
-    return self.sprites.dropped[self._tick_dropped]
+    return sprites[self._type].dropped[self._tick_dropped]
   elseif self:is_match() then
-    local sequence = self.sprites.match
+    local sequence = sprites[self._type].match
     return self._tick_match <= 15 and sequence[self._tick_match] or sequence[#sequence]
   else
-    return self.sprites.default
+    return sprites[self._type].default
   end
 end
 

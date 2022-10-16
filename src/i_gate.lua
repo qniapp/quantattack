@@ -1,10 +1,5 @@
-require("engine/core/class")
-
 local gate = require("gate")
-local i_gate = derived_class(gate)
 
-function i_gate:_init()
-  gate._init(self, 'i')
+function i_gate()
+  return gate('i')
 end
-
-return i_gate

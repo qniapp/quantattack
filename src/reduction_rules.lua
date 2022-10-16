@@ -1,11 +1,3 @@
-local x_gate = require("x_gate")
-local y_gate = require("y_gate")
-local z_gate = require("z_gate")
-local s_gate = require("s_gate")
-local control_gate = require("control_gate")
-local cnot_x_gate = require("cnot_x_gate")
-local swap_gate = require("swap_gate")
-
 local reduction_rules = {
   h = {
     -- H          I
@@ -51,7 +43,7 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- H            I
     {
-      "h\nswap,swap\ni,h",
+      "h\nswap,swap\n?,h",
       ",,\ntrue,2,"
     }
   },
@@ -103,7 +95,7 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- X            I
     {
-      "x\nswap,swap\ni,x",
+      "x\nswap,swap\n?,x",
       ",,\ntrue,2,"
     }
   },
@@ -124,7 +116,7 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- Y            I
     {
-      "y\nswap,swap\ni,y",
+      "y\nswap,swap\n?,y",
       ",,\ntrue,2,"
     }
   },
@@ -152,7 +144,7 @@ local reduction_rules = {
     -- X-C  ----->  X-C
     -- Z            I
     {
-      "z,z\ncontrol,cnot_x\ni,z",
+      "z,z\ncontrol,cnot_x\n?,z",
       ",,\ntrue,,\ntrue,2,"
     },
 
@@ -176,7 +168,7 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- Z            I
     {
-      "z\nswap,swap\ni,z",
+      "z\nswap,swap\n?,z",
       ",,\ntrue,2,"
     }
   },
@@ -205,7 +197,7 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- S            I
     {
-      "s\nswap,swap\ni,s",
+      "s\nswap,swap\n?,s",
       ",,z\ntrue,2,"
     }
   },
@@ -252,7 +244,7 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- T            I
     {
-      "t\nswap,swap\ni,t",
+      "t\nswap,swap\n?,t",
       ",,s\ntrue,2,"
     }
   },
@@ -299,19 +291,6 @@ local reduction_rules = {
   }
 }
 
-local function gate_class(type)
-  local classes = {
-    x = x_gate,
-    y = y_gate,
-    z = z_gate,
-    s = s_gate,
-    control = control_gate,
-    cnot_x = cnot_x_gate,
-    swap = swap_gate
-  }
-  return classes[type]
-end
-
 for first_gate, rules in pairs(reduction_rules) do
   foreach(reduction_rules[first_gate], function(rule)
     rule[1] = transform(split(rule[1], "\n"), split)
@@ -320,10 +299,10 @@ for first_gate, rules in pairs(reduction_rules) do
 
       -- 簡約でできるゲートはすべて異なるオブジェクトでなくてはならないので、
       -- ルールにはゲートオブジェクトを入れるのではなく、
-      -- ゲートのクラス (gate_class) を入れ、board 側で new する
+      -- ゲートのタイプ (gate_type) を入れ、board 側で new する
       return { dx = attrs[1] ~= "",
         dy = attrs[2] == "" and nil or tonum(attrs[2]),
-        gate_class = gate_class(attrs[3]) }
+        gate_type = attrs[3] == "" and 'i' or attrs[3] }
     end)
   end)
 end
