@@ -43,7 +43,7 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- H            I
     {
-      "h\nswap,swap\ni,h",
+      "h\nswap,swap\n?,h",
       ",,\ntrue,2,"
     }
   },
@@ -95,7 +95,7 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- X            I
     {
-      "x\nswap,swap\ni,x",
+      "x\nswap,swap\n?,x",
       ",,\ntrue,2,"
     }
   },
@@ -116,7 +116,7 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- Y            I
     {
-      "y\nswap,swap\ni,y",
+      "y\nswap,swap\n?,y",
       ",,\ntrue,2,"
     }
   },
@@ -144,7 +144,7 @@ local reduction_rules = {
     -- X-C  ----->  X-C
     -- Z            I
     {
-      "z,z\ncontrol,cnot_x\ni,z",
+      "z,z\ncontrol,cnot_x\n?,z",
       ",,\ntrue,,\ntrue,2,"
     },
 
@@ -168,7 +168,7 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- Z            I
     {
-      "z\nswap,swap\ni,z",
+      "z\nswap,swap\n?,z",
       ",,\ntrue,2,"
     }
   },
@@ -197,7 +197,7 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- S            I
     {
-      "s\nswap,swap\ni,s",
+      "s\nswap,swap\n?,s",
       ",,z\ntrue,2,"
     }
   },
@@ -244,7 +244,7 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- T            I
     {
-      "t\nswap,swap\ni,t",
+      "t\nswap,swap\n?,t",
       ",,s\ntrue,2,"
     }
   },

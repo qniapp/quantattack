@@ -458,7 +458,7 @@ function board:reduce(x, y, include_next_gates)
       local current_y = y + i - 1
 
       local current_gate = self:reducible_gate_at(x, current_y)
-      if current_gate._type ~= types[1] then
+      if types[1] ~= "?" and current_gate._type ~= types[1] then
         goto next
       end
 

@@ -540,6 +540,7 @@ describe('board', function()
       board:put(1, 10, h_gate())
       board:put(1, 11, swap_gate(3))
       board:put(3, 11, swap_gate(1))
+      board:put(1, 12, x_gate()) -- 適当なゴミを置いとく
       board:put(3, 12, h_gate())
 
       board:reduce_gates()
