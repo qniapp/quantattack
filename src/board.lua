@@ -130,25 +130,23 @@ function board:reduce_gates()
 
   for y = 1, board.rows do
     for x = 1, board.cols do
-      if self._gates[x][y]:is_reducible() then
-        local reduction = self:reduce(x, y)
-        score = score + (#reduction.to == 0 and 0 or (reduction.score or 1)) -- デフォルト 100 点
+      local reduction = self:reduce(x, y)
+      score = score + (#reduction.to == 0 and 0 or (reduction.score or 1)) -- デフォルト 100 点
 
-        for index, r in pairs(reduction.to) do
-          local dx = r.dx and reduction.dx or 0
-          local dy = r.dy or 0
-          local gate = gate_class(r.gate_type)
+      for index, r in pairs(reduction.to) do
+        local dx = r.dx and reduction.dx or 0
+        local dy = r.dy or 0
+        local gate = gate_class(r.gate_type)
 
-          if gate:is_swap() or gate:is_cnot_x() or gate:is_control() then
-            if r.dx then
-              gate.other_x = x
-            else
-              gate.other_x = x + reduction.dx
-            end
+        if gate:is_swap() or gate:is_cnot_x() or gate:is_control() then
+          if r.dx then
+            gate.other_x = x
+          else
+            gate.other_x = x + reduction.dx
           end
-
-          self._gates[x + dx][y + dy]:replace_with(gate, index)
         end
+
+        self._gates[x + dx][y + dy]:replace_with(gate, index)
       end
     end
   end
@@ -434,8 +432,11 @@ end
 
 function board:reduce(x, y, include_next_gates)
   local reduction = { to = {} }
+  local gate = self._gates[x][y]
 
-  local rules = reduction_rules[self._gates[x][y]._type]
+  if not gate:is_reducible() then return reduction end
+
+  local rules = reduction_rules[gate._type]
   if not rules then return reduction end
 
   for _, rule in pairs(rules) do
