@@ -623,17 +623,18 @@ describe('board', function()
     --  S-S  ----->  S-S
     --    Z            I
     it('should reduce Z S-S Z', function()
-      board:put(1, 10, z_gate())
-      board:put(1, 11, swap_gate(3))
-      board:put(3, 11, swap_gate(1))
-      board:put(3, 12, z_gate())
+      board:put(2, 10, z_gate())
+      board:put(2, 11, swap_gate(4))
+      board:put(4, 11, swap_gate(2))
+      board:put(2, 12, cnot_x_gate(1)) -- 適当なゴミを置いとく
+      board:put(4, 12, z_gate())
 
       board:reduce_gates()
 
-      assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
-      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+      assert.is_true(board:gate_at(2, 10)._reduce_to:is_i())
+      assert.is_true(board:gate_at(2, 11):is_swap())
+      assert.is_true(board:gate_at(4, 11):is_swap())
+      assert.is_true(board:gate_at(4, 12)._reduce_to:is_i())
     end)
 
     --  s            Z

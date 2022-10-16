@@ -446,12 +446,15 @@ function board:reduce(x, y, include_next_gates)
           if current_gate._type == types[1] then
             other_x = current_gate.other_x
             dx = other_x - x
+            goto check_match
           else
             goto next
           end
         end
       end
     end
+
+    ::check_match::
 
     -- マッチするかチェック
     for i, types in pairs(each[1]) do
