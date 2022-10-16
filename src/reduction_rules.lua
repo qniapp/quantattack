@@ -12,7 +12,8 @@ local reduction_rules = {
     -- H  ----->  Z
     {
       "h\nx\nh",
-      ",,\n,1,\n,2,z"
+      ",,\n,1,\n,2,z",
+      3
     },
 
     -- H          I
@@ -20,7 +21,8 @@ local reduction_rules = {
     -- H  ----->  X
     {
       "h\nz\nh",
-      ",,\n,1,\n,2,x"
+      ",,\n,1,\n,2,x",
+      3
     },
 
     -- H H          I I
@@ -32,7 +34,8 @@ local reduction_rules = {
     -- H H          I I
     {
       "h,h\ncontrol,cnot_x\nh,h",
-      ",,\ntrue,,\n,1,cnot_x\ntrue,1,control\n,2,\ntrue,2,"
+      ",,\ntrue,,\n,1,cnot_x\ntrue,1,control\n,2,\ntrue,2,",
+      10
     },
 
     -- H            I
@@ -44,7 +47,8 @@ local reduction_rules = {
     -- H            I
     {
       "h\nswap,swap\n?,h",
-      ",,\ntrue,2,"
+      ",,\ntrue,2,",
+      5
     }
   },
 
@@ -60,7 +64,8 @@ local reduction_rules = {
     -- Z  ----->  Y
     {
       "x\nz",
-      ",,\n,1,y"
+      ",,\n,1,y",
+      2
     },
 
     -- X X          I I
@@ -72,7 +77,8 @@ local reduction_rules = {
     --   X            I
     {
       "x,x\ncontrol,cnot_x\nx",
-      ",,\ntrue,,\n,2,"
+      ",,\ntrue,,\n,2,",
+      8
     },
 
     -- X            I
@@ -84,7 +90,8 @@ local reduction_rules = {
     --   X            I
     {
       "x\ncnot_x,control\nx",
-      ",,\n,2,"
+      ",,\n,2,",
+      6
     },
 
     -- X            I
@@ -96,7 +103,8 @@ local reduction_rules = {
     -- X            I
     {
       "x\nswap,swap\n?,x",
-      ",,\ntrue,2,"
+      ",,\ntrue,2,",
+      5
     }
   },
 
@@ -117,7 +125,8 @@ local reduction_rules = {
     -- Y            I
     {
       "y\nswap,swap\n?,y",
-      ",,\ntrue,2,"
+      ",,\ntrue,2,",
+      5
     }
   },
 
@@ -133,7 +142,8 @@ local reduction_rules = {
     -- X  ----->  Y
     {
       "z\nx",
-      ",,\n,1,y"
+      ",,\n,1,y",
+      2
     },
 
     -- Z Z          I I
@@ -145,7 +155,8 @@ local reduction_rules = {
     -- Z            I
     {
       "z,z\ncontrol,cnot_x\n?,z",
-      ",,\ntrue,,\ntrue,2,"
+      ",,\ntrue,,\ntrue,2,",
+      8
     },
 
     -- Z            I
@@ -157,7 +168,8 @@ local reduction_rules = {
     --   Z            I
     {
       "z\ncontrol,cnot_x\nz",
-      ",,\n,2,"
+      ",,\n,2,",
+      6
     },
 
     -- Z            I
@@ -169,7 +181,8 @@ local reduction_rules = {
     -- Z            I
     {
       "z\nswap,swap\n?,z",
-      ",,\ntrue,2,"
+      ",,\ntrue,2,",
+      5
     }
   },
 
@@ -186,7 +199,8 @@ local reduction_rules = {
     -- S  ----->  X
     {
       "s\nz\ns",
-      ",,\n,1,\n,2,z"
+      ",,\n,1,\n,2,z",
+      3
     },
 
     -- S            Z
@@ -198,7 +212,8 @@ local reduction_rules = {
     -- S            I
     {
       "s\nswap,swap\n?,s",
-      ",,z\ntrue,2,"
+      ",,z\ntrue,2,",
+      5
     }
   },
 
@@ -215,7 +230,8 @@ local reduction_rules = {
     -- T  ----->  Z
     {
       "t\ns\nt",
-      ",,\n,1,\n,2,z"
+      ",,\n,1,\n,2,z",
+      3
     },
 
     -- T          I
@@ -224,7 +240,8 @@ local reduction_rules = {
     -- T  ----->  I
     {
       "t\nz\ns\nt",
-      ",,\n,1,\n,2,\n,3,"
+      ",,\n,1,\n,2,\n,3,",
+      4
     },
 
     -- T          I
@@ -233,7 +250,8 @@ local reduction_rules = {
     -- T  ----->  I
     {
       "t\ns\nz\nt",
-      ",,\n,1,\n,2,\n,3,"
+      ",,\n,1,\n,2,\n,3,",
+      4
     },
 
     -- T            S
@@ -245,7 +263,8 @@ local reduction_rules = {
     -- T            I
     {
       "t\nswap,swap\n?,t",
-      ",,s\ntrue,2,"
+      ",,s\ntrue,2,",
+      5
     }
   },
 
@@ -257,7 +276,8 @@ local reduction_rules = {
     -- X-C  ----->  I
     {
       "control,cnot_x\ncontrol,cnot_x",
-      ",,\ntrue,,\n,1,\ntrue,1,"
+      ",,\ntrue,,\n,1,\ntrue,1,",
+      5
     },
 
     -- C-X          I I
@@ -269,7 +289,8 @@ local reduction_rules = {
     -- X-C  ----->  S-S
     {
       "control,cnot_x\ncnot_x,control\ncontrol,cnot_x",
-      ",,\ntrue,,\n,1,\ntrue,1,\n,2,swap\ntrue,2,swap"
+      ",,\ntrue,,\n,1,\ntrue,1,\n,2,swap\ntrue,2,swap",
+      10
     },
 
     --  C-X          I I
@@ -277,7 +298,8 @@ local reduction_rules = {
     --  X-C          I I
     {
       "control,cnot_x\nswap,swap\ncnot_x,control",
-      ",,\ntrue,,\n,2,\ntrue,2,"
+      ",,\ntrue,,\n,2,\ntrue,2,",
+      10
     }
   },
 
@@ -286,7 +308,8 @@ local reduction_rules = {
     -- S-S  ----->  I
     {
       "swap,swap\nswap,swap",
-      ",,\ntrue,,\n,1,\ntrue,1,"
+      ",,\ntrue,,\n,1,\ntrue,1,",
+      30
     }
   }
 }
@@ -300,9 +323,11 @@ for first_gate, rules in pairs(reduction_rules) do
       -- 簡約でできるゲートはすべて異なるオブジェクトでなくてはならないので、
       -- ルールにはゲートオブジェクトを入れるのではなく、
       -- ゲートのタイプ (gate_type) を入れ、board 側で new する
-      return { dx = attrs[1] ~= "",
+      return {
+        dx = attrs[1] ~= "",
         dy = attrs[2] == "" and nil or tonum(attrs[2]),
-        gate_type = attrs[3] == "" and 'i' or attrs[3] }
+        gate_type = attrs[3] == "" and 'i' or attrs[3]
+      }
     end)
   end)
 end

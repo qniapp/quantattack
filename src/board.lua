@@ -131,7 +131,7 @@ function board:reduce_gates()
   for y = 1, board.rows do
     for x = 1, board.cols do
       local reduction = self:reduce(x, y)
-      score = score + (#reduction.to == 0 and 0 or (reduction.score or 1)) -- デフォルト 100 点
+      score = score + (#reduction.to == 0 and 0 or reduction.score)
 
       for index, r in pairs(reduction.to) do
         local dx = r.dx and reduction.dx or 0
@@ -431,7 +431,7 @@ end
 -------------------------------------------------------------------------------
 
 function board:reduce(x, y, include_next_gates)
-  local reduction = { to = {} }
+  local reduction = { to = {}, score = 0 }
   local gate = self._gates[x][y]
 
   if not gate:is_reducible() then return reduction end
@@ -480,7 +480,7 @@ function board:reduce(x, y, include_next_gates)
       end
     end
 
-    reduction = { to = rule[2], dx = dx }
+    reduction = { to = rule[2], dx = dx, score = rule[3] or 1 }
     goto matched
 
     ::next_rule::

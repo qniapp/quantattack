@@ -109,9 +109,9 @@ function solo:render() -- override
   puff_particle:render()
 
   if board:is_game_over() then
-    ui.draw_rounded_box(10, 47, 117, 70, colors.dark_gray, colors.white)
-    ui.print_centered("game over", 64, 55, colors.red)
-    ui.print_centered("push x to replay", 64, 63, colors.black)
+    ui.draw_rounded_box(10, 55, 117, 78, colors.dark_gray, colors.white)
+    ui.print_centered("game over", 64, 63, colors.red)
+    ui.print_centered("push x to replay", 64, 71, colors.black)
   end
 
   color(colors.white)
