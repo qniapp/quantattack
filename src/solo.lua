@@ -114,13 +114,11 @@ function solo:render() -- override
     ui.print_centered("push x to replay", 64, 63, colors.black)
   end
 
-  --#if debug
   color(colors.white)
   cursor(1, 1)
   print(stat(1))
   cursor(1, 8)
   print(stat(7))
-  --#endif
 end
 
 function solo:render_score()

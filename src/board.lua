@@ -70,7 +70,7 @@ end
 function board:is_busy()
   for x = 1, self.cols do
     for y = 1, self.row_next_gates do
-      if not self:gate_at(x, y):is_idle() then
+      if not self._gates[x][y]:is_idle() then
         return true
       end
     end
@@ -83,7 +83,7 @@ function board:insert_gates_at_bottom(steps)
   -- 各ゲートを 1 つ上にずらす
   for y = 1, self.row_next_gates - 1 do
     for x = 1, self.cols do
-      self:put(x, y, self:gate_at(x, y + 1))
+      self:put(x, y, self._gates[x][y + 1])
       self:remove_gate(x, y + 1)
     end
   end
@@ -130,32 +130,31 @@ function board:reduce_gates()
 
   for y = 1, board.rows do
     for x = 1, board.cols do
-      if self:gate_at(x, y):is_reducible() then
-        local reduction = self:reduce(x, y)
-        score = score + (#reduction.to == 0 and 0 or (reduction.score or 1)) -- デフォルト 100 点
+      local reduction = self:reduce(x, y)
+      score = score + (#reduction.to == 0 and 0 or (reduction.score or 1)) -- デフォルト 100 点
 
-        for index, r in pairs(reduction.to) do
-          local dx = r.dx and reduction.dx or 0
-          local dy = r.dy or 0
-          local gate = gate_class(r.gate_type)
+      for index, r in pairs(reduction.to) do
+        local dx = r.dx and reduction.dx or 0
+        local dy = r.dy or 0
+        local gate = gate_class(r.gate_type)
 
-          if gate:is_swap() or gate:is_cnot_x() or gate:is_control() then
-            if r.dx then
-              gate.other_x = x
-            else
-              gate.other_x = x + reduction.dx
-            end
+        if gate:is_swap() or gate:is_cnot_x() or gate:is_control() then
+          if r.dx then
+            gate.other_x = x
+          else
+            gate.other_x = x + reduction.dx
           end
-
-          self:gate_at(x + dx, y + dy):replace_with(gate, index)
         end
+
+        self._gates[x + dx][y + dy]:replace_with(gate, index)
       end
     end
   end
 
+  -- おじゃまゲートのマッチ
   for y = board.rows, 1, -1 do
     for x = 1, board.cols do
-      local gate = self:gate_at(x, y)
+      local gate = self._gates[x][y]
       local match = false
 
       if gate:is_garbage() then
@@ -184,7 +183,7 @@ end
 function board:drop_gates()
   for y = board.rows - 1, 1, -1 do
     for x = 1, board.cols do
-      local gate = self:gate_at(x, y)
+      local gate = self._gates[x][y]
 
       if gate:is_droppable() and self:is_gate_droppable(x, y) then
         if gate.other_x then
@@ -236,7 +235,7 @@ function board:_update_gates()
   -- 一番下の行から上に向かって順番に update していく
   for y = board.row_next_gates, 1, -1 do
     for x = 1, board.cols do
-      self:gate_at(x, y):update(self, x, y)
+      self._gates[x][y]:update(self, x, y)
     end
   end
 end
@@ -253,7 +252,7 @@ function board:render()
   -- draw idle gates
   for x = 1, board.cols do
     for y = 1, board.row_next_gates do
-      local gate = self:gate_at(x, y)
+      local gate = self._gates[x][y]
       local screen_x = self:screen_x(x)
       local screen_y = self:screen_y(y) + self:dy()
 
@@ -360,7 +359,7 @@ end
 -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
 function board:is_empty(x, y)
   for tmp_x = 1, x - 1 do
-    local gate = self:gate_at(tmp_x, y)
+    local gate = self._gates[tmp_x][y]
 
     if gate:is_garbage() and (not gate:is_empty()) and x <= tmp_x + gate.span - 1 then
       return false
@@ -370,7 +369,7 @@ function board:is_empty(x, y)
     end
   end
 
-  return self:gate_at(x, y):is_empty()
+  return self._gates[x][y]:is_empty()
 end
 
 function board:is_garbage(x, y)
@@ -386,12 +385,9 @@ function board:is_garbage(x, y)
 end
 
 function board:reducible_gate_at(x, y)
-  local gate = self:gate_at(x, y)
+  local gate = self._gates[x][y]
 
-  if gate:is_reducible() then
-    return gate
-  end
-  return i_gate()
+  return gate:is_reducible() and gate or i_gate()
 end
 
 function board:put(x, y, gate)
@@ -436,28 +432,35 @@ end
 
 function board:reduce(x, y, include_next_gates)
   local reduction = { to = {} }
-  local dx
+  local gate = self._gates[x][y]
 
-  for _, each in pairs(reduction_rules[self:gate_at(x, y)._type] or {}) do
-    -- other_x を決める
-    local other_x = nil
+  if not gate:is_reducible() then return reduction end
 
-    if (include_next_gates and y + #each[1] - 1 > self.row_next_gates) or
-        (not include_next_gates and y + #each[1] - 1 > self.rows) then
-      goto next
+  local rules = reduction_rules[gate._type]
+  if not rules then return reduction end
+
+  for _, rule in pairs(rules) do
+    -- other_x と dx を決める
+    local gate_pattern_rows = rule[1]
+    local other_x
+    local dx
+
+    if (include_next_gates and y + #gate_pattern_rows - 1 > self.row_next_gates) or
+        (not include_next_gates and y + #gate_pattern_rows - 1 > self.rows) then
+      goto next_rule
     end
 
-    for i, types in pairs(each[1]) do
-      if #types == 2 then
+    for i, gates in pairs(gate_pattern_rows) do
+      if gates[2] then
         local current_gate = self:reducible_gate_at(x, y + i - 1)
 
         if current_gate.other_x then
-          if current_gate._type == types[1] then
+          if current_gate._type == gates[1] then
             other_x = current_gate.other_x
             dx = other_x - x
             goto check_match
           else
-            goto next
+            goto next_rule
           end
         end
       end
@@ -465,49 +468,26 @@ function board:reduce(x, y, include_next_gates)
 
     ::check_match::
     -- マッチするかチェック
-    for i, types in pairs(each[1]) do
+    for i, gates in pairs(gate_pattern_rows) do
       local current_y = y + i - 1
 
-      local current_gate = self:reducible_gate_at(x, current_y)
-      if types[1] ~= "?" and current_gate._type ~= types[1] then
-        goto next
+      if gates[1] ~= "?" and self:reducible_gate_at(x, current_y)._type ~= gates[1] then
+        goto next_rule
       end
 
-      if types[2] and other_x then
-        local current_other_gate = self:reducible_gate_at(other_x, current_y)
-        if current_other_gate._type ~= types[2] then
-          goto next
-        end
+      if gates[2] and other_x and self:reducible_gate_at(other_x, current_y)._type ~= gates[2] then
+        goto next_rule
       end
     end
 
-    reduction = { to = each[2], dx = dx }
+    reduction = { to = rule[2], dx = dx }
     goto matched
 
-    ::next::
+    ::next_rule::
   end
 
   ::matched::
   return reduction
-
-  -- -- Z            I
-  -- -- H X          H I
-  -- -- X-C  ----->  X-C
-  -- -- H X          H I
-  -- local x2 = gate_y2.other_x
-  -- if y <= 9 and
-  --     gate:is_z() and
-  --     gate_y1:is_h() and gate_y2:is_cnot_x() and self:reducible_gate_at(x2, y1):is_x() and
-  --     self:reducible_gate_at(x2, y2):is_control() and
-  --     self:reducible_gate_at(x, y3):is_h() and self:reducible_gate_at(x2, y3):is_x() then
-  --   local dx = gate_y2.other_x - x
-  --   return {
-  --     score = 8,
-  --     to = { {},
-  --       { dx = dx, dy = 1 },
-  --       { dx = dx, dy = 3 } }
-  --   }
-  -- end
 end
 
 function board:is_game_over()
