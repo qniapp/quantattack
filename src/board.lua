@@ -70,7 +70,7 @@ end
 function board:is_busy()
   for x = 1, self.cols do
     for y = 1, self.row_next_gates do
-      if not self:gate_at(x, y):is_idle() then
+      if not self._gates[x][y]:is_idle() then
         return true
       end
     end
@@ -83,7 +83,7 @@ function board:insert_gates_at_bottom(steps)
   -- 各ゲートを 1 つ上にずらす
   for y = 1, self.row_next_gates - 1 do
     for x = 1, self.cols do
-      self:put(x, y, self:gate_at(x, y + 1))
+      self:put(x, y, self._gates[x][y + 1])
       self:remove_gate(x, y + 1)
     end
   end
@@ -130,7 +130,7 @@ function board:reduce_gates()
 
   for y = 1, board.rows do
     for x = 1, board.cols do
-      if self:gate_at(x, y):is_reducible() then
+      if self._gates[x][y]:is_reducible() then
         local reduction = self:reduce(x, y)
         score = score + (#reduction.to == 0 and 0 or (reduction.score or 1)) -- デフォルト 100 点
 
@@ -147,15 +147,16 @@ function board:reduce_gates()
             end
           end
 
-          self:gate_at(x + dx, y + dy):replace_with(gate, index)
+          self._gates[x + dx][y + dy]:replace_with(gate, index)
         end
       end
     end
   end
 
+  -- おじゃまゲートのマッチ
   for y = board.rows, 1, -1 do
     for x = 1, board.cols do
-      local gate = self:gate_at(x, y)
+      local gate = self._gates[x][y]
       local match = false
 
       if gate:is_garbage() then
@@ -184,7 +185,7 @@ end
 function board:drop_gates()
   for y = board.rows - 1, 1, -1 do
     for x = 1, board.cols do
-      local gate = self:gate_at(x, y)
+      local gate = self._gates[x][y]
 
       if gate:is_droppable() and self:is_gate_droppable(x, y) then
         if gate.other_x then
@@ -236,7 +237,7 @@ function board:_update_gates()
   -- 一番下の行から上に向かって順番に update していく
   for y = board.row_next_gates, 1, -1 do
     for x = 1, board.cols do
-      self:gate_at(x, y):update(self, x, y)
+      self._gates[x][y]:update(self, x, y)
     end
   end
 end
@@ -253,7 +254,7 @@ function board:render()
   -- draw idle gates
   for x = 1, board.cols do
     for y = 1, board.row_next_gates do
-      local gate = self:gate_at(x, y)
+      local gate = self._gates[x][y]
       local screen_x = self:screen_x(x)
       local screen_y = self:screen_y(y) + self:dy()
 
@@ -360,7 +361,7 @@ end
 -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
 function board:is_empty(x, y)
   for tmp_x = 1, x - 1 do
-    local gate = self:gate_at(tmp_x, y)
+    local gate = self._gates[tmp_x][y]
 
     if gate:is_garbage() and (not gate:is_empty()) and x <= tmp_x + gate.span - 1 then
       return false
@@ -370,7 +371,7 @@ function board:is_empty(x, y)
     end
   end
 
-  return self:gate_at(x, y):is_empty()
+  return self._gates[x][y]:is_empty()
 end
 
 function board:is_garbage(x, y)
@@ -386,12 +387,9 @@ function board:is_garbage(x, y)
 end
 
 function board:reducible_gate_at(x, y)
-  local gate = self:gate_at(x, y)
+  local gate = self._gates[x][y]
 
-  if gate:is_reducible() then
-    return gate
-  end
-  return i_gate()
+  return gate:is_reducible() and gate or i_gate()
 end
 
 function board:put(x, y, gate)
@@ -452,7 +450,7 @@ function board:reduce(x, y, include_next_gates)
     end
 
     for i, gates in pairs(gate_pattern_rows) do
-      if #gates == 2 then
+      if gates[2] then
         local current_gate = self:reducible_gate_at(x, y + i - 1)
 
         if current_gate.other_x then
