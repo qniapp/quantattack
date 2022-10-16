@@ -250,7 +250,8 @@ function gate:update(board, x, y)
       end
     else
       -- 一個下が空いていない場合、落下を終了する
-      sfx(self:is_garbage() and 1 or 4)
+      sfx((self:is_garbage() and not self._garbage_drop_sfx_played) and 1 or 4)
+      self._garbage_drop_sfx_played = true
 
       self._screen_dy = 0
       self._state = state_idle
