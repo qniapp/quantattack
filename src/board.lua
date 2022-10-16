@@ -436,28 +436,32 @@ end
 
 function board:reduce(x, y, include_next_gates)
   local reduction = { to = {} }
-  local dx
 
-  for _, each in pairs(reduction_rules[self:gate_at(x, y)._type] or {}) do
-    -- other_x を決める
-    local other_x = nil
+  local rules = reduction_rules[self._gates[x][y]._type]
+  if not rules then return reduction end
 
-    if (include_next_gates and y + #each[1] - 1 > self.row_next_gates) or
-        (not include_next_gates and y + #each[1] - 1 > self.rows) then
-      goto next
+  for _, rule in pairs(rules) do
+    -- other_x と dx を決める
+    local gate_pattern_rows = rule[1]
+    local other_x
+    local dx
+
+    if (include_next_gates and y + #gate_pattern_rows - 1 > self.row_next_gates) or
+        (not include_next_gates and y + #gate_pattern_rows - 1 > self.rows) then
+      goto next_rule
     end
 
-    for i, types in pairs(each[1]) do
-      if #types == 2 then
+    for i, gates in pairs(gate_pattern_rows) do
+      if #gates == 2 then
         local current_gate = self:reducible_gate_at(x, y + i - 1)
 
         if current_gate.other_x then
-          if current_gate._type == types[1] then
+          if current_gate._type == gates[1] then
             other_x = current_gate.other_x
             dx = other_x - x
             goto check_match
           else
-            goto next
+            goto next_rule
           end
         end
       end
@@ -465,49 +469,26 @@ function board:reduce(x, y, include_next_gates)
 
     ::check_match::
     -- マッチするかチェック
-    for i, types in pairs(each[1]) do
+    for i, gates in pairs(gate_pattern_rows) do
       local current_y = y + i - 1
 
-      local current_gate = self:reducible_gate_at(x, current_y)
-      if types[1] ~= "?" and current_gate._type ~= types[1] then
-        goto next
+      if gates[1] ~= "?" and self:reducible_gate_at(x, current_y)._type ~= gates[1] then
+        goto next_rule
       end
 
-      if types[2] and other_x then
-        local current_other_gate = self:reducible_gate_at(other_x, current_y)
-        if current_other_gate._type ~= types[2] then
-          goto next
-        end
+      if gates[2] and other_x and self:reducible_gate_at(other_x, current_y)._type ~= gates[2] then
+        goto next_rule
       end
     end
 
-    reduction = { to = each[2], dx = dx }
+    reduction = { to = rule[2], dx = dx }
     goto matched
 
-    ::next::
+    ::next_rule::
   end
 
   ::matched::
   return reduction
-
-  -- -- Z            I
-  -- -- H X          H I
-  -- -- X-C  ----->  X-C
-  -- -- H X          H I
-  -- local x2 = gate_y2.other_x
-  -- if y <= 9 and
-  --     gate:is_z() and
-  --     gate_y1:is_h() and gate_y2:is_cnot_x() and self:reducible_gate_at(x2, y1):is_x() and
-  --     self:reducible_gate_at(x2, y2):is_control() and
-  --     self:reducible_gate_at(x, y3):is_h() and self:reducible_gate_at(x2, y3):is_x() then
-  --   local dx = gate_y2.other_x - x
-  --   return {
-  --     score = 8,
-  --     to = { {},
-  --       { dx = dx, dy = 1 },
-  --       { dx = dx, dy = 3 } }
-  --   }
-  -- end
 end
 
 function board:is_game_over()
