@@ -233,6 +233,10 @@ function gate:update(board, x, y)
     local new_screen_y = board:screen_y(y) + self._screen_dy
     local new_y = board:y(new_screen_y)
 
+    --#if assert
+    assert(1 <= new_y and new_y <= board.row_next_gates, "new_y = " .. new_y)
+    --#endif
+
     if new_y == y then
       -- 同じ場所にとどまっているので、何もしない
     elseif board:is_gate_droppable(x, y, new_y) and new_y <= board.rows then

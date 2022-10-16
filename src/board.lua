@@ -209,11 +209,12 @@ function board:is_gate_droppable(gate_x, gate_y, y)
   assert(gate_y <= board.row_next_gates)
   --#endif
 
-  if gate_y == board.row_next_gates then
+  if gate_y == board.row_next_gates or y == board.row_next_gates then
     return false
   end
 
-  local gate, start_x, end_x = self:gate_at(gate_x, gate_y)
+  local gate = self:gate_at(gate_x, gate_y)
+  local start_x, end_x
 
   if gate.other_x then
     start_x, end_x = min(gate_x, gate.other_x), max(gate_x, gate.other_x)

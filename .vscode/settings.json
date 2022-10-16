@@ -50,7 +50,16 @@
     "y_gate",
     "z_gate",
     "character_height",
-    "screen_width"
+    "screen_width",
+    "btn",
+    "new_struct",
+    "setup",
+    "stub",
+    "teardown",
+    "after_each",
+    "button_ids",
+    "btn_states",
+    "match"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false

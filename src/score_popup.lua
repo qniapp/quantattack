@@ -1,6 +1,6 @@
 score_popup = {
   _all = {},
-  _colors = {7, 8, 9, 10, 11, 12},
+  _colors = { 7, 8, 9, 10, 11, 12 },
 
   create = function(self, x, y, string)
     local p = {}
