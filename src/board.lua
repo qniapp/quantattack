@@ -359,7 +359,8 @@ end
 -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
 function board:is_empty(x, y)
   for tmp_x = 1, x - 1 do
-    local gate = self._gates[tmp_x][y]
+    -- local gate = self._gates[tmp_x][y]
+    local gate = self:gate_at(tmp_x, y)
 
     if gate:is_garbage() and (not gate:is_empty()) and x <= tmp_x + gate.span - 1 then
       return false

@@ -65,12 +65,15 @@ function solo:update()
         player_cursor:sfx_swap()
       end
     end
+    if btn(buttons.o) then
+      self:_raise()
+    end
 
     player.score = player.score + board:update()
     player_cursor:update()
     puff_particle:update()
 
-    if self:_maybe_raise_gates() and rnd(1) < 0.05 then
+    if self:_auto_raise() and rnd(1) < 0.05 then
       board:drop_garbage()
     end
 
@@ -78,7 +81,19 @@ function solo:update()
   end
 end
 
-function solo:_maybe_raise_gates()
+-- ゲートをせりあげる
+function solo:_raise()
+  board.raised_dots = board.raised_dots + 1
+
+  if board.raised_dots == tile_size then
+    board.raised_dots = 0
+    board:insert_gates_at_bottom(player.steps)
+    player_cursor:move_up()
+    player.steps = player.steps + 1
+  end
+end
+
+function solo:_auto_raise()
   if (self.tick < 30) then -- TODO: 30 をどこか定数化
     return false
   end
@@ -89,14 +104,7 @@ function solo:_maybe_raise_gates()
     return false
   end
 
-  board.raised_dots = board.raised_dots + 1
-
-  if board.raised_dots == tile_size then
-    board.raised_dots = 0
-    board:insert_gates_at_bottom(player.steps)
-    player_cursor:move_up()
-    player.steps = player.steps + 1
-  end
+  self:_raise()
 
   return true
 end
