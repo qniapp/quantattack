@@ -16,12 +16,6 @@ describe('swap_gate', function()
       end)
     end)
 
-    describe("is_cnot_x", function()
-      it("should return false", function()
-        assert.is_false(swap:is_cnot_x())
-      end)
-    end)
-
     describe("is_garbage", function()
       it("should return false", function()
         assert.is_false(swap:is_garbage())

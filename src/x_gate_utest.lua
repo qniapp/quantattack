@@ -16,12 +16,6 @@ describe('x_gate', function()
       end)
     end)
 
-    describe(":is_cnot_x", function()
-      it("should return false", function()
-        assert.is_false(x:is_cnot_x())
-      end)
-    end)
-
     describe(":is_garbage", function()
       it("should return false", function()
         assert.is_false(x:is_garbage())

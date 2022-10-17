@@ -83,11 +83,6 @@ function gate:is_i()
   return self._type == "i"
 end
 
--- CNOT ゲート内の X ゲートである場合 true を返す
-function gate:is_cnot_x()
-  return self._type == "cnot_x"
-end
-
 -- おじゃまゲートの先頭 (左端) である場合 true を返す
 function gate:is_garbage()
   return self._type == "g"
