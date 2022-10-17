@@ -1,6 +1,6 @@
 require("engine/test/bustedhelper")
 require("engine/debug/dump")
-require("swap_gate")
+require("gate")
 
 describe('swap_gate', function()
   local swap

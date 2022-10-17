@@ -1,6 +1,5 @@
 require("engine/application/constants")
 require("engine/core/class")
-require("engine/render/color")
 require("particle")
 
 local gate = new_class()
@@ -346,6 +345,73 @@ function gate:swap_with_left(new_x)
 
   self._state = "swapping_with_left"
   self._tick_swap = 0
+end
+
+-------------------------------------------------------------------------------
+-- helpers
+-------------------------------------------------------------------------------
+
+function i_gate()
+  return gate('i')
+end
+
+function h_gate()
+  return gate('h')
+end
+
+function x_gate()
+  return gate('x')
+end
+
+function y_gate()
+  return gate('y')
+end
+
+function z_gate()
+  return gate('z')
+end
+
+function s_gate()
+  return gate('s')
+end
+
+function t_gate()
+  return gate('t')
+end
+
+function control_gate(other_x)
+  local control = gate('control')
+  control.other_x = other_x
+  return control
+end
+
+function cnot_x_gate(other_x)
+  local cnot_x = gate('cnot_x')
+  cnot_x.other_x = other_x
+  return cnot_x
+end
+
+function swap_gate(other_x)
+  local swap = gate('swap')
+  swap.other_x = other_x
+  return swap
+end
+
+function garbage_gate(span)
+  --#if assert
+  assert(span)
+  --#endif
+
+  local garbage = gate('g', span)
+  garbage._sprite_middle = 87
+  garbage._sprite_left = 86
+  garbage._sprite_right = 88
+
+  return garbage
+end
+
+function garbage_match_gate()
+  return gate('!')
 end
 
 -------------------------------------------------------------------------------

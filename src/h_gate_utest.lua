@@ -1,6 +1,6 @@
 require("engine/test/bustedhelper")
 require("engine/debug/dump")
-require("h_gate")
+require("gate")
 
 describe('h_gate', function()
   local h

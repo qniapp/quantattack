@@ -1,6 +1,5 @@
 require("engine/test/bustedhelper")
-require("h_gate")
-require("x_gate")
+require("gate")
 
 local gate = require("gate")
 

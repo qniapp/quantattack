@@ -1,15 +1,6 @@
 require("engine/test/bustedhelper")
 require("engine/debug/dump")
-require("h_gate")
-require("x_gate")
-require("y_gate")
-require("z_gate")
-require("s_gate")
-require("t_gate")
-require("swap_gate")
-require("control_gate")
-require("cnot_x_gate")
-require("garbage_gate")
+require("gate")
 
 local profiler = require("profiler")
 local board_class = require("board")
@@ -708,7 +699,8 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
-    it('おじゃまゲートの左に隣接するゲートがマッチした時、おじゃまゲートが破壊される #solo', function()
+    it('おじゃまゲートの左に隣接するゲートがマッチした時、おじゃまゲートが破壊される #solo'
+      , function()
       local h = h_gate()
 
       board:put(1, 12, h)
@@ -720,7 +712,8 @@ describe('board', function()
       assert.are_equal('!', board:gate_at(2, 12).type)
     end)
 
-    it('おじゃまゲートの右に隣接するゲートがマッチした時、おじゃまゲートが破壊される #solo', function()
+    it('おじゃまゲートの右に隣接するゲートがマッチした時、おじゃまゲートが破壊される #solo'
+      , function()
       local h = h_gate()
 
       board:put(3, 12, h)
@@ -732,7 +725,8 @@ describe('board', function()
       assert.are_equal('!', board:gate_at(1, 12).type)
     end)
 
-    it('おじゃまゲートの上に隣接するゲートがマッチした時、おじゃまゲートが破壊される', function()
+    it('おじゃまゲートの上に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
+      , function()
       local h = h_gate()
 
       board:put(1, 11, h)
@@ -744,7 +738,8 @@ describe('board', function()
       assert.are_equal('!', board:gate_at(1, 12).type)
     end)
 
-    it('おじゃまゲートの下に隣接するゲートがマッチした時、おじゃまゲートが破壊される', function()
+    it('おじゃまゲートの下に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
+      , function()
       local h = h_gate()
 
       board:put(1, 11, garbage_gate(2))

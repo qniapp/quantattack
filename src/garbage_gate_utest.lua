@@ -1,5 +1,5 @@
 require("engine/test/bustedhelper")
-require("garbage_gate")
+require("gate")
 
 local board_class = require("board")
 
