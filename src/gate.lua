@@ -70,10 +70,9 @@ local sprites = {
   },
 }
 
-function gate:_init(type, span, typestr)
+function gate:_init(type, span)
   self._type = type
   self.span = span or 1
-  self._typestr = typestr
   self._state = state_idle
   self._screen_dy = 0
 end
@@ -308,7 +307,6 @@ function gate:_puff(board, board_x, board_y, puff_index)
   puff_particle(x, y, 1)
   puff_particle(x, y, 1, colors.light_grey)
   puff_particle(x, y, 1, colors.light_grey)
-  puff_particle(x, y, 0, colors.dark_purple)
 end
 
 function gate:render(screen_x, screen_y)
@@ -422,16 +420,22 @@ end
 
 --#if debug
 function gate:_tostring()
-  local state = {
-    state_idle = " ",
-    state_swapping_with_left = "<",
-    state_swapping_with_right = ">",
-    state_dropping = "|",
-    state_match = "*",
-    state_freeze = "f"
-  }
+  local typestr, statestr = {
+    i = '_',
+    control = 'C',
+    cnot_x = 'X',
+    swap = 'S'
+  },
+      {
+        idle = " ",
+        swapping_with_left = "<",
+        swapping_with_right = ">",
+        dropping = "|",
+        match = "*",
+        freeze = "f"
+      }
 
-  return (self._typestr or self._type) .. state[self._state]
+  return (typestr[self._type] or self._type) .. statestr[self._state]
 end
 
 --#endif
