@@ -185,41 +185,45 @@ function gate:update(board, x, y)
       self._tick_swap = self._tick_swap + 1
     else
       -- SWAP 完了
-
-      --#if assert
-      assert(self:_is_swapping_with_right(), self._state)
-      --#endif
-
       local new_x = x + 1
       local right_gate = board:gate_at(new_x, y)
 
       --#if assert
+      assert(self:_is_swapping_with_right(), self._state)
       assert(right_gate:_is_swapping_with_left(), right_gate._state)
       --#endif
 
+      -- 星屑? エフェクト
+      if not right_gate:is_i() then
+        particle_set(board:screen_x(x) - 2,
+                     board:screen_y(y) + 3,
+                     "1,yellow,yellow,5,left|1,yellow,yellow,5,left|0,yellow,yellow,5,left|0,yellow,yellow,5,left")
+      end
+      if not self:is_i() then
+        particle_set(board:screen_x(new_x) + 10,
+                     board:screen_y(y) + 3,
+                     "1,yellow,yellow,5,right|1,yellow,yellow,5,right|0,yellow,yellow,5,right|0,yellow,yellow,5,right")
+      end
+
       -- A を SWAP や CNOT の一部とすると、
       --
-      --   [BC]
-      -- --[A_], [A-]--
-      -- --[-A], [_A]--
-      --   [AA]
+      -- 1.   [BC]
+      -- 2. --[A_], [A-]--
+      -- 3. --[-A], [_A]--
+      -- 4.   [AA]
       --
       -- の 4 パターンで左側だけ考える
 
-      if self.other_x == nil and right_gate.other_x == nil then
-        board:put(new_x, y, self)
-        board:put(x, y, right_gate)
-      elseif not self:is_i() and right_gate:is_i() then
-        board:put(new_x, y, self)
-        board:put(x, y, right_gate)
+      board:put(new_x, y, self)
+      board:put(x, y, right_gate)
+
+      if self.other_x == nil and right_gate.other_x == nil then -- 1.
+        -- NOP
+      elseif not self:is_i() and right_gate:is_i() then -- 2.
         board:gate_at(self.other_x, y).other_x = new_x
-      elseif self:is_i() and not right_gate:is_i() then
-        board:put(new_x, y, self)
-        board:put(x, y, right_gate)
+      elseif self:is_i() and not right_gate:is_i() then -- 3.
         board:gate_at(right_gate.other_x, y).other_x = x
-      elseif self.other_x and right_gate.other_x then
-        board:put(new_x, y, self)
-        board:put(x, y, right_gate)
+      elseif self.other_x and right_gate.other_x then -- 4.
         self.other_x, right_gate.other_x = x, new_x
       else
         --#if assert
@@ -281,7 +285,7 @@ function gate:update(board, x, y)
       sfx(3, -1, (self._match_index - 1) * 4, 4)
       particle_set(board:screen_x(x) + 3,
                    board:screen_y(y) + 3,
-                   "3,white|3,white|2,white|2,dark_purple|2,light_gray|1,white|1,white|1,light_gray|1,light_gray|0,dark_purple")
+                   "3,white,dark_gray,20|3,white,dark_gray,20|2,white,dark_gray,20|2,dark_purple,dark_gray,20|2,light_gray,dark_gray,20|1,white,dark_gray,20|1,white,dark_gray,20|1,light_gray,dark_gray,20|1,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
 
       if self._garbage_span then
         new_gate._tick_freeze = 0
