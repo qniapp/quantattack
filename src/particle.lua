@@ -35,7 +35,7 @@ function particle:_init(x, y, radius, color, color_fade, max_tick, horizontal_di
   self._color = colors[color] or colors.white
   self._color_fade = colors[color_fade] or colors.dark_gray
   self._tick = 0
-  self._max_tick = max_tick + rnd(10)
+  self._max_tick = (max_tick or 0) + rnd(10)
 
   self._dx = rnd(1.2) * .8
   self._dy = rnd(1.2) * .8
