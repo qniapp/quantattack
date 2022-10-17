@@ -41,29 +41,14 @@ function player_cursor:update()
 end
 
 -- カーソルを描画
--- _draw から呼ばれる
 function player_cursor:render(board)
   local x, y, dy = board:screen_x(self.x), board:screen_y(self.y), board:dy()
 
-  -- TODO: sspr で大きなスプライトとして描画したほうがトークン数が減る
-
-  -- カーソルは 2 種類のスプライトの組合わせによって表示する。
-  -- ┏  ┳  ┓
-  --
-  -- ┗  ┻  ┛
-  --
-  -- - 66: カーソルの四隅を表すスプライトの番号
-  -- - 67: カーソルの中央 (T の字部分) を表すスプライトの番号
-
-  local d = self._tick >= animation_frame_count and 1 or 0
-  local x_left, x_middle, x_right, y_top, y_bottom = x - 5 + d, x + 4, x + 12 - d, y - 5 + d + dy, y + 4 - d + dy
-
-  spr(66, x_left, y_top)
-  spr(67, x_middle, y_top)
-  spr(66, x_right, y_top, 1, 1, true, false)
-  spr(66, x_left, y_bottom, 1, 1, false, true)
-  spr(67, x_middle, y_bottom, 1, 1, false, true)
-  spr(66, x_right, y_bottom, 1, 1, true, true)
+  if self._tick >= animation_frame_count then
+    sspr(16, 32, 19, 11, x - 2, y - 2 + dy)
+  else
+    sspr(16, 48, 21, 13, x - 3, y - 3 + dy)
+  end
 end
 
 function player_cursor.new()

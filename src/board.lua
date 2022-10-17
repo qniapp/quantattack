@@ -266,8 +266,8 @@ function board:render()
 
       -- マスクを描画
       if y == board.row_next_gates then
-        -- TODO: 98 を定数にする
-        spr(98, screen_x, screen_y)
+        -- TODO: 102 を定数にする
+        spr(102, screen_x, screen_y)
       end
     end
   end

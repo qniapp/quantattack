@@ -6,9 +6,9 @@ function garbage_gate(span)
   --#endif
 
   local garbage = gate('g', span)
-  garbage._sprite_middle = 83
-  garbage._sprite_left = 82
-  garbage._sprite_right = 84
+  garbage._sprite_middle = 87
+  garbage._sprite_left = 86
+  garbage._sprite_right = 88
 
   return garbage
 end
