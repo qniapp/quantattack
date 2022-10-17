@@ -60,7 +60,10 @@
     "button_ids",
     "btn_states",
     "match",
-    "log"
+    "log",
+    "update_particles",
+    "render_particles",
+    "create_particle"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false
