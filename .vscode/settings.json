@@ -59,7 +59,8 @@
     "after_each",
     "button_ids",
     "btn_states",
-    "match"
+    "match",
+    "log"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false

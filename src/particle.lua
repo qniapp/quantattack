@@ -1,10 +1,10 @@
 require("engine/core/class")
 require("engine/render/color")
 
-local puff_particle = new_class()
+local particle = new_class()
 local all_particles = {}
 
-puff_particle.update = function()
+particle.update = function()
   foreach(all_particles, function(each)
     if each._tick > each._max_tick then
       del(all_particles, each)
@@ -21,14 +21,14 @@ puff_particle.update = function()
   end)
 end
 
-puff_particle.render = function()
+particle.render = function()
   foreach(all_particles, function(each)
     circfill(each._x, each._y, each._radius, each._color)
   end)
 end
 
 -- TODO: particle に名前を変更
-function puff_particle:_init(x, y, radius, color)
+function particle:_init(x, y, radius, color)
   self._x = x
   self._y = y
   self._radius = radius
@@ -55,4 +55,4 @@ function puff_particle:_init(x, y, radius, color)
   add(all_particles, self)
 end
 
-return puff_particle
+return particle

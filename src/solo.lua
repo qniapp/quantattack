@@ -21,9 +21,7 @@ local player_cursor = player_cursor_class()
 local board_class = require("board")
 local board = board_class()
 
-local gate = require("gate")
-
-local puff_particle = require("puff_particle")
+local particle = require("particle")
 
 solo.type = ':solo'
 
@@ -75,7 +73,7 @@ function solo:update()
 
     player.score = player.score + board:update()
     player_cursor:update()
-    puff_particle:update()
+    particle:update()
 
     if self:_auto_raise() and rnd(1) < 0.05 then
       board:drop_garbage()
@@ -121,7 +119,7 @@ function solo:render() -- override
   board:render()
   player_cursor:render(board)
   self:render_score()
-  puff_particle:render()
+  particle:render()
 
   if board:is_game_over() then
     ui.draw_rounded_box(10, 55, 117, 78, colors.dark_gray, colors.white)
