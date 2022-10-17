@@ -88,10 +88,6 @@ function gate:is_garbage()
   return self.type == "g"
 end
 
-function gate:is_garbage_match()
-  return self.type == "!"
-end
-
 -- gate state
 
 -- ゲートが idle である場合 true を返す
@@ -310,7 +306,7 @@ end
 
 -- ゲートが下に落とせる状態にあるかどうかを返す
 function gate:is_droppable()
-  return not (self:is_i() or self:is_garbage_match() or self:is_dropping() or self:is_swapping() or self:is_freeze())
+  return not (self:is_i() or self.type == "!" or self:is_dropping() or self:is_swapping() or self:is_freeze())
 end
 
 function gate:drop()

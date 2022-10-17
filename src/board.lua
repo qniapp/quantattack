@@ -161,7 +161,7 @@ function board:reduce_gates()
         if y < board.rows then
           for gx = x, x + gate.span - 1 do
             local g = self:gate_at(gx, y + 1)
-            if g:is_match() and not g:is_garbage_match() then
+            if g:is_match() and not g.type == "!" then
               match = true
             end
           end
