@@ -1,9 +1,8 @@
 require("engine/application/constants")
 require("engine/core/class")
 require("engine/render/color")
+require("particle_set")
 
-local particle_set = require("particle_set")
--- local particle = require("particle")
 local gate = new_class()
 
 local swap_animation_frame_count = 4
@@ -195,14 +194,14 @@ function gate:update(board, x, y)
 
       -- 星屑? エフェクト
       if not right_gate:is_i() then
-        particle_set(board:screen_x(x) - 2,
-                     board:screen_y(y) + 3,
-                     "1,yellow,yellow,5,left|1,yellow,yellow,5,left|0,yellow,yellow,5,left|0,yellow,yellow,5,left")
+        create_particle_set(board:screen_x(x) - 2,
+          board:screen_y(y) + 3,
+          "1,yellow,yellow,5,left|1,yellow,yellow,5,left|0,yellow,yellow,5,left|0,yellow,yellow,5,left")
       end
       if not self:is_i() then
-        particle_set(board:screen_x(new_x) + 10,
-                     board:screen_y(y) + 3,
-                     "1,yellow,yellow,5,right|1,yellow,yellow,5,right|0,yellow,yellow,5,right|0,yellow,yellow,5,right")
+        create_particle_set(board:screen_x(new_x) + 10,
+          board:screen_y(y) + 3,
+          "1,yellow,yellow,5,right|1,yellow,yellow,5,right|0,yellow,yellow,5,right|0,yellow,yellow,5,right")
       end
 
       -- A を SWAP や CNOT の一部とすると、
@@ -283,9 +282,9 @@ function gate:update(board, x, y)
 
       -- puff!
       sfx(3, -1, (self._match_index - 1) * 4, 4)
-      particle_set(board:screen_x(x) + 3,
-                   board:screen_y(y) + 3,
-                   "3,white,dark_gray,20|3,white,dark_gray,20|2,white,dark_gray,20|2,dark_purple,dark_gray,20|2,light_gray,dark_gray,20|1,white,dark_gray,20|1,white,dark_gray,20|1,light_gray,dark_gray,20|1,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
+      create_particle_set(board:screen_x(x) + 3,
+        board:screen_y(y) + 3,
+        "3,white,dark_gray,20|3,white,dark_gray,20|2,white,dark_gray,20|2,dark_purple,dark_gray,20|2,light_gray,dark_gray,20|1,white,dark_gray,20|1,white,dark_gray,20|1,light_gray,dark_gray,20|1,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
 
       if self._garbage_span then
         new_gate._tick_freeze = 0

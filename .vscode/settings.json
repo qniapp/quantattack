@@ -63,7 +63,8 @@
     "log",
     "update_particles",
     "render_particles",
-    "create_particle"
+    "create_particle",
+    "create_particle_set"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false
