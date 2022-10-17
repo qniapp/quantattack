@@ -276,7 +276,12 @@ function gate:update(board, x, y)
     else
       local new_gate = self._reduce_to
       board:put(x, y, new_gate)
-      new_gate:_puff(board, x, y, self._match_index)
+
+      -- puff!
+      sfx(3, -1, (self._match_index - 1) * 4, 4)
+      particle_set(board:screen_x(x) + 3,
+                   board:screen_y(y) + 3,
+                   "3,white|3,white|2,white|2,dark_purple|2,light_gray|1,white|1,white|1,light_gray|1,light_gray|0,dark_purple")
 
       if self._garbage_span then
         new_gate._tick_freeze = 0
@@ -291,14 +296,6 @@ function gate:update(board, x, y)
       self._state = state_idle
     end
   end
-end
-
-function gate:_puff(board, board_x, board_y, puff_index)
-  sfx(3, -1, (puff_index - 1) * 4, 4)
-
-  particle_set(board:screen_x(board_x) + 3,
-    board:screen_y(board_y) + 3,
-    "3,white|3,white|2,white|2,dark_purple|2,light_gray|1,white|1,white|1,light_gray|1,light_gray|0,dark_purple")
 end
 
 function gate:render(screen_x, screen_y)
