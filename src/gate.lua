@@ -1,7 +1,7 @@
 require("engine/application/constants")
 require("engine/core/class")
 require("engine/render/color")
-require("particle_set")
+require("particle")
 
 local gate = new_class()
 
