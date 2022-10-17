@@ -79,49 +79,8 @@ end
 
 -- gate type
 
--- I ゲートである場合 true を返す
 function gate:is_i()
   return self._type == "i"
-end
-
--- H ゲートである場合 true を返す
-function gate:is_h()
-  return self._type == "h"
-end
-
--- X ゲートである場合 true を返す
-function gate:is_x()
-  return self._type == "x"
-end
-
--- Y ゲートである場合 true を返す
-function gate:is_y()
-  return self._type == "y"
-end
-
--- Z ゲートである場合 true を返す
-function gate:is_z()
-  return self._type == "z"
-end
-
--- S ゲートである場合 true を返す
-function gate:is_s()
-  return self._type == "s"
-end
-
--- T ゲートである場合 true を返す
-function gate:is_t()
-  return self._type == "t"
-end
-
--- SWAP ゲートである場合 true を返す
-function gate:is_swap()
-  return self._type == "swap"
-end
-
--- Control ゲートである場合 true を返す
-function gate:is_control()
-  return self._type == "control"
 end
 
 -- CNOT ゲート内の X ゲートである場合 true を返す

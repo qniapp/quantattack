@@ -138,7 +138,7 @@ function board:reduce_gates()
         local dy = r.dy or 0
         local gate = gate_class(r.gate_type)
 
-        if gate:is_swap() or gate:is_cnot_x() or gate:is_control() then
+        if gate._type == "swap" or gate:is_cnot_x() or gate._type == "control" then
           if r.dx then
             gate.other_x = x
           else
