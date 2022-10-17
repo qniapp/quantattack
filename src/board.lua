@@ -203,10 +203,8 @@ end
 -- y を省略した場合、すぐ下の行 y + 1 に落とせるかどうかを返す。
 function board:is_gate_droppable(gate_x, gate_y, y)
   --#if assert
-  assert(1 <= gate_x)
-  assert(gate_x <= board.cols)
-  assert(1 <= gate_y)
-  assert(gate_y <= board.row_next_gates)
+  assert(1 <= gate_x and gate_x <= board.cols)
+  assert(1 <= gate_y and gate_y <= board.row_next_gates)
   --#endif
 
   if gate_y == board.row_next_gates or y == board.row_next_gates then
@@ -394,10 +392,8 @@ end
 
 function board:put(x, y, gate)
   --#if assert
-  assert(x >= 1, x)
-  assert(x <= board.cols, x)
-  assert(y >= 1, "y = " .. y .. " >= 1")
-  assert(y <= board.row_next_gates, "y = " .. y .. " > board.row_next_gates")
+  assert(1 <= x and x <= board.cols, x)
+  assert(1 <= y and y <= board.row_next_gates, y)
   --#endif
 
   self._gates[x][y] = gate

@@ -1,3 +1,4 @@
+*.p8l
 .DS_Store
 activity_log.txt
 backup

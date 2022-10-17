@@ -70,9 +70,10 @@ local sprites = {
   },
 }
 
-function gate:_init(type, span)
+function gate:_init(type, span, typestr)
   self._type = type
   self.span = span or 1
+  self._typestr = typestr
   self._state = state_idle
   self._screen_dy = 0
 end
@@ -232,10 +233,6 @@ function gate:update(board, x, y)
     self._screen_dy = self._screen_dy + drop_speed
     local new_screen_y = board:screen_y(y) + self._screen_dy
     local new_y = board:y(new_screen_y)
-
-    --#if assert
-    assert(1 <= new_y and new_y <= board.row_next_gates, "new_y = " .. new_y)
-    --#endif
 
     if new_y == y then
       -- 同じ場所にとどまっているので、何もしない
@@ -425,30 +422,16 @@ end
 
 --#if debug
 function gate:_tostring()
-  local type = self._type
-  type = type == "i" and "_" or type
-  type = type == "control" and "C" or type
-  type = type == "cnot_x" and "X" or type
-  type = type == "swap" and "S" or type
+  local state = {
+    state_idle = " ",
+    state_swapping_with_left = "<",
+    state_swapping_with_right = ">",
+    state_dropping = "|",
+    state_match = "*",
+    state_freeze = "f"
+  }
 
-  if self:is_idle() then
-    return type
-  elseif self:_is_swapping_with_left() then
-    return type .. "<"
-  elseif self:_is_swapping_with_right() then
-    return type .. ">"
-    -- elseif self:is_swapping() then -- yellow
-    --   return type .. "!"
-    --   -- return "\27[30;43m" .. type .. "\27[39;49m"
-  elseif self:is_dropping() then -- blue
-    return type
-    -- return "\27[37;44m" .. type .. "\27[39;49m"
-  elseif self:is_match() then -- red
-    return type
-    -- return "\27[37;41m" .. type .. "\27[39;49m"
-  else
-    return self._type .. " (" .. self._state .. ")"
-  end
+  return (self._typestr or self._type) .. state[self._state]
 end
 
 --#endif

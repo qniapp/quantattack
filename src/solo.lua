@@ -5,6 +5,10 @@ require("engine/application/constants")
 require("engine/core/class")
 require("engine/render/color")
 
+--#if log
+require("engine/debug/dump")
+--#endif
+
 local gamestate = require("engine/application/gamestate")
 local solo = derived_class(gamestate)
 
@@ -78,6 +82,8 @@ function solo:update()
     end
 
     self.tick = self.tick + 1
+
+    log("\n" .. board:_tostring())
   end
 end
 
@@ -111,6 +117,7 @@ end
 
 function solo:render() -- override
   cls()
+
   board:render()
   player_cursor:render(board)
   self:render_score()

@@ -2,7 +2,7 @@ local gate = require("gate")
 
 function garbage_gate(span)
   --#if assert
-  assert(span ~= nil, "span is nil")
+  assert(span)
   --#endif
 
   local garbage = gate('g', span)
