@@ -138,7 +138,7 @@ function board:reduce_gates()
         local dy = r.dy or 0
         local gate = gate_class(r.gate_type)
 
-        if gate._type == "swap" or gate._type == "cnot_x" or gate._type == "control" then
+        if gate.type == "swap" or gate.type == "cnot_x" or gate.type == "control" then
           if r.dx then
             gate.other_x = x
           else
@@ -434,7 +434,7 @@ function board:reduce(x, y, include_next_gates)
 
   if not gate:is_reducible() then return reduction end
 
-  local rules = reduction_rules[gate._type]
+  local rules = reduction_rules[gate.type]
   if not rules then return reduction end
 
   for _, rule in pairs(rules) do
@@ -453,7 +453,7 @@ function board:reduce(x, y, include_next_gates)
         local current_gate = self:reducible_gate_at(x, y + i - 1)
 
         if current_gate.other_x then
-          if current_gate._type == gates[1] then
+          if current_gate.type == gates[1] then
             other_x = current_gate.other_x
             dx = other_x - x
             goto check_match
@@ -469,11 +469,11 @@ function board:reduce(x, y, include_next_gates)
     for i, gates in pairs(gate_pattern_rows) do
       local current_y = y + i - 1
 
-      if gates[1] ~= "?" and self:reducible_gate_at(x, current_y)._type ~= gates[1] then
+      if gates[1] ~= "?" and self:reducible_gate_at(x, current_y).type ~= gates[1] then
         goto next_rule
       end
 
-      if gates[2] and other_x and self:reducible_gate_at(other_x, current_y)._type ~= gates[2] then
+      if gates[2] and other_x and self:reducible_gate_at(other_x, current_y).type ~= gates[2] then
         goto next_rule
       end
     end

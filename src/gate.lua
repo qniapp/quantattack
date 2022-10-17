@@ -71,7 +71,7 @@ local sprites = {
 }
 
 function gate:_init(type, span)
-  self._type = type
+  self.type = type
   self.span = span or 1
   self._state = state_idle
   self._screen_dy = 0
@@ -80,16 +80,16 @@ end
 -- gate type
 
 function gate:is_i()
-  return self._type == "i"
+  return self.type == "i"
 end
 
 -- おじゃまゲートの先頭 (左端) である場合 true を返す
 function gate:is_garbage()
-  return self._type == "g"
+  return self.type == "g"
 end
 
 function gate:is_garbage_match()
-  return self._type == "!"
+  return self.type == "!"
 end
 
 -- gate state
@@ -287,12 +287,12 @@ end
 
 function gate:_sprite()
   if self:is_idle() and self._tick_dropped then
-    return sprites[self._type].dropped[self._tick_dropped]
+    return sprites[self.type].dropped[self._tick_dropped]
   elseif self:is_match() then
-    local sequence = sprites[self._type].match
+    local sequence = sprites[self.type].match
     return self._tick_match <= 15 and sequence[self._tick_match] or sequence[#sequence]
   else
-    return sprites[self._type].default
+    return sprites[self.type].default
   end
 end
 
@@ -381,7 +381,7 @@ function gate:_tostring()
         freeze = "f"
       }
 
-  return (typestr[self._type] or self._type) .. statestr[self._state]
+  return (typestr[self.type] or self.type) .. statestr[self._state]
 end
 
 --#endif
