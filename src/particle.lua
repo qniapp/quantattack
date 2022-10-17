@@ -3,7 +3,7 @@ require("engine/render/color")
 local all_particles = {}
 
 function update_particles()
-  foreach(all_particles, function(each)
+  for _, each in pairs(all_particles) do
     if each._tick > each._max_tick then
       del(all_particles, each)
     end
@@ -16,13 +16,13 @@ function update_particles()
     each._dx = each._dx + each._ddx
     each._dy = each._dy + each._ddy
     each._tick = each._tick + 1
-  end)
+  end
 end
 
 function render_particles()
-  foreach(all_particles, function(each)
+  for _, each in pairs(all_particles) do
     circfill(each._x, each._y, each._radius, each._color)
-  end)
+  end
 end
 
 function create_particle(x, y, radius, color, color_fade, max_tick, horizontal_direction)
