@@ -17,7 +17,7 @@ local player_class = require("player")
 local player = player_class()
 
 local player_cursor_class = require("player_cursor")
-local player_cursor = player_cursor_class()
+local player_cursor = player_cursor_class.new()
 
 local board_class = require("board")
 local board = board_class()
@@ -46,24 +46,24 @@ function solo:update()
     end
   else
     if btnp(buttons.left) then
-      player_cursor:sfx_move()
+      sfx(player_cursor_class.sfx_move)
       player_cursor:move_left()
     end
     if btnp(buttons.right) then
-      player_cursor:sfx_move()
+      sfx(player_cursor_class.sfx_move)
       player_cursor:move_right()
     end
     if btnp(buttons.up) then
-      player_cursor:sfx_move()
+      sfx(player_cursor_class.sfx_move)
       player_cursor:move_up()
     end
     if btnp(buttons.down) then
-      player_cursor:sfx_move()
+      sfx(player_cursor_class.sfx_move)
       player_cursor:move_down()
     end
     if btnp(buttons.x) then
       if board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y) then
-        player_cursor:sfx_swap()
+        sfx(player_cursor_class.sfx_swap)
       end
     end
     if btn(buttons.o) then

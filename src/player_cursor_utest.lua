@@ -7,7 +7,7 @@ describe('player_cursor', function()
   local player_cursor
 
   before_each(function()
-    player_cursor = player_cursor_class()
+    player_cursor = player_cursor_class.new()
   end)
 
   describe('constructor', function()
@@ -97,18 +97,6 @@ describe('player_cursor', function()
 
       assert.are_equal(3, player_cursor.x)
       assert.are_equal(12, player_cursor.y)
-    end)
-  end)
-
-  describe('sfx_move', function()
-    it("should play an sfx without errors", function()
-      assert.has_no.errors(function() player_cursor:sfx_move() end)
-    end)
-  end)
-
-  describe('sfx_swap', function()
-    it("should play an sfx without errors", function()
-      assert.has_no.errors(function() player_cursor:sfx_swap() end)
     end)
   end)
 
