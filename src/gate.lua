@@ -1,20 +1,11 @@
 require("engine/application/constants")
 require("engine/core/class")
-require("engine/render/color")
 require("particle")
 
 local gate = new_class()
 
 local swap_animation_frame_count = 4
 local match_animation_frame_count = 45
-
-local state_idle = "idle"
-local state_dropping = "dropping"
-local state_match = "match"
-local state_swapping_with_left = "swapping_with_left"
-local state_swapping_with_right = "swapping_with_right"
-local state_freeze = "freeze"
-
 local drop_speed = 3
 
 local sprites = {
@@ -71,78 +62,28 @@ local sprites = {
 }
 
 function gate:_init(type, span)
-  self._type = type
+  self.type = type
   self.span = span or 1
-  self._state = state_idle
+  self._state = "idle"
   self._screen_dy = 0
 end
 
 -- gate type
 
--- I ゲートである場合 true を返す
 function gate:is_i()
-  return self._type == "i"
-end
-
--- H ゲートである場合 true を返す
-function gate:is_h()
-  return self._type == "h"
-end
-
--- X ゲートである場合 true を返す
-function gate:is_x()
-  return self._type == "x"
-end
-
--- Y ゲートである場合 true を返す
-function gate:is_y()
-  return self._type == "y"
-end
-
--- Z ゲートである場合 true を返す
-function gate:is_z()
-  return self._type == "z"
-end
-
--- S ゲートである場合 true を返す
-function gate:is_s()
-  return self._type == "s"
-end
-
--- T ゲートである場合 true を返す
-function gate:is_t()
-  return self._type == "t"
-end
-
--- SWAP ゲートである場合 true を返す
-function gate:is_swap()
-  return self._type == "swap"
-end
-
--- Control ゲートである場合 true を返す
-function gate:is_control()
-  return self._type == "control"
-end
-
--- CNOT ゲート内の X ゲートである場合 true を返す
-function gate:is_cnot_x()
-  return self._type == "cnot_x"
+  return self.type == "i"
 end
 
 -- おじゃまゲートの先頭 (左端) である場合 true を返す
 function gate:is_garbage()
-  return self._type == "g"
-end
-
-function gate:is_garbage_match()
-  return self._type == "!"
+  return self.type == "g"
 end
 
 -- gate state
 
 -- ゲートが idle である場合 true を返す
 function gate:is_idle()
-  return self._state == state_idle
+  return self._state == "idle"
 end
 
 -- 他のゲートが通過 (ドロップ) できる場合 true を返す
@@ -153,12 +94,12 @@ end
 
 -- マッチ状態である場合 true を返す
 function gate:is_match()
-  return self._state == state_match
+  return self._state == "match"
 end
 
 -- おじゃまユニタリがゲートに変化した後の硬直中
 function gate:is_freeze()
-  return self._state == state_freeze
+  return self._state == "freeze"
 end
 
 -- マッチできる場合 true を返す
@@ -230,7 +171,7 @@ function gate:update(board, x, y)
         --#endif
       end
 
-      self._state, right_gate._state = state_idle, state_idle
+      self._state, right_gate._state = "idle", "idle"
     end
   elseif self:is_dropping() then
     self._screen_dy = self._screen_dy + drop_speed
@@ -258,14 +199,14 @@ function gate:update(board, x, y)
       self._garbage_drop_sfx_played = true
 
       self._screen_dy = 0
-      self._state = state_idle
+      self._state = "idle"
       self._tick_dropped = 0
 
       if self.other_x and x < self.other_x then
         local other_gate = board:gate_at(self.other_x, y)
 
         other_gate._screen_dy = 0
-        other_gate._state = state_idle
+        other_gate._state = "idle"
         other_gate._tick_dropped = 0
       end
     end
@@ -289,14 +230,14 @@ function gate:update(board, x, y)
       if self._garbage_span then
         new_gate._tick_freeze = 0
         new_gate._freeze_frame_count = (self._garbage_span - self._match_index) * 15
-        new_gate._state = state_freeze
+        new_gate._state = "freeze"
       end
     end
   elseif self:is_freeze() then
     if self._tick_freeze < self._freeze_frame_count then
       self._tick_freeze = self._tick_freeze + 1
     else
-      self._state = state_idle
+      self._state = "idle"
     end
   end
 end
@@ -333,17 +274,17 @@ end
 
 function gate:_sprite()
   if self:is_idle() and self._tick_dropped then
-    return sprites[self._type].dropped[self._tick_dropped]
+    return sprites[self.type].dropped[self._tick_dropped]
   elseif self:is_match() then
-    local sequence = sprites[self._type].match
+    local sequence = sprites[self.type].match
     return self._tick_match <= 15 and sequence[self._tick_match] or sequence[#sequence]
   else
-    return sprites[self._type].default
+    return sprites[self.type].default
   end
 end
 
 function gate:replace_with(other, match_index, garbage_span)
-  self._state = state_match
+  self._state = "match"
   self._reduce_to = other
   self._match_index = match_index or 0
   self._garbage_span = garbage_span
@@ -356,7 +297,7 @@ end
 
 -- ゲートが下に落とせる状態にあるかどうかを返す
 function gate:is_droppable()
-  return not (self:is_i() or self:is_garbage_match() or self:is_dropping() or self:is_swapping() or self:is_freeze())
+  return not (self:is_i() or self.type == "!" or self:is_dropping() or self:is_swapping() or self:is_freeze())
 end
 
 function gate:drop()
@@ -364,12 +305,12 @@ function gate:drop()
   assert(self:is_droppable())
   --#endif
 
-  self._state = state_dropping
+  self._state = "dropping"
   self._screen_dy = 0
 end
 
 function gate:is_dropping()
-  return self._state == state_dropping
+  return self._state == "dropping"
 end
 
 -------------------------------------------------------------------------------
@@ -381,11 +322,11 @@ function gate:is_swapping()
 end
 
 function gate:_is_swapping_with_left()
-  return self._state == state_swapping_with_left
+  return self._state == "swapping_with_left"
 end
 
 function gate:_is_swapping_with_right()
-  return self._state == state_swapping_with_right
+  return self._state == "swapping_with_right"
 end
 
 function gate:swap_with_right(new_x)
@@ -393,7 +334,7 @@ function gate:swap_with_right(new_x)
   assert(2 <= new_x)
   --#endif
 
-  self._state = state_swapping_with_right
+  self._state = "swapping_with_right"
   self._tick_swap = 0
 end
 
@@ -402,8 +343,75 @@ function gate:swap_with_left(new_x)
   assert(1 <= new_x)
   --#endif
 
-  self._state = state_swapping_with_left
+  self._state = "swapping_with_left"
   self._tick_swap = 0
+end
+
+-------------------------------------------------------------------------------
+-- helpers
+-------------------------------------------------------------------------------
+
+function i_gate()
+  return gate('i')
+end
+
+function h_gate()
+  return gate('h')
+end
+
+function x_gate()
+  return gate('x')
+end
+
+function y_gate()
+  return gate('y')
+end
+
+function z_gate()
+  return gate('z')
+end
+
+function s_gate()
+  return gate('s')
+end
+
+function t_gate()
+  return gate('t')
+end
+
+function control_gate(other_x)
+  local control = gate('control')
+  control.other_x = other_x
+  return control
+end
+
+function cnot_x_gate(other_x)
+  local cnot_x = gate('cnot_x')
+  cnot_x.other_x = other_x
+  return cnot_x
+end
+
+function swap_gate(other_x)
+  local swap = gate('swap')
+  swap.other_x = other_x
+  return swap
+end
+
+function garbage_gate(span)
+  --#if assert
+  assert(span)
+  --#endif
+
+  local garbage = gate('g', span)
+  garbage._sprite_middle = 87
+  garbage._sprite_left = 86
+  garbage._sprite_right = 88
+
+  return garbage
+end
+
+function garbage_match_gate()
+  return gate('!')
 end
 
 -------------------------------------------------------------------------------
@@ -427,7 +435,7 @@ function gate:_tostring()
         freeze = "f"
       }
 
-  return (typestr[self._type] or self._type) .. statestr[self._state]
+  return (typestr[self.type] or self.type) .. statestr[self._state]
 end
 
 --#endif

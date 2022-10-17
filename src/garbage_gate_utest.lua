@@ -1,5 +1,5 @@
 require("engine/test/bustedhelper")
-require("garbage_gate")
+require("gate")
 
 local board_class = require("board")
 
@@ -21,60 +21,6 @@ describe('garbage_gate', function()
       describe("is_i", function()
         it("should return false", function()
           assert.is_false(garbage:is_i())
-        end)
-      end)
-
-      describe("is_h", function()
-        it("should return true", function()
-          assert.is_false(garbage:is_h())
-        end)
-      end)
-
-      describe("is_x", function()
-        it("should return false", function()
-          assert.is_false(garbage:is_x())
-        end)
-      end)
-
-      describe("is_y", function()
-        it("should return false", function()
-          assert.is_false(garbage:is_y())
-        end)
-      end)
-
-      describe("is_z", function()
-        it("should return false", function()
-          assert.is_false(garbage:is_z())
-        end)
-      end)
-
-      describe("is_s", function()
-        it("should return false", function()
-          assert.is_false(garbage:is_s())
-        end)
-      end)
-
-      describe("is_t", function()
-        it("should return false", function()
-          assert.is_false(garbage:is_t())
-        end)
-      end)
-
-      describe("is_swap", function()
-        it("should return false", function()
-          assert.is_false(garbage:is_swap())
-        end)
-      end)
-
-      describe("is_control", function()
-        it("should return false", function()
-          assert.is_false(garbage:is_control())
-        end)
-      end)
-
-      describe("is_cnot_x", function()
-        it("should return false", function()
-          assert.is_false(garbage:is_cnot_x())
         end)
       end)
 

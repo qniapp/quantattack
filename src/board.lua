@@ -2,19 +2,6 @@ require("engine/application/constants")
 require("engine/core/class")
 require("engine/core/helper")
 
-require("garbage_gate")
-require("garbage_match_gate")
-require("i_gate")
-require("h_gate")
-require("x_gate")
-require("y_gate")
-require("z_gate")
-require("s_gate")
-require("t_gate")
-require("control_gate")
-require("cnot_x_gate")
-require("swap_gate")
-
 local gate_class = require("gate")
 local reduction_rules = require("reduction_rules")
 
@@ -138,7 +125,7 @@ function board:reduce_gates()
         local dy = r.dy or 0
         local gate = gate_class(r.gate_type)
 
-        if gate:is_swap() or gate:is_cnot_x() or gate:is_control() then
+        if gate.type == "swap" or gate.type == "cnot_x" or gate.type == "control" then
           if r.dx then
             gate.other_x = x
           else
@@ -155,22 +142,39 @@ function board:reduce_gates()
   for y = board.rows, 1, -1 do
     for x = 1, board.cols do
       local gate = self._gates[x][y]
-      local match = false
+      local span = gate.span
 
       if gate:is_garbage() then
-        if y < board.rows then
-          for gx = x, x + gate.span - 1 do
-            local g = self:gate_at(gx, y + 1)
-            if g:is_match() and not g:is_garbage_match() then
-              match = true
-            end
+        local adjacent_gates = {}
+        local match = false
+
+        if x > 1 then
+          add(adjacent_gates, self:gate_at(x - 1, y))
+        end
+
+        if x + span <= board.cols then
+          add(adjacent_gates, self:gate_at(x + span, y))
+        end
+
+        for gx = x, x + span - 1 do
+          if y > 1 then
+            add(adjacent_gates, self:gate_at(gx, y - 1))
+          end
+          if y < board.rows then
+            add(adjacent_gates, self:gate_at(gx, y + 1))
+          end
+        end
+
+        for _, each in pairs(adjacent_gates) do
+          if (each:is_match() and each.type ~= "!") then
+            match = true
           end
         end
 
         if match then
-          for dx = 0, gate.span - 1 do
+          for dx = 0, span - 1 do
             self:put(x + dx, y, garbage_match_gate())
-            self:gate_at(x + dx, y):replace_with(self:_random_single_gate(), dx, gate.span)
+            self:gate_at(x + dx, y):replace_with(self:_random_single_gate(), dx, span)
           end
         end
       end
@@ -434,7 +438,7 @@ function board:reduce(x, y, include_next_gates)
 
   if not gate:is_reducible() then return reduction end
 
-  local rules = reduction_rules[gate._type]
+  local rules = reduction_rules[gate.type]
   if not rules then return reduction end
 
   for _, rule in pairs(rules) do
@@ -453,7 +457,7 @@ function board:reduce(x, y, include_next_gates)
         local current_gate = self:reducible_gate_at(x, y + i - 1)
 
         if current_gate.other_x then
-          if current_gate._type == gates[1] then
+          if current_gate.type == gates[1] then
             other_x = current_gate.other_x
             dx = other_x - x
             goto check_match
@@ -469,11 +473,11 @@ function board:reduce(x, y, include_next_gates)
     for i, gates in pairs(gate_pattern_rows) do
       local current_y = y + i - 1
 
-      if gates[1] ~= "?" and self:reducible_gate_at(x, current_y)._type ~= gates[1] then
+      if gates[1] ~= "?" and self:reducible_gate_at(x, current_y).type ~= gates[1] then
         goto next_rule
       end
 
-      if gates[2] and other_x and self:reducible_gate_at(other_x, current_y)._type ~= gates[2] then
+      if gates[2] and other_x and self:reducible_gate_at(other_x, current_y).type ~= gates[2] then
         goto next_rule
       end
     end

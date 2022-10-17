@@ -1,15 +1,6 @@
 require("engine/test/bustedhelper")
 require("engine/debug/dump")
-require("h_gate")
-require("x_gate")
-require("y_gate")
-require("z_gate")
-require("s_gate")
-require("t_gate")
-require("swap_gate")
-require("control_gate")
-require("cnot_x_gate")
-require("garbage_gate")
+require("gate")
 
 local profiler = require("profiler")
 local board_class = require("board")
@@ -29,8 +20,8 @@ describe('board', function()
       local swapped = board:swap(1, 2, 12)
 
       assert.is_true(swapped)
-      assert.is_true(board:gate_at(1, 12):is_h())
-      assert.is_true(board:gate_at(2, 12):is_x())
+      assert.are_equal("h", board:gate_at(1, 12).type)
+      assert.are_equal("x", board:gate_at(2, 12).type)
       assert.is_true(board:gate_at(1, 12):is_swapping())
       assert.is_true(board:gate_at(2, 12):is_swapping())
     end)
@@ -43,7 +34,7 @@ describe('board', function()
       local swapped = board:swap(2, 3, 12)
 
       assert.is_false(swapped)
-      assert.is_true(board:gate_at(3, 12):is_x())
+      assert.are_equal("x", board:gate_at(3, 12).type)
       assert.is_true(board:gate_at(3, 12):is_idle())
     end)
 
@@ -55,7 +46,7 @@ describe('board', function()
       local swapped = board:swap(1, 2, 12)
 
       assert.is_false(swapped)
-      assert.is_true(board:gate_at(1, 12):is_h())
+      assert.are_equal("h", board:gate_at(1, 12).type)
       assert.is_true(board:gate_at(1, 12):is_idle())
     end)
 
@@ -192,7 +183,7 @@ describe('board', function()
       board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_z())
+      assert.are_equal("z", board:gate_at(1, 12)._reduce_to.type)
     end)
 
     it('should reduce TT', function()
@@ -202,7 +193,7 @@ describe('board', function()
       board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_s())
+      assert.are_equal("s", board:gate_at(1, 12)._reduce_to.type)
     end)
 
     it('should reduce XZ', function()
@@ -212,7 +203,7 @@ describe('board', function()
       board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_y())
+      assert.are_equal("y", board:gate_at(1, 12)._reduce_to.type)
     end)
 
     it('should reduce ZX', function()
@@ -222,7 +213,7 @@ describe('board', function()
       board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_y())
+      assert.are_equal("y", board:gate_at(1, 12)._reduce_to.type)
     end)
 
     it('should reduce HXH', function()
@@ -234,7 +225,7 @@ describe('board', function()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
       assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_z())
+      assert.are_equal("z", board:gate_at(1, 12)._reduce_to.type)
     end)
 
     it('should reduce HZH', function()
@@ -246,7 +237,7 @@ describe('board', function()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
       assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_x())
+      assert.are_equal("x", board:gate_at(1, 12)._reduce_to.type)
     end)
 
     it('should reduce SZS', function()
@@ -258,7 +249,7 @@ describe('board', function()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
       assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_z())
+      assert.are_equal("z", board:gate_at(1, 12)._reduce_to.type)
     end)
 
     it('should reduce TST', function()
@@ -270,7 +261,7 @@ describe('board', function()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
       assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_z())
+      assert.are_equal("z", board:gate_at(1, 12)._reduce_to.type)
     end)
 
     it('should reduce TZST', function()
@@ -346,9 +337,9 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
       assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
       assert.is_true(board:gate_at(3, 11)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_swap())
+      assert.are_equal("swap", board:gate_at(1, 12)._reduce_to.type)
       assert.are_equal(3, board:gate_at(1, 12)._reduce_to.other_x)
-      assert.is_true(board:gate_at(3, 12)._reduce_to:is_swap())
+      assert.are_equal("swap", board:gate_at(3, 12)._reduce_to.type)
       assert.are_equal(1, board:gate_at(3, 12)._reduce_to.other_x)
     end)
 
@@ -369,9 +360,9 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
       assert.is_true(board:gate_at(1, 11)._reduce_to:is_i())
       assert.is_true(board:gate_at(3, 11)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 12)._reduce_to:is_swap())
+      assert.are_equal("swap", board:gate_at(1, 12)._reduce_to.type)
       assert.are_equal(3, board:gate_at(1, 12)._reduce_to.other_x)
-      assert.is_true(board:gate_at(3, 12)._reduce_to:is_swap())
+      assert.are_equal("swap", board:gate_at(3, 12)._reduce_to.type)
       assert.are_equal(1, board:gate_at(3, 12)._reduce_to.other_x)
     end)
 
@@ -387,9 +378,9 @@ describe('board', function()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
       assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11)._reduce_to:is_cnot_x())
+      assert.are_equal("cnot_x", board:gate_at(1, 11)._reduce_to.type)
       assert.are_equal(3, board:gate_at(1, 11)._reduce_to.other_x)
-      assert.is_true(board:gate_at(3, 11)._reduce_to:is_control())
+      assert.are_equal("control", board:gate_at(3, 11)._reduce_to.type)
       assert.are_equal(1, board:gate_at(3, 11)._reduce_to.other_x)
       assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
@@ -407,9 +398,9 @@ describe('board', function()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
       assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11)._reduce_to:is_control())
+      assert.are_equal("control", board:gate_at(1, 11)._reduce_to.type)
       assert.are_equal(3, board:gate_at(1, 11)._reduce_to.other_x)
-      assert.is_true(board:gate_at(3, 11)._reduce_to:is_cnot_x())
+      assert.are_equal("cnot_x", board:gate_at(3, 11)._reduce_to.type)
       assert.are_equal(1, board:gate_at(3, 11)._reduce_to.other_x)
       assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
@@ -426,8 +417,8 @@ describe('board', function()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
       assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_control())
-      assert.is_true(board:gate_at(3, 11):is_cnot_x())
+      assert.are_equal("control", board:gate_at(1, 11).type)
+      assert.are_equal("cnot_x", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
     end)
 
@@ -442,8 +433,8 @@ describe('board', function()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
       assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_cnot_x())
-      assert.is_true(board:gate_at(3, 11):is_control())
+      assert.are_equal("cnot_x", board:gate_at(1, 11).type)
+      assert.are_equal("control", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
@@ -458,8 +449,8 @@ describe('board', function()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
       assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_control())
-      assert.is_true(board:gate_at(3, 11):is_cnot_x())
+      assert.are_equal("control", board:gate_at(1, 11).type)
+      assert.are_equal("cnot_x", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
@@ -474,8 +465,8 @@ describe('board', function()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
       assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_cnot_x())
-      assert.is_true(board:gate_at(3, 11):is_control())
+      assert.are_equal("cnot_x", board:gate_at(1, 11).type)
+      assert.are_equal("control", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
     end)
 
@@ -488,8 +479,8 @@ describe('board', function()
       board:reduce_gates()
 
       assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_control())
-      assert.is_true(board:gate_at(3, 11):is_cnot_x())
+      assert.are_equal("control", board:gate_at(1, 11).type)
+      assert.are_equal("cnot_x", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
@@ -502,8 +493,8 @@ describe('board', function()
       board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_cnot_x())
-      assert.is_true(board:gate_at(3, 11):is_control())
+      assert.are_equal("cnot_x", board:gate_at(1, 11).type)
+      assert.are_equal("control", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
     end)
 
@@ -516,8 +507,8 @@ describe('board', function()
       board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_control())
-      assert.is_true(board:gate_at(3, 11):is_cnot_x())
+      assert.are_equal("control", board:gate_at(1, 11).type)
+      assert.are_equal("cnot_x", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
     end)
 
@@ -530,8 +521,8 @@ describe('board', function()
       board:reduce_gates()
 
       assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_cnot_x())
-      assert.is_true(board:gate_at(3, 11):is_control())
+      assert.are_equal("cnot_x", board:gate_at(1, 11).type)
+      assert.are_equal("control", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
@@ -562,8 +553,8 @@ describe('board', function()
       board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
+      assert.are_equal("swap", board:gate_at(1, 11).type)
+      assert.are_equal("swap", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
@@ -579,8 +570,8 @@ describe('board', function()
       board:reduce_gates()
 
       assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
+      assert.are_equal("swap", board:gate_at(1, 11).type)
+      assert.are_equal("swap", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
     end)
 
@@ -596,8 +587,8 @@ describe('board', function()
       board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
+      assert.are_equal("swap", board:gate_at(1, 11).type)
+      assert.are_equal("swap", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
@@ -613,8 +604,8 @@ describe('board', function()
       board:reduce_gates()
 
       assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
+      assert.are_equal("swap", board:gate_at(1, 11).type)
+      assert.are_equal("swap", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
     end)
 
@@ -630,8 +621,8 @@ describe('board', function()
       board:reduce_gates()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
+      assert.are_equal("swap", board:gate_at(1, 11).type)
+      assert.are_equal("swap", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
@@ -648,8 +639,8 @@ describe('board', function()
       board:reduce_gates()
 
       assert.is_true(board:gate_at(2, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(2, 11):is_swap())
-      assert.is_true(board:gate_at(4, 11):is_swap())
+      assert.are_equal("swap", board:gate_at(2, 11).type)
+      assert.are_equal("swap", board:gate_at(4, 11).type)
       assert.is_true(board:gate_at(4, 12)._reduce_to:is_i())
     end)
 
@@ -664,9 +655,9 @@ describe('board', function()
 
       board:reduce_gates()
 
-      assert.is_true(board:gate_at(1, 10)._reduce_to:is_z())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
+      assert.are_equal("z", board:gate_at(1, 10)._reduce_to.type)
+      assert.are_equal("swap", board:gate_at(1, 11).type)
+      assert.are_equal("swap", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
@@ -681,9 +672,9 @@ describe('board', function()
 
       board:reduce_gates()
 
-      assert.is_true(board:gate_at(1, 10)._reduce_to:is_s())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
+      assert.are_equal("s", board:gate_at(1, 10)._reduce_to.type)
+      assert.are_equal("swap", board:gate_at(1, 11).type)
+      assert.are_equal("swap", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
@@ -702,10 +693,62 @@ describe('board', function()
 
       assert.is_true(board:gate_at(1, 10)._reduce_to:is_i())
       assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-      assert.is_true(board:gate_at(1, 11):is_swap())
-      assert.is_true(board:gate_at(3, 11):is_swap())
+      assert.are_equal("swap", board:gate_at(1, 11).type)
+      assert.are_equal("swap", board:gate_at(3, 11).type)
       assert.is_true(board:gate_at(1, 12)._reduce_to:is_i())
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    end)
+
+    it('おじゃまゲートの左に隣接するゲートがマッチした時、おじゃまゲートが破壊される #solo'
+      , function()
+      local h = h_gate()
+
+      board:put(1, 12, h)
+      board:put(2, 12, garbage_gate(2))
+      h._state = "match"
+
+      board:reduce_gates()
+
+      assert.are_equal('!', board:gate_at(2, 12).type)
+    end)
+
+    it('おじゃまゲートの右に隣接するゲートがマッチした時、おじゃまゲートが破壊される #solo'
+      , function()
+      local h = h_gate()
+
+      board:put(3, 12, h)
+      board:put(1, 12, garbage_gate(2))
+      h._state = "match"
+
+      board:reduce_gates()
+
+      assert.are_equal('!', board:gate_at(1, 12).type)
+    end)
+
+    it('おじゃまゲートの上に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
+      , function()
+      local h = h_gate()
+
+      board:put(1, 11, h)
+      board:put(1, 12, garbage_gate(2))
+      h._state = "match"
+
+      board:reduce_gates()
+
+      assert.are_equal('!', board:gate_at(1, 12).type)
+    end)
+
+    it('おじゃまゲートの下に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
+      , function()
+      local h = h_gate()
+
+      board:put(1, 11, garbage_gate(2))
+      board:put(1, 12, h)
+      h._state = "match"
+
+      board:reduce_gates()
+
+      assert.are_equal('!', board:gate_at(1, 11).type)
     end)
 
     -- it('should reduce xz cz x', function()
@@ -722,8 +765,8 @@ describe('board', function()
     --   assert.is_true(board:gate_at(1, 9)._reduce_to:is_i())
     --   assert.is_true(board:gate_at(1, 10):is_h())
     --   assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
-    --   assert.is_true(board:gate_at(1, 11):is_cnot_x())
-    --   assert.is_true(board:gate_at(3, 11):is_control())
+    --   assert.is_true(board:gate_at(1, 11).type)
+    --   assert.is_true(board:gate_at(3, 11).type)
     --   assert.is_true(board:gate_at(1, 12):is_h())
     --   assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     -- end)
@@ -788,8 +831,8 @@ describe('board', function()
         board:update()
       end
 
-      assert.is_true(board:gate_at(1, 3):is_swap())
-      assert.is_true(board:gate_at(3, 3):is_swap())
+      assert.are_equal("swap", board:gate_at(1, 3).type)
+      assert.are_equal("swap", board:gate_at(3, 3).type)
     end)
 
     --
@@ -824,8 +867,8 @@ describe('board', function()
         board:update()
       end
 
-      assert.is_true(board:gate_at(1, 3):is_swap())
-      assert.is_true(board:gate_at(3, 3):is_swap())
+      assert.are_equal("swap", board:gate_at(1, 3).type)
+      assert.are_equal("swap", board:gate_at(3, 3).type)
     end)
 
     it('CNOT 下のゲートを入れ替えて落としたときに消えない', function()
@@ -851,7 +894,7 @@ describe('board', function()
       profiler.stop()
       profiler.report("profiler.log")
 
-      assert.is_true(board:gate_at(5, 12):is_s())
+      assert.are_equal("s", board:gate_at(5, 12).type)
     end)
   end)
 
