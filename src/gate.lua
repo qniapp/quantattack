@@ -1,8 +1,8 @@
 require("engine/application/constants")
 require("engine/core/class")
 require("engine/render/color")
+require("particle_set")
 
-local puff_particle = require("puff_particle")
 local gate = new_class()
 
 local swap_animation_frame_count = 4
@@ -184,41 +184,45 @@ function gate:update(board, x, y)
       self._tick_swap = self._tick_swap + 1
     else
       -- SWAP 完了
-
-      --#if assert
-      assert(self:_is_swapping_with_right(), self._state)
-      --#endif
-
       local new_x = x + 1
       local right_gate = board:gate_at(new_x, y)
 
       --#if assert
+      assert(self:_is_swapping_with_right(), self._state)
       assert(right_gate:_is_swapping_with_left(), right_gate._state)
       --#endif
 
+      -- 星屑? エフェクト
+      if not right_gate:is_i() then
+        create_particle_set(board:screen_x(x) - 2,
+          board:screen_y(y) + 3,
+          "1,yellow,yellow,5,left|1,yellow,yellow,5,left|0,yellow,yellow,5,left|0,yellow,yellow,5,left")
+      end
+      if not self:is_i() then
+        create_particle_set(board:screen_x(new_x) + 10,
+          board:screen_y(y) + 3,
+          "1,yellow,yellow,5,right|1,yellow,yellow,5,right|0,yellow,yellow,5,right|0,yellow,yellow,5,right")
+      end
+
       -- A を SWAP や CNOT の一部とすると、
       --
-      --   [BC]
-      -- --[A_], [A-]--
-      -- --[-A], [_A]--
-      --   [AA]
+      -- 1.   [BC]
+      -- 2. --[A_], [A-]--
+      -- 3. --[-A], [_A]--
+      -- 4.   [AA]
       --
       -- の 4 パターンで左側だけ考える
 
-      if self.other_x == nil and right_gate.other_x == nil then
-        board:put(new_x, y, self)
-        board:put(x, y, right_gate)
-      elseif not self:is_i() and right_gate:is_i() then
-        board:put(new_x, y, self)
-        board:put(x, y, right_gate)
+      board:put(new_x, y, self)
+      board:put(x, y, right_gate)
+
+      if self.other_x == nil and right_gate.other_x == nil then -- 1.
+        -- NOP
+      elseif not self:is_i() and right_gate:is_i() then -- 2.
         board:gate_at(self.other_x, y).other_x = new_x
-      elseif self:is_i() and not right_gate:is_i() then
-        board:put(new_x, y, self)
-        board:put(x, y, right_gate)
+      elseif self:is_i() and not right_gate:is_i() then -- 3.
         board:gate_at(right_gate.other_x, y).other_x = x
-      elseif self.other_x and right_gate.other_x then
-        board:put(new_x, y, self)
-        board:put(x, y, right_gate)
+      elseif self.other_x and right_gate.other_x then -- 4.
         self.other_x, right_gate.other_x = x, new_x
       else
         --#if assert
@@ -232,10 +236,6 @@ function gate:update(board, x, y)
     self._screen_dy = self._screen_dy + drop_speed
     local new_screen_y = board:screen_y(y) + self._screen_dy
     local new_y = board:y(new_screen_y)
-
-    --#if assert
-    assert(1 <= new_y and new_y <= board.row_next_gates, "new_y = " .. new_y)
-    --#endif
 
     if new_y == y then
       -- 同じ場所にとどまっているので、何もしない
@@ -279,7 +279,12 @@ function gate:update(board, x, y)
     else
       local new_gate = self._reduce_to
       board:put(x, y, new_gate)
-      new_gate:_puff(board, x, y, self._match_index)
+
+      -- puff!
+      sfx(3, -1, (self._match_index - 1) * 4, 4)
+      create_particle_set(board:screen_x(x) + 3,
+        board:screen_y(y) + 3,
+        "3,white,dark_gray,20|3,white,dark_gray,20|2,white,dark_gray,20|2,dark_purple,dark_gray,20|2,light_gray,dark_gray,20|1,white,dark_gray,20|1,white,dark_gray,20|1,light_gray,dark_gray,20|1,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
 
       if self._garbage_span then
         new_gate._tick_freeze = 0
@@ -294,24 +299,6 @@ function gate:update(board, x, y)
       self._state = state_idle
     end
   end
-end
-
-function gate:_puff(board, board_x, board_y, puff_index)
-  local x = board:screen_x(board_x) + 3
-  local y = board:screen_y(board_y) + 3
-
-  sfx(3, -1, (puff_index - 1) * 4, 4)
-
-  puff_particle(x, y, 3)
-  puff_particle(x, y, 3)
-  puff_particle(x, y, 2)
-  puff_particle(x, y, 2, colors.dark_purple)
-  puff_particle(x, y, 2, colors.light_grey)
-  puff_particle(x, y, 1)
-  puff_particle(x, y, 1)
-  puff_particle(x, y, 1, colors.light_grey)
-  puff_particle(x, y, 1, colors.light_grey)
-  puff_particle(x, y, 0, colors.dark_purple)
 end
 
 function gate:render(screen_x, screen_y)
@@ -425,30 +412,22 @@ end
 
 --#if debug
 function gate:_tostring()
-  local type = self._type
-  type = type == "i" and "_" or type
-  type = type == "control" and "C" or type
-  type = type == "cnot_x" and "X" or type
-  type = type == "swap" and "S" or type
+  local typestr, statestr = {
+    i = '_',
+    control = 'C',
+    cnot_x = 'X',
+    swap = 'S'
+  },
+      {
+        idle = " ",
+        swapping_with_left = "<",
+        swapping_with_right = ">",
+        dropping = "|",
+        match = "*",
+        freeze = "f"
+      }
 
-  if self:is_idle() then
-    return type
-  elseif self:_is_swapping_with_left() then
-    return type .. "<"
-  elseif self:_is_swapping_with_right() then
-    return type .. ">"
-    -- elseif self:is_swapping() then -- yellow
-    --   return type .. "!"
-    --   -- return "\27[30;43m" .. type .. "\27[39;49m"
-  elseif self:is_dropping() then -- blue
-    return type
-    -- return "\27[37;44m" .. type .. "\27[39;49m"
-  elseif self:is_match() then -- red
-    return type
-    -- return "\27[37;41m" .. type .. "\27[39;49m"
-  else
-    return self._type .. " (" .. self._state .. ")"
-  end
+  return (typestr[self._type] or self._type) .. statestr[self._state]
 end
 
 --#endif
