@@ -2,7 +2,8 @@ require("engine/application/constants")
 require("engine/core/class")
 require("engine/render/color")
 
-local puff_particle = require("puff_particle")
+local particle_set = require("particle_set")
+-- local puff_particle = require("puff_particle")
 local gate = new_class()
 
 local swap_animation_frame_count = 4
@@ -293,20 +294,11 @@ function gate:update(board, x, y)
 end
 
 function gate:_puff(board, board_x, board_y, puff_index)
-  local x = board:screen_x(board_x) + 3
-  local y = board:screen_y(board_y) + 3
-
   sfx(3, -1, (puff_index - 1) * 4, 4)
 
-  puff_particle(x, y, 3)
-  puff_particle(x, y, 3)
-  puff_particle(x, y, 2)
-  puff_particle(x, y, 2, colors.dark_purple)
-  puff_particle(x, y, 2, colors.light_grey)
-  puff_particle(x, y, 1)
-  puff_particle(x, y, 1)
-  puff_particle(x, y, 1, colors.light_grey)
-  puff_particle(x, y, 1, colors.light_grey)
+  particle_set(board:screen_x(board_x) + 3,
+               board:screen_y(board_y) + 3,
+               "3,white|3,white|2,white|2,dark_purple|2,light_gray|1,white|1,white|1,light_gray|1,light_gray|0,dark_purple")
 end
 
 function gate:render(screen_x, screen_y)

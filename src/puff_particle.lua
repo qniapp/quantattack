@@ -27,11 +27,12 @@ puff_particle.render = function()
   end)
 end
 
+-- TODO: particle に名前を変更
 function puff_particle:_init(x, y, radius, color)
   self._x = x
   self._y = y
   self._radius = radius
-  self._color = color or colors.white
+  self._color = colors[color] or colors.white
   self._tick = 0
   self._max_tick = 20 + rnd(10)
   self._dx = rnd(1.2) * .8
