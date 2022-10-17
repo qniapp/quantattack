@@ -4,6 +4,7 @@ local ui = require("engine/ui/ui")
 require("engine/application/constants")
 require("engine/core/class")
 require("engine/render/color")
+require("particle")
 
 --#if log
 require("engine/debug/dump")
@@ -20,8 +21,6 @@ local player_cursor = player_cursor_class()
 
 local board_class = require("board")
 local board = board_class()
-
-local particle = require("particle")
 
 solo.type = ':solo'
 
@@ -73,7 +72,7 @@ function solo:update()
 
     player.score = player.score + board:update()
     player_cursor:update()
-    particle:update()
+    update_particles()
 
     if self:_auto_raise() and rnd(1) < 0.05 then
       board:drop_garbage()
@@ -119,7 +118,7 @@ function solo:render() -- override
   board:render()
   player_cursor:render(board)
   self:render_score()
-  particle:render()
+  render_particles()
 
   if board:is_game_over() then
     ui.draw_rounded_box(10, 55, 117, 78, colors.dark_gray, colors.white)

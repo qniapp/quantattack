@@ -1,10 +1,8 @@
-require("engine/core/class")
 require("engine/render/color")
 
-local particle = new_class()
 local all_particles = {}
 
-particle.update = function()
+function update_particles()
   foreach(all_particles, function(each)
     if each._tick > each._max_tick then
       del(all_particles, each)
@@ -21,40 +19,39 @@ particle.update = function()
   end)
 end
 
-particle.render = function()
+function render_particles()
   foreach(all_particles, function(each)
     circfill(each._x, each._y, each._radius, each._color)
   end)
 end
 
--- TODO: particle に名前を変更
-function particle:_init(x, y, radius, color, color_fade, max_tick, horizontal_direction)
-  self._x = x
-  self._y = y
-  self._radius = radius
-  self._color = colors[color] or colors.white
-  self._color_fade = colors[color_fade] or colors.dark_gray
-  self._tick = 0
-  self._max_tick = (max_tick or 0) + rnd(10)
+function create_particle(x, y, radius, color, color_fade, max_tick, horizontal_direction)
+  local particle = {
+    _x = x,
+    _y = y,
+    _radius = radius,
+    _color = colors[color] or colors.white,
+    _color_fade = colors[color_fade] or colors.dark_gray,
+    _tick = 0,
+    _max_tick = (max_tick or 0) + rnd(10),
 
-  self._dx = rnd(1.2) * .8
-  self._dy = rnd(1.2) * .8
-  self._ddx = -0.03
-  self._ddy = -0.03
+    _dx = rnd(1.2) * .8,
+    _dy = rnd(1.2) * .8,
+    _ddx = -0.03,
+    _ddy = -0.03
+  }
 
-  -- 左: -1, 右: 1
+  -- 左方向のみに動かす場合
   if horizontal_direction == 'left' or flr(rnd(2)) == 0 then
-    self._dx = self._dx * -1
-    self._ddx = self._ddx * -1
+    particle._dx = particle._dx * -1
+    particle._ddx = particle._ddx * -1
   end
 
-  -- 上方向に動く場合
+  -- 上方向のみに動く場合
   if flr(rnd(2)) == 0 then
-    self._dy = self._dy * -1
-    self._ddy = self._ddy * -1
+    particle._dy = particle._dy * -1
+    particle._ddy = particle._ddy * -1
   end
 
-  add(all_particles, self)
+  add(all_particles, particle)
 end
-
-return particle
