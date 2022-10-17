@@ -708,6 +708,54 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
+    it('おじゃまゲートの左に隣接するゲートがマッチした時、おじゃまゲートが破壊される #solo', function()
+      local h = h_gate()
+
+      board:put(1, 12, h)
+      board:put(2, 12, garbage_gate(2))
+      h._state = "match"
+
+      board:reduce_gates()
+
+      assert.are_equal('!', board:gate_at(2, 12).type)
+    end)
+
+    it('おじゃまゲートの右に隣接するゲートがマッチした時、おじゃまゲートが破壊される #solo', function()
+      local h = h_gate()
+
+      board:put(3, 12, h)
+      board:put(1, 12, garbage_gate(2))
+      h._state = "match"
+
+      board:reduce_gates()
+
+      assert.are_equal('!', board:gate_at(1, 12).type)
+    end)
+
+    it('おじゃまゲートの上に隣接するゲートがマッチした時、おじゃまゲートが破壊される', function()
+      local h = h_gate()
+
+      board:put(1, 11, h)
+      board:put(1, 12, garbage_gate(2))
+      h._state = "match"
+
+      board:reduce_gates()
+
+      assert.are_equal('!', board:gate_at(1, 12).type)
+    end)
+
+    it('おじゃまゲートの下に隣接するゲートがマッチした時、おじゃまゲートが破壊される', function()
+      local h = h_gate()
+
+      board:put(1, 11, garbage_gate(2))
+      board:put(1, 12, h)
+      h._state = "match"
+
+      board:reduce_gates()
+
+      assert.are_equal('!', board:gate_at(1, 11).type)
+    end)
+
     -- it('should reduce xz cz x', function()
     --   board:put(1, 9, z_gate())
     --   board:put(1, 10, h_gate())

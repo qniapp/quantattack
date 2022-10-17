@@ -155,22 +155,39 @@ function board:reduce_gates()
   for y = board.rows, 1, -1 do
     for x = 1, board.cols do
       local gate = self._gates[x][y]
-      local match = false
+      local span = gate.span
 
       if gate:is_garbage() then
-        if y < board.rows then
-          for gx = x, x + gate.span - 1 do
-            local g = self:gate_at(gx, y + 1)
-            if g:is_match() and not g.type == "!" then
-              match = true
-            end
+        local adjacent_gates = {}
+        local match = false
+
+        if x > 1 then
+          add(adjacent_gates, self:gate_at(x - 1, y))
+        end
+
+        if x + span <= board.cols then
+          add(adjacent_gates, self:gate_at(x + span, y))
+        end
+
+        for gx = x, x + span - 1 do
+          if y > 1 then
+            add(adjacent_gates, self:gate_at(gx, y - 1))
+          end
+          if y < board.rows then
+            add(adjacent_gates, self:gate_at(gx, y + 1))
+          end
+        end
+
+        for _, each in pairs(adjacent_gates) do
+          if (each:is_match() and each.type ~= "!") then
+            match = true
           end
         end
 
         if match then
-          for dx = 0, gate.span - 1 do
+          for dx = 0, span - 1 do
             self:put(x + dx, y, garbage_match_gate())
-            self:gate_at(x + dx, y):replace_with(self:_random_single_gate(), dx, gate.span)
+            self:gate_at(x + dx, y):replace_with(self:_random_single_gate(), dx, span)
           end
         end
       end

@@ -7,14 +7,6 @@ local gate = new_class()
 
 local swap_animation_frame_count = 4
 local match_animation_frame_count = 45
-
-local state_idle = "idle"
-local state_dropping = "dropping"
-local state_match = "match"
-local state_swapping_with_left = "swapping_with_left"
-local state_swapping_with_right = "swapping_with_right"
-local state_freeze = "freeze"
-
 local drop_speed = 3
 
 local sprites = {
@@ -73,7 +65,7 @@ local sprites = {
 function gate:_init(type, span)
   self.type = type
   self.span = span or 1
-  self._state = state_idle
+  self._state = "idle"
   self._screen_dy = 0
 end
 
@@ -92,7 +84,7 @@ end
 
 -- ゲートが idle である場合 true を返す
 function gate:is_idle()
-  return self._state == state_idle
+  return self._state == "idle"
 end
 
 -- 他のゲートが通過 (ドロップ) できる場合 true を返す
@@ -103,12 +95,12 @@ end
 
 -- マッチ状態である場合 true を返す
 function gate:is_match()
-  return self._state == state_match
+  return self._state == "match"
 end
 
 -- おじゃまユニタリがゲートに変化した後の硬直中
 function gate:is_freeze()
-  return self._state == state_freeze
+  return self._state == "freeze"
 end
 
 -- マッチできる場合 true を返す
@@ -180,7 +172,7 @@ function gate:update(board, x, y)
         --#endif
       end
 
-      self._state, right_gate._state = state_idle, state_idle
+      self._state, right_gate._state = "idle", "idle"
     end
   elseif self:is_dropping() then
     self._screen_dy = self._screen_dy + drop_speed
@@ -208,14 +200,14 @@ function gate:update(board, x, y)
       self._garbage_drop_sfx_played = true
 
       self._screen_dy = 0
-      self._state = state_idle
+      self._state = "idle"
       self._tick_dropped = 0
 
       if self.other_x and x < self.other_x then
         local other_gate = board:gate_at(self.other_x, y)
 
         other_gate._screen_dy = 0
-        other_gate._state = state_idle
+        other_gate._state = "idle"
         other_gate._tick_dropped = 0
       end
     end
@@ -239,14 +231,14 @@ function gate:update(board, x, y)
       if self._garbage_span then
         new_gate._tick_freeze = 0
         new_gate._freeze_frame_count = (self._garbage_span - self._match_index) * 15
-        new_gate._state = state_freeze
+        new_gate._state = "freeze"
       end
     end
   elseif self:is_freeze() then
     if self._tick_freeze < self._freeze_frame_count then
       self._tick_freeze = self._tick_freeze + 1
     else
-      self._state = state_idle
+      self._state = "idle"
     end
   end
 end
@@ -293,7 +285,7 @@ function gate:_sprite()
 end
 
 function gate:replace_with(other, match_index, garbage_span)
-  self._state = state_match
+  self._state = "match"
   self._reduce_to = other
   self._match_index = match_index or 0
   self._garbage_span = garbage_span
@@ -314,12 +306,12 @@ function gate:drop()
   assert(self:is_droppable())
   --#endif
 
-  self._state = state_dropping
+  self._state = "dropping"
   self._screen_dy = 0
 end
 
 function gate:is_dropping()
-  return self._state == state_dropping
+  return self._state == "dropping"
 end
 
 -------------------------------------------------------------------------------
@@ -331,11 +323,11 @@ function gate:is_swapping()
 end
 
 function gate:_is_swapping_with_left()
-  return self._state == state_swapping_with_left
+  return self._state == "swapping_with_left"
 end
 
 function gate:_is_swapping_with_right()
-  return self._state == state_swapping_with_right
+  return self._state == "swapping_with_right"
 end
 
 function gate:swap_with_right(new_x)
@@ -343,7 +335,7 @@ function gate:swap_with_right(new_x)
   assert(2 <= new_x)
   --#endif
 
-  self._state = state_swapping_with_right
+  self._state = "swapping_with_right"
   self._tick_swap = 0
 end
 
@@ -352,7 +344,7 @@ function gate:swap_with_left(new_x)
   assert(1 <= new_x)
   --#endif
 
-  self._state = state_swapping_with_left
+  self._state = "swapping_with_left"
   self._tick_swap = 0
 end
 
