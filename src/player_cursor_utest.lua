@@ -7,7 +7,7 @@ describe('player_cursor', function()
   local player_cursor
 
   before_each(function()
-    player_cursor = player_cursor_class.new()
+    player_cursor = player_cursor_class(board_class())
   end)
 
   describe('constructor', function()
@@ -112,7 +112,7 @@ describe('player_cursor', function()
 
   describe("render", function()
     it("should render without errors", function()
-      assert.has_no.errors(function() player_cursor:render(board_class()) end)
+      assert.has_no.errors(function() player_cursor:render() end)
     end)
   end)
 end)

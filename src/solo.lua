@@ -16,11 +16,11 @@ local solo = derived_class(gamestate)
 local player_class = require("player")
 local player = player_class()
 
-local player_cursor_class = require("player_cursor")
-local player_cursor = player_cursor_class.new()
-
 local board_class = require("board")
 local board = board_class()
+
+local player_cursor_class = require("player_cursor")
+local player_cursor = player_cursor_class(board)
 
 local chain_popup = require("chain_popup")
 
@@ -119,7 +119,7 @@ function solo:render() -- override
   cls()
 
   board:render()
-  player_cursor:render(board)
+  player_cursor:render()
   self:render_score()
   render_particles()
   chain_popup:render()

@@ -13,6 +13,8 @@ board.rows = 12 -- board の行数
 board.row_next_gates = board.rows + 1
 
 function board:_init()
+  self.cols = board.cols
+  self.rows = board.rows
   self._gates = {}
   self.width = board.cols * tile_size
   self.height = board.rows * tile_size
