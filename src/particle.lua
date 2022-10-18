@@ -1,8 +1,10 @@
 require("engine/render/color")
 
+local particle = new_class()
+
 local all_particles = {}
 
-function update_particles()
+function particle.update()
   for _, each in pairs(all_particles) do
     if each._tick > each._max_tick then
       del(all_particles, each)
@@ -19,41 +21,38 @@ function update_particles()
   end
 end
 
-function render_particles()
+function particle.render()
   for _, each in pairs(all_particles) do
     circfill(each._x, each._y, each._radius, each._color)
   end
 end
 
-function create_particle(x, y, radius, color, color_fade, max_tick, horizontal_direction)
-  local particle = {
-    _x = x,
-    _y = y,
-    _radius = radius,
-    _color = colors[color] or colors.white,
-    _color_fade = colors[color_fade] or colors.dark_gray,
-    _tick = 0,
-    _max_tick = (max_tick or 0) + rnd(10),
-
-    _dx = rnd(1.2) * .8,
-    _dy = rnd(1.2) * .8,
-    _ddx = -0.03,
-    _ddy = -0.03
-  }
+function particle:_init(x, y, radius, color, color_fade, max_tick, horizontal_direction)
+  self._x = x
+  self._y = y
+  self._radius = radius
+  self._color = colors[color] or colors.white
+  self._color_fade = colors[color_fade] or colors.dark_gray
+  self._tick = 0
+  self._max_tick = (max_tick or 0) + rnd(10)
+  self._dx = rnd(1.2) * .8
+  self._dy = rnd(1.2) * .8
+  self._ddx = -0.03
+  self._ddy = -0.03
 
   -- 左方向のみに動かす場合
   if horizontal_direction == 'left' or flr(rnd(2)) == 0 then
-    particle._dx = particle._dx * -1
-    particle._ddx = particle._ddx * -1
+    self._dx = self._dx * -1
+    self._ddx = self._ddx * -1
   end
 
   -- 上方向のみに動く場合
   if flr(rnd(2)) == 0 then
-    particle._dy = particle._dy * -1
-    particle._ddy = particle._ddy * -1
+    self._dy = self._dy * -1
+    self._ddy = self._ddy * -1
   end
 
-  add(all_particles, particle)
+  add(all_particles, self)
 end
 
 -- x, y, に data で指定した particle のセットを作る
@@ -63,6 +62,8 @@ end
 function create_particle_set(x, y, data)
   for _, particle_data in pairs(split(data, "|")) do
     ---@diagnostic disable-next-line: deprecated
-    create_particle(x, y, unpack(split(particle_data)))
+    particle(x, y, unpack(split(particle_data)))
   end
 end
+
+return particle

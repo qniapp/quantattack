@@ -8,6 +8,7 @@ require("engine/debug/dump")
 
 local game = new_class()
 
+local particle = require("particle")
 local chain_popup = require("chain_popup")
 
 buttons = {
@@ -26,7 +27,7 @@ function game:_init()
 end
 
 function game:init()
-   all_players = {}
+  all_players = {}
 end
 
 function game:add_player(player, board, player_cursor)
@@ -66,7 +67,7 @@ function game:update()
 
     player.score = player.score + board:update()
     player_cursor:update()
-    update_particles()
+    particle:update()
     chain_popup:update()
 
     if self:_auto_raise(board, player, player_cursor) and rnd(1) < 0.05 then
@@ -90,9 +91,10 @@ function game:render() -- override
 
     board:render()
     player_cursor:render()
-    render_particles()
-    chain_popup:render()
   end
+
+  particle:render()
+  chain_popup:render()
 
   color(colors.white)
   cursor(1, 1)
