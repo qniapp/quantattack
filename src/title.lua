@@ -15,7 +15,8 @@ title.type = ':title'
 
 -- sequence of menu items to display, with their target states
 title._items = {
-  menu_item("1 player", ':solo')
+  menu_item("1 player", ':solo'),
+--  menu_item("vs", ':vs')
 }
 
 -- text_menu: text_menu    component handling menu display and selection
