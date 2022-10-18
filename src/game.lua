@@ -19,10 +19,14 @@ buttons = {
   o = 5,
 }
 
-local all_players = {}
+local all_players
 
 function game:_init()
   self.tick = 0
+end
+
+function game:init()
+   all_players = {}
 end
 
 function game:add_player(player, board, player_cursor)

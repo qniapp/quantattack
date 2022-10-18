@@ -21,6 +21,8 @@ solo.type = ':solo'
 function solo:on_enter()
   board:initialize_with_random_gates()
   player:init()
+  player_cursor:init()
+  game:init()
 
   game:add_player(player, board, player_cursor)
 end
