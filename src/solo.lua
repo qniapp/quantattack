@@ -145,7 +145,7 @@ function solo:render_score()
 
   -- skip 2 lines and draw score
   cursor(board.offset_x * 2 + board.width, board.offset_y + 2 * character_height)
-  print("score " .. player.score .. (player.score == 0 and "" or "00"))
+  print("score " .. player.score .. (player.score == 0 and "" or "0"))
 end
 
 return solo

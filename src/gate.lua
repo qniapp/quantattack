@@ -106,7 +106,7 @@ end
 
 -- マッチできる場合 true を返す
 function gate:is_reducible()
-  return (not self:is_i()) and self:is_idle() or self:is_garbage()
+  return not self:is_i() and self:is_idle()
 end
 
 function gate:update(board, x, y)
