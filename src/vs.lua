@@ -7,8 +7,9 @@ local game_class = require("game")
 local game = game_class()
 
 local player_class = require("player")
+local qpu_class = require("qpu")
 local player = player_class()
-local qpu = player_class()
+local qpu = qpu_class()
 
 local board_class = require("board")
 local board = board_class(3)
