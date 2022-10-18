@@ -4,7 +4,8 @@ local reduction_rules = {
     -- H  ----->  I
     {
       "h\nh",
-      ",,\n,1,"
+      ",,\n,1,",
+      2
     },
 
     -- H          I
@@ -13,6 +14,7 @@ local reduction_rules = {
     {
       "h\nx\nh",
       ",,\n,1,\n,2,z",
+      2,
       3
     },
 
@@ -22,6 +24,7 @@ local reduction_rules = {
     {
       "h\nz\nh",
       ",,\n,1,\n,2,x",
+      3,
       3
     },
 
@@ -35,6 +38,7 @@ local reduction_rules = {
     {
       "h,h\ncontrol,cnot_x\nh,h",
       ",,\ntrue,,\n,1,cnot_x\ntrue,1,control\n,2,\ntrue,2,",
+      6,
       10
     },
 
@@ -48,6 +52,7 @@ local reduction_rules = {
     {
       "h\nswap,swap\n?,h",
       ",,\ntrue,2,",
+      2,
       5
     }
   },
@@ -57,7 +62,8 @@ local reduction_rules = {
     -- X  ----->  I
     {
       "x\nx",
-      ",,\n,1,"
+      ",,\n,1,",
+      2
     },
 
     -- X          I
@@ -65,6 +71,7 @@ local reduction_rules = {
     {
       "x\nz",
       ",,\n,1,y",
+      2,
       2
     },
 
@@ -78,6 +85,7 @@ local reduction_rules = {
     {
       "x,x\ncontrol,cnot_x\nx",
       ",,\ntrue,,\n,2,",
+      3,
       8
     },
 
@@ -91,6 +99,7 @@ local reduction_rules = {
     {
       "x\ncnot_x,control\nx",
       ",,\n,2,",
+      2,
       6
     },
 
@@ -104,6 +113,7 @@ local reduction_rules = {
     {
       "x\nswap,swap\n?,x",
       ",,\ntrue,2,",
+      2,
       5
     }
   },
@@ -113,7 +123,8 @@ local reduction_rules = {
     -- Y  ----->  I
     {
       "y\ny",
-      ",,\n,1,"
+      ",,\n,1,",
+      2
     },
 
     -- Y            I
@@ -126,6 +137,7 @@ local reduction_rules = {
     {
       "y\nswap,swap\n?,y",
       ",,\ntrue,2,",
+      2,
       5
     }
   },
@@ -135,7 +147,8 @@ local reduction_rules = {
     -- Z  ----->  I
     {
       "z\nz",
-      ",,\n,1,"
+      ",,\n,1,",
+      2
     },
 
     -- Z          I
@@ -143,6 +156,7 @@ local reduction_rules = {
     {
       "z\nx",
       ",,\n,1,y",
+      2,
       2
     },
 
@@ -156,6 +170,7 @@ local reduction_rules = {
     {
       "z,z\ncontrol,cnot_x\n?,z",
       ",,\ntrue,,\ntrue,2,",
+      3,
       8
     },
 
@@ -169,6 +184,7 @@ local reduction_rules = {
     {
       "z\ncontrol,cnot_x\nz",
       ",,\n,2,",
+      2,
       6
     },
 
@@ -182,6 +198,7 @@ local reduction_rules = {
     {
       "z\nswap,swap\n?,z",
       ",,\ntrue,2,",
+      2,
       5
     }
   },
@@ -191,7 +208,8 @@ local reduction_rules = {
     -- S  ----->  Z
     {
       "s\ns",
-      ",,\n,1,z"
+      ",,\n,1,z",
+      2
     },
 
     -- S          I
@@ -200,6 +218,7 @@ local reduction_rules = {
     {
       "s\nz\ns",
       ",,\n,1,\n,2,z",
+      3,
       3
     },
 
@@ -213,6 +232,7 @@ local reduction_rules = {
     {
       "s\nswap,swap\n?,s",
       ",,z\ntrue,2,",
+      2,
       5
     }
   },
@@ -222,7 +242,8 @@ local reduction_rules = {
     -- T  ----->  S
     {
       "t\nt",
-      ",,\n,1,s"
+      ",,\n,1,s",
+      2
     },
 
     -- T          I
@@ -231,6 +252,7 @@ local reduction_rules = {
     {
       "t\ns\nt",
       ",,\n,1,\n,2,z",
+      3,
       3
     },
 
@@ -241,6 +263,7 @@ local reduction_rules = {
     {
       "t\nz\ns\nt",
       ",,\n,1,\n,2,\n,3,",
+      4,
       4
     },
 
@@ -251,6 +274,7 @@ local reduction_rules = {
     {
       "t\ns\nz\nt",
       ",,\n,1,\n,2,\n,3,",
+      4,
       4
     },
 
@@ -264,19 +288,21 @@ local reduction_rules = {
     {
       "t\nswap,swap\n?,t",
       ",,s\ntrue,2,",
+      2,
       5
     }
   },
 
   control = {
-    -- C-X          I
-    -- C-X  ----->  I
+    -- C-X          I I
+    -- C-X  ----->  I I
     --
-    -- X-C          I
-    -- X-C  ----->  I
+    -- X-C          I I
+    -- X-C  ----->  I I
     {
       "control,cnot_x\ncontrol,cnot_x",
       ",,\ntrue,,\n,1,\ntrue,1,",
+      4,
       5
     },
 
@@ -290,6 +316,7 @@ local reduction_rules = {
     {
       "control,cnot_x\ncnot_x,control\ncontrol,cnot_x",
       ",,\ntrue,,\n,1,\ntrue,1,\n,2,swap\ntrue,2,swap",
+      6,
       10
     },
 
@@ -299,6 +326,7 @@ local reduction_rules = {
     {
       "control,cnot_x\nswap,swap\ncnot_x,control",
       ",,\ntrue,,\n,2,\ntrue,2,",
+      4,
       10
     }
   },
@@ -309,6 +337,7 @@ local reduction_rules = {
     {
       "swap,swap\nswap,swap",
       ",,\ntrue,,\n,1,\ntrue,1,",
+      4,
       30
     }
   }

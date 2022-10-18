@@ -4,8 +4,10 @@ require("particle")
 
 local gate = new_class()
 
+gate.match_animation_frame_count = 45
+gate.match_delay_per_gate = 15
+
 local swap_animation_frame_count = 4
-local match_animation_frame_count = 45
 local drop_speed = 3
 
 local sprites = {
@@ -172,6 +174,7 @@ function gate:update(board, x, y)
       end
 
       self._state, right_gate._state = "idle", "idle"
+      self.dirty, right_gate.dirty = true, true
     end
   elseif self:is_dropping() then
     self._screen_dy = self._screen_dy + drop_speed
@@ -215,7 +218,7 @@ function gate:update(board, x, y)
     assert(not self:is_garbage())
     --#endif
 
-    if self._tick_match <= match_animation_frame_count + self._match_index * 15 then -- TODO: 15 をどっかに定数化
+    if self._tick_match <= gate.match_animation_frame_count + self._match_index * gate.match_delay_per_gate then
       self._tick_match = self._tick_match + 1
     else
       local new_gate = self._reduce_to
