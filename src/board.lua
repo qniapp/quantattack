@@ -18,7 +18,7 @@ function board:_init()
   self.height = board.rows * tile_size
   self.offset_x = 10
   self.offset_y = screen_height - self.height
-  self.chain = true
+  self.tick_chainable = 0
   self.chain_count = 0
   self:init()
 end
@@ -111,8 +111,9 @@ function board:update()
   score = score + self:reduce_gates()
   self:drop_gates()
   self:_update_gates()
-  if self.tick_chain then
-    self.tick_chain = self.tick_chain + 1
+
+  if self.tick_chainable > 0 then
+    self.tick_chainable = self.tick_chainable - 1
   end
 
   return score
@@ -126,22 +127,35 @@ function board:reduce_gates()
       local reduction = self:reduce(x, y)
       score = score + (#reduction.to == 0 and 0 or reduction.score)
 
+      -- チェイン (連鎖) の処理
       if #reduction.to > 0 then
-        if self.tick_chain == nil then
-          self.tick_chain = 0
+        if self.tick_chainable == 0 then
           self.chain_count = 1
-        elseif self.tick_chain < 45 then
-          if self.tick_chain ~= 0 then -- 同時消しでない場合
-            self.tick_chain = 0
+          self.tick_chainable = gate_class.match_animation_frame_count + reduction.gate_count * gate_class.match_delay_per_gate + 10
+          self.last_tick_chain = self.tick_chainable
+
+          -- すべてのブロックを dirty = false にする
+          -- 連鎖中に一度でも入れ換えを行ったブロックは dirty になる
+          -- dirty なブロックが消えた場合はチェインを継続しない
+          for _x = 1, board.cols do
+            for _y = 1, board.rows do
+              self._gates[_x][_y].dirty = false
+            end
+          end
+        else
+          if self.last_tick_chain ~= self.tick_chainable then -- 同時消しの場合は chain_count を増やさない
+            local chainable_frames = gate_class.match_animation_frame_count + reduction.gate_count * gate_class.match_delay_per_gate + 10
+            if self.tick_chainable < chainable_frames then
+              self.tick_chainable = chainable_frames
+            end
+            self.last_tick_chain = self.tick_chainable
 
             self.chain_count = self.chain_count + 1
+
             if self.chain_count > 1 then
               chain_popup(self.chain_count, self:screen_x(x), self:screen_y(y))
             end
           end
-        else
-          self.tick_chain = nil
-          self.chain_count = 0
         end
       end
 
@@ -269,6 +283,14 @@ function board:_update_gates()
 end
 
 function board:render()
+  -- 連鎖ゲージを描画
+  local max_tick_chainable = gate_class.match_animation_frame_count + 6 * gate_class.match_delay_per_gate + 10
+  local length = self.tick_chainable / max_tick_chainable
+  local gauge_height = length * self.height
+  rectfill(2, self.offset_y + (self.height - gauge_height),
+    3, self.offset_y + self.height,
+    colors.green)
+
   for x = 1, board.cols do
     -- draw wires
     local line_x = self:screen_x(x) + 3
@@ -507,7 +529,7 @@ function board:reduce(x, y, include_next_gates)
       end
     end
 
-    reduction = { to = rule[2], dx = dx, score = rule[3] or 1 }
+    reduction = { to = rule[2], dx = dx, gate_count = rule[3], score = rule[4] or 1 }
     goto matched
 
     ::next_rule::
