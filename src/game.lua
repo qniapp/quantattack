@@ -11,15 +11,6 @@ local game = new_class()
 local particle = require("particle")
 local chain_popup = require("chain_popup")
 
-buttons = {
-  left = 0,
-  right = 1,
-  up = 2,
-  down = 3,
-  x = 4,
-  o = 5,
-}
-
 local all_players
 
 function game:_init()
@@ -40,28 +31,28 @@ function game:update()
     local board = each.board
     local player_cursor = each.player_cursor
 
-    if btnp(buttons.left) then
+    if player:left() then
       sfx(player_cursor_class.sfx_move)
       player_cursor:move_left()
     end
-    if btnp(buttons.right) then
+    if player:right() then
       sfx(player_cursor_class.sfx_move)
       player_cursor:move_right()
     end
-    if btnp(buttons.up) then
+    if player:up() then
       sfx(player_cursor_class.sfx_move)
       player_cursor:move_up()
     end
-    if btnp(buttons.down) then
+    if player:down() then
       sfx(player_cursor_class.sfx_move)
       player_cursor:move_down()
     end
-    if btnp(buttons.x) then
+    if player:x() then
       if board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y) then
         sfx(player_cursor_class.sfx_swap)
       end
     end
-    if btn(buttons.o) then
+    if player:o() then
       self:_raise(board, player, player_cursor)
     end
 

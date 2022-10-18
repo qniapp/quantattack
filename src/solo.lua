@@ -29,7 +29,7 @@ end
 
 function solo:update()
   if board:is_game_over() then
-    if btnp(buttons.o) then
+    if player:o() then
       flow:query_gamestate_type(':title')
     end
   else
