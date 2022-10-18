@@ -43,8 +43,7 @@ end
 -- - x: スクリーン上の x 座標
 -- - y: スクリーン上の y 座標
 function chain_popup:_init(count, x, y)
-  -- self.count = count
-  self.count = flr(rnd(100))
+  self.count = count
   self.x = x
   self.y = y - tile_size
   self.tick = 0

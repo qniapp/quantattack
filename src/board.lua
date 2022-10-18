@@ -18,6 +18,8 @@ function board:_init()
   self.height = board.rows * tile_size
   self.offset_x = 10
   self.offset_y = screen_height - self.height
+  self.chain = true
+  self.chain_count = 0
   self:init()
 end
 
@@ -109,6 +111,9 @@ function board:update()
   score = score + self:reduce_gates()
   self:drop_gates()
   self:_update_gates()
+  if self.tick_chain then
+    self.tick_chain = self.tick_chain + 1
+  end
 
   return score
 end
@@ -122,7 +127,22 @@ function board:reduce_gates()
       score = score + (#reduction.to == 0 and 0 or reduction.score)
 
       if #reduction.to > 0 then
-        chain_popup(1, self:screen_x(x), self:screen_y(y))
+        if self.tick_chain == nil then
+          self.tick_chain = 0
+          self.chain_count = 1
+        elseif self.tick_chain < 45 then
+          if self.tick_chain ~= 0 then -- 同時消しでない場合
+            self.tick_chain = 0
+
+            self.chain_count = self.chain_count + 1
+            if self.chain_count > 1 then
+              chain_popup(self.chain_count, self:screen_x(x), self:screen_y(y))
+            end
+          end
+        else
+          self.tick_chain = nil
+          self.chain_count = 0
+        end
       end
 
       for index, r in pairs(reduction.to) do
