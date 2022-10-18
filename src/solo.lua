@@ -22,6 +22,8 @@ local player_cursor = player_cursor_class.new()
 local board_class = require("board")
 local board = board_class()
 
+local chain_popup = require("chain_popup")
+
 solo.type = ':solo'
 
 local buttons = {
@@ -73,6 +75,7 @@ function solo:update()
     player.score = player.score + board:update()
     player_cursor:update()
     update_particles()
+    chain_popup:update()
 
     if self:_auto_raise() and rnd(1) < 0.05 then
       board:drop_garbage()
@@ -119,6 +122,7 @@ function solo:render() -- override
   player_cursor:render(board)
   self:render_score()
   render_particles()
+  chain_popup:render()
 
   if board:is_game_over() then
     ui.draw_rounded_box(10, 55, 117, 78, colors.dark_gray, colors.white)

@@ -4,6 +4,7 @@ require("engine/core/helper")
 
 local gate_class = require("gate")
 local reduction_rules = require("reduction_rules")
+local chain_popup = require("chain_popup")
 
 local board = new_class()
 
@@ -119,6 +120,10 @@ function board:reduce_gates()
     for x = 1, board.cols do
       local reduction = self:reduce(x, y)
       score = score + (#reduction.to == 0 and 0 or reduction.score)
+
+      if #reduction.to > 0 then
+        chain_popup(1, self:screen_x(x), self:screen_y(y))
+      end
 
       for index, r in pairs(reduction.to) do
         local dx = r.dx and reduction.dx or 0
