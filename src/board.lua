@@ -285,14 +285,6 @@ function board:_update_gates()
 end
 
 function board:render()
-  -- 連鎖ゲージを描画
-  local max_tick_chainable = gate_class.match_animation_frame_count + 6 * gate_class.match_delay_per_gate + 10
-  local length = self.tick_chainable / max_tick_chainable
-  local gauge_height = length * self.height
-  rectfill(2, self.offset_y + (self.height - gauge_height),
-    3, self.offset_y + self.height,
-    colors.green)
-
   for x = 1, board.cols do
     -- draw wires
     local line_x = self:screen_x(x) + 3
