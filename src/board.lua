@@ -121,6 +121,7 @@ end
 
 function board:reduce_gates()
   local score = 0
+  local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
   for y = 1, board.rows do
     for x = 1, board.cols do
@@ -151,6 +152,7 @@ function board:reduce_gates()
             self.last_tick_chain = self.tick_chainable
 
             self.chain_count = self.chain_count + 1
+            score = score + chain_bonus[self.chain_count] or 180
 
             if self.chain_count > 1 then
               chain_popup(self.chain_count, self:screen_x(x), self:screen_y(y))
