@@ -212,6 +212,8 @@ function gate:update(board, x, y)
         other_gate._state = "idle"
         other_gate._tick_dropped = 0
       end
+
+      board.changed = true
     end
   elseif self:is_match() then
     --#if assert

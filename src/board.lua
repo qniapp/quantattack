@@ -23,6 +23,7 @@ function board:_init()
   self.tick_chainable = 0
   self.chain_count = 0
   self:init()
+  self.changed = false
 end
 
 function board:init()
@@ -110,7 +111,11 @@ end
 function board:update()
   local score = 0
 
-  score = score + self:reduce_gates()
+  if self.changed then
+    score = score + self:reduce_gates()
+    self.changed = false
+  end
+
   self:drop_gates()
   self:_update_gates()
 
@@ -444,6 +449,7 @@ function board:put(x, y, gate)
   --#endif
 
   self._gates[x][y] = gate
+  self.changed = true
 end
 
 function board:put_random_gate(x, y)
@@ -454,6 +460,7 @@ end
 
 function board:remove_gate(x, y)
   self:put(x, y, i_gate())
+  self.changed = true
 end
 
 function board:drop_garbage()
