@@ -143,7 +143,7 @@ function board:reduce_gates()
             end
           end
         else
-          if self.last_tick_chain ~= self.tick_chainable then -- 同時消しの場合は chain_count を増やさない
+          if not reduction.dirty and self.last_tick_chain ~= self.tick_chainable then -- 同時消しの場合は chain_count を増やさない
             local chainable_frames = gate_class.match_animation_frame_count + reduction.gate_count * gate_class.match_delay_per_gate + 10
             if self.tick_chainable < chainable_frames then
               self.tick_chainable = chainable_frames
@@ -482,6 +482,7 @@ end
 function board:reduce(x, y, include_next_gates)
   local reduction = { to = {}, score = 0 }
   local gate = self._gates[x][y]
+  local dirty = false
 
   if not gate:is_reducible() then return reduction end
 
@@ -520,16 +521,24 @@ function board:reduce(x, y, include_next_gates)
     for i, gates in pairs(gate_pattern_rows) do
       local current_y = y + i - 1
 
-      if gates[1] ~= "?" and self:reducible_gate_at(x, current_y).type ~= gates[1] then
-        goto next_rule
+      if gates[1] ~= "?" then
+        if self:reducible_gate_at(x, current_y).type ~= gates[1] then
+          goto next_rule
+        else
+          dirty = dirty or self:reducible_gate_at(x, current_y).dirty
+        end
       end
 
-      if gates[2] and other_x and self:reducible_gate_at(other_x, current_y).type ~= gates[2] then
-        goto next_rule
+      if gates[2] and other_x then
+        if self:reducible_gate_at(other_x, current_y).type ~= gates[2] then
+          goto next_rule
+        else
+          dirty = dirty or self:reducible_gate_at(other_x, current_y).dirty
+        end
       end
     end
 
-    reduction = { to = rule[2], dx = dx, gate_count = rule[3], score = rule[4] or 1 }
+    reduction = { to = rule[2], dx = dx, gate_count = rule[3], score = rule[4] or 1, dirty = dirty }
     goto matched
 
     ::next_rule::

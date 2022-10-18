@@ -174,6 +174,7 @@ function gate:update(board, x, y)
       end
 
       self._state, right_gate._state = "idle", "idle"
+      self.dirty, right_gate.dirty = true, true
     end
   elseif self:is_dropping() then
     self._screen_dy = self._screen_dy + drop_speed
@@ -338,7 +339,6 @@ function gate:swap_with_right(new_x)
 
   self._state = "swapping_with_right"
   self._tick_swap = 0
-  self.dirty = true
 end
 
 function gate:swap_with_left(new_x)
@@ -348,7 +348,6 @@ function gate:swap_with_left(new_x)
 
   self._state = "swapping_with_left"
   self._tick_swap = 0
-  self.dirty = true
 end
 
 -------------------------------------------------------------------------------
