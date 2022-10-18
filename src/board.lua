@@ -12,13 +12,13 @@ board.cols = 6 -- board の列数
 board.rows = 12 -- board の行数
 board.row_next_gates = board.rows + 1
 
-function board:_init()
+function board:_init(offset_x)
   self.cols = board.cols
   self.rows = board.rows
   self._gates = {}
   self.width = board.cols * tile_size
   self.height = board.rows * tile_size
-  self.offset_x = 10
+  self.offset_x = offset_x or 10
   self.offset_y = screen_height - self.height
   self.tick_chainable = 0
   self.chain_count = 0

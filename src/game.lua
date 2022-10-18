@@ -14,7 +14,6 @@ local chain_popup = require("chain_popup")
 local all_players
 
 function game:_init()
-  self.tick = 0
 end
 
 function game:init()
@@ -22,7 +21,7 @@ function game:init()
 end
 
 function game:add_player(player, board, player_cursor)
-  add(all_players, { player = player, board = board, player_cursor = player_cursor })
+  add(all_players, { player = player, board = board, player_cursor = player_cursor, tick = 0 })
 end
 
 function game:update()
@@ -53,7 +52,7 @@ function game:update()
       end
     end
     if player:o() then
-      self:_raise(board, player, player_cursor)
+      self:_raise(each)
     end
 
     player.score = player.score + board:update()
@@ -61,11 +60,11 @@ function game:update()
     particle:update()
     chain_popup:update()
 
-    if self:_auto_raise(board, player, player_cursor) and rnd(1) < 0.05 then
+    if self:_auto_raise(each) and rnd(1) < 0.05 then
       board:drop_garbage()
     end
 
-    self.tick = self.tick + 1
+    each.tick = each.tick + 1
 
     --#if log
     log("\n" .. board:_tostring())
@@ -95,29 +94,33 @@ function game:render() -- override
 end
 
 -- ゲートをせりあげる
-function game:_raise(board, player, player_cursor)
+function game:_raise(player_info)
+  local board = player_info.board
+  local player = player_info.player
+  local cursor = player_info.player_cursor
+
   board.raised_dots = board.raised_dots + 1
 
   if board.raised_dots == tile_size then
     board.raised_dots = 0
     board:insert_gates_at_bottom(player.steps)
-    player_cursor:move_up()
+    cursor:move_up()
     player.steps = player.steps + 1
   end
 end
 
-function game:_auto_raise(board, player, player_cursor)
-  if (self.tick < 30) then -- TODO: 30 をどこか定数化
+function game:_auto_raise(player)
+  if (player.tick < 30) then -- TODO: 30 をどこか定数化
     return false
   end
 
-  self.tick = 0
+  player.tick = 0
 
-  if (board:is_busy()) then
+  if (player.board:is_busy()) then
     return false
   end
 
-  self:_raise(board, player, player_cursor)
+  self:_raise(player)
 
   return true
 end
