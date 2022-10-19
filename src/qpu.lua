@@ -10,31 +10,30 @@ function qpu:_init(cursor, board)
 end
 
 function qpu:update()
-  self:reset_actions()
+  self.left = false
+  self.right = false
+  self.up = false
+  self.down = false
+  self.x = false
+  self.o = false
 
   local next_action = self.actions[1]
   if next_action then
     del(self.actions, next_action)
-    if next_action ~= "sleep" then
-      self[next_action] = true
-    end
+    self[next_action] = true
   else
     repeat
-      self.new_x = flr(rnd(6)) + 1
-      self.new_y = flr(rnd(12)) + 1
+      self.new_x = flr(rnd(self.board.cols)) + 1
+      self.new_y = flr(rnd(self.board.rows)) + 1
     until not self.board:gate_at(self.new_x, self.new_y):is_i()
 
-    if self.new_x == self.cursor.x then
-      -- NOP
-    elseif self.new_x < self.cursor.x then
+    if self.new_x < self.cursor.x then
       self:move("left", self.cursor.x - self.new_x)
     elseif self.cursor.x < self.new_x then
       self:move("right", self.new_x - self.cursor.x)
     end
 
-    if self.new_y == self.cursor.y then
-      -- NOP
-    elseif self.new_y < self.cursor.y then
+    if self.new_y < self.cursor.y then
       self:move("up", self.cursor.y - self.new_y)
     elseif self.cursor.y < self.new_y then
       self:move("down", self.new_y - self.cursor.y)
@@ -60,15 +59,6 @@ function qpu:swap()
   for _s = 1, 30 + flr(rnd(10)) do
     add(self.actions, "sleep")
   end
-end
-
-function qpu:reset_actions()
-  self.left = false
-  self.right = false
-  self.up = false
-  self.down = false
-  self.x = false
-  self.o = false
 end
 
 return qpu
