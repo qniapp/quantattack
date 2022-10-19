@@ -31,8 +31,13 @@ function solo:update()
     if btnp(5) then
       flow:query_gamestate_type(':title')
     end
-  else
-    game:update()
+  end
+
+  game:update()
+
+  if not board:is_busy() and board.chain_count > 1 then
+    board:drop_garbage()
+    board.chain_count = 0
   end
 end
 

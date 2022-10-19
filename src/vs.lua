@@ -39,10 +39,10 @@ function vs:on_enter()
 end
 
 function vs:update()
-  if board:is_game_over() then
+  if board:is_game_over() and board.win == nil then
     board.win = false
     qpu_board.win = true
-  elseif qpu_board:is_game_over() then
+  elseif qpu_board:is_game_over() and qpu_board.win == nil then
     board.win = true
     qpu_board.win = false
   end
@@ -54,6 +54,15 @@ function vs:update()
   end
 
   game:update()
+
+  if not board:is_busy() and board.chain_count > 1 then
+    qpu_board:drop_garbage()
+    board.chain_count = 0
+  end
+  if not qpu_board:is_busy() and qpu_board.chain_count > 1 then
+    board:drop_garbage()
+    qpu_board.chain_count = 0
+  end
 end
 
 function vs:render() -- override
