@@ -30,47 +30,51 @@ function game:update()
     local board = each.board
     local player_cursor = each.player_cursor
 
-    player:update(board)
+    if board:is_game_over() then
+      board:update()
+      player_cursor:update()
+      particle:update()
+      chain_popup:update()
+    else
+      player:update(board)
 
-    if player.left then
-      sfx(player_cursor_class.sfx_move)
-      player_cursor:move_left()
-    end
-    if player.right then
-      sfx(player_cursor_class.sfx_move)
-      player_cursor:move_right()
-    end
-    if player.up then
-      sfx(player_cursor_class.sfx_move)
-      player_cursor:move_up()
-    end
-    if player.down then
-      sfx(player_cursor_class.sfx_move)
-      player_cursor:move_down()
-    end
-    if player.o then
-      if board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y) then
-        sfx(player_cursor_class.sfx_swap)
+      if player.left then
+        sfx(player_cursor_class.sfx_move)
+        player_cursor:move_left()
       end
+      if player.right then
+        sfx(player_cursor_class.sfx_move)
+        player_cursor:move_right()
+      end
+      if player.up then
+        sfx(player_cursor_class.sfx_move)
+        player_cursor:move_up()
+      end
+      if player.down then
+        sfx(player_cursor_class.sfx_move)
+        player_cursor:move_down()
+      end
+      if player.o then
+        if board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y) then
+          sfx(player_cursor_class.sfx_swap)
+        end
+      end
+      if player.x then
+        self:_raise(each)
+      end
+
+      player.score = player.score + (board:update() or 0)
+      player_cursor:update()
+      particle:update()
+      chain_popup:update()
+      self:_auto_raise(each)
+
+      each.tick = each.tick + 1
+
+      --#if log
+      log("\n" .. board:_tostring())
+      --#endif
     end
-    if player.x then
-      self:_raise(each)
-    end
-
-    player.score = player.score + board:update()
-    player_cursor:update()
-    particle:update()
-    chain_popup:update()
-
-    if self:_auto_raise(each) and rnd(1) < 0.05 then
-      board:drop_garbage()
-    end
-
-    each.tick = each.tick + 1
-
-    --#if log
-    log("\n" .. board:_tostring())
-    --#endif
   end
 end
 
@@ -82,7 +86,10 @@ function game:render() -- override
     local player_cursor = each.player_cursor
 
     board:render()
-    player_cursor:render()
+
+    if not board:is_game_over() then
+      player_cursor:render()
+    end
   end
 
   particle:render()

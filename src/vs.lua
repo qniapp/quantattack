@@ -1,5 +1,7 @@
 require("engine/core/class")
 
+local flow = require("engine/application/flow")
+
 local gamestate = require("engine/application/gamestate")
 local vs = derived_class(gamestate)
 
@@ -37,6 +39,20 @@ function vs:on_enter()
 end
 
 function vs:update()
+  if board:is_game_over() then
+    board.win = false
+    qpu_board.win = true
+  elseif qpu_board:is_game_over() then
+    board.win = true
+    qpu_board.win = false
+  end
+
+  if board:is_game_over() or qpu_board:is_game_over() then
+    if btnp(5) then
+      flow:query_gamestate_type(':title')
+    end
+  end
+
   game:update()
 end
 

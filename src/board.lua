@@ -1,6 +1,7 @@
 require("engine/application/constants")
 require("engine/core/class")
 require("engine/core/helper")
+require("helpers")
 
 local gate_class = require("gate")
 local reduction_rules = require("reduction_rules")
@@ -27,7 +28,9 @@ function board:_init(offset_x)
 end
 
 function board:init()
+  self.state = "play"
   self.raised_dots = 0
+  self.win = nil
 
   -- fill the board with I gates
   for x = 1, board.cols do
@@ -109,6 +112,36 @@ function board:insert_gates_at_bottom(steps)
 end
 
 function board:update()
+  if self:gates_piled_up() or self.win ~= nil then
+    self.state = "over"
+  end
+
+  if self.state == "play" then
+    return self:update_game()
+  elseif self.state == "over" then
+    self:update_over()
+  end
+end
+
+function board:is_game_over()
+  return self.state == "over"
+end
+
+function board:gates_piled_up()
+  if self.raised_dots ~= tile_size - 1 then
+    return false
+  end
+
+  for x = 1, self.cols do
+    if not self:is_empty(x, 1) then
+      return true
+    end
+  end
+
+  return false
+end
+
+function board:update_game()
   local score = 0
 
   if self.changed then
@@ -126,6 +159,9 @@ function board:update()
   return score
 end
 
+function board:update_over()
+end
+
 function board:reduce_gates()
   local score = 0
   local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
@@ -139,7 +175,8 @@ function board:reduce_gates()
       if #reduction.to > 0 then
         if self.tick_chainable == 0 then
           self.chain_count = 1
-          self.tick_chainable = gate_class.match_animation_frame_count + reduction.gate_count * gate_class.match_delay_per_gate + 10
+          self.tick_chainable = gate_class.match_animation_frame_count +
+              reduction.gate_count * gate_class.match_delay_per_gate + 10
           self.last_tick_chain = self.tick_chainable
 
           -- すべてのブロックを dirty = false にする
@@ -152,7 +189,8 @@ function board:reduce_gates()
           end
         else
           if not reduction.dirty and self.last_tick_chain ~= self.tick_chainable then -- 同時消しの場合は chain_count を増やさない
-            local chainable_frames = gate_class.match_animation_frame_count + reduction.gate_count * gate_class.match_delay_per_gate + 10
+            local chainable_frames = gate_class.match_animation_frame_count +
+                reduction.gate_count * gate_class.match_delay_per_gate + 10
             if self.tick_chainable < chainable_frames then
               self.tick_chainable = chainable_frames
             end
@@ -322,6 +360,20 @@ function board:render()
         spr(102, screen_x, screen_y)
       end
     end
+  end
+
+  if self.win then
+    local center_x, center_y = self.offset_x + self.width / 2, self.offset_y + self.height / 2
+
+    draw_rounded_box(center_x - 22, center_y - 7, center_x + 20, center_y + 7,
+      colors.dark_blue, colors.white)
+    print_centered("win", center_x, center_y, colors.red)
+  elseif self.win == false then
+    local center_x, center_y = self.offset_x + self.width / 2, self.offset_y + self.height / 2
+
+    draw_rounded_box(center_x - 22, center_y - 7, center_x + 20, center_y + 7,
+      colors.dark_blue, colors.white)
+    print_centered("lose", center_x, center_y, colors.dark_gray)
   end
 end
 
@@ -551,18 +603,14 @@ function board:reduce(x, y, include_next_gates)
   return reduction
 end
 
-function board:is_game_over()
-  if self.raised_dots ~= tile_size - 1 then
-    return false
-  end
+function board:game_over()
+  local center_x, center_y = self.offset_x + self.width / 2, self.offset_y + self.height / 2
 
-  for x = 1, self.cols do
-    if not self:is_empty(x, 1) then
-      return true
-    end
-  end
-
-  return false
+  draw_rounded_box(center_x - 22, center_y - 7,
+    center_x + 20, center_y + 22,
+    colors.dark_blue, colors.white)
+  print_centered("game over", center_x, center_y, colors.red)
+  print_centered("push x\nto replay", center_x, center_y + character_height * 2, colors.black)
 end
 
 -------------------------------------------------------------------------------
