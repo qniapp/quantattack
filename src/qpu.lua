@@ -29,7 +29,7 @@ function qpu:update(board)
     local gate = board:gate_at(self.new_x, self.new_y)
     local right_gate = board:gate_at(self.new_x + 1, self.new_y)
 
-    if gate:is_idle() and not (gate:is_i() or gate:is_garbage() or gate.type == right_gate.type) then
+    if not ((gate:is_i() and right_gate:is_i()) or gate:is_garbage() or right_gate:is_garbage() or gate.type == right_gate.type) then
       if self.new_x < self.cursor.x then
         self:move("left", self.cursor.x - self.new_x)
       elseif self.cursor.x < self.new_x then
