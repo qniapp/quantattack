@@ -4,13 +4,13 @@
 -- we must require engine/pico8/api at the top of our main.lua, so API bridges apply to all modules
 require("engine/pico8/api")
 
-local game_class = require("game")
+local app_class = require("app")
 
 --#if log
 local logging = require("engine/debug/logging")
 --#endif
 
-local game = game_class()
+local app = app_class()
 
 function _init()
   --#if log
@@ -24,14 +24,14 @@ function _init()
   logging.file_log_stream:clear()
   --#endif
 
-  game.initial_gamestate = ':title'
-  game:start()
+  app.initial_gamestate = ':title'
+  app:start()
 end
 
 function _update60()
-  game:update()
+  app:update()
 end
 
 function _draw()
-  game:draw()
+  app:draw()
 end

@@ -1,7 +1,6 @@
 require("engine/core/class")
 require("engine/render/color")
-
-local ui = require("engine/ui/ui")
+require("helpers")
 
 local all_popups = {}
 local chain_popup = new_class()
@@ -28,8 +27,8 @@ function chain_popup.render()
     local rbox_y = each.y
     local dx = each.count < 10 and 0 or -2
 
-    ui.draw_rounded_box(rbox_x + dx, rbox_y + 1, rbox_x + 10 - dx, rbox_y + 9, 5, 5)
-    ui.draw_rounded_box(rbox_x + dx, rbox_y, rbox_x + 10 - dx, rbox_y + 8, 7, 8)
+    draw_rounded_box(rbox_x + dx, rbox_y + 1, rbox_x + 10 - dx, rbox_y + 9, 5, 5)
+    draw_rounded_box(rbox_x + dx, rbox_y, rbox_x + 10 - dx, rbox_y + 8, 7, 8)
 
     spr(69, rbox_x + 2 + dx, rbox_y - 1) -- x の部分
 

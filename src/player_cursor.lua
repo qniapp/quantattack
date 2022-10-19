@@ -51,10 +51,14 @@ function player_cursor:render()
 end
 
 function player_cursor:_init(board)
+  self._board = board
+  self:init()
+end
+
+function player_cursor:init()
   self.x = 3
   self.y = 6
   self._tick = 0
-  self._board = board
 end
 
 return player_cursor

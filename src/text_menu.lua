@@ -1,8 +1,9 @@
 require("engine/application/constants")
 require("engine/render/color")
+require("helpers")
+
 local flow = require("engine/application/flow")
 local input = require("engine/input/input")
-local ui = require("engine/ui/ui")
 
 local menu_item = require("menu_item")
 
@@ -59,7 +60,7 @@ function text_menu:draw(top)
     if i == self.selection_index then
       label = "> " .. label .. " <"
     end
-    ui.print_centered(label, screen_width / 2, y, colors.white)
+    print_centered(label, screen_width / 2, y, colors.white)
     y = y + character_height
   end
 end
