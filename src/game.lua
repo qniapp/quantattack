@@ -48,12 +48,12 @@ function game:update()
       sfx(player_cursor_class.sfx_move)
       player_cursor:move_down()
     end
-    if player.x then
+    if player.o then
       if board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y) then
         sfx(player_cursor_class.sfx_swap)
       end
     end
-    if player.o then
+    if player.x then
       self:_raise(each)
     end
 

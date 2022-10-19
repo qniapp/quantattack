@@ -17,8 +17,8 @@ function player:update()
   self.right = btnp(button_ids.right)
   self.up = btnp(button_ids.up)
   self.down = btnp(button_ids.down)
-  self.x = btnp(button_ids.x)
-  self.o = btn(button_ids.o)
+  self.x = btn(button_ids.x)
+  self.o = btnp(button_ids.o)
 end
 
 return player

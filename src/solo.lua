@@ -30,7 +30,7 @@ end
 
 function solo:update()
   if board:is_game_over() then
-    if player:o() then
+    if btnp(5) then
       flow:query_gamestate_type(':title')
     end
   else
@@ -54,9 +54,13 @@ function solo:render() -- override
 
   -- ゲームオーバー
   if board:is_game_over() then
-    draw_rounded_box(10, 55, 117, 78, colors.dark_gray, colors.white)
-    print_centered("game over", 64, 63, colors.red)
-    print_centered("push x to replay", 64, 71, colors.black)
+    local center_x, center_y = board.offset_x + board.width / 2, board.offset_y + board.height / 2
+
+    draw_rounded_box(center_x - 22, center_y - 7,
+                     center_x + 20, center_y + 22,
+                     colors.dark_blue, colors.white)
+    print_centered("game over", center_x, center_y, colors.red)
+    print_centered("push x\nto replay", center_x, center_y + character_height * 2, colors.black)
   end
 end
 

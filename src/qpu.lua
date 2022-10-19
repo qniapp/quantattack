@@ -55,7 +55,7 @@ function qpu:move(direction, times)
 end
 
 function qpu:swap()
-  add(self.actions, "x")
+  add(self.actions, "o")
 
   for _s = 1, 30 + flr(rnd(10)) do
     add(self.actions, "sleep")
