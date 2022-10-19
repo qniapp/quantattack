@@ -32,6 +32,7 @@ function game:update()
 
     if board:is_game_over() then
       board:update()
+      player:update(board)
       player_cursor:update()
       particle:update()
       chain_popup:update()
