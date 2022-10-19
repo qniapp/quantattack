@@ -27,13 +27,13 @@ function solo:on_enter()
 end
 
 function solo:update()
+  game:update()
+
   if board:is_game_over() then
     if btnp(5) then
       flow:query_gamestate_type(':title')
     end
   end
-
-  game:update()
 
   if not board:is_busy() and board.chain_count > 1 then
     board:drop_garbage()
