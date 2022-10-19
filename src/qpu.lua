@@ -2,14 +2,13 @@ require("engine/core/class")
 
 local qpu = derived_class(require("player"))
 
-function qpu:_init(cursor, board)
+function qpu:_init(cursor)
   self.cursor = cursor
-  self.board = board
   self:init()
   self.actions = {}
 end
 
-function qpu:update()
+function qpu:update(board)
   self.left = false
   self.right = false
   self.up = false
@@ -22,24 +21,26 @@ function qpu:update()
     del(self.actions, next_action)
     self[next_action] = true
   else
-    repeat
-      self.new_x = flr(rnd(self.board.cols)) + 1
-      self.new_y = flr(rnd(self.board.rows)) + 1
-    until not self.board:gate_at(self.new_x, self.new_y):is_i()
+    local found = false
 
-    if self.new_x < self.cursor.x then
-      self:move("left", self.cursor.x - self.new_x)
-    elseif self.cursor.x < self.new_x then
-      self:move("right", self.new_x - self.cursor.x)
+    self.new_x = flr(rnd(board.cols)) + 1
+    self.new_y = flr(rnd(board.rows)) + 1
+
+    if not board:gate_at(self.new_x, self.new_y):is_i() then
+      if self.new_x < self.cursor.x then
+        self:move("left", self.cursor.x - self.new_x)
+      elseif self.cursor.x < self.new_x then
+        self:move("right", self.new_x - self.cursor.x)
+      end
+
+      if self.new_y < self.cursor.y then
+        self:move("up", self.cursor.y - self.new_y)
+      elseif self.cursor.y < self.new_y then
+        self:move("down", self.new_y - self.cursor.y)
+      end
+
+      self:swap()
     end
-
-    if self.new_y < self.cursor.y then
-      self:move("up", self.cursor.y - self.new_y)
-    elseif self.cursor.y < self.new_y then
-      self:move("down", self.new_y - self.cursor.y)
-    end
-
-    self:swap()
   end
 end
 

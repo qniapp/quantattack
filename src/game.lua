@@ -30,7 +30,7 @@ function game:update()
     local board = each.board
     local player_cursor = each.player_cursor
 
-    player:update()
+    player:update(board)
 
     if player.left then
       sfx(player_cursor_class.sfx_move)

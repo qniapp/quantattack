@@ -18,7 +18,7 @@ local player_cursor = player_cursor_class(board)
 local qpu_cursor = player_cursor_class(qpu_board)
 
 local player = player_class()
-local qpu = qpu_class(qpu_cursor, qpu_board)
+local qpu = qpu_class(qpu_cursor)
 
 vs.type = ':vs'
 

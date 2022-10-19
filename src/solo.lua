@@ -1,5 +1,6 @@
+require("helpers")
+
 local flow = require("engine/application/flow")
-local ui = require("engine/ui/ui")
 
 local board_class = require("board")
 local board = board_class()
@@ -53,9 +54,9 @@ function solo:render() -- override
 
   -- ゲームオーバー
   if board:is_game_over() then
-    ui.draw_rounded_box(10, 55, 117, 78, colors.dark_gray, colors.white)
-    ui.print_centered("game over", 64, 63, colors.red)
-    ui.print_centered("push x to replay", 64, 71, colors.black)
+    draw_rounded_box(10, 55, 117, 78, colors.dark_gray, colors.white)
+    print_centered("game over", 64, 63, colors.red)
+    print_centered("push x to replay", 64, 71, colors.black)
   end
 end
 
