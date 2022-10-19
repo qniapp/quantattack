@@ -1,6 +1,4 @@
 require("engine/core/class")
-require("engine/core/fun_helper")
-require("engine/core/string")
 require("engine/render/color")
 require("helpers")
 
