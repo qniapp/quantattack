@@ -5,8 +5,6 @@ require("helpers")
 local flow = require("engine/application/flow")
 local input = require("engine/input/input")
 
-local menu_item = require("menu_item")
-
 -- text menu: class representing a menu with labels and arrow-based navigation
 local text_menu = new_class()
 

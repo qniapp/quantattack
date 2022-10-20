@@ -4,7 +4,6 @@ local text_menu = require("text_menu")
 local flow = require("engine/application/flow")
 local input = require("engine/input/input")
 require("engine/render/color")
-local ui = require("engine/ui/ui")
 
 local menu_item = require("menu_item")
 
@@ -152,30 +151,6 @@ describe('text_menu', function()
       end)
 
     end)
-
-    -- describe('draw', function()
-
-    --   setup(function()
-    --     stub(ui, "print_centered")
-    --   end)
-
-    --   teardown(function()
-    --     ui.print_centered:revert()
-    --   end)
-
-    --   it('should print the item labels from a given top, on lines of 6px height, with current selection surrounded by "> <"'
-    --     , function()
-    --     menu.selection_index = 2 -- credits
-    --     menu:draw(48)
-
-    --     local s = assert.spy(ui,print_centered)
-    --     s.was_called(2)
-    --     s.was_called_with("in-game", 64, 48, colors.white)
-    --     s.was_called_with("> credits <", 64, 54, colors.white)
-    --   end)
-
-    -- end)
-
   end) -- (with instance)
 
 end)
