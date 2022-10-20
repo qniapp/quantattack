@@ -6,7 +6,7 @@ require("engine/debug/dump")
 local game = new_class()
 
 local particle = require("particle")
-local chain_popup = require("chain_popup")
+local chain_bubble = require("chain_bubble")
 local chain_cube = require("chain_cube")
 
 local all_players
@@ -73,7 +73,7 @@ function game:update()
   end
 
   particle:update()
-  chain_popup:update()
+  chain_bubble:update()
   chain_cube:update()
 end
 
@@ -92,7 +92,7 @@ function game:render() -- override
   end
 
   particle:render()
-  chain_popup:render()
+  chain_bubble:render()
   chain_cube:render()
 
   color(colors.white)
