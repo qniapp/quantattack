@@ -4,7 +4,6 @@ local chain_cube = new_class()
 
 local all_cubes = {}
 
-local k = .0125
 local q = {}
 local data = split("122413345657687815263748", 1)
 
@@ -46,8 +45,8 @@ function chain_cube.render()
       end
       local f = q[data[i]]
       local x, y = f.x, f.y
-      local z = f.z + x * k
-      f.x, f.y, f.z = f.x - f.z * k, f.y - z * k, z + y * k
+      local z = f.z + x * .0125
+      f.x, f.y, f.z = f.x - f.z * .0125, f.y - z * .0125, z + y * .0125
       line(f.x + each.x, f.y + each.y, cube_color)
     end
   end
