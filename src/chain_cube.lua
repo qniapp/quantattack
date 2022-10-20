@@ -1,8 +1,8 @@
 require("engine/core/class")
 
-local chain_bubble = new_class()
+local chain_cube = new_class()
 
-local all_bubbles = {}
+local all_cubes = {}
 
 local k = .0125
 local q = {}
@@ -16,10 +16,10 @@ for x = -4, 4, 8 do
   end
 end
 
-function chain_bubble.update()
-  for _, each in pairs(all_bubbles) do
+function chain_cube.update()
+  for _, each in pairs(all_cubes) do
     if abs(each.target_x - each.x) < 5 then
-      del(all_bubbles, each)
+      del(all_cubes, each)
       create_particle_set(each.target_x, each.target_y,
         "5,green,dark_green,20|5,green,dark_green,20|4,green,dark_green,20|4,dark_purple,dark_green,20|4,light_gray,dark_green,20|2,green,dark_green,20|2,green,dark_green,20|2,light_gray,dark_green,20|2,light_gray,dark_green,20|0,dark_purple,dark_green,20")
     end
@@ -40,10 +40,10 @@ function chain_bubble.update()
   end
 end
 
-function chain_bubble.render()
+function chain_cube.render()
   local cube_color = flr(rnd(16)) + 1
 
-  for _, each in pairs(all_bubbles) do
+  for _, each in pairs(all_cubes) do
     for i = 1, 24 do
       if i % 2 > 0 then
         line()
@@ -57,7 +57,7 @@ function chain_bubble.render()
   end
 end
 
-function chain_bubble:_init(x, y, target_x, target_y, left)
+function chain_cube:_init(x, y, target_x, target_y, left)
   self.x = x
   self.y = y
   self.target_x = target_x
@@ -65,7 +65,7 @@ function chain_bubble:_init(x, y, target_x, target_y, left)
   self.tick = 0
   self.left = left ~= nil
 
-  add(all_bubbles, self)
+  add(all_cubes, self)
 end
 
-return chain_bubble
+return chain_cube

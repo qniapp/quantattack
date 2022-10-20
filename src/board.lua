@@ -6,7 +6,7 @@ require("helpers")
 local gate_class = require("gate")
 local reduction_rules = require("reduction_rules")
 local chain_popup = require("chain_popup")
-local chain_bubble = require("chain_bubble")
+local chain_cube = require("chain_cube")
 
 local board = new_class()
 
@@ -202,7 +202,7 @@ function board:reduce_gates()
 
             if self.chain_count > 1 then
               chain_popup(self.chain_count, self:screen_x(x), self:screen_y(y))
-              chain_bubble(self:screen_x(x), self:screen_y(y), unpack(self.chain_bubble_target))
+              chain_cube(self:screen_x(x), self:screen_y(y), unpack(self.chain_cube_target))
             end
           end
         end

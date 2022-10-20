@@ -2,7 +2,7 @@ local flow = require("engine/application/flow")
 
 local board_class = require("board")
 local board = board_class()
-board.chain_bubble_target = { 78, 15 }
+board.chain_cube_target = { 78, 15 }
 
 local player_class = require("player")
 local player = player_class()
