@@ -178,7 +178,7 @@ function board:reduce_gates()
           self.chain_count = 1
           self.tick_chainable = gate_class.match_animation_frame_count +
               reduction.gate_count * gate_class.match_delay_per_gate + 10
-          self.last_tick_chain = self.tick_chainable
+          self.last_tick_chainable = self.tick_chainable
 
           -- すべてのブロックを dirty = false にする
           -- 連鎖中に一度でも入れ換えを行ったブロックは dirty になる
@@ -189,13 +189,13 @@ function board:reduce_gates()
             end
           end
         else
-          if not reduction.dirty and self.last_tick_chain ~= self.tick_chainable then -- 同時消しの場合は chain_count を増やさない
+          if not reduction.dirty and self.last_tick_chainable ~= self.tick_chainable then -- 同時消しの場合は chain_count を増やさない
             local chainable_frames = gate_class.match_animation_frame_count +
                 reduction.gate_count * gate_class.match_delay_per_gate + 10
             if self.tick_chainable < chainable_frames then
               self.tick_chainable = chainable_frames
             end
-            self.last_tick_chain = self.tick_chainable
+            self.last_tick_chainable = self.tick_chainable
 
             self.chain_count = self.chain_count + 1
             score = score + (chain_bonus[self.chain_count] or 180)
@@ -579,19 +579,19 @@ function board:reduce(x, y, include_next_gates)
       local current_y = y + i - 1
 
       if gates[1] ~= "?" then
-        if self:reducible_gate_at(x, current_y).type ~= gates[1] then
+        local gate1 = self:reducible_gate_at(x, current_y)
+        if gate1.type ~= gates[1] then
           goto next_rule
-        else
-          dirty = dirty or self:reducible_gate_at(x, current_y).dirty
         end
+        dirty = dirty or gate1.dirty
       end
 
       if gates[2] and other_x then
-        if self:reducible_gate_at(other_x, current_y).type ~= gates[2] then
+        local gate2 = self:reducible_gate_at(other_x, current_y)
+        if gate2.type ~= gates[2] then
           goto next_rule
-        else
-          dirty = dirty or self:reducible_gate_at(other_x, current_y).dirty
         end
+        dirty = dirty or gate2.dirty
       end
     end
 
