@@ -2,6 +2,7 @@ local flow = require("engine/application/flow")
 
 local board_class = require("board")
 local board = board_class()
+board.chain_bubble_target = { 78, 8 }
 
 local player_class = require("player")
 local player = player_class()
@@ -48,12 +49,12 @@ function solo:render() -- override
 
   -- スコア表示
   color(colors.white)
-  cursor(board.offset_x * 2 + board.width, board.offset_y)
-  print(player.steps .. " steps")
+  cursor(board.offset_x * 2 + board.width, board.offset_y - character_height)
+  print("score " .. player.score .. (player.score == 0 and "" or "0"))
 
   -- skip 2 lines and draw score
-  cursor(board.offset_x * 2 + board.width, board.offset_y + 2 * character_height)
-  print("score " .. player.score .. (player.score == 0 and "" or "0"))
+  cursor(board.offset_x * 2 + board.width, board.offset_y + character_height)
+  print(player.steps .. " steps")
 
   -- ゲームオーバー
   if board:is_game_over() then

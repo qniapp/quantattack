@@ -10,6 +10,7 @@ local game = new_class()
 
 local particle = require("particle")
 local chain_popup = require("chain_popup")
+local chain_bubble = require("chain_bubble")
 
 local all_players
 
@@ -68,6 +69,7 @@ function game:update()
       player_cursor:update()
       particle:update()
       chain_popup:update()
+      chain_bubble:update()
       self:_auto_raise(each)
 
       each.tick = each.tick + 1
@@ -95,6 +97,7 @@ function game:render() -- override
 
   particle:render()
   chain_popup:render()
+  chain_bubble:render()
 
   color(colors.white)
   cursor(1, 1)
