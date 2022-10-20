@@ -65,7 +65,8 @@
     "render_particles",
     "create_particle",
     "create_particle_set",
-    "abs"
+    "abs",
+    "sspr"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false

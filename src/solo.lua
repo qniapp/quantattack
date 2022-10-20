@@ -36,9 +36,9 @@ function solo:update()
     end
   end
 
-  if not board:is_busy() and board.chain_count > 1 then
+  if board.last_chain_count > 1 then
+    board.last_chain_count = 0
     board:drop_garbage()
-    board.chain_count = 0
   end
 end
 

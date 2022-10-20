@@ -156,6 +156,10 @@ function board:update_game()
   if self.tick_chainable > 0 then
     self.tick_chainable = self.tick_chainable - 1
   end
+  if self.tick_chainable == 0 then
+    self.last_chain_count = self.chain_count
+    self.chain_count = 0
+  end
 
   return score
 end
@@ -196,12 +200,13 @@ function board:reduce_gates()
               self.tick_chainable = chainable_frames
             end
             self.last_tick_chainable = self.tick_chainable
-
             self.chain_count = self.chain_count + 1
+
             score = score + (chain_bonus[self.chain_count] or 180)
 
             if self.chain_count > 1 then
               chain_popup(self.chain_count, self:screen_x(x), self:screen_y(y))
+              ---@diagnostic disable-next-line: deprecated
               chain_cube(self:screen_x(x), self:screen_y(y), unpack(self.chain_cube_target))
             end
           end

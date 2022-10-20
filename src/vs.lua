@@ -58,13 +58,13 @@ function vs:update()
 
   game:update()
 
-  if not board:is_busy() and board.chain_count > 1 then
+  if board.last_chain_count > 1 then
+    board.last_chain_count = 0
     qpu_board:drop_garbage()
-    board.chain_count = 0
   end
-  if not qpu_board:is_busy() and qpu_board.chain_count > 1 then
+  if qpu_board.last_chain_count > 1 then
+    board.last_chain_count = 0
     board:drop_garbage()
-    qpu_board.chain_count = 0
   end
 end
 
