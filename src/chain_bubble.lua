@@ -20,6 +20,8 @@ function chain_bubble.update()
   for _, each in pairs(all_bubbles) do
     if abs(each.target_x - each.x) < 5 then
       del(all_bubbles, each)
+      create_particle_set(each.target_x, each.target_y,
+        "5,green,dark_green,20|5,green,dark_green,20|4,green,dark_green,20|4,dark_purple,dark_green,20|4,light_gray,dark_green,20|2,green,dark_green,20|2,green,dark_green,20|2,light_gray,dark_green,20|2,light_gray,dark_green,20|0,dark_purple,dark_green,20")
     end
 
     if each.tick < 50 then
@@ -28,7 +30,7 @@ function chain_bubble.update()
         each.dx = each.dx * -1
       end
     else
-      each.dx, each.dy = (each.target_x - each.x) / 16, (each.target_y - each.y) / 16
+      each.dx, each.dy = (each.target_x - each.x) / 8, (each.target_y - each.y) / 8
     end
 
     each.x = each.x + each.dx
