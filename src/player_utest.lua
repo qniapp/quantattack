@@ -4,7 +4,7 @@ local player_class = require("player")
 
 describe('player', function()
   describe('constructor', function()
-    it("初期状態は steps = 0, score = 0", function()
+    it("creates a player with steps = 0, score = 0", function()
       local player = player_class()
 
       assert.are_equal(0, player.steps)
@@ -13,7 +13,7 @@ describe('player', function()
   end)
 
   describe('init', function()
-    it("steps = 0, score = 0 に初期化する", function()
+    it("initializes steps = 0, score = 0", function()
       local player = player_class()
       player.steps = 1
       player.score = 1
