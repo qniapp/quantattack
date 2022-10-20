@@ -54,6 +54,22 @@ local reduction_rules = {
       ",,\ntrue,2,",
       2,
       5
+    },
+
+    -- H            I
+    -- X            Z
+    -- S-S  ----->  S-S
+    --   H            I
+    --
+    --   H            I
+    --   X            Z
+    -- S-S  ----->  S-S
+    -- H            I
+    {
+      "h\nx\nswap,swap\n?,h",
+      ",,\n,1,z\ntrue,3,",
+      3,
+      7
     }
   },
 
@@ -128,7 +144,7 @@ local reduction_rules = {
       "x\nswap,swap\n?,z",
       ",,y\ntrue,2,",
       2,
-      5
+      6
     }
   },
 
