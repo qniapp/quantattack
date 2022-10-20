@@ -43,16 +43,18 @@ function chain_cube.render()
       if i % 2 > 0 then
         line()
       end
+      local size = each.chain_count - 1
       local f = q[data[i]]
       local x, y = f.x, f.y
       local z = f.z + x * .0125
       f.x, f.y, f.z = f.x - f.z * .0125, f.y - z * .0125, z + y * .0125
-      line(f.x + each.x, f.y + each.y, cube_color)
+      line(f.x * size + each.x, f.y * size + each.y, cube_color)
     end
   end
 end
 
-function chain_cube:_init(x, y, target_x, target_y, left)
+function chain_cube:_init(chain_count, x, y, target_x, target_y, left)
+  self.chain_count = chain_count
   self.x = x
   self.y = y
   self.target_x = target_x

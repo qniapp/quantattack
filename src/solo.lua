@@ -2,7 +2,7 @@ local flow = require("engine/application/flow")
 
 local board_class = require("board")
 local board = board_class()
-board.chain_cube_target = { 78, 15 }
+board.chain_cube_target = { 85, 30 }
 
 local player_class = require("player")
 local player = player_class()
@@ -49,11 +49,11 @@ function solo:render() -- override
 
   -- スコア表示
   color(colors.white)
-  cursor(board.offset_x * 2 + board.width, board.offset_y - character_height)
+  cursor(board.offset_x * 2 + board.width, board.offset_y)
   print("score " .. player.score .. (player.score == 0 and "" or "0"))
 
   -- skip 2 lines and draw score
-  cursor(board.offset_x * 2 + board.width, board.offset_y + character_height)
+  cursor(board.offset_x * 2 + board.width, board.offset_y + character_height * 2)
   print(player.steps .. " steps")
 
   -- ゲームオーバー
