@@ -25,16 +25,12 @@ function chain_cube.update()
     end
 
     if each.tick < 50 then
-      each.dx, each.dy = -0.5, -0.2
-      if each.left then
-        each.dx = each.dx * -1
-      end
+      each.dx, each.dy = each.left and 0.5 or -0.5, -0.2
     else
       each.dx, each.dy = (each.target_x - each.x) / 8, (each.target_y - each.y) / 8
     end
 
-    each.x = each.x + each.dx
-    each.y = each.y + each.dy
+    each.x, each.y = each.x + each.dx, each.y + each.dy
 
     each.tick = each.tick + 1
   end
