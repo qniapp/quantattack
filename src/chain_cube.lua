@@ -19,8 +19,7 @@ function chain_cube.update()
   for _, each in pairs(all_cubes) do
     if abs(each.target_x - each.x) < 5 then
       del(all_cubes, each)
-      create_particle_set(each.target_x, each.target_y,
-        "5,green,dark_green,20|5,green,dark_green,20|4,green,dark_green,20|4,dark_purple,dark_green,20|4,light_gray,dark_green,20|2,green,dark_green,20|2,green,dark_green,20|2,light_gray,dark_green,20|2,light_gray,dark_green,20|0,dark_purple,dark_green,20")
+      particle_set_chain_cube(each.target_x, each.target_y)
     end
 
     if each.tick < 50 then
@@ -43,7 +42,7 @@ function chain_cube.render()
       if i % 2 > 0 then
         line()
       end
-      local size = each.chain_count - 1
+      local size = each.chain_count / 2
       local f = q[data[i]]
       local x, y = f.x, f.y
       local z = f.z + x * .0125
