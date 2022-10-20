@@ -14,7 +14,10 @@ local board_class = require("board")
 local player_cursor_class = require("player_cursor")
 
 local board = board_class(3)
+board.chain_cube_target = { 78, 15 }
+
 local qpu_board = board_class(78)
+qpu_board.chain_cube_target = { 48, 15, "left" }
 
 local player_cursor = player_cursor_class(board)
 local qpu_cursor = player_cursor_class(qpu_board)

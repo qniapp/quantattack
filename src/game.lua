@@ -10,6 +10,7 @@ local game = new_class()
 
 local particle = require("particle")
 local chain_popup = require("chain_popup")
+local chain_cube = require("chain_cube")
 
 local all_players
 
@@ -34,8 +35,6 @@ function game:update()
       board:update()
       player:update(board)
       player_cursor:update()
-      particle:update()
-      chain_popup:update()
     else
       player:update(board)
 
@@ -66,8 +65,6 @@ function game:update()
 
       player.score = player.score + (board:update() or 0)
       player_cursor:update()
-      particle:update()
-      chain_popup:update()
       self:_auto_raise(each)
 
       each.tick = each.tick + 1
@@ -77,6 +74,10 @@ function game:update()
       --#endif
     end
   end
+
+  particle:update()
+  chain_popup:update()
+  chain_cube:update()
 end
 
 function game:render() -- override
@@ -95,6 +96,7 @@ function game:render() -- override
 
   particle:render()
   chain_popup:render()
+  chain_cube:render()
 
   color(colors.white)
   cursor(1, 1)

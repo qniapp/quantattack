@@ -64,7 +64,8 @@
     "update_particles",
     "render_particles",
     "create_particle",
-    "create_particle_set"
+    "create_particle_set",
+    "abs"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false

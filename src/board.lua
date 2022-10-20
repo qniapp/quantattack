@@ -6,6 +6,7 @@ require("helpers")
 local gate_class = require("gate")
 local reduction_rules = require("reduction_rules")
 local chain_popup = require("chain_popup")
+local chain_cube = require("chain_cube")
 
 local board = new_class()
 
@@ -181,7 +182,7 @@ function board:reduce_gates()
 
           -- すべてのブロックを dirty = false にする
           -- 連鎖中に一度でも入れ換えを行ったブロックは dirty になる
-          -- dirty なブロックが消えた場合はチェインを継続しない
+          -- dirty なブロックが消えた場合は連鎖にカウントしない
           for _x = 1, board.cols do
             for _y = 1, board.rows do
               self._gates[_x][_y].dirty = false
@@ -197,10 +198,11 @@ function board:reduce_gates()
             self.last_tick_chain = self.tick_chainable
 
             self.chain_count = self.chain_count + 1
-            score = score + chain_bonus[self.chain_count] or 180
+            score = score + (chain_bonus[self.chain_count] or 180)
 
             if self.chain_count > 1 then
               chain_popup(self.chain_count, self:screen_x(x), self:screen_y(y))
+              chain_cube(self:screen_x(x), self:screen_y(y), unpack(self.chain_cube_target))
             end
           end
         end
