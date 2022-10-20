@@ -1,6 +1,3 @@
-local flow = require("engine/application/flow")
-local player_cursor_class = require("player_cursor")
-
 require("engine/core/class")
 --#if log
 require("engine/debug/dump")
@@ -39,24 +36,24 @@ function game:update()
       player:update(board)
 
       if player.left then
-        sfx(player_cursor_class.sfx_move)
+        sfx(0)
         player_cursor:move_left()
       end
       if player.right then
-        sfx(player_cursor_class.sfx_move)
+        sfx(0)
         player_cursor:move_right()
       end
       if player.up then
-        sfx(player_cursor_class.sfx_move)
+        sfx(0)
         player_cursor:move_up()
       end
       if player.down then
-        sfx(player_cursor_class.sfx_move)
+        sfx(0)
         player_cursor:move_down()
       end
       if player.o then
         if board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y) then
-          sfx(player_cursor_class.sfx_swap)
+          sfx(2)
         end
       end
       if player.x then
