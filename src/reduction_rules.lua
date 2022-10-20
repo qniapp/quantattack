@@ -115,6 +115,20 @@ local reduction_rules = {
       ",,\ntrue,2,",
       2,
       5
+    },
+
+    -- X            Y
+    -- S-S  ----->  S-S
+    --   Z            I
+    --
+    --   X            Y
+    -- S-S  ----->  S-S
+    -- T            I
+    {
+      "x\nswap,swap\n?,z",
+      ",,y\ntrue,2,",
+      2,
+      5
     }
   },
 
