@@ -75,5 +75,8 @@
     "particle_set_puff"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
-  "Lua.workspace.checkThirdParty": false
+  "Lua.workspace.checkThirdParty": false,
+  "Lua.diagnostics.disable": [
+    "deprecated"
+  ]
 }
