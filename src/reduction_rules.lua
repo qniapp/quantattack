@@ -326,6 +326,24 @@ local reduction_rules = {
       ",,\ntrue,1,\ntrue,3,",
       3,
       10
+    },
+
+    -- Z            I
+    -- H            H
+    -- X-C  ----->  X-C
+    -- H            H
+    -- Z            I
+    --
+    --   Z            I
+    --   H            H
+    -- C-X  ----->  C-X
+    --   H            H
+    --   Z            I
+    {
+      "z\nh\ncnot_x,control\nh\nz",
+      ",,\n,4,",
+      2,
+      10
     }
   },
 
