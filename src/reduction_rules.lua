@@ -102,6 +102,22 @@ local reduction_rules = {
       ",,\n,1,x\ntrue,3,",
       3,
       7
+    },
+
+    -- H            X
+    -- S-S  ----->  S-S
+    --   Z            I
+    --   H            I
+    --
+    --   H            X
+    -- S-S  ----->  S-S
+    -- Z            I
+    -- H            I
+    {
+      "h\nswap,swap\n?,z\n?,h",
+      ",,x\ntrue,2,\ntrue,3,",
+      3,
+      7
     }
   },
 
