@@ -432,6 +432,24 @@ local reduction_rules = {
       ",,z\ntrue,2,\ntrue,3,",
       3,
       7
+    },
+
+    -- T            I
+    -- S-S  ----->  S-S
+    --   Z            I
+    --   S            I
+    --   T            I
+    --
+    --   T            I
+    -- S-S  ----->  S-S
+    -- Z            I
+    -- S            I
+    -- T            I
+    {
+      "t\nswap,swap\n?,z\n?,s\n?,t",
+      ",,\ntrue,2,\ntrue,3,\ntrue,4,",
+      4,
+      8
     }
   },
 
