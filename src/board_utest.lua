@@ -901,6 +901,30 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
+    --  Z            I
+    --  H X          H I
+    --  X-C  ----->  X-C
+    --  H X          H I
+    it('should reduce Z HX X-C HX', function()
+      board:put(1, 9, z_gate())
+      board:put(1, 10, h_gate())
+      board:put(3, 10, x_gate())
+      board:put(1, 11, cnot_x_gate(3))
+      board:put(3, 11, control_gate(1))
+      board:put(1, 12, h_gate())
+      board:put(3, 12, x_gate())
+
+      board:reduce_gates()
+
+      assert.is_true(board:gate_at(1, 9)._reduce_to:is_i())
+      assert.are_equal("h", board:gate_at(1, 10).type)
+      assert.is_true(board:gate_at(3, 10)._reduce_to:is_i())
+      assert.are_equal("cnot_x", board:gate_at(1, 11).type)
+      assert.are_equal("control", board:gate_at(3, 11).type)
+      assert.are_equal("h", board:gate_at(1, 12).type)
+      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    end)
+
     --  C-X          I I
     --  S-S  ----->  S-S
     --  X-C          I I
