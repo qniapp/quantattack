@@ -206,7 +206,6 @@ function board:reduce_gates()
 
             if self.chain_count > 1 then
               chain_bubble(self.chain_count, self:screen_x(x), self:screen_y(y))
-              ---@diagnostic disable-next-line: deprecated
               chain_cube(self.chain_count, self:screen_x(x), self:screen_y(y), unpack(self.chain_cube_target))
             end
           end

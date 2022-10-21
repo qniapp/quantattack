@@ -40,7 +40,6 @@ end
 
 local function particle_set(x, y, data)
   for _, each in pairs(split(data, "|")) do
-    ---@diagnostic disable-next-line: deprecated
     particle(x, y, unpack(split(each)))
   end
 end
