@@ -26,6 +26,7 @@ function board:_init(offset_x)
   self.chain_count = 0
   self:init()
   self.changed = false
+  self.bounce_dy = 0
 end
 
 function board:init()
@@ -115,6 +116,10 @@ end
 function board:update()
   if self:gates_piled_up() or self.win ~= nil then
     self.state = "over"
+  end
+
+  if self.tick_bounce then
+    self:update_bounce()
   end
 
   if self.state == "play" then
@@ -349,11 +354,11 @@ function board:render()
     for y = 1, board.row_next_gates do
       local gate = self._gates[x][y]
       local screen_x = self:screen_x(x)
-      local screen_y = self:screen_y(y) + self:dy()
+      local screen_y = self:screen_y(y)
 
       if gate.other_x and x < gate.other_x then
-        local connection_y = self:screen_y(y) + 3
-        line(self:screen_x(x) + 3, connection_y,
+        local connection_y = screen_y + 3
+        line(screen_x + 3, connection_y,
           self:screen_x(gate.other_x) + 3, connection_y,
           colors.yellow)
       end
@@ -432,21 +437,17 @@ function board:swap(x_left, x_right, y)
   return true
 end
 
-function board:dy()
-  return 0
-end
-
 function board:screen_x(x)
   return self.offset_x + (x - 1) * tile_size
 end
 
 -- ボード上の Y 座標を画面上の Y 座標に変換
 function board:screen_y(y)
-  return self.offset_y + (y - 1) * tile_size - self.raised_dots
+  return self.offset_y + (y - 1) * tile_size - self.raised_dots + self.bounce_dy
 end
 
 function board:y(screen_y)
-  return ceil((screen_y - self.offset_y) / tile_size + 1)
+  return ceil((screen_y - self.offset_y - self.bounce_dy) / tile_size + 1)
 end
 
 function board:gate_at(x, y)
@@ -617,6 +618,26 @@ function board:game_over()
     colors.dark_blue, colors.white)
   print_centered("game over", center_x, center_y, colors.red)
   print_centered("push x\nto replay", center_x, center_y + character_height * 2, colors.black)
+end
+
+function board:bounce()
+  self.tick_bounce = 0
+  self.dy = -4
+end
+
+function board:update_bounce()
+  self.tick_bounce = self.tick_bounce + 1
+
+  self.dy = self.dy + 0.9
+  self.bounce_dy = self.bounce_dy + self.dy
+
+  if self.bounce_dy > 0 then
+    self.bounce_dy, self.dy = 0, -self.dy
+  end
+
+  if self.dy == 0 then
+    self.tick_bounde = nil
+  end
 end
 
 -------------------------------------------------------------------------------
