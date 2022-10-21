@@ -775,6 +775,26 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
+    --  S            I
+    --  Z            Z
+    --  S-S  ----->  S-S
+    --    S            I
+    it('should reduce SZ S-S S', function()
+      board:put(1, 9, s_gate())
+      board:put(1, 10, z_gate())
+      board:put(1, 11, swap_gate(3))
+      board:put(3, 11, swap_gate(1))
+      board:put(3, 12, s_gate())
+
+      board:reduce_gates()
+
+      assert.is_true(board:gate_at(1, 9)._reduce_to:is_i())
+      assert.are_equal("z", board:gate_at(1, 10)._reduce_to.type)
+      assert.are_equal("swap", board:gate_at(1, 11).type)
+      assert.are_equal("swap", board:gate_at(3, 11).type)
+      assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
+    end)
+
     --  C-X          I I
     --  S-S  ----->  S-S
     --  X-C          I I
