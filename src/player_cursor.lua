@@ -29,12 +29,12 @@ function player_cursor:update()
 end
 
 function player_cursor:render()
-  local x, y, dy = self._board:screen_x(self.x), self._board:screen_y(self.y), self._board:dy()
+  local x, y = self._board:screen_x(self.x), self._board:screen_y(self.y)
 
   if self._tick >= 14 then
-    sspr(16, 32, 19, 11, x - 2, y - 2 + dy)
+    sspr(16, 32, 19, 11, x - 2, y - 2)
   else
-    sspr(16, 48, 21, 13, x - 3, y - 3 + dy)
+    sspr(16, 48, 21, 13, x - 3, y - 3)
   end
 end
 

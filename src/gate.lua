@@ -192,9 +192,16 @@ function gate:update(board, x, y)
         other_gate._screen_dy = other_gate._screen_dy - tile_size
       end
     else
-      -- 一個下が空いていない場合、落下を終了する
-      sfx((self:is_garbage() and not self._garbage_drop_sfx_played) and 1 or 4)
-      self._garbage_drop_sfx_played = true
+      -- 一個下が空いていない場合、落下を終了
+
+      -- おじゃまユニタリの最初の落下
+      if self._garbage_first_drop then
+        board:bounce()
+        sfx(1)
+        self._garbage_first_drop = false
+      else
+        sfx(4)
+      end
 
       self._screen_dy = 0
       self._state = "idle"
@@ -403,6 +410,7 @@ function garbage_gate(span)
   garbage._sprite_middle = 87
   garbage._sprite_left = 86
   garbage._sprite_right = 88
+  garbage._garbage_first_drop = true
 
   return garbage
 end
