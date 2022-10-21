@@ -1099,7 +1099,7 @@ describe('board', function()
   end)
 
   describe('update', function()
-    it('should drop swap pair', function()
+    it('should drop swap pair #solo', function()
       board:put(1, 11, swap_gate(3))
       board:put(3, 11, swap_gate(1))
       board:put(3, 12, h_gate())
@@ -1115,8 +1115,10 @@ describe('board', function()
       board:_update_gates()
       board:update()
 
-      assert.is_true(board:gate_at(1, 12):is_dropping())
-      assert.is_true(board:gate_at(2, 12):is_dropping())
+      assert.are_equal('swap', board:gate_at(1, 11).type)
+      assert.is_true(board:gate_at(1, 11):is_dropping())
+      assert.are_equal('swap', board:gate_at(2, 11).type)
+      assert.is_true(board:gate_at(2, 11):is_dropping())
     end)
 
     --

@@ -300,15 +300,14 @@ function board:drop_gates()
   end
 end
 
--- 指定したゲートが行 y に落とせるかどうかを返す。
--- y を省略した場合、すぐ下の行 y + 1 に落とせるかどうかを返す。
-function board:is_gate_droppable(gate_x, gate_y, y)
+-- 指定したゲートが行 gate_y + 1 に落とせるかどうかを返す。
+function board:is_gate_droppable(gate_x, gate_y)
   --#if assert
   assert(1 <= gate_x and gate_x <= board.cols)
   assert(1 <= gate_y and gate_y <= board.row_next_gates)
   --#endif
 
-  if gate_y == board.row_next_gates or y == board.row_next_gates then
+  if gate_y == board.rows then
     return false
   end
 
@@ -322,7 +321,7 @@ function board:is_gate_droppable(gate_x, gate_y, y)
   end
 
   for x = start_x, end_x do
-    if not self:is_empty(x, y or gate_y + 1) then
+    if not self:is_empty(x, gate_y + 1) then
       return false
     end
   end
@@ -469,7 +468,6 @@ end
 -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
 function board:is_empty(x, y)
   for tmp_x = 1, x - 1 do
-    -- local gate = self._gates[tmp_x][y]
     local gate = self:gate_at(tmp_x, y)
 
     if gate:is_garbage() and (not gate:is_empty()) and x <= tmp_x + gate.span - 1 then
