@@ -1,6 +1,5 @@
 require("engine/application/constants")
 require("engine/render/color")
-require("helpers")
 
 local flow = require("engine/application/flow")
 local input = require("engine/input/input")
@@ -27,7 +26,7 @@ function text_menu:update()
     self:select_previous()
   elseif input:is_just_pressed(button_ids.down) then
     self:select_next()
-  elseif input:is_just_pressed(button_ids.o) then
+  elseif input:is_just_pressed(button_ids.x) or input:is_just_pressed(button_ids.o) then
     self:confirm_selection()
   end
 end
@@ -48,17 +47,17 @@ function text_menu:confirm_selection()
   flow:query_gamestate_type(self.items[self.selection_index].target_state)
 end
 
--- render menu, starting at top y, with text centered on x
-function text_menu:draw(top)
+function text_menu:draw(left, top)
   local y = top
 
   for i = 1, #self.items do
-    -- for current selection, surround with "> <" like this: "> selected item <"
     local label = self.items[i].label
     if i == self.selection_index then
-      label = "> " .. label .. " <"
+      label = "> " .. label
+    else
+      label = "  " .. label
     end
-    print_centered(label, screen_width / 2, y, colors.white)
+    api.print(label, left, y, colors.white)
     y = y + character_height
   end
 end
