@@ -24,7 +24,7 @@ end
 
 function title:render()
   -- ロゴを表示
-  mfunc("cls,spr,128,29,20,9,2")
+  mfunc("cls,spr,128,29,35,9,2")
 
   text_menu:draw(48, 72) -- 40 + 4 * character_height
 end
