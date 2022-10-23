@@ -173,12 +173,14 @@ function gate:update(board, x, y)
     end
   elseif self:is_dropping() then
     self._screen_dy = self._screen_dy + drop_speed
-    local new_screen_y = board:screen_y(y) + self._screen_dy
-    local new_y = board:y(new_screen_y)
+    local new_y = y
+    if self._screen_dy >= tile_size then
+      new_y = new_y + 1
+    end
 
     if new_y == y then
       -- 同じ場所にとどまっているので、何もしない
-    elseif board:is_gate_droppable(x, y, new_y) and new_y <= board.rows then
+    elseif board:is_gate_droppable(x, y) then
       -- 一個下が空いている場合そこに移動する
       board:remove_gate(x, y)
       board:put(x, new_y, self)
@@ -189,7 +191,7 @@ function gate:update(board, x, y)
         local other_gate = board:gate_at(self.other_x, y)
         board:remove_gate(self.other_x, y)
         board:put(self.other_x, new_y, other_gate)
-        other_gate._screen_dy = other_gate._screen_dy - tile_size
+        other_gate._screen_dy = self._screen_dy
       end
     else
       -- 一個下が空いていない場合、落下を終了
@@ -209,10 +211,9 @@ function gate:update(board, x, y)
 
       if self.other_x and x < self.other_x then
         local other_gate = board:gate_at(self.other_x, y)
-
-        other_gate._screen_dy = 0
         other_gate._state = "idle"
         other_gate._tick_dropped = 0
+        other_gate._screen_dy = 0
       end
 
       board.changed = true
