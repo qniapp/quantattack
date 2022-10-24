@@ -5,8 +5,6 @@ require("helpers")
 
 local gate_class = require("gate")
 local reduction_rules = require("reduction_rules")
-local chain_bubble = require("chain_bubble")
-local chain_cube = require("chain_cube")
 
 local board = new_class()
 
@@ -113,7 +111,7 @@ function board:insert_gates_at_bottom(steps)
   end
 end
 
-function board:update()
+function board:update(combo_callback, chain_callback, player)
   if self:gates_piled_up() or self.win ~= nil then
     self.state = "over"
   end
@@ -123,7 +121,7 @@ function board:update()
   end
 
   if self.state == "play" then
-    return self:update_game()
+    self:update_game(combo_callback, chain_callback, player)
   elseif self.state == "over" then
     self:update_over()
   end
@@ -147,11 +145,9 @@ function board:gates_piled_up()
   return false
 end
 
-function board:update_game()
-  local score = 0
-
+function board:update_game(combo_callback, chain_callback, player)
   if self.changed then
-    score = score + self:reduce_gates()
+    self:reduce_gates(combo_callback, chain_callback, player)
     self.changed = false
   end
 
@@ -165,25 +161,27 @@ function board:update_game()
     self.last_chain_count = self.chain_count
     self.chain_count = 0
   end
-
-  return score
 end
 
 function board:update_over()
 end
 
-function board:reduce_gates()
-  local score = 0
-  local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
+function board:reduce_gates(combo_callback, chain_callback, player)
+  -- 同時消しで変化したゲートの数
+  -- 「同時」なので同じフレーム内で一度に消えたゲートを数えるため、
+  -- 連鎖数のカウント (self.chain_count) のようにフレームをまたいで数える必要はなく、
+  -- 一度の reduce_gates() 呼び出し内での数をカウントする。
+  local combo_count = 0
 
   for y = 1, board.rows do
     for x = 1, board.cols do
       local reduction = self:reduce(x, y)
-      score = score + (#reduction.to == 0 and 0 or reduction.score)
+      -- score = score + (#reduction.to == 0 and 0 or reduction.score)
 
       -- チェイン (連鎖) の処理
       if #reduction.to > 0 then
         if self.tick_chainable == 0 then
+          combo_count = #reduction.to
           self.chain_count = 1
           self.tick_chainable = gate_class.match_animation_frame_count +
               reduction.gate_count * gate_class.match_delay_per_gate + 10
@@ -198,20 +196,21 @@ function board:reduce_gates()
             end
           end
         else
-          if not reduction.dirty and self.last_tick_chainable ~= self.tick_chainable then -- 同時消しの場合は chain_count を増やさない
-            local chainable_frames = gate_class.match_animation_frame_count +
-                reduction.gate_count * gate_class.match_delay_per_gate + 10
-            if self.tick_chainable < chainable_frames then
-              self.tick_chainable = chainable_frames
-            end
-            self.last_tick_chainable = self.tick_chainable
-            self.chain_count = self.chain_count + 1
+          if not reduction.dirty then
+            if self.last_tick_chainable == self.tick_chainable then -- 同時消し
+              combo_count = combo_count + #reduction.to
+            else
+              local chainable_frames = gate_class.match_animation_frame_count +
+                  reduction.gate_count * gate_class.match_delay_per_gate + 10
+              if self.tick_chainable < chainable_frames then
+                self.tick_chainable = chainable_frames
+              end
+              self.last_tick_chainable = self.tick_chainable
+              self.chain_count = self.chain_count + 1
 
-            score = score + (chain_bonus[self.chain_count] or 180)
-
-            if self.chain_count > 1 then
-              chain_bubble(self.chain_count, self:screen_x(x), self:screen_y(y))
-              chain_cube(self.chain_count, self:screen_x(x), self:screen_y(y), unpack(self.chain_cube_target))
+              if chain_callback then
+                chain_callback(self.chain_count, self, x, y, player)
+              end
             end
           end
         end
@@ -233,6 +232,10 @@ function board:reduce_gates()
         self._gates[x + dx][y + dy]:replace_with(gate, index)
       end
     end
+  end
+
+  if combo_callback then
+    combo_callback(combo_count, player)
   end
 
   -- おじゃまゲートのマッチ
@@ -277,8 +280,6 @@ function board:reduce_gates()
       end
     end
   end
-
-  return score
 end
 
 function board:drop_gates()

@@ -8,8 +8,21 @@ local game = new_class()
 local particle = require("particle")
 local chain_bubble = require("chain_bubble")
 local chain_cube = require("chain_cube")
-
+local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 local all_players
+
+-- TODO: コンボ発生イベントを受け取って点数などを更新
+function game.combo_callback(combo_count, player)
+end
+
+-- TODO: 連鎖発生イベントを受け取って点数などを更新
+function game.chain_callback(chain_count, board, x, y, player)
+  if chain_count > 1 then
+    chain_bubble(chain_count, board:screen_x(x), board:screen_y(y))
+    chain_cube(chain_count, board:screen_x(x), board:screen_y(y), unpack(board.chain_cube_target))
+    player.score = player.score + chain_bonus[chain_count]
+  end
+end
 
 function game:_init()
 end
@@ -19,17 +32,16 @@ function game:init()
 end
 
 function game:add_player(player, board, player_cursor)
-  add(all_players, { player = player, board = board, player_cursor = player_cursor, tick = 0 })
+  add(all_players, { player = { board = board, player_cursor = player_cursor, tick = 0 } })
 end
 
 function game:update()
-  for _, each in pairs(all_players) do
-    local player = each.player
+  for player, each in pairs(all_players) do
     local board = each.board
     local player_cursor = each.player_cursor
 
     if board:is_game_over() then
-      board:update()
+      board:update(self.combo_callback, self.chain_callback, player)
       player:update(board)
       player_cursor:update()
     else
@@ -60,7 +72,7 @@ function game:update()
         self:_raise(each)
       end
 
-      player.score = player.score + (board:update() or 0)
+      board:update(self.combo_callback, self.chain_callback, player)
       player_cursor:update()
       self:_auto_raise(each)
 

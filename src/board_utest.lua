@@ -1015,7 +1015,7 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
-    it('おじゃまゲートの左に隣接するゲートがマッチした時、おじゃまゲートが破壊される #solo'
+    it('おじゃまゲートの左に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
       , function()
       local h = h_gate()
 
@@ -1028,7 +1028,7 @@ describe('board', function()
       assert.are_equal('!', board:gate_at(2, 12).type)
     end)
 
-    it('おじゃまゲートの右に隣接するゲートがマッチした時、おじゃまゲートが破壊される #solo'
+    it('おじゃまゲートの右に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
       , function()
       local h = h_gate()
 
@@ -1099,7 +1099,7 @@ describe('board', function()
   end)
 
   describe('update', function()
-    it('should drop swap pair #solo', function()
+    it('should drop swap pair', function()
       board:put(1, 11, swap_gate(3))
       board:put(3, 11, swap_gate(1))
       board:put(3, 12, h_gate())
