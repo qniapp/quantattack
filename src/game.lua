@@ -8,21 +8,23 @@ local game = new_class()
 local particle = require("particle")
 local chain_bubble = require("chain_bubble")
 local chain_cube = require("chain_cube")
-local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 local all_players
+
+-- TODO: 連鎖発生イベントを受け取って点数などを更新
+function game.chain_callback(chain_count, board, x, y, player)
+  local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
+
+  if chain_count > 1 then
+    chain_bubble(chain_count, board:screen_x(x), board:screen_y(y))
+    chain_cube(chain_count, board:screen_x(x), board:screen_y(y), unpack(board.chain_cube_target))
+    player.score = player.score + (chain_bonus[chain_count] or 180)
+  end
+end
 
 -- TODO: コンボ発生イベントを受け取って点数などを更新
 function game.combo_callback(combo_count, player)
 end
 
--- TODO: 連鎖発生イベントを受け取って点数などを更新
-function game.chain_callback(chain_count, board, x, y, player)
-  if chain_count > 1 then
-    chain_bubble(chain_count, board:screen_x(x), board:screen_y(y))
-    chain_cube(chain_count, board:screen_x(x), board:screen_y(y), unpack(board.chain_cube_target))
-    player.score = player.score + chain_bonus[chain_count]
-  end
-end
 
 function game:_init()
 end
