@@ -72,7 +72,14 @@
     "particle_set_chain_cube",
     "particle_set_swap_left",
     "particle_set_swap_right",
-    "particle_set_puff"
+    "particle_set_puff",
+    "sin",
+    "cos",
+    "mfunc",
+    "draw_rounded_box",
+    "print_centered",
+    "sset",
+    "sub"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,
