@@ -4,7 +4,7 @@ require("test_helper")
 local game = require("game")
 local board_class = require("board")
 
-describe('combo', function()
+describe('コンボ (同時消し) のコールバック', function()
   local board
 
   before_each(function()
