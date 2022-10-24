@@ -390,11 +390,10 @@ end
 
 -- (x_left, y) と (x_right, y) のゲートを入れ替える
 -- 入れ替えできた場合は true を、そうでない場合は false を返す
---
--- TODO: 引数の x_right をなくして x_left + 1 を使う
-function board:swap(x_left, x_right, y)
+function board:swap(x_left, y)
+  local x_right = x_left + 1
+
   --#if assert
-  assert(x_right == x_left + 1)
   assert(1 <= x_left and x_left <= board.cols - 1)
   assert(2 <= x_right and x_right <= board.cols)
   assert(1 <= y and y <= board.rows)

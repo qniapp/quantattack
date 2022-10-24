@@ -32,16 +32,17 @@ function game:init()
 end
 
 function game:add_player(player, board, player_cursor)
-  add(all_players, { player = { board = board, player_cursor = player_cursor, tick = 0 } })
+  add(all_players, { player = player, board = board, player_cursor = player_cursor, tick = 0 })
 end
 
 function game:update()
-  for player, each in pairs(all_players) do
+  for _, each in pairs(all_players) do
+    local player = each.player
     local board = each.board
     local player_cursor = each.player_cursor
 
     if board:is_game_over() then
-      board:update(self.combo_callback, self.chain_callback, player)
+      board:update(game.combo_callback, game.chain_callback, player)
       player:update(board)
       player_cursor:update()
     else
@@ -64,7 +65,7 @@ function game:update()
         player_cursor:move_down()
       end
       if player.o then
-        if board:swap(player_cursor.x, player_cursor.x + 1, player_cursor.y) then
+        if board:swap(player_cursor.x, player_cursor.y) then
           sfx(2)
         end
       end

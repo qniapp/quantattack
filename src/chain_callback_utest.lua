@@ -26,7 +26,7 @@ describe('chain', function()
     board:put(1, 12, y_gate())
     board:put(2, 12, y_gate())
 
-    board:swap(1, 2, 10)
+    board:swap(1, 10)
 
     local chain_callback = assert.spy(game.chain_callback)
 

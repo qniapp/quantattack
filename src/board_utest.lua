@@ -17,7 +17,7 @@ describe('board', function()
       board:put(1, 12, h_gate())
       board:put(2, 12, x_gate())
 
-      local swapped = board:swap(1, 2, 12)
+      local swapped = board:swap(1, 12)
 
       assert.is_true(swapped)
       assert.are_equal("h", board:gate_at(1, 12).type)
@@ -31,7 +31,7 @@ describe('board', function()
       board:gate_at(2, 12):swap_with_left(1)
       board:put(3, 12, x_gate())
 
-      local swapped = board:swap(2, 3, 12)
+      local swapped = board:swap(2, 12)
 
       assert.is_false(swapped)
       assert.are_equal("x", board:gate_at(3, 12).type)
@@ -43,7 +43,7 @@ describe('board', function()
       board:put(2, 12, x_gate())
       board:gate_at(2, 12):swap_with_right(3)
 
-      local swapped = board:swap(1, 2, 12)
+      local swapped = board:swap(1, 12)
 
       assert.is_false(swapped)
       assert.are_equal("h", board:gate_at(1, 12).type)
@@ -57,7 +57,7 @@ describe('board', function()
       board:put(1, 12, swap_gate(3))
       board:put(3, 12, swap_gate(1))
 
-      board:swap(2, 3, 12)
+      board:swap(2, 12)
       board:update()
       board:update()
       board:update()
@@ -71,7 +71,7 @@ describe('board', function()
       board:put(1, 12, swap_gate(2))
       board:put(2, 12, swap_gate(1))
 
-      board:swap(1, 2, 12)
+      board:swap(1, 12)
       board:update()
       board:update()
       board:update()
@@ -87,7 +87,7 @@ describe('board', function()
       board:put(1, 12, garbage_gate(3))
       board:put(4, 12, x_gate())
 
-      assert.is_false(board:swap(3, 4, 12))
+      assert.is_false(board:swap(3, 12))
     end)
 
     it('おじゃまユニタリが右側にある場合、入れ替えできない', function()
@@ -95,7 +95,7 @@ describe('board', function()
       board:put(3, 12, x_gate())
       board:put(4, 12, garbage_gate(3))
 
-      assert.is_false(board:swap(3, 4, 12))
+      assert.is_false(board:swap(3, 12))
     end)
   end)
 
@@ -1104,7 +1104,7 @@ describe('board', function()
       board:put(3, 11, swap_gate(1))
       board:put(3, 12, h_gate())
 
-      board:swap(2, 3, 11)
+      board:swap(2, 11)
 
       board:update()
       board:update()
@@ -1143,7 +1143,7 @@ describe('board', function()
       board:put(2, 12, y_gate())
       board:put(1, 12, x_gate())
 
-      board:swap(1, 2, 12)
+      board:swap(1, 12)
 
       for i = 1, 100 do
         board:update()
@@ -1179,7 +1179,7 @@ describe('board', function()
       board:put(1, 13, y_gate())
       board:put(2, 13, h_gate())
 
-      board:swap(1, 2, 12)
+      board:swap(1, 12)
 
       for i = 1, 100 do
         board:update()
@@ -1201,7 +1201,7 @@ describe('board', function()
       board:put(6, 11, t_gate())
       board:put(6, 12, x_gate())
 
-      board:swap(5, 6, 5)
+      board:swap(5, 5)
 
       profiler.start()
 

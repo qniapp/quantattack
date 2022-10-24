@@ -21,7 +21,7 @@ describe('combo', function()
     board:put(2, 11, h_gate())
     board:put(2, 12, x_gate())
 
-    board:swap(1, 2, 12)
+    board:swap(1, 12)
     wait_swap_to_finish(board)
 
     local combo_callback = assert.spy(game.combo_callback)
