@@ -1,15 +1,9 @@
 require("engine/test/bustedhelper")
+require("test_helper")
 local match = require("luassert.match")
 
 local game = require("game")
 local board_class = require("board")
-local gate = require("gate")
-
-local function wait_swap_to_finish(board)
-  for _i = 1, 1 + gate.swap_animation_frame_count do
-    board:update()
-  end
-end
 
 describe('combo', function()
   local board

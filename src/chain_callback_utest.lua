@@ -1,4 +1,5 @@
 require("engine/test/bustedhelper")
+require("test_helper")
 local match = require("luassert.match")
 
 local game = require("game")
@@ -29,9 +30,7 @@ describe('chain', function()
 
     local chain_callback = assert.spy(game.chain_callback)
 
-    for _i = 1, 5 do
-      board:update(game.combo_callback, game.chain_callback)
-    end
+    wait_swap_to_finish(board)
 
     -- TODO: update 回数を式として書く
     for _i = 1, 158 do
