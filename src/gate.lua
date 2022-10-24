@@ -6,8 +6,8 @@ local gate = new_class()
 
 gate.match_animation_frame_count = 45
 gate.match_delay_per_gate = 15
+gate.swap_animation_frame_count = 4
 
-local swap_animation_frame_count = 4
 local drop_speed = 3
 
 local sprites = {
@@ -123,7 +123,7 @@ function gate:update(board, x, y)
     assert(not self:is_garbage())
     --#endif
 
-    if self._tick_swap < swap_animation_frame_count then
+    if self._tick_swap < gate.swap_animation_frame_count then
       self._tick_swap = self._tick_swap + 1
     else
       -- SWAP 完了
@@ -266,7 +266,7 @@ function gate:render(screen_x, screen_y)
     end
   else
     local screen_dx = 0
-    local diff = (self._tick_swap or 0) * (tile_size / swap_animation_frame_count)
+    local diff = (self._tick_swap or 0) * (tile_size / gate.swap_animation_frame_count)
     if self:_is_swapping_with_right() then
       screen_dx = diff
     elseif self:_is_swapping_with_left() then
