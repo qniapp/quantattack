@@ -14,10 +14,10 @@ describe('chain', function()
   end)
 
   it("連鎖でコールバックが呼ばれる #solo", function()
-    --    Y           Y
-    -- [X H]
-    --  H X  ----->     ----->
-    --  Y Y         Y Y        Y
+    --    Y           Y          Y
+    -- [X H]        H X
+    --  H X  -----> H X ----->     ----->   Y
+    --  Y Y         Y Y        Y Y        Y Y
     board:put(2, 9, y_gate())
     board:put(1, 10, x_gate())
     board:put(2, 10, h_gate())
