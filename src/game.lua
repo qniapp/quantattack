@@ -11,16 +11,16 @@ local chain_bubble = require("chain_bubble")
 local chain_cube = require("chain_cube")
 local all_players
 
+-- TODO: player に移動
 function game.reduce_callback(score, player)
   player.score = player.score + score
 end
 
--- TODO: コンボ発生イベントを受け取って点数などを更新
+-- TODO: コンボの点数を追加
 function game.combo_callback(combo_count, x, y, board, player)
   combo_bubble(combo_count, board:screen_x(x), board:screen_y(y))
 end
 
--- TODO: 連鎖発生イベントを受け取って点数などを更新
 function game.chain_callback(chain_count, board, x, y, player)
   local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
@@ -39,48 +39,51 @@ function game:init()
 end
 
 function game:add_player(player, board, player_cursor)
-  add(all_players, { player = player, board = board, player_cursor = player_cursor, tick = 0 })
+  player.board = board
+  player.player_cursor = player_cursor
+  player.tick = 0
+
+  add(all_players, player)
 end
 
 function game:update()
   for _, each in pairs(all_players) do
-    local player = each.player
     local board = each.board
     local player_cursor = each.player_cursor
 
     if board:is_game_over() then
       board:update()
-      player:update(board)
+      each:update(board)
       player_cursor:update()
     else
-      player:update(board)
+      each:update(board)
 
-      if player.left then
+      if each.left then
         sfx(0)
         player_cursor:move_left()
       end
-      if player.right then
+      if each.right then
         sfx(0)
         player_cursor:move_right()
       end
-      if player.up then
+      if each.up then
         sfx(0)
         player_cursor:move_up()
       end
-      if player.down then
+      if each.down then
         sfx(0)
         player_cursor:move_down()
       end
-      if player.o then
+      if each.o then
         if board:swap(player_cursor.x, player_cursor.y) then
           sfx(2)
         end
       end
-      if player.x then
+      if each.x then
         self:_raise(each)
       end
 
-      board:update(game.reduce_callback, game.combo_callback, game.chain_callback, player)
+      board:update(game.reduce_callback, game.combo_callback, game.chain_callback, each)
       player_cursor:update()
       self:_auto_raise(each)
 
@@ -102,8 +105,8 @@ function game:render() -- override
   cls()
 
   for _, each in pairs(all_players) do
-    local board = each.board
     local player_cursor = each.player_cursor
+    local board = each.board
 
     board:render()
 
@@ -125,10 +128,9 @@ function game:render() -- override
 end
 
 -- ゲートをせりあげる
-function game:_raise(player_info)
-  local board = player_info.board
-  local player = player_info.player
-  local cursor = player_info.player_cursor
+function game:_raise(player)
+  local board = player.board
+  local cursor = player.player_cursor
 
   board.raised_dots = board.raised_dots + 1
 
@@ -147,7 +149,7 @@ function game:_auto_raise(player)
 
   player.tick = 0
 
-  if (player.board:is_busy()) then
+  if player.board:is_busy() then
     return false
   end
 

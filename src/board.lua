@@ -206,7 +206,7 @@ function board:reduce_gates(reduce_callback, combo_callback, chain_callback, pla
             end
           elseif not reduction.dirty and self.last_tick_chainable ~= self.tick_chainable then
             local chainable_frames = gate_class.match_animation_frame_count +
-              reduction.gate_count * gate_class.match_delay_per_gate + 10
+                reduction.gate_count * gate_class.match_delay_per_gate + 10
             if self.tick_chainable < chainable_frames then
               self.tick_chainable = chainable_frames
             end
