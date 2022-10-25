@@ -51,9 +51,9 @@ describe('garbage_gate', function()
       end)
     end)
 
-    describe("is_dropping", function()
+    describe("is_falling", function()
       it("should return false", function()
-        assert.is_false(garbage:is_dropping())
+        assert.is_false(garbage:is_falling())
       end)
     end)
 

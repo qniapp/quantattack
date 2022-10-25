@@ -36,9 +36,9 @@ describe('swap_gate', function()
       end)
     end)
 
-    describe("is_dropping", function()
+    describe("is_falling", function()
       it("should return false", function()
-        assert.is_false(swap:is_dropping())
+        assert.is_false(swap:is_falling())
       end)
     end)
 

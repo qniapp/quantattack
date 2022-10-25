@@ -91,7 +91,7 @@ end
 -- 他のゲートが通過 (ドロップ) できる場合 true を返す
 function gate:is_empty()
   return (self:is_i() and not self:is_swapping()) or
-      self:is_dropping()
+      self:is_falling()
 end
 
 -- マッチ状態である場合 true を返す
@@ -171,7 +171,7 @@ function gate:update(board, x, y)
       self._state, right_gate._state = "idle", "idle"
       self.dirty, right_gate.dirty = true, true
     end
-  elseif self:is_dropping() then
+  elseif self:is_falling() then
     self._screen_dy = self._screen_dy + drop_speed
     local new_y = y
     if self._screen_dy >= tile_size then
@@ -302,7 +302,7 @@ end
 
 -- ゲートが下に落とせる状態にあるかどうかを返す
 function gate:is_droppable()
-  return not (self:is_i() or self.type == "!" or self:is_dropping() or self:is_swapping() or self:is_freeze())
+  return not (self:is_i() or self.type == "!" or self:is_falling() or self:is_swapping() or self:is_freeze())
 end
 
 function gate:drop()
@@ -310,12 +310,12 @@ function gate:drop()
   assert(self:is_droppable())
   --#endif
 
-  self._state = "dropping"
+  self._state = "falling"
   self._screen_dy = 0
 end
 
-function gate:is_dropping()
-  return self._state == "dropping"
+function gate:is_falling()
+  return self._state == "falling"
 end
 
 -------------------------------------------------------------------------------
@@ -436,7 +436,7 @@ function gate:_tostring()
         idle = " ",
         swapping_with_left = "<",
         swapping_with_right = ">",
-        dropping = "|",
+        falling = "|",
         match = "*",
         freeze = "f"
       }

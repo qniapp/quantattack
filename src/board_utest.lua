@@ -1094,7 +1094,7 @@ describe('board', function()
 
       board:drop_gates()
 
-      assert.is_true(board:gate_at(1, 1):is_dropping())
+      assert.is_true(board:gate_at(1, 1):is_falling())
     end)
   end)
 
@@ -1116,9 +1116,9 @@ describe('board', function()
       board:update()
 
       assert.are_equal('swap', board:gate_at(1, 11).type)
-      assert.is_true(board:gate_at(1, 11):is_dropping())
+      assert.is_true(board:gate_at(1, 11):is_falling())
       assert.are_equal('swap', board:gate_at(2, 11).type)
-      assert.is_true(board:gate_at(2, 11):is_dropping())
+      assert.is_true(board:gate_at(2, 11):is_falling())
     end)
 
     --
@@ -1265,10 +1265,10 @@ describe('board', function()
     end)
 
     -- S-S
-    -- H (dropping)
+    -- H (falling)
     it('SWAP ゲートの下にゲートがあるが落下中の場合 true を返す', function()
       local h = h_gate()
-      h._state = "dropping"
+      h._state = "falling"
 
       board:put(1, 11, swap_gate(3))
       board:put(3, 11, swap_gate(1))
