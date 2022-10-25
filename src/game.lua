@@ -6,9 +6,15 @@ require("engine/debug/dump")
 local game = new_class()
 
 local particle = require("particle")
+local combo_bubble = require("combo_bubble")
 local chain_bubble = require("chain_bubble")
 local chain_cube = require("chain_cube")
 local all_players
+
+-- TODO: コンボ発生イベントを受け取って点数などを更新
+function game.combo_callback(combo_count, x, y, board, player)
+  combo_bubble(combo_count, board:screen_x(x), board:screen_y(y))
+end
 
 -- TODO: 連鎖発生イベントを受け取って点数などを更新
 function game.chain_callback(chain_count, board, x, y, player)
@@ -20,11 +26,6 @@ function game.chain_callback(chain_count, board, x, y, player)
     player.score = player.score + (chain_bonus[chain_count] or 180)
   end
 end
-
--- TODO: コンボ発生イベントを受け取って点数などを更新
-function game.combo_callback(combo_count, player)
-end
-
 
 function game:_init()
 end
@@ -75,7 +76,7 @@ function game:update()
         self:_raise(each)
       end
 
-      board:update(self.combo_callback, self.chain_callback, player)
+      board:update(game.combo_callback, game.chain_callback, player)
       player_cursor:update()
       self:_auto_raise(each)
 
@@ -88,6 +89,7 @@ function game:update()
   end
 
   particle:update()
+  combo_bubble:update()
   chain_bubble:update()
   chain_cube:update()
 end
@@ -107,6 +109,7 @@ function game:render() -- override
   end
 
   particle:render()
+  combo_bubble:render()
   chain_bubble:render()
   chain_cube:render()
 

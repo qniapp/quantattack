@@ -178,8 +178,15 @@ function board:reduce_gates(combo_callback, chain_callback, player)
       local reduction = self:reduce(x, y)
       -- score = score + (#reduction.to == 0 and 0 or reduction.score)
 
-      -- チェイン (連鎖) の処理
+      -- コンボ (同時消し) とチェイン (連鎖) の処理
       if #reduction.to > 0 then
+        if self.last_tick_chainable == self.tick_chainable then -- 同時消し
+          combo_count = combo_count + #reduction.to
+          if combo_callback then
+            combo_callback(combo_count, x, y, self, player)
+          end
+        end
+
         if self.tick_chainable == 0 then
           combo_count = #reduction.to
           self.chain_count = 1
@@ -195,47 +202,37 @@ function board:reduce_gates(combo_callback, chain_callback, player)
               self._gates[_x][_y].dirty = false
             end
           end
-        else
-          if not reduction.dirty then
-            if self.last_tick_chainable == self.tick_chainable then -- 同時消し
-              combo_count = combo_count + #reduction.to
-            else
-              local chainable_frames = gate_class.match_animation_frame_count +
-                  reduction.gate_count * gate_class.match_delay_per_gate + 10
-              if self.tick_chainable < chainable_frames then
-                self.tick_chainable = chainable_frames
-              end
-              self.last_tick_chainable = self.tick_chainable
-              self.chain_count = self.chain_count + 1
+        elseif not reduction.dirty and self.last_tick_chainable ~= self.tick_chainable then -- 同時消し
+          local chainable_frames = gate_class.match_animation_frame_count +
+              reduction.gate_count * gate_class.match_delay_per_gate + 10
+          if self.tick_chainable < chainable_frames then
+            self.tick_chainable = chainable_frames
+          end
+          self.last_tick_chainable = self.tick_chainable
+          self.chain_count = self.chain_count + 1
 
-              if chain_callback then
-                chain_callback(self.chain_count, self, x, y, player)
-              end
+          if chain_callback then
+            chain_callback(self.chain_count, self, x, y, player)
+          end
+        end
+
+        for index, r in pairs(reduction.to) do
+          local dx = r.dx and reduction.dx or 0
+          local dy = r.dy or 0
+          local gate = gate_class(r.gate_type)
+
+          if gate.type == "swap" or gate.type == "cnot_x" or gate.type == "control" then
+            if r.dx then
+              gate.other_x = x
+            else
+              gate.other_x = x + reduction.dx
             end
           end
+
+          self._gates[x + dx][y + dy]:replace_with(gate, index)
         end
-      end
-
-      for index, r in pairs(reduction.to) do
-        local dx = r.dx and reduction.dx or 0
-        local dy = r.dy or 0
-        local gate = gate_class(r.gate_type)
-
-        if gate.type == "swap" or gate.type == "cnot_x" or gate.type == "control" then
-          if r.dx then
-            gate.other_x = x
-          else
-            gate.other_x = x + reduction.dx
-          end
-        end
-
-        self._gates[x + dx][y + dy]:replace_with(gate, index)
       end
     end
-  end
-
-  if combo_callback then
-    combo_callback(combo_count, player)
   end
 
   -- おじゃまゲートのマッチ

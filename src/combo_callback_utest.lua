@@ -1,5 +1,6 @@
 require("engine/test/bustedhelper")
 require("test_helper")
+local match = require("luassert.match")
 
 local game = require("game")
 local board_class = require("board")
@@ -27,6 +28,6 @@ describe('コンボ (同時消し) のコールバック', function()
     board:update(game.combo_callback)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(4, nil)
+    combo_callback.was_called_with(4, 2, 11, match._, match._)
   end)
 end)
