@@ -25,7 +25,7 @@ describe('コンボ (同時消し) のコールバック', function()
     wait_swap_to_finish(board)
 
     local combo_callback = assert.spy(game.combo_callback)
-    board:update(game.combo_callback)
+    board:update(nil, game.combo_callback)
 
     combo_callback.was_called(1)
     combo_callback.was_called_with(4, 2, 11, match._, match._)
@@ -45,7 +45,7 @@ describe('コンボ (同時消し) のコールバック', function()
     wait_swap_to_finish(board)
 
     local combo_callback = assert.spy(game.combo_callback)
-    board:update(game.combo_callback)
+    board:update(nil, game.combo_callback)
 
     combo_callback.was_called(1)
     combo_callback.was_called_with(5, 2, 10,  match._, match._)
@@ -66,7 +66,7 @@ describe('コンボ (同時消し) のコールバック', function()
     wait_swap_to_finish(board)
 
     local combo_callback = assert.spy(game.combo_callback)
-    board:update(game.combo_callback)
+    board:update(nil, game.combo_callback)
 
     combo_callback.was_called(1)
     combo_callback.was_called_with(6, 2, 10,  match._, match._)

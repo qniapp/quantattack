@@ -111,7 +111,7 @@ function board:insert_gates_at_bottom(steps)
   end
 end
 
-function board:update(combo_callback, chain_callback, player)
+function board:update(reduce_callback, combo_callback, chain_callback, player)
   if self:gates_piled_up() or self.win ~= nil then
     self.state = "over"
   end
@@ -121,7 +121,7 @@ function board:update(combo_callback, chain_callback, player)
   end
 
   if self.state == "play" then
-    self:update_game(combo_callback, chain_callback, player)
+    self:update_game(reduce_callback, combo_callback, chain_callback, player)
   elseif self.state == "over" then
     self:update_over()
   end
@@ -145,9 +145,9 @@ function board:gates_piled_up()
   return false
 end
 
-function board:update_game(combo_callback, chain_callback, player)
+function board:update_game(reduce_callback, combo_callback, chain_callback, player)
   if self.changed then
-    self:reduce_gates(combo_callback, chain_callback, player)
+    self:reduce_gates(reduce_callback, combo_callback, chain_callback, player)
     self.changed = false
   end
 
@@ -166,9 +166,9 @@ end
 function board:update_over()
 end
 
-function board:reduce_gates(combo_callback, chain_callback, player)
+function board:reduce_gates(reduce_callback, combo_callback, chain_callback, player)
   -- 同時消しで変化したゲートの数
-  -- 「同時」なので同じフレーム内で一度に消えたゲートを数えるため、
+  -- 同じフレーム内で一度に消えたゲートを数えるため、
   -- 連鎖数のカウント (self.chain_count) のようにフレームをまたいで数える必要はなく、
   -- 一度の reduce_gates() 呼び出し内での数をカウントする。
   local combo_count = 0
@@ -176,10 +176,13 @@ function board:reduce_gates(combo_callback, chain_callback, player)
   for x = 1, board.cols do
     for y = 1, board.rows do
       local reduction = self:reduce(x, y)
-      -- score = score + (#reduction.to == 0 and 0 or reduction.score)
 
       -- コンボ (同時消し) とチェイン (連鎖) の処理
       if #reduction.to > 0 then
+        if reduce_callback then
+          reduce_callback(reduction.score, player)
+        end
+
         if self.tick_chainable == 0 then
           combo_count = #reduction.to
           self.chain_count = 1

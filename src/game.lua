@@ -11,6 +11,10 @@ local chain_bubble = require("chain_bubble")
 local chain_cube = require("chain_cube")
 local all_players
 
+function game.reduce_callback(score, player)
+  player.score = player.score + score
+end
+
 -- TODO: コンボ発生イベントを受け取って点数などを更新
 function game.combo_callback(combo_count, x, y, board, player)
   combo_bubble(combo_count, board:screen_x(x), board:screen_y(y))
@@ -45,7 +49,7 @@ function game:update()
     local player_cursor = each.player_cursor
 
     if board:is_game_over() then
-      board:update(game.combo_callback, game.chain_callback, player)
+      board:update()
       player:update(board)
       player_cursor:update()
     else
@@ -76,7 +80,7 @@ function game:update()
         self:_raise(each)
       end
 
-      board:update(game.combo_callback, game.chain_callback, player)
+      board:update(game.reduce_callback, game.combo_callback, game.chain_callback, player)
       player_cursor:update()
       self:_auto_raise(each)
 

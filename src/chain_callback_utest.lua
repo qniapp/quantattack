@@ -34,7 +34,7 @@ describe('chain', function()
 
     -- TODO: update 回数を式として書く
     for _i = 1, 158 do
-      board:update(game.combo_callback, game.chain_callback)
+      board:update(nil, game.combo_callback, game.chain_callback)
     end
 
     chain_callback.was_called(1)
