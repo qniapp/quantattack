@@ -13,7 +13,7 @@ describe('chain', function()
     board = board_class()
   end)
 
-  it("連鎖でコールバックが呼ばれる #solo", function()
+  it("連鎖でコールバックが呼ばれる", function()
     --    Y           Y          Y
     -- [X H]        H X
     --  H X  -----> H X ----->     ----->   Y

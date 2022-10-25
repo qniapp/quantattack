@@ -173,20 +173,13 @@ function board:reduce_gates(combo_callback, chain_callback, player)
   -- 一度の reduce_gates() 呼び出し内での数をカウントする。
   local combo_count = 0
 
-  for y = 1, board.rows do
-    for x = 1, board.cols do
+  for x = 1, board.cols do
+    for y = 1, board.rows do
       local reduction = self:reduce(x, y)
       -- score = score + (#reduction.to == 0 and 0 or reduction.score)
 
       -- コンボ (同時消し) とチェイン (連鎖) の処理
       if #reduction.to > 0 then
-        if self.last_tick_chainable == self.tick_chainable then -- 同時消し
-          combo_count = combo_count + #reduction.to
-          if combo_callback then
-            combo_callback(combo_count, x, y, self, player)
-          end
-        end
-
         if self.tick_chainable == 0 then
           combo_count = #reduction.to
           self.chain_count = 1
@@ -194,25 +187,32 @@ function board:reduce_gates(combo_callback, chain_callback, player)
               reduction.gate_count * gate_class.match_delay_per_gate + 10
           self.last_tick_chainable = self.tick_chainable
 
-          -- すべてのブロックを dirty = false にする
-          -- 連鎖中に一度でも入れ換えを行ったブロックは dirty になる
-          -- dirty なブロックが消えた場合は連鎖にカウントしない
+          -- すべてのゲートを dirty = false にする
+          -- 連鎖中に一度でも入れ換えを行ったゲートは dirty になる
+          -- すべてのゲートが dirty だった場合は連鎖にカウントしない
           for _x = 1, board.cols do
             for _y = 1, board.rows do
               self._gates[_x][_y].dirty = false
             end
           end
-        elseif not reduction.dirty and self.last_tick_chainable ~= self.tick_chainable then -- 同時消し
-          local chainable_frames = gate_class.match_animation_frame_count +
+        else
+          if self.last_tick_chainable == self.tick_chainable then -- 同時消し
+            combo_count = combo_count + #reduction.to
+            if combo_callback then
+              combo_callback(combo_count, x, y, self, player)
+            end
+          elseif not reduction.dirty and self.last_tick_chainable ~= self.tick_chainable then
+            local chainable_frames = gate_class.match_animation_frame_count +
               reduction.gate_count * gate_class.match_delay_per_gate + 10
-          if self.tick_chainable < chainable_frames then
-            self.tick_chainable = chainable_frames
-          end
-          self.last_tick_chainable = self.tick_chainable
-          self.chain_count = self.chain_count + 1
+            if self.tick_chainable < chainable_frames then
+              self.tick_chainable = chainable_frames
+            end
+            self.last_tick_chainable = self.tick_chainable
+            self.chain_count = self.chain_count + 1
 
-          if chain_callback then
-            chain_callback(self.chain_count, self, x, y, player)
+            if chain_callback then
+              chain_callback(self.chain_count, self, x, y, player)
+            end
           end
         end
 
@@ -539,7 +539,7 @@ end
 function board:reduce(x, y, include_next_gates)
   local reduction = { to = {}, score = 0 }
   local gate = self._gates[x][y]
-  local dirty = false
+  local chainnable = false
 
   if not gate:is_reducible() then return reduction end
 
@@ -583,7 +583,9 @@ function board:reduce(x, y, include_next_gates)
         if gate1.type ~= gates[1] then
           goto next_rule
         end
-        dirty = dirty or gate1.dirty
+        if not gate1.dirty then
+          chainnable = true
+        end
       end
 
       if gates[2] and other_x then
@@ -591,11 +593,13 @@ function board:reduce(x, y, include_next_gates)
         if gate2.type ~= gates[2] then
           goto next_rule
         end
-        dirty = dirty or gate2.dirty
+        if not gate2.dirty then
+          chainnable = true
+        end
       end
     end
 
-    reduction = { to = rule[2], dx = dx, gate_count = rule[3], score = rule[4] or 1, dirty = dirty }
+    reduction = { to = rule[2], dx = dx, gate_count = rule[3], score = rule[4] or 1, dirty = not chainnable }
     goto matched
 
     ::next_rule::
