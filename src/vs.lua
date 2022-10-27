@@ -60,11 +60,11 @@ function vs:update()
 
   if board.last_chain_count > 1 then
     board.last_chain_count = 0
-    qpu_board:drop_garbage()
+    qpu_board:fall_garbage()
   end
   if qpu_board.last_chain_count > 1 then
     board.last_chain_count = 0
-    board:drop_garbage()
+    board:fall_garbage()
   end
 end
 

@@ -38,7 +38,7 @@ function solo:update()
 
   if board.last_chain_count > 1 then
     board.last_chain_count = 0
-    board:drop_garbage()
+    board:fall_garbage()
   end
 end
 

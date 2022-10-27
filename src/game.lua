@@ -11,17 +11,16 @@ local chain_bubble = require("chain_bubble")
 local chain_cube = require("chain_cube")
 local all_players
 
--- TODO: player に移動
 function game.reduce_callback(score, player)
   player.score = player.score + score
 end
 
 -- TODO: コンボの点数を追加
-function game.combo_callback(combo_count, x, y, board, player)
+function game.combo_callback(combo_count, x, y, board)
   combo_bubble(combo_count, board:screen_x(x), board:screen_y(y))
 end
 
-function game.chain_callback(chain_count, board, x, y, player)
+function game.chain_callback(chain_count, x, y, board, player)
   local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
   if chain_count > 1 then
@@ -83,7 +82,7 @@ function game:update()
         self:_raise(each)
       end
 
-      board:update(game.reduce_callback, game.combo_callback, game.chain_callback, each)
+      board:update(self, each)
       player_cursor:update()
       self:_auto_raise(each)
 

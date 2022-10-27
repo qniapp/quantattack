@@ -4,13 +4,14 @@ local match = require("luassert.match")
 
 local game = require("game")
 local board_class = require("board")
+local player_class = require("player")
 
 describe('コンボ (同時消し) のコールバック', function()
   local board
 
   before_each(function()
-    stub(game, "combo_callback")
     board = board_class()
+    stub(game, "combo_callback")
   end)
 
   it("4-コンボ発生でコールバックが呼ばれる", function()
@@ -25,10 +26,10 @@ describe('コンボ (同時消し) のコールバック', function()
     wait_swap_to_finish(board)
 
     local combo_callback = assert.spy(game.combo_callback)
-    board:update(nil, game.combo_callback)
+    board:update(game)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(4, 2, 11, match._, match._)
+    combo_callback.was_called_with(4, 2, 11, match._)
   end)
 
   it("5-コンボ発生でコールバックが呼ばれる", function()
@@ -45,10 +46,10 @@ describe('コンボ (同時消し) のコールバック', function()
     wait_swap_to_finish(board)
 
     local combo_callback = assert.spy(game.combo_callback)
-    board:update(nil, game.combo_callback)
+    board:update(game)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(5, 2, 10,  match._, match._)
+    combo_callback.was_called_with(5, 2, 10, match._)
   end)
 
   it("6-コンボ発生でコールバックが呼ばれる", function()
@@ -66,10 +67,10 @@ describe('コンボ (同時消し) のコールバック', function()
     wait_swap_to_finish(board)
 
     local combo_callback = assert.spy(game.combo_callback)
-    board:update(nil, game.combo_callback)
+    board:update(game)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(6, 2, 10,  match._, match._)
+    combo_callback.was_called_with(6, 2, 10, match._)
   end)
 
   it("7-コンボ発生でコールバックが呼ばれる", function()
@@ -89,9 +90,9 @@ describe('コンボ (同時消し) のコールバック', function()
     wait_swap_to_finish(board)
 
     local combo_callback = assert.spy(game.combo_callback)
-    board:update(nil, game.combo_callback)
+    board:update(game)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(7, 2, 9, match._, match._)
+    combo_callback.was_called_with(7, 2, 9, match._)
   end)
 end)

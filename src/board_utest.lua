@@ -1088,11 +1088,11 @@ describe('board', function()
     -- end)
   end)
 
-  describe('drop_gates', function()
+  describe('fall_gates', function()
     it('should drop gates', function()
       board:put(1, 1, h_gate())
 
-      board:drop_gates()
+      board:fall_gates()
 
       assert.is_true(board:gate_at(1, 1):is_falling())
     end)
@@ -1111,7 +1111,7 @@ describe('board', function()
       board:update()
       board:update()
       board:update()
-      board:drop_gates()
+      board:fall_gates()
       board:_update_gates()
       board:update()
 
@@ -1222,13 +1222,13 @@ describe('board', function()
     end)
   end)
 
-  describe('is_gate_droppable', function()
+  describe('is_gate_fallable', function()
     it('SWAP ゲートの下にゲートが無い場合 true を返す', function()
       board:put(1, 1, swap_gate(2))
       board:put(2, 1, swap_gate(1))
 
-      assert.is_true(board:is_gate_droppable(1, 1))
-      assert.is_true(board:is_gate_droppable(2, 1))
+      assert.is_true(board:is_gate_fallable(1, 1))
+      assert.is_true(board:is_gate_fallable(2, 1))
     end)
 
     -- S-S
@@ -1238,8 +1238,8 @@ describe('board', function()
       board:put(3, 11, swap_gate(1))
       board:put(1, 12, h_gate())
 
-      assert.is_false(board:is_gate_droppable(1, 11))
-      assert.is_false(board:is_gate_droppable(3, 11))
+      assert.is_false(board:is_gate_fallable(1, 11))
+      assert.is_false(board:is_gate_fallable(3, 11))
     end)
 
     -- S-S
@@ -1249,8 +1249,8 @@ describe('board', function()
       board:put(3, 11, swap_gate(1))
       board:put(2, 12, h_gate())
 
-      assert.is_false(board:is_gate_droppable(1, 11))
-      assert.is_false(board:is_gate_droppable(3, 11))
+      assert.is_false(board:is_gate_fallable(1, 11))
+      assert.is_false(board:is_gate_fallable(3, 11))
     end)
 
     -- S-S
@@ -1260,8 +1260,8 @@ describe('board', function()
       board:put(3, 11, swap_gate(1))
       board:put(3, 12, h_gate())
 
-      assert.is_false(board:is_gate_droppable(1, 11))
-      assert.is_false(board:is_gate_droppable(3, 11))
+      assert.is_false(board:is_gate_fallable(1, 11))
+      assert.is_false(board:is_gate_fallable(3, 11))
     end)
 
     -- S-S
@@ -1274,8 +1274,8 @@ describe('board', function()
       board:put(3, 11, swap_gate(1))
       board:put(1, 12, h)
 
-      assert.is_true(board:is_gate_droppable(1, 11))
-      assert.is_true(board:is_gate_droppable(3, 11))
+      assert.is_true(board:is_gate_fallable(1, 11))
+      assert.is_true(board:is_gate_fallable(3, 11))
     end)
   end)
 
