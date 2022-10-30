@@ -79,7 +79,9 @@
     "draw_rounded_box",
     "print_centered",
     "sset",
-    "sub"
+    "sub",
+    "particle",
+    "all_particles"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,

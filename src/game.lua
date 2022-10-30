@@ -5,7 +5,7 @@ require("engine/debug/dump")
 
 local game = new_class()
 
-local particle = require("particle")
+require("particle")
 local combo_bubble = require("combo_bubble")
 local chain_bubble = require("chain_bubble")
 local chain_cube = require("chain_cube")

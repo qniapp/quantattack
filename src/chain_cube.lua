@@ -19,7 +19,8 @@ function chain_cube.update()
   for _, each in pairs(all_cubes) do
     if abs(each.target_x - each.x) < 5 then
       del(all_cubes, each)
-      particle_set_chain_cube(each.target_x, each.target_y)
+      create_particle_set(each.target_x, each.target_y,
+        "5,green,dark_green,20|5,green,dark_green,20|4,green,dark_green,20|4,dark_purple,dark_gray,20|4,light_gray,dark_green,20|2,green,dark_green,20|2,green,dark_green,20|2,light_gray,dark_gray,20|2,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
     end
 
     if each.tick < 50 then
