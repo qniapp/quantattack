@@ -386,7 +386,7 @@ function board:render()
   end
 end
 
--- (x_left, y) と (x_right, y) のゲートを入れ替える
+-- (x_left, y) と (x_left + 1, y) のゲートを入れ替える
 -- 入れ替えできた場合は true を、そうでない場合は false を返す
 function board:swap(x_left, y)
   local x_right = x_left + 1
