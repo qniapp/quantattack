@@ -17,14 +17,14 @@ end
 
 -- TODO: コンボの点数を追加
 function game.combo_callback(combo_count, x, y, board)
-  bubble.create("combo", combo_count, board:screen_x(x), board:screen_y(y))
+  create_bubble("combo", combo_count, board:screen_x(x), board:screen_y(y))
 end
 
 function game.chain_callback(chain_count, x, y, board, player)
   local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
   if chain_count > 1 then
-    bubble.create("chain", chain_count, board:screen_x(x), board:screen_y(y))
+    create_bubble("chain", chain_count, board:screen_x(x), board:screen_y(y))
     create_chain_cube(chain_count, board:screen_x(x), board:screen_y(y), unpack(board.chain_cube_target))
     player.score = player.score + (chain_bonus[chain_count] or 180)
   end
@@ -95,7 +95,7 @@ function game:update()
   end
 
   update_particles()
-  bubble.update()
+  update_bubbles()
   update_chain_cubes()
 end
 
@@ -114,7 +114,7 @@ function game:render() -- override
   end
 
   render_particles()
-  bubble.render()
+  render_bubbles()
   render_chain_cubes()
 
   color(colors.white)

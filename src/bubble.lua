@@ -1,8 +1,8 @@
 ---@diagnostic disable: lowercase-global
 
-bubble, all_bubbles = {}, {}
+all_bubbles = {}
 
-function bubble.update()
+function update_bubbles()
   foreach(all_bubbles, function(each)
     local _ENV = each
 
@@ -17,7 +17,7 @@ function bubble.update()
   end)
 end
 
-function bubble.render()
+function render_bubbles()
   foreach(all_bubbles, function(each)
     local _ENV = each
 
@@ -42,7 +42,7 @@ function bubble.render()
   end)
 end
 
-function bubble.create(bubble_type, count, x, y)
+function create_bubble(bubble_type, count, x, y)
   local _ENV = setmetatable({}, { __index = _ENV })
 
   _type, _count, _x, _y, _tick = bubble_type, count, x, y - tile_size, 0
