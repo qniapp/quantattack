@@ -1,50 +1,55 @@
-local player_cursor = new_class()
+---@diagnostic disable: lowercase-global, global-in-nil-env
 
-function player_cursor:move_left()
-  if self.x > 1 then
-    self.x = self.x - 1
-  end
+function create_player_cursor(board)
+  local cursor = setmetatable({
+    _board = board,
+
+    init = function(_ENV)
+      x = 3
+      y = 6
+      _tick = 0
+    end,
+
+    move_left = function(_ENV)
+      if x > 1 then
+        x = x - 1
+      end
+    end,
+
+    move_right = function(_ENV)
+      if x < _board.cols - 1 then
+        x = x + 1
+      end
+    end,
+
+    move_up = function(_ENV)
+      if y > 1 then
+        y = y - 1
+      end
+    end,
+
+    move_down = function(_ENV)
+      if y < _board.rows then
+        y = y + 1
+      end
+    end,
+
+    update = function(_ENV)
+      _tick = (_tick + 1) % 28
+    end,
+
+    render = function(_ENV)
+      local screen_x, screen_y = _board:screen_x(x), _board:screen_y(y)
+
+      if _tick >= 14 then
+        sspr(16, 32, 19, 11, screen_x - 2, screen_y - 2)
+      else
+        sspr(16, 48, 21, 13, screen_x - 3, screen_y - 3)
+      end
+    end
+  }, { __index = _ENV })
+
+  cursor:init()
+
+  return cursor
 end
-
-function player_cursor:move_right()
-  if self.x < self._board.cols - 1 then
-    self.x = self.x + 1
-  end
-end
-
-function player_cursor:move_up()
-  if self.y > 1 then
-    self.y = self.y - 1
-  end
-end
-
-function player_cursor:move_down()
-  if self.y < self._board.rows then
-    self.y = self.y + 1
-  end
-end
-
-function player_cursor:update()
-  self._tick = (self._tick + 1) % 28
-end
-
-function player_cursor:render()
-  local x, y = self._board:screen_x(self.x), self._board:screen_y(self.y)
-
-  if self._tick >= 14 then
-    sspr(16, 32, 19, 11, x - 2, y - 2)
-  else
-    sspr(16, 48, 21, 13, x - 3, y - 3)
-  end
-end
-
-function player_cursor:_init(board)
-  self._board = board
-  self:init()
-end
-
-function player_cursor:init()
-  self.x, self.y, self._tick = 3, 6, 0
-end
-
-return player_cursor
