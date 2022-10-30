@@ -6,8 +6,7 @@ require("engine/debug/dump")
 local game = new_class()
 
 require("particle")
-require("combo_bubble")
-require("chain_bubble")
+require("bubble")
 
 local chain_cube = require("chain_cube")
 local all_players
@@ -18,14 +17,14 @@ end
 
 -- TODO: コンボの点数を追加
 function game.combo_callback(combo_count, x, y, board)
-  combo_bubble.create(combo_count, board:screen_x(x), board:screen_y(y))
+  bubble.create("combo", combo_count, board:screen_x(x), board:screen_y(y))
 end
 
 function game.chain_callback(chain_count, x, y, board, player)
   local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
   if chain_count > 1 then
-    chain_bubble.create(chain_count, board:screen_x(x), board:screen_y(y))
+    bubble.create("chain", chain_count, board:screen_x(x), board:screen_y(y))
     chain_cube(chain_count, board:screen_x(x), board:screen_y(y), unpack(board.chain_cube_target))
     player.score = player.score + (chain_bonus[chain_count] or 180)
   end
@@ -96,8 +95,7 @@ function game:update()
   end
 
   particle.update()
-  combo_bubble.update()
-  chain_bubble.update()
+  bubble.update()
   chain_cube:update()
 end
 
@@ -116,8 +114,7 @@ function game:render() -- override
   end
 
   particle.render()
-  combo_bubble.render()
-  chain_bubble.render()
+  bubble.render()
   chain_cube:render()
 
   color(colors.white)
