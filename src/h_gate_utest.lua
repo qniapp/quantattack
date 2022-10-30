@@ -36,9 +36,9 @@ describe('h_gate', function()
       end)
     end)
 
-    describe("is_dropping", function()
+    describe("is_falling", function()
       it("should return false", function()
-        assert.is_false(h:is_dropping())
+        assert.is_false(h:is_falling())
       end)
     end)
 

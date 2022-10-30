@@ -62,13 +62,13 @@ describe('gate', function()
     end)
 
     it('should drop the gate without errors', function()
-      assert.has_no.errors(function() gate:drop() end)
+      assert.has_no.errors(function() gate:fall() end)
     end)
 
-    it('should transition its state to dropping', function()
-      gate:drop()
+    it('should transition its state to falling', function()
+      gate:fall()
 
-      assert.is_true(gate:is_dropping())
+      assert.is_true(gate:is_falling())
     end)
   end)
 

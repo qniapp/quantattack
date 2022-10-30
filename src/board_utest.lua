@@ -17,7 +17,7 @@ describe('board', function()
       board:put(1, 12, h_gate())
       board:put(2, 12, x_gate())
 
-      local swapped = board:swap(1, 2, 12)
+      local swapped = board:swap(1, 12)
 
       assert.is_true(swapped)
       assert.are_equal("h", board:gate_at(1, 12).type)
@@ -31,7 +31,7 @@ describe('board', function()
       board:gate_at(2, 12):swap_with_left(1)
       board:put(3, 12, x_gate())
 
-      local swapped = board:swap(2, 3, 12)
+      local swapped = board:swap(2, 12)
 
       assert.is_false(swapped)
       assert.are_equal("x", board:gate_at(3, 12).type)
@@ -43,7 +43,7 @@ describe('board', function()
       board:put(2, 12, x_gate())
       board:gate_at(2, 12):swap_with_right(3)
 
-      local swapped = board:swap(1, 2, 12)
+      local swapped = board:swap(1, 12)
 
       assert.is_false(swapped)
       assert.are_equal("h", board:gate_at(1, 12).type)
@@ -57,7 +57,7 @@ describe('board', function()
       board:put(1, 12, swap_gate(3))
       board:put(3, 12, swap_gate(1))
 
-      board:swap(2, 3, 12)
+      board:swap(2, 12)
       board:update()
       board:update()
       board:update()
@@ -71,7 +71,7 @@ describe('board', function()
       board:put(1, 12, swap_gate(2))
       board:put(2, 12, swap_gate(1))
 
-      board:swap(1, 2, 12)
+      board:swap(1, 12)
       board:update()
       board:update()
       board:update()
@@ -87,7 +87,7 @@ describe('board', function()
       board:put(1, 12, garbage_gate(3))
       board:put(4, 12, x_gate())
 
-      assert.is_false(board:swap(3, 4, 12))
+      assert.is_false(board:swap(3, 12))
     end)
 
     it('おじゃまユニタリが右側にある場合、入れ替えできない', function()
@@ -95,7 +95,7 @@ describe('board', function()
       board:put(3, 12, x_gate())
       board:put(4, 12, garbage_gate(3))
 
-      assert.is_false(board:swap(3, 4, 12))
+      assert.is_false(board:swap(3, 12))
     end)
   end)
 
@@ -1015,7 +1015,7 @@ describe('board', function()
       assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
     end)
 
-    it('おじゃまゲートの左に隣接するゲートがマッチした時、おじゃまゲートが破壊される #solo'
+    it('おじゃまゲートの左に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
       , function()
       local h = h_gate()
 
@@ -1028,7 +1028,7 @@ describe('board', function()
       assert.are_equal('!', board:gate_at(2, 12).type)
     end)
 
-    it('おじゃまゲートの右に隣接するゲートがマッチした時、おじゃまゲートが破壊される #solo'
+    it('おじゃまゲートの右に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
       , function()
       local h = h_gate()
 
@@ -1088,37 +1088,37 @@ describe('board', function()
     -- end)
   end)
 
-  describe('drop_gates', function()
+  describe('fall_gates', function()
     it('should drop gates', function()
       board:put(1, 1, h_gate())
 
-      board:drop_gates()
+      board:fall_gates()
 
-      assert.is_true(board:gate_at(1, 1):is_dropping())
+      assert.is_true(board:gate_at(1, 1):is_falling())
     end)
   end)
 
   describe('update', function()
-    it('should drop swap pair #solo', function()
+    it('should drop swap pair', function()
       board:put(1, 11, swap_gate(3))
       board:put(3, 11, swap_gate(1))
       board:put(3, 12, h_gate())
 
-      board:swap(2, 3, 11)
+      board:swap(2, 11)
 
       board:update()
       board:update()
       board:update()
       board:update()
       board:update()
-      board:drop_gates()
+      board:fall_gates()
       board:_update_gates()
       board:update()
 
       assert.are_equal('swap', board:gate_at(1, 11).type)
-      assert.is_true(board:gate_at(1, 11):is_dropping())
+      assert.is_true(board:gate_at(1, 11):is_falling())
       assert.are_equal('swap', board:gate_at(2, 11).type)
-      assert.is_true(board:gate_at(2, 11):is_dropping())
+      assert.is_true(board:gate_at(2, 11):is_falling())
     end)
 
     --
@@ -1143,7 +1143,7 @@ describe('board', function()
       board:put(2, 12, y_gate())
       board:put(1, 12, x_gate())
 
-      board:swap(1, 2, 12)
+      board:swap(1, 12)
 
       for i = 1, 100 do
         board:update()
@@ -1179,7 +1179,7 @@ describe('board', function()
       board:put(1, 13, y_gate())
       board:put(2, 13, h_gate())
 
-      board:swap(1, 2, 12)
+      board:swap(1, 12)
 
       for i = 1, 100 do
         board:update()
@@ -1201,7 +1201,7 @@ describe('board', function()
       board:put(6, 11, t_gate())
       board:put(6, 12, x_gate())
 
-      board:swap(5, 6, 5)
+      board:swap(5, 5)
 
       profiler.start()
 
@@ -1222,13 +1222,13 @@ describe('board', function()
     end)
   end)
 
-  describe('is_gate_droppable', function()
+  describe('is_gate_fallable', function()
     it('SWAP ゲートの下にゲートが無い場合 true を返す', function()
       board:put(1, 1, swap_gate(2))
       board:put(2, 1, swap_gate(1))
 
-      assert.is_true(board:is_gate_droppable(1, 1))
-      assert.is_true(board:is_gate_droppable(2, 1))
+      assert.is_true(board:is_gate_fallable(1, 1))
+      assert.is_true(board:is_gate_fallable(2, 1))
     end)
 
     -- S-S
@@ -1238,8 +1238,8 @@ describe('board', function()
       board:put(3, 11, swap_gate(1))
       board:put(1, 12, h_gate())
 
-      assert.is_false(board:is_gate_droppable(1, 11))
-      assert.is_false(board:is_gate_droppable(3, 11))
+      assert.is_false(board:is_gate_fallable(1, 11))
+      assert.is_false(board:is_gate_fallable(3, 11))
     end)
 
     -- S-S
@@ -1249,8 +1249,8 @@ describe('board', function()
       board:put(3, 11, swap_gate(1))
       board:put(2, 12, h_gate())
 
-      assert.is_false(board:is_gate_droppable(1, 11))
-      assert.is_false(board:is_gate_droppable(3, 11))
+      assert.is_false(board:is_gate_fallable(1, 11))
+      assert.is_false(board:is_gate_fallable(3, 11))
     end)
 
     -- S-S
@@ -1260,22 +1260,22 @@ describe('board', function()
       board:put(3, 11, swap_gate(1))
       board:put(3, 12, h_gate())
 
-      assert.is_false(board:is_gate_droppable(1, 11))
-      assert.is_false(board:is_gate_droppable(3, 11))
+      assert.is_false(board:is_gate_fallable(1, 11))
+      assert.is_false(board:is_gate_fallable(3, 11))
     end)
 
     -- S-S
-    -- H (dropping)
+    -- H (falling)
     it('SWAP ゲートの下にゲートがあるが落下中の場合 true を返す', function()
       local h = h_gate()
-      h._state = "dropping"
+      h._state = "falling"
 
       board:put(1, 11, swap_gate(3))
       board:put(3, 11, swap_gate(1))
       board:put(1, 12, h)
 
-      assert.is_true(board:is_gate_droppable(1, 11))
-      assert.is_true(board:is_gate_droppable(3, 11))
+      assert.is_true(board:is_gate_fallable(1, 11))
+      assert.is_true(board:is_gate_fallable(3, 11))
     end)
   end)
 

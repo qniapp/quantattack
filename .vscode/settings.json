@@ -79,7 +79,11 @@
     "draw_rounded_box",
     "print_centered",
     "sset",
-    "sub"
+    "sub",
+    "particle",
+    "all_particles",
+    "all_combo_bubbles",
+    "combo_bubble"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,

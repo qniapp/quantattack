@@ -7,8 +7,8 @@ board.chain_cube_target = { 85, 30 }
 local player_class = require("player")
 local player = player_class()
 
-local player_cursor_class = require("player_cursor")
-local player_cursor = player_cursor_class(board)
+require("player_cursor")
+local player_cursor = create_player_cursor(board)
 
 local game_class = require("game")
 local game = game_class()
@@ -38,7 +38,7 @@ function solo:update()
 
   if board.last_chain_count > 1 then
     board.last_chain_count = 0
-    board:drop_garbage()
+    board:fall_garbage()
   end
 end
 

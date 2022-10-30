@@ -5,8 +5,6 @@ require("helpers")
 
 local gate_class = require("gate")
 local reduction_rules = require("reduction_rules")
-local chain_bubble = require("chain_bubble")
-local chain_cube = require("chain_cube")
 
 local board = new_class()
 
@@ -113,7 +111,7 @@ function board:insert_gates_at_bottom(steps)
   end
 end
 
-function board:update()
+function board:update(game, player)
   if self:gates_piled_up() or self.win ~= nil then
     self.state = "over"
   end
@@ -123,7 +121,7 @@ function board:update()
   end
 
   if self.state == "play" then
-    return self:update_game()
+    self:update_game(game, player)
   elseif self.state == "over" then
     self:update_over()
   end
@@ -147,15 +145,13 @@ function board:gates_piled_up()
   return false
 end
 
-function board:update_game()
-  local score = 0
-
+function board:update_game(game, player)
   if self.changed then
-    score = score + self:reduce_gates()
+    self:reduce_gates(game, player)
     self.changed = false
   end
 
-  self:drop_gates()
+  self:fall_gates()
   self:_update_gates()
 
   if self.tick_chainable > 0 then
@@ -165,40 +161,50 @@ function board:update_game()
     self.last_chain_count = self.chain_count
     self.chain_count = 0
   end
-
-  return score
 end
 
 function board:update_over()
 end
 
-function board:reduce_gates()
-  local score = 0
-  local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
+function board:reduce_gates(game, player)
+  -- 同時消しで変化したゲートの数
+  -- 同じフレーム内で一度に消えたゲートを数えるため、
+  -- 連鎖数のカウント (self.chain_count) のようにフレームをまたいで数える必要はなく、
+  -- 一度の reduce_gates() 呼び出し内での数をカウントする。
+  local combo_count = 0
 
-  for y = 1, board.rows do
-    for x = 1, board.cols do
+  for x = 1, board.cols do
+    for y = 1, board.rows do
       local reduction = self:reduce(x, y)
-      score = score + (#reduction.to == 0 and 0 or reduction.score)
 
-      -- チェイン (連鎖) の処理
+      -- コンボ (同時消し) とチェイン (連鎖) の処理
       if #reduction.to > 0 then
+        if player then
+          game.reduce_callback(reduction.score, player)
+        end
+
         if self.tick_chainable == 0 then
+          combo_count = #reduction.to
           self.chain_count = 1
           self.tick_chainable = gate_class.match_animation_frame_count +
               reduction.gate_count * gate_class.match_delay_per_gate + 10
           self.last_tick_chainable = self.tick_chainable
 
-          -- すべてのブロックを dirty = false にする
-          -- 連鎖中に一度でも入れ換えを行ったブロックは dirty になる
-          -- dirty なブロックが消えた場合は連鎖にカウントしない
+          -- すべてのゲートを dirty = false にする
+          -- 連鎖中に一度でも入れ換えを行ったゲートは dirty になる
+          -- すべてのゲートが dirty だった場合は連鎖にカウントしない
           for _x = 1, board.cols do
             for _y = 1, board.rows do
               self._gates[_x][_y].dirty = false
             end
           end
         else
-          if not reduction.dirty and self.last_tick_chainable ~= self.tick_chainable then -- 同時消しの場合は chain_count を増やさない
+          if self.last_tick_chainable == self.tick_chainable then -- 同時消し
+            combo_count = combo_count + #reduction.to
+            if game.combo_callback then
+              game.combo_callback(combo_count, x, y, self)
+            end
+          elseif not reduction.dirty and self.last_tick_chainable ~= self.tick_chainable then
             local chainable_frames = gate_class.match_animation_frame_count +
                 reduction.gate_count * gate_class.match_delay_per_gate + 10
             if self.tick_chainable < chainable_frames then
@@ -207,30 +213,25 @@ function board:reduce_gates()
             self.last_tick_chainable = self.tick_chainable
             self.chain_count = self.chain_count + 1
 
-            score = score + (chain_bonus[self.chain_count] or 180)
+            game.chain_callback(self.chain_count, x, y, self, player)
+          end
+        end
 
-            if self.chain_count > 1 then
-              chain_bubble(self.chain_count, self:screen_x(x), self:screen_y(y))
-              chain_cube(self.chain_count, self:screen_x(x), self:screen_y(y), unpack(self.chain_cube_target))
+        for index, r in pairs(reduction.to) do
+          local dx = r.dx and reduction.dx or 0
+          local dy = r.dy or 0
+          local gate = gate_class(r.gate_type)
+
+          if gate.type == "swap" or gate.type == "cnot_x" or gate.type == "control" then
+            if r.dx then
+              gate.other_x = x
+            else
+              gate.other_x = x + reduction.dx
             end
           end
+
+          self._gates[x + dx][y + dy]:replace_with(gate, index)
         end
-      end
-
-      for index, r in pairs(reduction.to) do
-        local dx = r.dx and reduction.dx or 0
-        local dy = r.dy or 0
-        local gate = gate_class(r.gate_type)
-
-        if gate.type == "swap" or gate.type == "cnot_x" or gate.type == "control" then
-          if r.dx then
-            gate.other_x = x
-          else
-            gate.other_x = x + reduction.dx
-          end
-        end
-
-        self._gates[x + dx][y + dy]:replace_with(gate, index)
       end
     end
   end
@@ -277,23 +278,21 @@ function board:reduce_gates()
       end
     end
   end
-
-  return score
 end
 
-function board:drop_gates()
+function board:fall_gates()
   for y = board.rows - 1, 1, -1 do
     for x = 1, board.cols do
       local gate = self._gates[x][y]
 
-      if gate:is_droppable() and self:is_gate_droppable(x, y) then
+      if gate:is_fallable() and self:is_gate_fallable(x, y) then
         if gate.other_x then
-          if x < gate.other_x and self:gate_at(gate.other_x, y):is_droppable() then
-            gate:drop()
-            self:gate_at(gate.other_x, y):drop()
+          if x < gate.other_x and self:gate_at(gate.other_x, y):is_fallable() then
+            gate:fall()
+            self:gate_at(gate.other_x, y):fall()
           end
         else
-          gate:drop()
+          gate:fall()
         end
       end
     end
@@ -301,7 +300,7 @@ function board:drop_gates()
 end
 
 -- 指定したゲートが行 gate_y + 1 に落とせるかどうかを返す。
-function board:is_gate_droppable(gate_x, gate_y)
+function board:is_gate_fallable(gate_x, gate_y)
   --#if assert
   assert(1 <= gate_x and gate_x <= board.cols)
   assert(1 <= gate_y and gate_y <= board.row_next_gates)
@@ -387,13 +386,12 @@ function board:render()
   end
 end
 
--- (x_left, y) と (x_right, y) のゲートを入れ替える
+-- (x_left, y) と (x_left + 1, y) のゲートを入れ替える
 -- 入れ替えできた場合は true を、そうでない場合は false を返す
---
--- TODO: 引数の x_right をなくして x_left + 1 を使う
-function board:swap(x_left, x_right, y)
+function board:swap(x_left, y)
+  local x_right = x_left + 1
+
   --#if assert
-  assert(x_right == x_left + 1)
   assert(1 <= x_left and x_left <= board.cols - 1)
   assert(2 <= x_right and x_right <= board.cols)
   assert(1 <= y and y <= board.rows)
@@ -520,7 +518,7 @@ function board:remove_gate(x, y)
   self.changed = true
 end
 
-function board:drop_garbage()
+function board:fall_garbage()
   local span = flr(rnd(4)) + 3
   local x = flr(rnd(board.cols - span + 1)) + 1
 
@@ -532,7 +530,7 @@ function board:drop_garbage()
 
   local garbage = garbage_gate(span)
   self:put(x, 1, garbage)
-  garbage:drop()
+  garbage:fall()
 end
 
 -------------------------------------------------------------------------------
@@ -542,7 +540,7 @@ end
 function board:reduce(x, y, include_next_gates)
   local reduction = { to = {}, score = 0 }
   local gate = self._gates[x][y]
-  local dirty = false
+  local chainnable = false
 
   if not gate:is_reducible() then return reduction end
 
@@ -586,7 +584,9 @@ function board:reduce(x, y, include_next_gates)
         if gate1.type ~= gates[1] then
           goto next_rule
         end
-        dirty = dirty or gate1.dirty
+        if not gate1.dirty then
+          chainnable = true
+        end
       end
 
       if gates[2] and other_x then
@@ -594,11 +594,13 @@ function board:reduce(x, y, include_next_gates)
         if gate2.type ~= gates[2] then
           goto next_rule
         end
-        dirty = dirty or gate2.dirty
+        if not gate2.dirty then
+          chainnable = true
+        end
       end
     end
 
-    reduction = { to = rule[2], dx = dx, gate_count = rule[3], score = rule[4] or 1, dirty = dirty }
+    reduction = { to = rule[2], dx = dx, gate_count = rule[3], score = rule[4] or 1, dirty = not chainnable }
     goto matched
 
     ::next_rule::

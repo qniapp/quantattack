@@ -1,67 +1,57 @@
-require("engine/core/class")
+---@diagnostic disable: lowercase-global
 
-local chain_cube = new_class()
-
-local all_cubes = {}
-
-local q = {}
-local data = split("122413345657687815263748", 1)
+local all_cubes, apex, data = {}, {}, split("122413345657687815263748", 1)
 
 for x = -4, 4, 8 do
   for y = -4, 4, 8 do
     for z = -4, 4, 8 do
-      add(q, { x = x, y = y, z = z })
+      add(apex, { x = x, y = y, z = z })
     end
   end
 end
 
-function chain_cube.update()
-  for _, each in pairs(all_cubes) do
-    if abs(each.target_x - each.x) < 5 then
+function update_chain_cubes()
+  foreach(all_cubes, function(each)
+    local _ENV = each
+
+    if abs(_target_x - _x) < 5 then
       del(all_cubes, each)
-      particle_set_chain_cube(each.target_x, each.target_y)
+      create_particle_set(_target_x, _target_y,
+        "5,green,dark_green,20|5,green,dark_green,20|4,green,dark_green,20|4,dark_purple,dark_gray,20|4,light_gray,dark_green,20|2,green,dark_green,20|2,green,dark_green,20|2,light_gray,dark_gray,20|2,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
     end
 
-    if each.tick < 50 then
-      each.dx, each.dy = each.left and 0.5 or -0.5, -0.2
+    if _tick < 50 then
+      _dx, _dy = _left and 0.5 or -0.5, -0.2
     else
-      each.dx, each.dy = (each.target_x - each.x) / 8, (each.target_y - each.y) / 8
+      _dx, _dy = (_target_x - _x) / 8, (_target_y - _y) / 8
     end
 
-    each.x, each.y = each.x + each.dx, each.y + each.dy
-
-    each.tick = each.tick + 1
-  end
+    _x, _y, _tick = _x + _dx, _y + _dy, _tick + 1
+  end)
 end
 
-function chain_cube.render()
+function render_chain_cubes()
   local cube_color = flr(rnd(16)) + 1
 
-  for _, each in pairs(all_cubes) do
+  foreach(all_cubes, function(each)
+    local _ENV = each
+
     for i = 1, 24 do
       if i % 2 > 0 then
         line()
       end
-      local size = each.chain_count / 2
-      local f = q[data[i]]
-      local x, y = f.x, f.y
-      local z = f.z + x * .0125
-      f.x, f.y, f.z = f.x - f.z * .0125, f.y - z * .0125, z + y * .0125
-      line(f.x * size + each.x, f.y * size + each.y, cube_color)
+      local size, f = _chain_count / 2, apex[data[i]]
+      local x, y, z = f.x, f.y, f.z + f.x * .0125
+      f.x, f.y, f.z = x - f.z * .0125, y - z * .0125, z + y * .0125
+      line(f.x * size + _x, f.y * size + _y, cube_color)
     end
-  end
+  end)
 end
 
-function chain_cube:_init(chain_count, x, y, target_x, target_y, left)
-  self.chain_count = chain_count
-  self.x = x
-  self.y = y
-  self.target_x = target_x
-  self.target_y = target_y
-  self.tick = 0
-  self.left = left ~= nil
+function create_chain_cube(chain_count, x, y, target_x, target_y, left)
+  local _ENV = setmetatable({}, { __index = _ENV })
 
-  add(all_cubes, self)
+  _chain_count, _x, _y, _target_x, _target_y, _tick, _left = chain_count, x, y, target_x, target_y, 0, left ~= nil
+
+  add(all_cubes, _ENV)
 end
-
-return chain_cube
