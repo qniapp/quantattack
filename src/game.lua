@@ -94,9 +94,9 @@ function game:update()
     end
   end
 
-  particle.update()
+  update_particles()
   bubble.update()
-  update_chain_cube()
+  update_chain_cubes()
 end
 
 function game:render() -- override
@@ -113,9 +113,9 @@ function game:render() -- override
     end
   end
 
-  particle.render()
+  render_particles()
   bubble.render()
-  render_chain_cube()
+  render_chain_cubes()
 
   color(colors.white)
   cursor(1, 1)

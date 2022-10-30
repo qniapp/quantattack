@@ -1,8 +1,8 @@
 ---@diagnostic disable: lowercase-global
 
-particle, all_particles = {}, {}
+all_particles = {}
 
-function particle.update()
+function update_particles()
   foreach(all_particles, function(each)
     local _ENV = each
 
@@ -17,7 +17,7 @@ function particle.update()
   end)
 end
 
-function particle.render()
+function render_particles()
   foreach(all_particles, function(each)
     local _ENV = each
 
@@ -25,7 +25,7 @@ function particle.render()
   end)
 end
 
-function particle.create(x, y, radius, color, color_fade, max_tick, horizontal_direction)
+function create_particle(x, y, radius, color, color_fade, max_tick, horizontal_direction)
   local _ENV = setmetatable({}, { __index = _ENV })
 
   _x, _y, _radius, _color, _color_fade, _tick, _max_tick, _dx, _dy, _ddx, _ddy = x, y, radius, colors[color],
@@ -46,6 +46,6 @@ end
 
 function create_particle_set(x, y, data)
   foreach(split(data, "|"), function(each)
-    particle.create(x, y, unpack(split(each)))
+    create_particle(x, y, unpack(split(each)))
   end)
 end

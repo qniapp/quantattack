@@ -10,7 +10,7 @@ for x = -4, 4, 8 do
   end
 end
 
-function update_chain_cube()
+function update_chain_cubes()
   foreach(all_cubes, function(each)
     local _ENV = each
 
@@ -30,7 +30,7 @@ function update_chain_cube()
   end)
 end
 
-function render_chain_cube()
+function render_chain_cubes()
   local cube_color = flr(rnd(16)) + 1
 
   foreach(all_cubes, function(each)
@@ -40,11 +40,9 @@ function render_chain_cube()
       if i % 2 > 0 then
         line()
       end
-      local size = _chain_count / 2
-      local f = apex[data[i]]
-      local x, y = f.x, f.y
-      local z = f.z + x * .0125
-      f.x, f.y, f.z = f.x - f.z * .0125, f.y - z * .0125, z + y * .0125
+      local size, f = _chain_count / 2, apex[data[i]]
+      local x, y, z = f.x, f.y, f.z + f.x * .0125
+      f.x, f.y, f.z = x - f.z * .0125, y - z * .0125, z + y * .0125
       line(f.x * size + _x, f.y * size + _y, cube_color)
     end
   end)

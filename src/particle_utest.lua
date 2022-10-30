@@ -4,14 +4,14 @@ require("particle")
 describe('particle', function()
   before_each(function()
     for i = 1, 100 do
-      particle.update()
+      update_particles()
     end
   end)
 
   describe('create', function()
     it("creates a particle", function()
-      particle.create(1, 1, 1, "white", "dark_gray", 10)
-      particle.create(2, 2, 2, "red", "green", 20)
+      create_particle(1, 1, 1, "white", "dark_gray", 10)
+      create_particle(2, 2, 2, "red", "green", 20)
 
       assert.are_equal(2, #all_particles)
 
@@ -33,11 +33,11 @@ describe('particle', function()
 
   describe('update', function()
     it("updates all partciles", function()
-      particle.create(1, 1, 1, "white", "dark_gray", 20)
+      create_particle(1, 1, 1, "white", "dark_gray", 20)
 
       assert.are_equal(1, #all_particles)
 
-      particle.update()
+      update_particles()
 
       assert.are_equal(1, all_particles[1]._tick)
     end)
@@ -45,10 +45,10 @@ describe('particle', function()
 
   describe('render', function()
     it("renders all particles", function()
-      particle.create(1, 1, 1, "white", "dark_gray", 20)
+      create_particle(1, 1, 1, "white", "dark_gray", 20)
 
       assert.has_no.errors(function()
-        particle.render()
+        render_particles()
       end)
     end)
   end)
