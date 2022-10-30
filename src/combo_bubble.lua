@@ -1,35 +1,40 @@
-local combo_bubble, all_bubbles = new_class(), {}
+---@diagnostic disable: lowercase-global
+
+combo_bubble, all_combo_bubbles = {}, {}
 
 function combo_bubble.update()
-  for _, each in pairs(all_bubbles) do
-    if each.tick > 40 then
-      del(all_bubbles, each)
+  foreach(all_combo_bubbles, function(each)
+    local _ENV = each
+
+    if _tick > 40 then
+      del(all_combo_bubbles, each)
     end
-    if each.tick < 30 then
-      each.y = each.y - 0.2
+    if _tick < 30 then
+      _y = _y - 0.2
     end
 
-    each.tick = each.tick + 1
-  end
+    _tick = _tick + 1
+  end)
 end
 
 function combo_bubble.render()
-  for _, each in pairs(all_bubbles) do
-    local rbox_x, rbox_y = each.x - 1, each.y
+  foreach(all_combo_bubbles, function(each)
+    local _ENV = each
+    local rbox_x, rbox_y = _x - 1, _y
 
     draw_rounded_box(rbox_x, rbox_y + 1, rbox_x + 8, rbox_y + 9, 5, 5)
     draw_rounded_box(rbox_x, rbox_y, rbox_x + 8, rbox_y + 8, 7, 8)
 
     cursor(rbox_x + 3, rbox_y + 2)
     color(10)
-    print(each.combo_count)
-  end
+    print(_combo_count)
+  end)
 end
 
-function combo_bubble:_init(combo_count, x, y)
-  self.combo_count, self.x, self.y, self.tick = combo_count, x, y - tile_size, 0
+function combo_bubble.create(combo_count, x, y)
+  local _ENV = setmetatable({}, { __index = _ENV })
 
-  add(all_bubbles, self)
+  _combo_count, _x, _y, _tick = combo_count, x, y - tile_size, 0
+
+  add(all_combo_bubbles, _ENV)
 end
-
-return combo_bubble

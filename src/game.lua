@@ -6,7 +6,8 @@ require("engine/debug/dump")
 local game = new_class()
 
 require("particle")
-local combo_bubble = require("combo_bubble")
+require("combo_bubble")
+
 local chain_bubble = require("chain_bubble")
 local chain_cube = require("chain_cube")
 local all_players
@@ -17,7 +18,7 @@ end
 
 -- TODO: コンボの点数を追加
 function game.combo_callback(combo_count, x, y, board)
-  combo_bubble(combo_count, board:screen_x(x), board:screen_y(y))
+  combo_bubble.create(combo_count, board:screen_x(x), board:screen_y(y))
 end
 
 function game.chain_callback(chain_count, x, y, board, player)
@@ -95,8 +96,8 @@ function game:update()
   end
 
   particle:update()
-  combo_bubble:update()
-  chain_bubble:update()
+  combo_bubble.update()
+  chain_bubble.update()
   chain_cube:update()
 end
 

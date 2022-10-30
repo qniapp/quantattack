@@ -81,7 +81,9 @@
     "sset",
     "sub",
     "particle",
-    "all_particles"
+    "all_particles",
+    "all_combo_bubbles",
+    "combo_bubble"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,

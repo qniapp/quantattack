@@ -2,7 +2,7 @@
 
 particle, all_particles = {}, {}
 
-particle.update = function()
+function particle.update()
   foreach(all_particles, function(each)
     local _ENV = each
 
@@ -17,7 +17,7 @@ particle.update = function()
   end)
 end
 
-particle.render = function()
+function particle.render()
   foreach(all_particles, function(each)
     local _ENV = each
 
@@ -25,7 +25,7 @@ particle.render = function()
   end)
 end
 
-particle.create = function(x, y, radius, color, color_fade, max_tick, horizontal_direction)
+function particle.create(x, y, radius, color, color_fade, max_tick, horizontal_direction)
   local _ENV = setmetatable({}, { __index = _ENV })
 
   _x, _y, _radius, _color, _color_fade, _tick, _max_tick, _dx, _dy, _ddx, _ddy = x, y, radius, colors[color],
