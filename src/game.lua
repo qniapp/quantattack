@@ -7,8 +7,8 @@ local game = new_class()
 
 require("particle")
 require("bubble")
+require("chain_cube")
 
-local chain_cube = require("chain_cube")
 local all_players
 
 function game.reduce_callback(score, player)
@@ -25,7 +25,7 @@ function game.chain_callback(chain_count, x, y, board, player)
 
   if chain_count > 1 then
     bubble.create("chain", chain_count, board:screen_x(x), board:screen_y(y))
-    chain_cube(chain_count, board:screen_x(x), board:screen_y(y), unpack(board.chain_cube_target))
+    create_chain_cube(chain_count, board:screen_x(x), board:screen_y(y), unpack(board.chain_cube_target))
     player.score = player.score + (chain_bonus[chain_count] or 180)
   end
 end
@@ -96,7 +96,7 @@ function game:update()
 
   particle.update()
   bubble.update()
-  chain_cube:update()
+  update_chain_cube()
 end
 
 function game:render() -- override
@@ -115,7 +115,7 @@ function game:render() -- override
 
   particle.render()
   bubble.render()
-  chain_cube:render()
+  render_chain_cube()
 
   color(colors.white)
   cursor(1, 1)
