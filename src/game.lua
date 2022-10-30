@@ -7,8 +7,8 @@ local game = new_class()
 
 require("particle")
 require("combo_bubble")
+require("chain_bubble")
 
-local chain_bubble = require("chain_bubble")
 local chain_cube = require("chain_cube")
 local all_players
 
@@ -25,7 +25,7 @@ function game.chain_callback(chain_count, x, y, board, player)
   local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
   if chain_count > 1 then
-    chain_bubble(chain_count, board:screen_x(x), board:screen_y(y))
+    chain_bubble.create(chain_count, board:screen_x(x), board:screen_y(y))
     chain_cube(chain_count, board:screen_x(x), board:screen_y(y), unpack(board.chain_cube_target))
     player.score = player.score + (chain_bonus[chain_count] or 180)
   end
@@ -95,7 +95,7 @@ function game:update()
     end
   end
 
-  particle:update()
+  particle.update()
   combo_bubble.update()
   chain_bubble.update()
   chain_cube:update()
@@ -115,9 +115,9 @@ function game:render() -- override
     end
   end
 
-  particle:render()
-  combo_bubble:render()
-  chain_bubble:render()
+  particle.render()
+  combo_bubble.render()
+  chain_bubble.render()
   chain_cube:render()
 
   color(colors.white)

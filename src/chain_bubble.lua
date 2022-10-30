@@ -1,21 +1,26 @@
-local chain_bubble, all_bubbles = new_class(), {}
+---@diagnostic disable: lowercase-global
+
+chain_bubble, all_chain_bubbles = {}, {}
 
 function chain_bubble.update()
-  for _, each in pairs(all_bubbles) do
-    if each.tick > 40 then
-      del(all_bubbles, each)
+  foreach(all_chain_bubbles, function(each)
+    local _ENV = each
+
+    if _tick > 40 then
+      del(all_chain_bubbles, each)
     end
-    if each.tick < 30 then
-      each.y = each.y - 0.2
+    if _tick < 30 then
+      _y = _y - 0.2
     end
 
-    each.tick = each.tick + 1
-  end
+    _tick = _tick + 1
+  end)
 end
 
 function chain_bubble.render()
-  for _, each in pairs(all_bubbles) do
-    local rbox_x, rbox_y, rbox_dx = each.x - 2, each.y, each.chain_count < 10 and 0 or -2
+  foreach(all_chain_bubbles, function(each)
+    local _ENV = each
+    local rbox_x, rbox_y, rbox_dx = _x - 2, _y, _chain_count < 10 and 0 or -2
 
     draw_rounded_box(rbox_x + rbox_dx, rbox_y + 1, rbox_x + 10 - rbox_dx, rbox_y + 9, 5, 5)
     draw_rounded_box(rbox_x + rbox_dx, rbox_y, rbox_x + 10 - rbox_dx, rbox_y + 8, 7, 11)
@@ -24,14 +29,14 @@ function chain_bubble.render()
 
     cursor(rbox_x + 6 + rbox_dx, rbox_y + 2)
     color(10)
-    print(each.chain_count)
-  end
+    print(_chain_count)
+  end)
 end
 
-function chain_bubble:_init(chain_count, x, y)
-  self.chain_count, self.x, self.y, self.tick = chain_count, x, y - tile_size, 0
+function chain_bubble.create(chain_count, x, y)
+  local _ENV = setmetatable({}, { __index = _ENV })
 
-  add(all_bubbles, self)
+  _chain_count, _x, _y, _tick = chain_count, x, y - tile_size, 0
+
+  add(all_chain_bubbles, _ENV)
 end
-
-return chain_bubble
