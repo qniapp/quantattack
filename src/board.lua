@@ -190,7 +190,7 @@ function board:reduce_gates(game, player, other_board)
         if combo_count then
           -- 同時消し
           combo_count = combo_count + #reduction.to
-          game.combo_callback(combo_count, x, y, self)
+          game.combo_callback(combo_count, x, y, player, self, other_board)
         else
           combo_count = #reduction.to
         end

@@ -15,9 +15,15 @@ function game.reduce_callback(score, player)
   player.score = player.score + score
 end
 
--- TODO: コンボの点数を追加
-function game.combo_callback(combo_count, x, y, board)
+function game.combo_callback(combo_count, x, y, player, board, other_board)
+  local attack_cube_callback = function()
+    player.score = player.score + combo_count
+    local b = other_board or board
+    b:fall_garbage()
+  end
+
   create_bubble("combo", combo_count, board:screen_x(x), board:screen_y(y))
+  create_attack_cube(board:screen_x(x), board:screen_y(y), attack_cube_callback, unpack(board.attack_cube_target))
 end
 
 function game.chain_callback(chain_count, x, y, player, board, other_board)
@@ -31,8 +37,7 @@ function game.chain_callback(chain_count, x, y, player, board, other_board)
     end
 
     create_bubble("chain", chain_count, board:screen_x(x), board:screen_y(y))
-    create_attack_cube(chain_count, board:screen_x(x), board:screen_y(y), attack_cube_callback,
-      unpack(board.attack_cube_target))
+    create_attack_cube(board:screen_x(x), board:screen_y(y), attack_cube_callback, unpack(board.attack_cube_target))
   end
 end
 
