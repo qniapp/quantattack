@@ -20,11 +20,10 @@ function board:_init(offset_x)
   self.height = board.rows * tile_size
   self.offset_x = offset_x or 10
   self.offset_y = screen_height - self.height
-  self.tick_chainable = 0
-  self.chain_count = 0
   self:init()
   self.changed = false
   self.bounce_dy = 0
+  self.chain_count = 0
 end
 
 function board:init()
@@ -154,13 +153,18 @@ function board:update_game(game, player)
   self:fall_gates()
   self:_update_gates()
 
-  if self.tick_chainable > 0 then
-    self.tick_chainable = self.tick_chainable - 1
+  -- chainable フラグの立ったゲートが 1 つもなかった場合、
+  -- chain_count を 0 にリセットする
+  for x = 1, self.cols do
+    for y = 1, self.rows do
+      if self:gate_at(x, y).chainable then
+        -- printh("chain_count = " .. tostr(self.chain_count))
+        return
+      end
+    end
   end
-  if self.tick_chainable == 0 then
-    self.last_chain_count = self.chain_count
-    self.chain_count = 0
-  end
+  self.chain_count = 0
+  -- printh("chain_count = 0")
 end
 
 function board:update_over()
@@ -171,7 +175,7 @@ function board:reduce_gates(game, player)
   -- 同じフレーム内で一度に消えたゲートを数えるため、
   -- 連鎖数のカウント (self.chain_count) のようにフレームをまたいで数える必要はなく、
   -- 一度の reduce_gates() 呼び出し内での数をカウントする。
-  local combo_count = 0
+  local combo_count = nil
 
   for x = 1, board.cols do
     for y = 1, board.rows do
@@ -183,54 +187,50 @@ function board:reduce_gates(game, player)
           game.reduce_callback(reduction.score, player)
         end
 
-        if self.tick_chainable == 0 then
-          combo_count = #reduction.to
-          self.chain_count = 1
-          self.tick_chainable = gate_class.match_animation_frame_count +
-              reduction.gate_count * gate_class.match_delay_per_gate + 10
-          self.last_tick_chainable = self.tick_chainable
-
-          -- すべてのゲートを dirty = false にする
-          -- 連鎖中に一度でも入れ換えを行ったゲートは dirty になる
-          -- すべてのゲートが dirty だった場合は連鎖にカウントしない
-          for _x = 1, board.cols do
-            for _y = 1, board.rows do
-              self._gates[_x][_y].dirty = false
-            end
-          end
+        if combo_count then
+          -- 同時消し
+          combo_count = combo_count + #reduction.to
+          game.combo_callback(combo_count, x, y, self)
         else
-          if self.last_tick_chainable == self.tick_chainable then -- 同時消し
-            combo_count = combo_count + #reduction.to
-            if game.combo_callback then
-              game.combo_callback(combo_count, x, y, self)
-            end
-          elseif not reduction.dirty and self.last_tick_chainable ~= self.tick_chainable then
-            local chainable_frames = gate_class.match_animation_frame_count +
-                reduction.gate_count * gate_class.match_delay_per_gate + 10
-            if self.tick_chainable < chainable_frames then
-              self.tick_chainable = chainable_frames
-            end
-            self.last_tick_chainable = self.tick_chainable
-            self.chain_count = self.chain_count + 1
+          combo_count = #reduction.to
+        end
 
-            game.chain_callback(self.chain_count, x, y, self, player)
-          end
+        if reduction.chainable or self.chain_count == 0 then
+          self.chain_count = self.chain_count + 1
+        end
+
+        -- 連鎖
+        if self.chain_count > 1 and game then
+          game.chain_callback(self.chain_count, x, y, self, player)
         end
 
         for index, r in pairs(reduction.to) do
           local dx = r.dx and reduction.dx or 0
           local dy = r.dy or 0
-          local gate = gate_class(r.gate_type)
+          local new_gate = gate_class(r.gate_type)
 
-          if gate.type == "swap" or gate.type == "cnot_x" or gate.type == "control" then
+          if new_gate.type == "swap" or new_gate.type == "cnot_x" or new_gate.type == "control" then
             if r.dx then
-              gate.other_x = x
+              new_gate.other_x = x
             else
-              gate.other_x = x + reduction.dx
+              new_gate.other_x = x + reduction.dx
             end
           end
 
-          self._gates[x + dx][y + dy]:replace_with(gate, index)
+          self._gates[x + dx][y + dy]:replace_with(new_gate, index)
+
+          -- ゲートが消える、または変化するとき、その上にあるゲートすべてにフラグを付ける
+          for chainable_y = y + dy - 1, 1, -1 do
+            local gate_to_fall = self._gates[x + dx][chainable_y]
+            if not gate_to_fall:is_i() then
+              if gate_to_fall:is_match() then
+                goto next
+              end
+              gate_to_fall.chainable = true
+            end
+          end
+
+          ::next::
         end
       end
     end
@@ -540,7 +540,6 @@ end
 function board:reduce(x, y, include_next_gates)
   local reduction = { to = {}, score = 0 }
   local gate = self._gates[x][y]
-  local chainnable = false
 
   if not gate:is_reducible() then return reduction end
 
@@ -575,6 +574,9 @@ function board:reduce(x, y, include_next_gates)
     end
 
     ::check_match::
+    -- chainable フラグがついたブロックがマッチしたゲートの中に 1 個でも含まれていたら連鎖
+    local chainable = false
+
     -- マッチするかチェック
     for i, gates in pairs(gate_pattern_rows) do
       local current_y = y + i - 1
@@ -584,8 +586,8 @@ function board:reduce(x, y, include_next_gates)
         if gate1.type ~= gates[1] then
           goto next_rule
         end
-        if not gate1.dirty then
-          chainnable = true
+        if gate1.chainable then
+          chainable = true
         end
       end
 
@@ -594,13 +596,13 @@ function board:reduce(x, y, include_next_gates)
         if gate2.type ~= gates[2] then
           goto next_rule
         end
-        if not gate2.dirty then
-          chainnable = true
+        if gate2.chainable then
+          chainable = true
         end
       end
     end
 
-    reduction = { to = rule[2], dx = dx, gate_count = rule[3], score = rule[4] or 1, dirty = not chainnable }
+    reduction = { to = rule[2], dx = dx, gate_count = rule[3], score = rule[4] or 1, chainable = chainable }
     goto matched
 
     ::next_rule::

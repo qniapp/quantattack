@@ -37,7 +37,7 @@ function game:init()
   all_players = {}
 end
 
-function game:add_player(player, board, player_cursor)
+function game:add_player(player, player_cursor, board)
   player.board = board
   player.player_cursor = player_cursor
   player.tick = 0

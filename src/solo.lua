@@ -24,7 +24,7 @@ function solo:on_enter()
   player_cursor:init()
 
   game:init()
-  game:add_player(player, board, player_cursor)
+  game:add_player(player, player_cursor, board)
 end
 
 function solo:update()
@@ -36,10 +36,10 @@ function solo:update()
     end
   end
 
-  if board.last_chain_count > 1 then
-    board.last_chain_count = 0
-    board:fall_garbage()
-  end
+  -- if board.last_chain_count > 1 then
+  --   board.last_chain_count = 0
+  --   board:fall_garbage()
+  -- end
 end
 
 function solo:render() -- override

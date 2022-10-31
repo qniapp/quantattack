@@ -4,12 +4,6 @@ require("gate")
 local gate = require("gate")
 
 describe('gate', function()
-  it('should update', function()
-    local gate = h_gate()
-
-    assert.has_no.errors(function() gate:update() end)
-  end)
-
   describe('render', function()
     it('should render without errors', function()
       local gate = h_gate()

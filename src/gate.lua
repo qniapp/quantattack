@@ -68,6 +68,7 @@ function gate:_init(type, span)
   self.span = span or 1
   self._state = "idle"
   self._screen_dy = 0
+  self.chainable = false
 end
 
 -- gate type
@@ -111,6 +112,14 @@ end
 
 function gate:update(board, x, y)
   if self:is_idle() then
+    if y <= board.rows then
+      local gate_below = board:gate_at(x, y + 1)
+
+      if not gate_below.chainable or (gate_below:is_i() and not board:is_empty(x, y + 1)) then
+        self.chainable = false
+      end
+    end
+
     if self._tick_landed then
       self._tick_landed = self._tick_landed + 1
 
@@ -171,7 +180,6 @@ function gate:update(board, x, y)
       end
 
       self._state, right_gate._state = "idle", "idle"
-      self.dirty, right_gate.dirty = true, true
     end
   elseif self:is_falling() then
     self._screen_dy = self._screen_dy + fall_speed
@@ -297,6 +305,8 @@ function gate:replace_with(other, match_index, garbage_span)
   self._match_index = match_index or 0
   self._garbage_span = garbage_span
   self._tick_match = 1
+  self.chainable = true
+  other.chainable = true
 end
 
 -------------------------------------------------------------------------------
@@ -319,6 +329,10 @@ end
 
 function gate:is_falling()
   return self._state == "falling"
+end
+
+function gate:is_landed()
+  return self._state == "landed"
 end
 
 -------------------------------------------------------------------------------
