@@ -10,7 +10,7 @@ for x = -4, 4, 8 do
   end
 end
 
-function update_chain_cubes()
+function update_attack_cubes()
   foreach(all_cubes, function(each)
     local _ENV = each
 
@@ -18,6 +18,7 @@ function update_chain_cubes()
       del(all_cubes, each)
       create_particle_set(_target_x, _target_y,
         "5,green,dark_green,20|5,green,dark_green,20|4,green,dark_green,20|4,dark_purple,dark_gray,20|4,light_gray,dark_green,20|2,green,dark_green,20|2,green,dark_green,20|2,light_gray,dark_gray,20|2,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
+      each._callback()
     end
 
     if _tick < 50 then
@@ -30,7 +31,7 @@ function update_chain_cubes()
   end)
 end
 
-function render_chain_cubes()
+function render_attack_cubes()
   local cube_color = flr(rnd(16)) + 1
 
   foreach(all_cubes, function(each)
@@ -40,18 +41,18 @@ function render_chain_cubes()
       if i % 2 > 0 then
         line()
       end
-      local size, f = _chain_count / 2, apex[data[i]]
+      local f = apex[data[i]]
       local x, y, z = f.x, f.y, f.z + f.x * .0125
       f.x, f.y, f.z = x - f.z * .0125, y - z * .0125, z + y * .0125
-      line(f.x * size + _x, f.y * size + _y, cube_color)
+      line(f.x + _x, f.y + _y, cube_color)
     end
   end)
 end
 
-function create_chain_cube(chain_count, x, y, target_x, target_y, left)
+function create_attack_cube(x, y, callback, target_x, target_y, left)
   local _ENV = setmetatable({}, { __index = _ENV })
 
-  _chain_count, _x, _y, _target_x, _target_y, _tick, _left = chain_count, x, y, target_x, target_y, 0, left ~= nil
+  _x, _y, _callback, _target_x, _target_y, _tick, _left = x, y, callback, target_x, target_y, 0, left ~= nil
 
   add(all_cubes, _ENV)
 end

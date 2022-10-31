@@ -4,13 +4,17 @@ local match = require("luassert.match")
 
 local game = require("game")
 local board_class = require("board")
+local player_class = require("player")
 
 describe('chain', function()
   local board
+  local player
 
   before_each(function()
     stub(game, "chain_callback")
     board = board_class()
+    board.attack_cube_target = { 85, 30 }
+    player = player_class()
   end)
 
   it("連鎖でコールバックが呼ばれる", function()
@@ -34,10 +38,10 @@ describe('chain', function()
 
     -- TODO: update 回数を式として書く
     for _i = 1, 158 do
-      board:update(game)
+      board:update(game, player)
     end
 
     chain_callback.was_called(1)
-    chain_callback.was_called_with(2, 2, 11, match._, match._)
+    chain_callback.was_called_with(2, 2, 11, match._, match._, match._)
   end)
 end)
