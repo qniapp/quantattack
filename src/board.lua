@@ -23,7 +23,7 @@ function board:_init(offset_x)
   self:init()
   self.changed = false
   self.bounce_dy = 0
-  self.chain_count_id = {}
+  self.chain_count = {}
 end
 
 function board:init()
@@ -153,7 +153,7 @@ function board:update_game(game, player, other_board)
   self:fall_gates()
   self:_update_gates()
 
-  for chain_id, chain_count in pairs(self.chain_count_id) do
+  for chain_id, chain_count in pairs(self.chain_count) do
     -- chainable フラグの立ったゲートが 1 つもなかった場合、
     -- chain_count を 0 にリセットする
     for x = 1, self.cols do
@@ -164,7 +164,7 @@ function board:update_game(game, player, other_board)
         end
       end
     end
-    self.chain_count_id[chain_id] = nil
+    self.chain_count[chain_id] = nil
     -- printh("chain_count = 0")
   end
 end
@@ -191,8 +191,8 @@ function board:reduce_gates(game, player, other_board)
           game.reduce_callback(reduction.score, player)
         end
 
-        if self.chain_count_id[chain_id] == nil then
-          self.chain_count_id[chain_id] = 0
+        if self.chain_count[chain_id] == nil then
+          self.chain_count[chain_id] = 0
         end
 
         if combo_count then
@@ -203,11 +203,11 @@ function board:reduce_gates(game, player, other_board)
           combo_count = #reduction.to
         end
 
-        self.chain_count_id[chain_id] = self.chain_count_id[chain_id] + 1
+        self.chain_count[chain_id] = self.chain_count[chain_id] + 1
 
         -- 連鎖
-        if self.chain_count_id[chain_id] > 1 and game then
-          game.chain_callback(self.chain_count_id[chain_id], x, y, player, self, other_board)
+        if self.chain_count[chain_id] > 1 and game then
+          game.chain_callback(self.chain_count[chain_id], x, y, player, self, other_board)
         end
 
         for index, r in pairs(reduction.to) do

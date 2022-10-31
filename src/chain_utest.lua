@@ -9,9 +9,10 @@ describe('連鎖 (chain)', function()
     board = board_class()
   end)
 
-  it("パネルがマッチすると、マッチしたゲートとその上にあるゲートすべてにフラグが付く", function()
-    -- Y <- フラグが付く
-    -- X <- フラグが付く
+  it("パネルがマッチすると、マッチしたゲートとその上にあるゲートすべてに chain_id が付く"
+    , function()
+    -- Y <-
+    -- X <-
     -- H
     -- H
     board:put(1, 9, y_gate())
@@ -27,7 +28,7 @@ describe('連鎖 (chain)', function()
     assert.is_not_nil(board:gate_at(1, 12).chain_id)
   end)
 
-  it("フラグが付いたゲートは、着地するとフラグが消える", function()
+  it("chain_id が付いたゲートは、着地すると chain_id が消える", function()
     -- Y
     -- X
     -- H ---> Y
@@ -54,7 +55,7 @@ describe('連鎖 (chain)', function()
 
     board:update()
 
-    assert.are_equal(1, board.chain_count_id["1,11"])
+    assert.are_equal(1, board.chain_count["1,11"])
   end)
 
   it("2 連鎖", function()
@@ -71,7 +72,7 @@ describe('連鎖 (chain)', function()
       board:update()
     end
 
-    assert.are_equal(2, board.chain_count_id["1,10"])
+    assert.are_equal(2, board.chain_count["1,10"])
   end)
 
   it("2 連鎖 (ほかのゲートに変化したものとさらにマッチ)", function()
@@ -86,7 +87,7 @@ describe('連鎖 (chain)', function()
       board:update()
     end
 
-    assert.are_equal(2, board.chain_count_id["1,11"])
+    assert.are_equal(2, board.chain_count["1,11"])
   end)
 
   it("3 連鎖 (ほかのゲートに変化したものとさらにマッチ)", function()
@@ -103,10 +104,10 @@ describe('連鎖 (chain)', function()
       board:update()
     end
 
-    assert.are_equal(3, board.chain_count_id["1,11"])
+    assert.are_equal(3, board.chain_count["1,11"])
   end)
 
-  it("chainable フラグの立ったゲートが接地するとフラグが消える", function()
+  it("chaina_id を持つゲートが接地すると chain_id が消える", function()
     -- X
     -- H  -->
     -- H      X
