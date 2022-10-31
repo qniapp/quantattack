@@ -2,7 +2,7 @@ require("engine/test/bustedhelper")
 
 local board_class = require("board")
 
-describe('連鎖 (chain) #solo', function()
+describe('連鎖 (chain)', function()
   local board
 
   before_each(function()
@@ -21,10 +21,10 @@ describe('連鎖 (chain) #solo', function()
 
     board:update()
 
-    assert.is_true(board:gate_at(1, 9).chainable)
-    assert.is_true(board:gate_at(1, 10).chainable)
-    assert.is_true(board:gate_at(1, 11).chainable)
-    assert.is_true(board:gate_at(1, 12).chainable)
+    assert.is_not_nil(board:gate_at(1, 9).chain_id)
+    assert.is_not_nil(board:gate_at(1, 10).chain_id)
+    assert.is_not_nil(board:gate_at(1, 11).chain_id)
+    assert.is_not_nil(board:gate_at(1, 12).chain_id)
   end)
 
   it("フラグが付いたゲートは、着地するとフラグが消える", function()
@@ -42,8 +42,8 @@ describe('連鎖 (chain) #solo', function()
       board:update()
     end
 
-    assert.is_false(board:gate_at(1, 11).chainable)
-    assert.is_false(board:gate_at(1, 12).chainable)
+    assert.is_nil(board:gate_at(1, 11).chain_id)
+    assert.is_nil(board:gate_at(1, 12).chain_id)
   end)
 
   it("パネルがマッチすると、board.chain_count が 1 になる", function()
@@ -54,7 +54,7 @@ describe('連鎖 (chain) #solo', function()
 
     board:update()
 
-    assert.are_equal(1, board.chain_count)
+    assert.are_equal(1, board.chain_count_id["1,11"])
   end)
 
   it("2 連鎖", function()
@@ -71,7 +71,7 @@ describe('連鎖 (chain) #solo', function()
       board:update()
     end
 
-    assert.are_equal(2, board.chain_count)
+    assert.are_equal(2, board.chain_count_id["1,10"])
   end)
 
   it("2 連鎖 (ほかのゲートに変化したものとさらにマッチ)", function()
@@ -86,7 +86,7 @@ describe('連鎖 (chain) #solo', function()
       board:update()
     end
 
-    assert.are_equal(2, board.chain_count)
+    assert.are_equal(2, board.chain_count_id["1,11"])
   end)
 
   it("3 連鎖 (ほかのゲートに変化したものとさらにマッチ)", function()
@@ -103,7 +103,7 @@ describe('連鎖 (chain) #solo', function()
       board:update()
     end
 
-    assert.are_equal(3, board.chain_count)
+    assert.are_equal(3, board.chain_count_id["1,11"])
   end)
 
   it("chainable フラグの立ったゲートが接地するとフラグが消える", function()
@@ -119,6 +119,6 @@ describe('連鎖 (chain) #solo', function()
       board:update()
     end
 
-    assert.is_false(board:gate_at(1, 12).chainable)
+    assert.is_nil(board:gate_at(1, 12).chain_id)
   end)
 end)

@@ -23,7 +23,7 @@ function board:_init(offset_x)
   self:init()
   self.changed = false
   self.bounce_dy = 0
-  self.chain_count = 0
+  self.chain_count_id = {}
 end
 
 function board:init()
@@ -153,18 +153,20 @@ function board:update_game(game, player, other_board)
   self:fall_gates()
   self:_update_gates()
 
-  -- chainable フラグの立ったゲートが 1 つもなかった場合、
-  -- chain_count を 0 にリセットする
-  for x = 1, self.cols do
-    for y = 1, self.rows do
-      if self:gate_at(x, y).chainable then
-        -- printh("chain_count = " .. tostr(self.chain_count))
-        return
+  for chain_id, chain_count in pairs(self.chain_count_id) do
+    -- chainable フラグの立ったゲートが 1 つもなかった場合、
+    -- chain_count を 0 にリセットする
+    for x = 1, self.cols do
+      for y = 1, self.rows do
+        if self:gate_at(x, y).chain_id == chain_id then
+          -- printh("chain_count = " .. tostr(self.chain_count))
+          return
+        end
       end
     end
+    self.chain_count_id[chain_id] = nil
+    -- printh("chain_count = 0")
   end
-  self.chain_count = 0
-  -- printh("chain_count = 0")
 end
 
 function board:update_over()
@@ -183,8 +185,14 @@ function board:reduce_gates(game, player, other_board)
 
       -- コンボ (同時消し) とチェイン (連鎖) の処理
       if #reduction.to > 0 then
+        local chain_id = reduction.chain_id
+
         if player then
           game.reduce_callback(reduction.score, player)
+        end
+
+        if self.chain_count_id[chain_id] == nil then
+          self.chain_count_id[chain_id] = 0
         end
 
         if combo_count then
@@ -195,13 +203,11 @@ function board:reduce_gates(game, player, other_board)
           combo_count = #reduction.to
         end
 
-        if reduction.chainable or self.chain_count == 0 then
-          self.chain_count = self.chain_count + 1
-        end
+        self.chain_count_id[chain_id] = self.chain_count_id[chain_id] + 1
 
         -- 連鎖
-        if self.chain_count > 1 and game then
-          game.chain_callback(self.chain_count, x, y, player, self, other_board)
+        if self.chain_count_id[chain_id] > 1 and game then
+          game.chain_callback(self.chain_count_id[chain_id], x, y, player, self, other_board)
         end
 
         for index, r in pairs(reduction.to) do
@@ -217,7 +223,7 @@ function board:reduce_gates(game, player, other_board)
             end
           end
 
-          self._gates[x + dx][y + dy]:replace_with(new_gate, index)
+          self._gates[x + dx][y + dy]:replace_with(new_gate, index, nil, chain_id)
 
           -- ゲートが消える、または変化するとき、その上にあるゲートすべてにフラグを付ける
           for chainable_y = y + dy - 1, 1, -1 do
@@ -226,7 +232,7 @@ function board:reduce_gates(game, player, other_board)
               if gate_to_fall:is_match() then
                 goto next
               end
-              gate_to_fall.chainable = true
+              gate_to_fall.chain_id = chain_id
             end
           end
 
@@ -575,7 +581,7 @@ function board:reduce(x, y, include_next_gates)
 
     ::check_match::
     -- chainable フラグがついたブロックがマッチしたゲートの中に 1 個でも含まれていたら連鎖
-    local chainable = false
+    local chain_id = tostr(x) .. "," .. tostr(y)
 
     -- マッチするかチェック
     for i, gates in pairs(gate_pattern_rows) do
@@ -586,8 +592,8 @@ function board:reduce(x, y, include_next_gates)
         if gate1.type ~= gates[1] then
           goto next_rule
         end
-        if gate1.chainable then
-          chainable = true
+        if gate1.chain_id then
+          chain_id = gate1.chain_id
         end
       end
 
@@ -596,13 +602,13 @@ function board:reduce(x, y, include_next_gates)
         if gate2.type ~= gates[2] then
           goto next_rule
         end
-        if gate2.chainable then
-          chainable = true
+        if gate2.chain_id then
+          chain_id = gate2.chain_id
         end
       end
     end
 
-    reduction = { to = rule[2], dx = dx, gate_count = rule[3], score = rule[4] or 1, chainable = chainable }
+    reduction = { to = rule[2], dx = dx, gate_count = rule[3], score = rule[4] or 1, chain_id = chain_id }
     goto matched
 
     ::next_rule::

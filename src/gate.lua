@@ -68,7 +68,7 @@ function gate:_init(type, span)
   self.span = span or 1
   self._state = "idle"
   self._screen_dy = 0
-  self.chainable = false
+  self.chain_id = nil
 end
 
 -- gate type
@@ -115,8 +115,8 @@ function gate:update(board, x, y)
     if y <= board.rows then
       local gate_below = board:gate_at(x, y + 1)
 
-      if not gate_below.chainable or (gate_below:is_i() and not board:is_empty(x, y + 1)) then
-        self.chainable = false
+      if gate_below.chain_id == nil or (gate_below:is_i() and not board:is_empty(x, y + 1)) then
+        self.chain_id = nil
       end
     end
 
@@ -299,14 +299,14 @@ function gate:_sprite()
   end
 end
 
-function gate:replace_with(other, match_index, garbage_span)
+function gate:replace_with(other, match_index, garbage_span, chain_id)
   self._state = "match"
   self._reduce_to = other
   self._match_index = match_index or 0
   self._garbage_span = garbage_span
   self._tick_match = 1
-  self.chainable = true
-  other.chainable = true
+  self.chain_id = chain_id
+  other.chain_id = chain_id
 end
 
 -------------------------------------------------------------------------------
