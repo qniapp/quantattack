@@ -9,7 +9,7 @@ describe('連鎖 (chain)', function()
     board = board_class()
   end)
 
-  it("パネルがマッチすると、マッチしたゲートとその上にあるゲートすべてに chain_id が付く"
+  it("ゲートがマッチすると、マッチしたゲートとその上にあるゲートすべてに chain_id が付く"
     , function()
     -- Y <-
     -- X <-
@@ -47,7 +47,7 @@ describe('連鎖 (chain)', function()
     assert.is_nil(board:gate_at(1, 12).chain_id)
   end)
 
-  it("パネルがマッチすると、board.chain_count が 1 になる", function()
+  it("ゲートがマッチすると、board.chain_count が 1 になる", function()
     -- H
     -- H
     board:put(1, 11, h_gate())
