@@ -9,7 +9,6 @@ local game_class = require("game")
 local game = game_class()
 
 local player_class = require("player")
-local qpu_class = require("qpu")
 local board_class = require("board")
 
 local board = board_class(3)
@@ -23,7 +22,9 @@ local player_cursor = create_player_cursor(board)
 local qpu_cursor = create_player_cursor(qpu_board)
 
 local player = player_class()
-local qpu = qpu_class(qpu_cursor)
+
+require("qpu")
+local qpu = create_qpu(qpu_cursor)
 
 vs.type = ':vs'
 
