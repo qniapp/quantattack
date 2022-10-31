@@ -2,7 +2,7 @@ local flow = require("engine/application/flow")
 
 local board_class = require("board")
 local board = board_class()
-board.chain_cube_target = { 85, 30 }
+board.attack_cube_target = { 85, 30 }
 
 local player_class = require("player")
 local player = player_class()
@@ -35,11 +35,6 @@ function solo:update()
       flow:query_gamestate_type(':title')
     end
   end
-
-  -- if board.last_chain_count > 1 then
-  --   board.last_chain_count = 0
-  --   board:fall_garbage()
-  -- end
 end
 
 function solo:render() -- override

@@ -13,10 +13,10 @@ local qpu_class = require("qpu")
 local board_class = require("board")
 
 local board = board_class(3)
-board.chain_cube_target = { 78, 15 }
+board.attack_cube_target = { 78, 15 }
 
 local qpu_board = board_class(78)
-qpu_board.chain_cube_target = { 48, 15, "left" }
+qpu_board.attack_cube_target = { 48, 15, "left" }
 
 require("player_cursor")
 local player_cursor = create_player_cursor(board)
@@ -37,8 +37,8 @@ function vs:on_enter()
   qpu_cursor:init()
 
   game:init()
-  game:add_player(player, player_cursor, board)
-  game:add_player(qpu, qpu_cursor, qpu_board)
+  game:add_player(player, player_cursor, board, qpu_board)
+  game:add_player(qpu, qpu_cursor, qpu_board, board)
 end
 
 function vs:update()
@@ -57,15 +57,6 @@ function vs:update()
   end
 
   game:update()
-
-  -- if board.last_chain_count > 1 then
-  --   board.last_chain_count = 0
-  --   qpu_board:fall_garbage()
-  -- end
-  -- if qpu_board.last_chain_count > 1 then
-  --   board.last_chain_count = 0
-  --   board:fall_garbage()
-  -- end
 end
 
 function vs:render() -- override

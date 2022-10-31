@@ -7,7 +7,7 @@ local game = new_class()
 
 require("particle")
 require("bubble")
-require("chain_cube")
+require("attack_cube")
 
 local all_players
 
@@ -20,13 +20,19 @@ function game.combo_callback(combo_count, x, y, board)
   create_bubble("combo", combo_count, board:screen_x(x), board:screen_y(y))
 end
 
-function game.chain_callback(chain_count, x, y, board, player)
+function game.chain_callback(chain_count, x, y, player, board, other_board)
   local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
   if chain_count > 1 then
+    local attack_cube_callback = function()
+      player.score = player.score + (chain_bonus[chain_count] or 180)
+      local b = other_board or board
+      b:fall_garbage()
+    end
+
     create_bubble("chain", chain_count, board:screen_x(x), board:screen_y(y))
-    create_chain_cube(chain_count, board:screen_x(x), board:screen_y(y), unpack(board.chain_cube_target))
-    player.score = player.score + (chain_bonus[chain_count] or 180)
+    create_attack_cube(chain_count, board:screen_x(x), board:screen_y(y), attack_cube_callback,
+      unpack(board.attack_cube_target))
   end
 end
 
@@ -37,9 +43,10 @@ function game:init()
   all_players = {}
 end
 
-function game:add_player(player, player_cursor, board)
-  player.board = board
+function game:add_player(player, player_cursor, board, other_board)
   player.player_cursor = player_cursor
+  player.board = board
+  player.other_board = other_board
   player.tick = 0
 
   add(all_players, player)
@@ -47,8 +54,9 @@ end
 
 function game:update()
   for _, each in pairs(all_players) do
-    local board = each.board
     local player_cursor = each.player_cursor
+    local board = each.board
+    local other_board = each.other_board
 
     if board:is_game_over() then
       board:update()
@@ -82,7 +90,7 @@ function game:update()
         self:_raise(each)
       end
 
-      board:update(self, each)
+      board:update(self, each, other_board)
       player_cursor:update()
       self:_auto_raise(each)
 
@@ -96,7 +104,7 @@ function game:update()
 
   update_particles()
   update_bubbles()
-  update_chain_cubes()
+  update_attack_cubes()
 end
 
 function game:render() -- override
@@ -115,7 +123,7 @@ function game:render() -- override
 
   render_particles()
   render_bubbles()
-  render_chain_cubes()
+  render_attack_cubes()
 
   color(colors.white)
   cursor(1, 1)

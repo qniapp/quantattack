@@ -110,7 +110,7 @@ function board:insert_gates_at_bottom(steps)
   end
 end
 
-function board:update(game, player)
+function board:update(game, player, other_board)
   if self:gates_piled_up() or self.win ~= nil then
     self.state = "over"
   end
@@ -120,7 +120,7 @@ function board:update(game, player)
   end
 
   if self.state == "play" then
-    self:update_game(game, player)
+    self:update_game(game, player, other_board)
   elseif self.state == "over" then
     self:update_over()
   end
@@ -144,9 +144,9 @@ function board:gates_piled_up()
   return false
 end
 
-function board:update_game(game, player)
+function board:update_game(game, player, other_board)
   if self.changed then
-    self:reduce_gates(game, player)
+    self:reduce_gates(game, player, other_board)
     self.changed = false
   end
 
@@ -170,7 +170,7 @@ end
 function board:update_over()
 end
 
-function board:reduce_gates(game, player)
+function board:reduce_gates(game, player, other_board)
   -- 同時消しで変化したゲートの数
   -- 同じフレーム内で一度に消えたゲートを数えるため、
   -- 連鎖数のカウント (self.chain_count) のようにフレームをまたいで数える必要はなく、
@@ -201,7 +201,7 @@ function board:reduce_gates(game, player)
 
         -- 連鎖
         if self.chain_count > 1 and game then
-          game.chain_callback(self.chain_count, x, y, self, player)
+          game.chain_callback(self.chain_count, x, y, player, self, other_board)
         end
 
         for index, r in pairs(reduction.to) do
