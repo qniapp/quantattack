@@ -38,7 +38,7 @@ function vs:on_enter()
 
   game:init()
   game:add_player(player, player_cursor, board)
-  game:add_player(qpu, qpu_board, qpu_cursor)
+  game:add_player(qpu, qpu_cursor, qpu_board)
 end
 
 function vs:update()
