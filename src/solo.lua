@@ -4,8 +4,8 @@ local board_class = require("board")
 local board = board_class()
 board.attack_cube_target = { 85, 30 }
 
-local player_class = require("player")
-local player = player_class()
+require("player")
+local player = create_player()
 
 require("player_cursor")
 local player_cursor = create_player_cursor(board)

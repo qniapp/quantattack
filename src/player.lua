@@ -1,18 +1,20 @@
+---@diagnostic disable: lowercase-global, global-in-nil-env
+
 require("engine/input/input")
 
-local player = new_class()
+function create_player()
+  local player = setmetatable({
+    init = function(_ENV)
+      steps, score = 0, 0
+    end,
 
-function player:_init()
-  self:init()
+    update = function(_ENV)
+      left, right, up, down, x, o = btnp(button_ids.left), btnp(button_ids.right),
+          btnp(button_ids.up), btnp(button_ids.down), btn(button_ids.x), btnp(button_ids.o)
+    end
+  }, { __index = _ENV })
+
+  player:init()
+
+  return player
 end
-
-function player:init()
-  self.steps, self.score = 0, 0
-end
-
-function player:update()
-  self.left, self.right, self.up, self.down, self.x, self.o = btnp(button_ids.left), btnp(button_ids.right),
-      btnp(button_ids.up), btnp(button_ids.down), btn(button_ids.x), btnp(button_ids.o)
-end
-
-return player
