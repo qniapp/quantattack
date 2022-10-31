@@ -8,8 +8,6 @@ local vs = derived_class(gamestate)
 local game_class = require("game")
 local game = game_class()
 
-local player_class = require("player")
-local qpu_class = require("qpu")
 local board_class = require("board")
 
 local board = board_class(3)
@@ -22,8 +20,10 @@ require("player_cursor")
 local player_cursor = create_player_cursor(board)
 local qpu_cursor = create_player_cursor(qpu_board)
 
-local player = player_class()
-local qpu = qpu_class(qpu_cursor)
+require("player")
+require("qpu")
+local player = create_player()
+local qpu = create_qpu(qpu_cursor)
 
 vs.type = ':vs'
 
