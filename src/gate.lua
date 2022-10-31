@@ -77,6 +77,14 @@ function gate:is_i()
   return self.type == "i"
 end
 
+function gate:is_control()
+  return self.type == "control"
+end
+
+function gate:is_cnot_x()
+  return self.type == "cnot_x"
+end
+
 -- おじゃまゲートの先頭 (左端) である場合 true を返す
 function gate:is_garbage()
   return self.type == "g"

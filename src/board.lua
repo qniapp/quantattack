@@ -485,6 +485,7 @@ function board:is_empty(x, y)
   return self._gates[x][y]:is_empty()
 end
 
+-- x, y がおじゃまゲートの一部であるかどうかを返す
 function board:is_garbage(x, y)
   for tmp_x = 1, x - 1 do
     local gate = self:gate_at(tmp_x, y)
@@ -495,6 +496,20 @@ function board:is_garbage(x, y)
   end
 
   return self:gate_at(x, y):is_garbage()
+end
+
+-- x, y が CNOT の一部であるかどうかを返す
+function board:is_cnot(x, y)
+  for tmp_x = 1, x - 1 do
+    local gate = self:gate_at(tmp_x, y)
+
+    if (gate:is_cnot_x() or gate:is_control()) and x < gate.other_x then
+      return true
+    end
+  end
+
+  local gate = self:gate_at(x, y)
+  return gate:is_cnot_x() or gate:is_control()
 end
 
 function board:reducible_gate_at(x, y)
