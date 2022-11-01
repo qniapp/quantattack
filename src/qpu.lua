@@ -18,6 +18,10 @@ function create_qpu(cursor)
         del(commands, next_action)
         _ENV[next_action] = true
       else
+        if board_top_y(_ENV) > 5 then
+          add_raise_command(_ENV)
+        end
+
         for new_x = 1, board.cols - 1 do
           for new_y = board.rows - 1, 1, -1 do
             local left_gate = board:reducible_gate_at(new_x, new_y)
@@ -106,6 +110,18 @@ function create_qpu(cursor)
       return not board:is_empty(x, y) and not board:is_garbage(x, y) and not board:is_cnot(x, y)
     end,
 
+    board_top_y = function(_ENV)
+      for y = 1, board.rows do
+        for x = 1, board.cols do
+          if not board:is_empty(x, y) then
+            return y
+          end
+        end
+      end
+
+      return board.rows
+    end,
+
     move_and_swap = function(_ENV, new_x, new_y)
       if new_x < cursor.x then
         add_move_command(_ENV, "left", cursor.x - new_x)
@@ -126,18 +142,26 @@ function create_qpu(cursor)
       for _a = 1, times do
         add(commands, direction)
 
-        for _s = 1, 5 + flr(rnd(10)) do
-          add(commands, "sleep")
-        end
+        -- for _s = 1, 5 do
+        --   add(commands, "sleep")
+        -- end
       end
     end,
 
     add_swap_command = function(_ENV)
       add(commands, "o")
 
-      for _s = 1, 20 + flr(rnd(10)) do
+      -- for _s = 1, 20 do
+      --   add(commands, "sleep")
+      -- end
+    end,
+
+    add_raise_command = function(_ENV, sleep)
+      add(commands, "x")
+
+      for i = 1, sleep or 5 do
         add(commands, "sleep")
       end
-    end
+    end,
   }, { __index = _ENV })
 end
