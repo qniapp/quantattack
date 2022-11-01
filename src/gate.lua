@@ -145,7 +145,7 @@ function gate:update(board, x, y)
     else
       -- SWAP 完了
       local new_x = x + 1
-      local right_gate = board:gate_at(new_x, y)
+      local right_gate = board.gates[new_x][y]
 
       --#if assert
       assert(self:_is_swapping_with_right(), self._state)

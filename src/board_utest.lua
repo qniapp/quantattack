@@ -1,15 +1,15 @@
 require("engine/test/bustedhelper")
 require("engine/debug/dump")
+require("board")
 require("gate")
 
 local profiler = require("profiler")
-local board_class = require("board")
 
 describe('board', function()
   local board
 
   before_each(function()
-    board = board_class()
+    board = create_board()
   end)
 
   describe('swap', function()

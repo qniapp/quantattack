@@ -1,7 +1,8 @@
+require("board")
+
 local flow = require("engine/application/flow")
 
-local board_class = require("board")
-local board = board_class()
+local board = create_board()
 board.attack_cube_target = { 85, 30 }
 
 require("player")

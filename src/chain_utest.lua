@@ -1,12 +1,11 @@
 require("engine/test/bustedhelper")
-
-local board_class = require("board")
+require("board")
 
 describe('連鎖 (chain)', function()
   local board
 
   before_each(function()
-    board = board_class()
+    board = create_board()
   end)
 
   it("ゲートがマッチすると、マッチしたゲートとその上にあるゲートすべてに chain_id が付く"
