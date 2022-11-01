@@ -33,18 +33,18 @@ function render_attack_cubes()
       if i % 2 > 0 then
         line()
       end
-      local f, size = apex[data[i]], _count / 2
+      local f = apex[data[i]]
       local x, y, z = f.x, f.y, f.z + f.x * .0125
       f.x, f.y, f.z = x - f.z * .0125, y - z * .0125, z + y * .0125
-      line(f.x * size + _x, f.y * size + _y, cube_color)
+      line(f.x + _x, f.y + _y, cube_color)
     end
   end)
 end
 
-function create_attack_cube(count, x, y, callback, target_x, target_y, left)
+function create_attack_cube(x, y, callback, target_x, target_y, left)
   local _ENV = setmetatable({}, { __index = _ENV })
 
-  _count, _x, _y, _callback, _target_x, _target_y, _tick, _left, apex = count, x, y, callback, target_x, target_y, 0, left ~= nil, {}
+  _x, _y, _callback, _target_x, _target_y, _tick, _left, apex = x, y, callback, target_x, target_y, 0, left ~= nil, {}
 
   for x = -4, 4, 8 do
     for y = -4, 4, 8 do

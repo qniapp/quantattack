@@ -20,8 +20,8 @@ function create_qpu(cursor)
       else
         for new_x = 1, board.cols - 1 do
           for new_y = board.rows - 1, 1, -1 do
-            local left_gate = board.gates[new_x][new_y]
-            local right_gate = board.gates[new_x][new_y]
+            local left_gate = board:reducible_gate_at(new_x, new_y)
+            local right_gate = board:reducible_gate_at(new_x + 1, new_y)
 
             -- CNOT を消す戦略:
             --
@@ -33,7 +33,6 @@ function create_qpu(cursor)
             -- C-X --> X-C
             --
             -- 3. CNOT を右に移動
-            --
             -- X-[C ]
             if ((left_gate:is_cnot_x() or left_gate:is_control()) and new_x + 1 < left_gate.other_x) or
                 (left_gate:is_control() and left_gate.other_x == new_x + 1) or
@@ -48,7 +47,7 @@ function create_qpu(cursor)
             --  ■ X
             if is_single_gate(_ENV, new_x, new_y) and
                 (is_single_gate(_ENV, new_x + 1, new_y) or board:is_empty(new_x + 1, new_y)) and
-                left_gate.type == board:gate_at(new_x + 1, new_y + 1).type then
+                left_gate.type == board:reducible_gate_at(new_x + 1, new_y + 1).type then
               move_and_swap(_ENV, new_x, new_y)
               return
             end
@@ -59,7 +58,7 @@ function create_qpu(cursor)
             --  X ■
             if (is_single_gate(_ENV, new_x, new_y) or board:is_empty(new_x, new_y)) and
                 is_single_gate(_ENV, new_x + 1, new_y) and
-                right_gate.type == board:gate_at(new_x, new_y + 1).type then
+                right_gate.type == board:reducible_gate_at(new_x, new_y + 1).type then
               move_and_swap(_ENV, new_x, new_y)
               return
             end
@@ -96,7 +95,7 @@ function create_qpu(cursor)
             board:is_cnot(random_x, random_y) or
             board:is_garbage(random_x + 1, random_y) or
             board:is_cnot(random_x + 1, random_y) or
-            board:gate_at(random_x, random_y).type == board:gate_at(random_x + 1, random_y).type) then
+            board:reducible_gate_at(random_x, random_y).type == board:reducible_gate_at(random_x + 1, random_y).type) then
           move_and_swap(_ENV, random_x, random_y)
         end
       end
