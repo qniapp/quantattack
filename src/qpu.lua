@@ -20,6 +20,38 @@ function create_qpu(cursor)
       else
         for new_x = 1, board.cols - 1 do
           for new_y = board.rows - 1, 1, -1 do
+            local left_gate = board._gates[new_x][new_y]
+
+            -- CNOT を消すための戦略:
+            --   1. みつけたらとにかく縮める (右方向に)
+            --   2. 同じ方向にそろえる
+            --   3. 可能なら右によせる
+
+            -- CNOT を縮める
+            --
+            -- [X-]--C
+            -- [C-]--X
+            if (left_gate:is_cnot_x() or left_gate:is_control()) and new_x + 1 < left_gate.other_x then
+              move_and_swap(_ENV, new_x, new_y)
+              return
+            end
+
+            -- CNOT を同じ方向にそろえる
+            --
+            -- C-X --> X-C
+            if left_gate:is_control() and left_gate.other_x == new_x + 1 then
+              move_and_swap(_ENV, new_x, new_y)
+              return
+            end
+
+            -- CNOT を右に移動する
+            --
+            -- X-[C ]
+            if left_gate:is_control() and left_gate.other_x < new_x and board:is_empty(new_x + 1, new_y) then
+              move_and_swap(_ENV, new_x, new_y)
+              return
+            end
+
             -- 入れ換えると右側がそろう場合
             --
             -- [X  ]
