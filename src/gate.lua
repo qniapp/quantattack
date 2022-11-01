@@ -121,7 +121,7 @@ end
 function gate:update(board, x, y)
   if self:is_idle() then
     if y <= board.rows then
-      local gate_below = board._gates[x][y + 1]
+      local gate_below = board.gates[x][y + 1]
 
       if gate_below.chain_id == nil or (gate_below:is_i() and not board:is_empty(x, y + 1)) then
         self.chain_id = nil
@@ -206,7 +206,7 @@ function gate:update(board, x, y)
 
       -- SWAP または CNOT の場合、ペアとなるゲートもここで移動する
       if self.other_x and x < self.other_x then
-        local other_gate = board._gates[self.other_x][y]
+        local other_gate = board.gates[self.other_x][y]
         board:remove_gate(self.other_x, y)
         board:put(self.other_x, new_y, other_gate)
         other_gate._screen_dy = self._screen_dy
@@ -228,7 +228,7 @@ function gate:update(board, x, y)
       self._tick_landed = 0
 
       if self.other_x and x < self.other_x then
-        local other_gate = board._gates[self.other_x][y]
+        local other_gate = board.gates[self.other_x][y]
         other_gate._state = "idle"
         other_gate._tick_landed = 0
         other_gate._screen_dy = 0

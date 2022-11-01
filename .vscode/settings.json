@@ -85,7 +85,8 @@
     "all_combo_bubbles",
     "combo_bubble",
     "create_qpu",
-    "create_player"
+    "create_player",
+    "tostr"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,

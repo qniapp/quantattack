@@ -15,7 +15,7 @@ board.row_next_gates = board.rows + 1
 function board:_init(offset_x)
   self.cols = board.cols
   self.rows = board.rows
-  self._gates = {}
+  self.gates = {}
   self.width = board.cols * tile_size
   self.height = board.rows * tile_size
   self.offset_x = offset_x or 10
@@ -33,7 +33,7 @@ function board:init()
 
   -- fill the board with I gates
   for x = 1, board.cols do
-    self._gates[x] = {}
+    self.gates[x] = {}
     for y = 1, board.row_next_gates do
       self:put(x, y, i_gate())
     end
@@ -65,7 +65,7 @@ end
 function board:is_busy()
   for x = 1, self.cols do
     for y = 1, self.row_next_gates do
-      if not self._gates[x][y]:is_idle() then
+      if not self.gates[x][y]:is_idle() then
         return true
       end
     end
@@ -78,7 +78,7 @@ function board:insert_gates_at_bottom(steps)
   -- 各ゲートを 1 つ上にずらす
   for y = 1, self.row_next_gates - 1 do
     for x = 1, self.cols do
-      self:put(x, y, self._gates[x][y + 1])
+      self:put(x, y, self.gates[x][y + 1])
       self:remove_gate(x, y + 1)
     end
   end
@@ -223,11 +223,11 @@ function board:reduce_gates(game, player, other_board)
             end
           end
 
-          self._gates[x + dx][y + dy]:replace_with(new_gate, index, nil, chain_id)
+          self.gates[x + dx][y + dy]:replace_with(new_gate, index, nil, chain_id)
 
           -- ゲートが消える、または変化するとき、その上にあるゲートすべてにフラグを付ける
           for chainable_y = y + dy - 1, 1, -1 do
-            local gate_to_fall = self._gates[x + dx][chainable_y]
+            local gate_to_fall = self.gates[x + dx][chainable_y]
             if not gate_to_fall:is_i() then
               if gate_to_fall:is_match() then
                 goto next
@@ -245,7 +245,7 @@ function board:reduce_gates(game, player, other_board)
   -- おじゃまゲートのマッチ
   for y = board.rows, 1, -1 do
     for x = 1, board.cols do
-      local gate = self._gates[x][y]
+      local gate = self.gates[x][y]
       local span = gate.span
 
       if gate:is_garbage() then
@@ -289,7 +289,7 @@ end
 function board:fall_gates()
   for y = board.rows - 1, 1, -1 do
     for x = 1, board.cols do
-      local gate = self._gates[x][y]
+      local gate = self.gates[x][y]
 
       if gate:is_fallable() and self:is_gate_fallable(x, y) then
         if gate.other_x then
@@ -339,7 +339,7 @@ function board:_update_gates()
   -- 一番下の行から上に向かって順番に update していく
   for y = board.row_next_gates, 1, -1 do
     for x = 1, board.cols do
-      self._gates[x][y]:update(self, x, y)
+      self.gates[x][y]:update(self, x, y)
     end
   end
 end
@@ -356,7 +356,7 @@ function board:render()
   -- draw idle gates
   for x = 1, board.cols do
     for y = 1, board.row_next_gates do
-      local gate = self._gates[x][y]
+      local gate = self.gates[x][y]
       local screen_x = self:screen_x(x)
       local screen_y = self:screen_y(y)
 
@@ -459,7 +459,7 @@ function board:gate_at(x, y)
   assert(1 <= y and y <= board.row_next_gates, "y = " .. y)
   --#endif
 
-  local gate = self._gates[x][y]
+  local gate = self.gates[x][y]
 
   --#if assert
   assert(gate)
@@ -482,7 +482,7 @@ function board:is_empty(x, y)
     end
   end
 
-  return self._gates[x][y]:is_empty()
+  return self.gates[x][y]:is_empty()
 end
 
 -- x, y がおじゃまゲートの一部であるかどうかを返す
@@ -513,7 +513,7 @@ function board:is_cnot(x, y)
 end
 
 function board:reducible_gate_at(x, y)
-  local gate = self._gates[x][y]
+  local gate = self.gates[x][y]
 
   return gate:is_reducible() and gate or i_gate()
 end
@@ -524,7 +524,7 @@ function board:put(x, y, gate)
   assert(1 <= y and y <= board.row_next_gates, y)
   --#endif
 
-  self._gates[x][y] = gate
+  self.gates[x][y] = gate
   self.changed = true
 end
 
@@ -560,7 +560,7 @@ end
 
 function board:reduce(x, y, include_next_gates)
   local reduction = { to = {}, score = 0 }
-  local gate = self._gates[x][y]
+  local gate = self.gates[x][y]
 
   if not gate:is_reducible() then return reduction end
 

@@ -20,8 +20,8 @@ function create_qpu(cursor)
       else
         for new_x = 1, board.cols - 1 do
           for new_y = board.rows - 1, 1, -1 do
-            local left_gate = board._gates[new_x][new_y]
-            local right_gate = board._gates[new_x][new_y]
+            local left_gate = board.gates[new_x][new_y]
+            local right_gate = board.gates[new_x][new_y]
 
             -- CNOT を消す戦略:
             --
