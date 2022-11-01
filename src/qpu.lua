@@ -24,7 +24,7 @@ function create_qpu(cursor)
             --
             -- [X  ]
             --  ■ X
-            if is_single_gate(_ENV, new_x, new_y) and
+            if is_single_gate(_ENV, new_x, new_y) and (is_single_gate(_ENV, new_x + 1, new_y) or board:is_empty(new_x + 1, new_y)) and
                 board:gate_at(new_x, new_y).type == board:gate_at(new_x + 1, new_y + 1).type then
               move_and_swap(_ENV, new_x, new_y)
               return
@@ -34,7 +34,7 @@ function create_qpu(cursor)
             --
             -- [  X]
             --  X ■
-            if is_single_gate(_ENV, new_x + 1, new_y) and
+            if (is_single_gate(_ENV, new_x, new_y) or board:is_empty(new_x, new_y)) and is_single_gate(_ENV, new_x + 1, new_y) and
                 board:gate_at(new_x + 1, new_y).type == board:gate_at(new_x, new_y + 1).type then
               move_and_swap(_ENV, new_x, new_y)
               return
