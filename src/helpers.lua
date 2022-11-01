@@ -27,17 +27,3 @@ function draw_rounded_box(x0, y0, x1, y1, border_color, fill_color)
     rectfill(x0 + 1, y0 + 1, x1 - 1, y1 - 1, fill_color)
   end
 end
-
-function mfunc(s)
-  local tokens, function_index, index, args = split(s), 1, 1, {}
-
-  while index <= #tokens do
-    index = index + 1
-    if _ENV[tokens[index]] ~= nil or index > #tokens then
-      _ENV[tokens[function_index]](unpack(args))
-      function_index, args = index, {}
-    else
-      add(args, tokens[index])
-    end
-  end
-end

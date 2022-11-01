@@ -1,7 +1,5 @@
 ---@diagnostic disable: lowercase-global, global-in-nil-env
 
-require("engine/input/input")
-
 function create_player()
   local player = setmetatable({
     init = function(_ENV)
@@ -9,8 +7,7 @@ function create_player()
     end,
 
     update = function(_ENV)
-      left, right, up, down, x, o = btnp(button_ids.left), btnp(button_ids.right),
-          btnp(button_ids.up), btnp(button_ids.down), btn(button_ids.x), btnp(button_ids.o)
+      left, right, up, down, x, o = btnp(0), btnp(1), btnp(2), btnp(3), btn(5), btnp(4)
     end
   }, { __index = _ENV })
 

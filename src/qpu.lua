@@ -10,14 +10,10 @@ function create_qpu(cursor)
     end,
 
     update = function(_ENV, board)
-      left = false
-      right = false
-      up = false
-      down = false
-      x = false
-      o = false
+      left, right, up, down, x, o = false, false, false, false, false, false
 
       local next_action = commands[1]
+
       if next_action then
         del(commands, next_action)
         _ENV[next_action] = true
@@ -67,7 +63,7 @@ function create_qpu(cursor)
         end
 
         -- 何もすることがない場合、ランダムに入れ替える
-        -- カーソルは 2 個分の幅があるので、ボードの右端には移動できない
+        -- NOTE: カーソルは 2 個分の幅があるので、ボードの右端には移動できない
         local new_x = flr(rnd(board.cols - 1)) + 1
         local new_y = flr(rnd(board.rows)) + 1
 
