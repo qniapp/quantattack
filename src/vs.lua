@@ -1,5 +1,3 @@
-require("engine/core/class")
-
 local flow = require("engine/application/flow")
 
 local gamestate = require("engine/application/gamestate")

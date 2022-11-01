@@ -1,5 +1,4 @@
 require("engine/application/constants")
-require("engine/core/class")
 require("engine/core/helper")
 require("helpers")
 
@@ -8,16 +7,13 @@ local reduction_rules = require("reduction_rules")
 
 local board = new_class()
 
-board.cols = 6 -- board の列数
-board.rows = 12 -- board の行数
-board.row_next_gates = board.rows + 1
-
 function board:_init(offset_x)
-  self.cols = board.cols
-  self.rows = board.rows
+  self.cols = 6
+  self.rows = 12
+  self.row_next_gates = 13
   self.gates = {}
-  self.width = board.cols * tile_size
-  self.height = board.rows * tile_size
+  self.width = self.cols * tile_size
+  self.height = self.rows * tile_size
   self.offset_x = offset_x or 10
   self.offset_y = screen_height - self.height
   self:init()
@@ -33,9 +29,9 @@ function board:init()
   self.win = nil
 
   -- fill the board with I gates
-  for x = 1, board.cols do
+  for x = 1, self.cols do
     self.gates[x] = {}
-    for y = 1, board.row_next_gates do
+    for y = 1, self.row_next_gates do
       self:put(x, y, i_gate())
     end
   end
@@ -44,10 +40,10 @@ end
 function board:initialize_with_random_gates()
   self:init()
 
-  for y = board.row_next_gates, 6, -1 do
-    for x = 1, board.cols do
-      if y >= board.rows - 2 or
-          (y < board.rows - 2 and rnd(1) > (y - 11) * -0.1 and (not self:is_empty(x, y + 1))) then
+  for y = self.row_next_gates, 6, -1 do
+    for x = 1, self.cols do
+      if y >= self.rows - 2 or
+          (y < self.rows - 2 and rnd(1) > (y - 11) * -0.1 and (not self:is_empty(x, y + 1))) then
         repeat
           self:put(x, y, self:_random_single_gate())
         until #self:reduce(x, y, true).to == 0
@@ -93,8 +89,8 @@ function board:insert_gates_at_bottom(steps)
     local control_x
     local cnot_x_x
     repeat
-      control_x = flr(rnd(board.cols)) + 1
-      cnot_x_x = flr(rnd(board.cols)) + 1
+      control_x = flr(rnd(self.cols)) + 1
+      cnot_x_x = flr(rnd(self.cols)) + 1
     until control_x ~= cnot_x_x
 
     self:put(control_x, self.row_next_gates, control_gate(cnot_x_x))
@@ -180,8 +176,8 @@ function board:reduce_gates(game, player, other_board)
   -- 一度の reduce_gates() 呼び出し内での数をカウントする。
   local combo_count = nil
 
-  for x = 1, board.cols do
-    for y = 1, board.rows do
+  for x = 1, self.cols do
+    for y = 1, self.rows do
       local reduction = self:reduce(x, y)
 
       -- コンボ (同時消し) とチェイン (連鎖) の処理
@@ -244,8 +240,8 @@ function board:reduce_gates(game, player, other_board)
   end
 
   -- おじゃまゲートのマッチ
-  for y = board.rows, 1, -1 do
-    for x = 1, board.cols do
+  for y = self.rows, 1, -1 do
+    for x = 1, self.cols do
       local gate = self.gates[x][y]
       local span = gate.span
 
@@ -257,7 +253,7 @@ function board:reduce_gates(game, player, other_board)
           add(adjacent_gates, self:gate_at(x - 1, y))
         end
 
-        if x + span <= board.cols then
+        if x + span <= self.cols then
           add(adjacent_gates, self:gate_at(x + span, y))
         end
 
@@ -265,7 +261,7 @@ function board:reduce_gates(game, player, other_board)
           if y > 1 then
             add(adjacent_gates, self:gate_at(gx, y - 1))
           end
-          if y < board.rows then
+          if y < self.rows then
             add(adjacent_gates, self:gate_at(gx, y + 1))
           end
         end
@@ -288,8 +284,8 @@ function board:reduce_gates(game, player, other_board)
 end
 
 function board:fall_gates()
-  for y = board.rows - 1, 1, -1 do
-    for x = 1, board.cols do
+  for y = self.rows - 1, 1, -1 do
+    for x = 1, self.cols do
       local gate = self.gates[x][y]
 
       if gate:is_fallable() and self:is_gate_fallable(x, y) then
@@ -309,11 +305,11 @@ end
 -- 指定したゲートが行 gate_y + 1 に落とせるかどうかを返す。
 function board:is_gate_fallable(gate_x, gate_y)
   --#if assert
-  assert(1 <= gate_x and gate_x <= board.cols)
-  assert(1 <= gate_y and gate_y <= board.row_next_gates)
+  assert(1 <= gate_x and gate_x <= self.cols)
+  assert(1 <= gate_y and gate_y <= self.row_next_gates)
   --#endif
 
-  if gate_y == board.rows then
+  if gate_y == self.rows then
     return false
   end
 
@@ -338,15 +334,15 @@ end
 function board:_update_gates()
   -- swap などのペアとなるゲートを正しく落とすために、
   -- 一番下の行から上に向かって順番に update していく
-  for y = board.row_next_gates, 1, -1 do
-    for x = 1, board.cols do
+  for y = self.row_next_gates, 1, -1 do
+    for x = 1, self.cols do
       self.gates[x][y]:update(self, x, y)
     end
   end
 end
 
 function board:render()
-  for x = 1, board.cols do
+  for x = 1, self.cols do
     -- draw wires
     local line_x = self:screen_x(x) + 3
     line(line_x, self.offset_y,
@@ -355,11 +351,9 @@ function board:render()
   end
 
   -- draw idle gates
-  for x = 1, board.cols do
-    for y = 1, board.row_next_gates do
-      local gate = self.gates[x][y]
-      local screen_x = self:screen_x(x)
-      local screen_y = self:screen_y(y)
+  for x = 1, self.cols do
+    for y = 1, self.row_next_gates do
+      local gate, screen_x, screen_y = self.gates[x][y], self:screen_x(x), self:screen_y(y)
 
       if gate.other_x and x < gate.other_x then
         local connection_y = screen_y + 3
@@ -371,7 +365,7 @@ function board:render()
       gate:render(screen_x, screen_y)
 
       -- マスクを描画
-      if y == board.row_next_gates then
+      if y == self.row_next_gates then
         -- TODO: 102 を定数にする
         spr(102, screen_x, screen_y)
       end
@@ -399,9 +393,9 @@ function board:swap(x_left, y)
   local x_right = x_left + 1
 
   --#if assert
-  assert(1 <= x_left and x_left <= board.cols - 1)
-  assert(2 <= x_right and x_right <= board.cols)
-  assert(1 <= y and y <= board.rows)
+  assert(1 <= x_left and x_left <= self.cols - 1)
+  assert(2 <= x_right and x_right <= self.cols)
+  assert(1 <= y and y <= self.rows)
   --#endif
 
   if self:is_garbage(x_left, y) or self:is_garbage(x_right, y) then
@@ -456,8 +450,8 @@ end
 
 function board:gate_at(x, y)
   --#if assert
-  assert(1 <= x and x <= board.cols, "x = " .. x)
-  assert(1 <= y and y <= board.row_next_gates, "y = " .. y)
+  assert(1 <= x and x <= self.cols, "x = " .. x)
+  assert(1 <= y and y <= self.row_next_gates, "y = " .. y)
   --#endif
 
   local gate = self.gates[x][y]
@@ -536,8 +530,8 @@ end
 
 function board:put(x, y, gate)
   --#if assert
-  assert(1 <= x and x <= board.cols, x)
-  assert(1 <= y and y <= board.row_next_gates, y)
+  assert(1 <= x and x <= self.cols, x)
+  assert(1 <= y and y <= self.row_next_gates, y)
   --#endif
 
   self.gates[x][y] = gate
@@ -559,7 +553,7 @@ end
 
 function board:fall_garbage()
   local span = flr(rnd(4)) + 3
-  local x = flr(rnd(board.cols - span + 1)) + 1
+  local x = flr(rnd(self.cols - span + 1)) + 1
 
   for i = x, x + span - 1 do
     if not self:is_empty(x, 1) then
@@ -664,6 +658,7 @@ end
 function board:bounce()
   self.tick_bounce = 0
   self.dy = -4
+  self.bounce_dy = 0
 end
 
 function board:update_bounce()
@@ -689,8 +684,8 @@ end
 function board:_tostring()
   local str = ''
 
-  for y = 1, board.row_next_gates do
-    for x = 1, board.cols do
+  for y = 1, self.row_next_gates do
+    for x = 1, self.cols do
       str = str .. self:gate_at(x, y):_tostring() .. " "
     end
     str = str .. "\n"
