@@ -1,3 +1,4 @@
+---@diagnostic disable: global-in-nil-env, lowercase-global
 require("engine/application/constants")
 require("engine/core/helper")
 require("helpers")
@@ -16,7 +17,8 @@ function create_board(_offset_x)
     offset_x = _offset_x or 10,
     offset_y = screen_height - 12 * tile_size,
     changed = false,
-    bounce_dy = 0,
+    bounce_speed = 0,
+    bounce_screen_dy = 0,
     chain_count = {},
     is_empty_cache = {},
 
@@ -49,57 +51,6 @@ function create_board(_offset_x)
       end
     end,
 
-    update = function(_ENV, game, player, other_board)
-      if gates_piled_up(_ENV) or win ~= nil then
-        state = "over"
-      end
-
-      if tick_bounce then
-        update_bounce(_ENV)
-      end
-
-      if state == "play" then
-        update_game(_ENV, game, player, other_board)
-      elseif state == "over" then
-        -- NOP (update_over)
-      end
-    end,
-
-    update_game = function(_ENV, game, player, other_board)
-      if changed then
-        reduce_gates(_ENV, game, player, other_board)
-        changed = false
-      end
-
-      fall_gates(_ENV)
-      _update_gates(_ENV)
-
-      for chain_id, _chain_count in pairs(chain_count) do
-        -- chainable フラグの立ったゲートが 1 つもなかった場合、
-        -- chain_count を 0 にリセットする
-        for x = 1, cols do
-          for y = 1, rows do
-            if gates[x][y].chain_id == chain_id then
-              -- printh("chain_count = " .. tostr(_chain_count))
-              return
-            end
-          end
-        end
-        chain_count[chain_id] = nil
-        -- printh("chain_count = 0")
-      end
-    end,
-
-    _update_gates = function(_ENV)
-      -- swap などのペアとなるゲートを正しく落とすために、
-      -- 一番下の行から上に向かって順番に update していく
-      for y = row_next_gates, 1, -1 do
-        for x = 1, cols do
-          gates[x][y]:update(_ENV, x, y)
-        end
-      end
-    end,
-
     put = function(_ENV, x, y, gate)
       --#if assert
       assert(1 <= x and x <= cols, x)
@@ -109,81 +60,6 @@ function create_board(_offset_x)
       gates[x][y] = gate
       changed = true
       is_empty_cache = {}
-    end,
-
-    -- (x_left, y) と (x_left + 1, y) のゲートを入れ替える
-    -- 入れ替えできた場合は true を、そうでない場合は false を返す
-    swap = function(_ENV, x_left, y)
-      local x_right = x_left + 1
-
-      --#if assert
-      assert(1 <= x_left and x_left <= cols - 1)
-      assert(2 <= x_right and x_right <= cols)
-      assert(1 <= y and y <= rows)
-      --#endif
-
-      if is_garbage(_ENV, x_left, y) or is_garbage(_ENV, x_right, y) then
-        return false
-      end
-
-      local left_gate = gates[x_left][y]
-      local right_gate = gates[x_right][y]
-
-      if not (left_gate:is_idle() and right_gate:is_idle()) then
-        return false
-      end
-
-      -- 回路が A--[AB]--B のようになっている場合
-      -- [AB] は入れ替えできない
-      if left_gate.other_x and right_gate.other_x then
-        if left_gate.other_x ~= x_right then
-          return false
-        end
-      end
-
-      -- 回路が A--[A?] のようになっている場合
-      -- [A?] は入れ替えできない。
-      if left_gate.other_x and left_gate.other_x < x_left and not right_gate:is_i() then
-        return false
-      end
-
-      -- 回路が [?A]--A のようになっている場合も、
-      -- [?A] は入れ替えできない。
-      if not left_gate:is_i() and right_gate.other_x and x_right < right_gate.other_x then
-        return false
-      end
-
-      left_gate:swap_with_right(x_right)
-      right_gate:swap_with_left(x_left)
-
-      return true
-    end,
-
-    -- x, y がおじゃまゲートの一部であるかどうかを返す
-    is_garbage = function(_ENV, x, y)
-      for tmp_x = 1, x - 1 do
-        local gate = gates[tmp_x][y]
-
-        if gate:is_garbage() and x <= tmp_x + gate.span - 1 then
-          return true
-        end
-      end
-
-      return gates[x][y]:is_garbage()
-    end,
-
-    gates_piled_up = function(_ENV)
-      if raised_dots ~= tile_size - 1 then
-        return false
-      end
-
-      for x = 1, cols do
-        if not is_empty(_ENV, x, 1) then
-          return true
-        end
-      end
-
-      return false
     end,
 
     reduce_gates = function(_ENV, game, player, other_board)
@@ -436,7 +312,7 @@ function create_board(_offset_x)
 
     -- ボード上の Y 座標を画面上の Y 座標に変換
     screen_y = function(_ENV, y)
-      return offset_y + (y - 1) * tile_size - raised_dots + bounce_dy
+      return offset_y + (y - 1) * tile_size - raised_dots + bounce_screen_dy
     end,
 
     gate_at = function(_ENV, x, y)
@@ -459,38 +335,6 @@ function create_board(_offset_x)
       local gate_type = single_gate_types[flr(rnd(#single_gate_types)) + 1]
 
       return gate_type()
-    end,
-
-    -- x, y が空かどうかを返す
-    -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
-    is_empty = function(_ENV, x, y)
-      if is_empty_cache[x] == nil then
-        is_empty_cache[x] = {}
-      end
-
-      local result = is_empty_cache[x][y]
-
-      if result == nil then
-        result = is_empty_nocache(_ENV, x, y)
-        is_empty_cache[x][y] = result
-      end
-
-      return result
-    end,
-
-    is_empty_nocache = function(_ENV, x, y)
-      for tmp_x = 1, x - 1 do
-        local gate = gates[tmp_x][y]
-
-        if gate:is_garbage() and (not gate:is_empty()) and x <= tmp_x + gate.span - 1 then
-          return false
-        end
-        if gate.other_x and (not gate:is_empty()) and x < gate.other_x then
-          return false
-        end
-      end
-
-      return gates[x][y]:is_empty()
     end,
 
     remove_gate = function(_ENV, x, y)
@@ -560,21 +404,6 @@ function create_board(_offset_x)
       return false
     end,
 
-    -- x, y が CNOT の一部であるかどうかを返す
-    -- FIXME: is_cnot → is_part_of_cnot
-    is_cnot = function(_ENV, x, y)
-      for tmp_x = 1, x - 1 do
-        local gate = gates[tmp_x][y]
-
-        if (gate:is_cnot_x() or gate:is_control()) and x < gate.other_x then
-          return true
-        end
-      end
-
-      local gate = gates[x][y]
-      return gate:is_cnot_x() or gate:is_control()
-    end,
-
     insert_gates_at_bottom = function(_ENV, steps)
       -- 各ゲートを 1 つ上にずらす
       for y = 1, row_next_gates - 1 do
@@ -626,35 +455,232 @@ function create_board(_offset_x)
       garbage:fall()
     end,
 
-    bounce = function(_ENV)
-      tick_bounce = 0
-      dy = -4
-      bounce_dy = 0
-    end,
-
-    update_bounce = function(_ENV)
-      tick_bounce = tick_bounce + 1
-
-      dy = dy + 0.9
-      bounce_dy = bounce_dy + dy
-
-      if bounce_dy > 0 then
-        bounce_dy, dy = 0, -dy
-      end
-
-      if dy == 0 then
-        tick_bounde = nil
-      end
-    end,
-
     game_over = function(_ENV)
       local center_x, center_y = offset_x + width / 2, offset_y + height / 2
 
       draw_rounded_box(center_x - 22, center_y - 7,
-                       center_x + 20, center_y + 22,
-                       colors.dark_blue, colors.white)
+        center_x + 20, center_y + 22,
+        colors.dark_blue, colors.white)
       print_centered("game over", center_x, center_y, colors.red)
       print_centered("push x\nto replay", center_x, center_y + character_height * 2, colors.black)
+    end,
+
+    top_gate_y = function(_ENV)
+      for y = 1, rows do
+        for x = 1, cols do
+          if not is_empty(_ENV, x, y) then
+            return y
+          end
+        end
+      end
+
+      return rows
+    end,
+
+    -------------------------------------------------------------------------------
+    -- ユーザーによるゲート操作
+    -------------------------------------------------------------------------------
+
+    -- (x_left, y) と (x_left + 1, y) のゲートを入れ替える
+    -- 入れ替えできた場合は true を、そうでない場合は false を返す
+    swap = function(_ENV, x_left, y)
+      local x_right = x_left + 1
+
+      --#if assert
+      assert(1 <= x_left and x_left <= cols - 1)
+      assert(2 <= x_right and x_right <= cols)
+      assert(1 <= y and y <= rows)
+      --#endif
+
+      if is_part_of_garbage(_ENV, x_left, y) or is_part_of_garbage(_ENV, x_right, y) then
+        return false
+      end
+
+      local left_gate = gates[x_left][y]
+      local right_gate = gates[x_right][y]
+
+      if not (left_gate:is_idle() and right_gate:is_idle()) then
+        return false
+      end
+
+      -- 回路が A--[AB]--B のようになっている場合
+      -- [AB] は入れ替えできない
+      if left_gate.other_x and right_gate.other_x then
+        if left_gate.other_x ~= x_right then
+          return false
+        end
+      end
+
+      -- 回路が A--[A?] のようになっている場合
+      -- [A?] は入れ替えできない。
+      if left_gate.other_x and left_gate.other_x < x_left and not right_gate:is_i() then
+        return false
+      end
+
+      -- 回路が [?A]--A のようになっている場合も、
+      -- [?A] は入れ替えできない。
+      if not left_gate:is_i() and right_gate.other_x and x_right < right_gate.other_x then
+        return false
+      end
+
+      left_gate:swap_with_right(x_right)
+      right_gate:swap_with_left(x_left)
+
+      return true
+    end,
+
+    -------------------------------------------------------------------------------
+    -- update, render
+    -------------------------------------------------------------------------------
+
+    update = function(_ENV, game, player, other_board)
+      if _gates_piled_up(_ENV) or win ~= nil then
+        state = "over"
+      end
+
+      _update_bounce(_ENV)
+
+      if state == "play" then
+        _update_game(_ENV, game, player, other_board)
+      elseif state == "over" then
+        -- NOP
+      end
+    end,
+
+    _gates_piled_up = function(_ENV)
+      if raised_dots == tile_size - 1 then
+        for x = 1, cols do
+          if not is_empty(_ENV, x, 1) then
+            return true
+          end
+        end
+      end
+
+      return false
+    end,
+
+    _update_game = function(_ENV, game, player, other_board)
+      if changed then
+        reduce_gates(_ENV, game, player, other_board)
+        changed = false
+      end
+
+      fall_gates(_ENV)
+
+      -- すべてのゲートを更新
+      -- swap などのペアとなるゲートを正しく落とすために、
+      -- 一番下の行から上に向かって順番に update していく
+      for y = row_next_gates, 1, -1 do
+        for x = 1, cols do
+          gates[x][y]:update(_ENV, x, y)
+        end
+      end
+
+      for chain_id, _ in pairs(chain_count) do
+        -- 連鎖可能フラグ (chain_id) の立ったゲートが 1 つもなかった場合、
+        -- chain_count をリセット
+        for x = 1, cols do
+          for y = 1, rows do
+            if gates[x][y].chain_id == chain_id then
+              goto next_chain_id
+            end
+          end
+        end
+        chain_count[chain_id] = nil
+
+        ::next_chain_id::
+      end
+    end,
+
+    -------------------------------------------------------------------------------
+    -- おじゃまユニタリが接地したときの bounce エフェクト
+    -------------------------------------------------------------------------------
+
+    -- bounce エフェクトを開始
+    bounce = function(_ENV)
+      bounce_screen_dy = 0 -- bounce による Y 方向のずれ
+      bounce_speed = -4 -- Y 方向の速度
+    end,
+
+    _update_bounce = function(_ENV)
+      if bounce_speed ~= 0 then
+        bounce_speed = bounce_speed + 0.9
+        bounce_screen_dy = bounce_screen_dy + bounce_speed
+
+        if bounce_screen_dy > 0 then
+          bounce_screen_dy, bounce_speed = 0, -bounce_speed
+        end
+      end
+    end,
+
+    -------------------------------------------------------------------------------
+    -- ゲートの種類判定
+    -------------------------------------------------------------------------------
+
+    -- TODO: board:is_part_of_swap の条件も追加
+    is_single_gate = function(_ENV, x, y)
+      return not (is_empty(_ENV, x, y) or
+          is_part_of_garbage(_ENV, x, y) or
+          is_part_of_cnot(_ENV, x, y))
+    end,
+
+    -- x, y が空かどうかを返す
+    -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
+    is_empty = function(_ENV, x, y)
+      if is_empty_cache[x] == nil then
+        is_empty_cache[x] = {}
+      end
+
+      local result = is_empty_cache[x][y]
+
+      if result == nil then
+        result = _is_empty_nocache(_ENV, x, y)
+        is_empty_cache[x][y] = result
+      end
+
+      return result
+    end,
+
+    _is_empty_nocache = function(_ENV, x, y)
+      for tmp_x = 1, x - 1 do
+        local gate = gates[tmp_x][y]
+
+        if gate:is_garbage() and (not gate:is_empty()) and x <= tmp_x + gate.span - 1 then
+          return false
+        end
+        if gate.other_x and (not gate:is_empty()) and x < gate.other_x then
+          return false
+        end
+      end
+
+      return gates[x][y]:is_empty()
+    end,
+
+    -- x, y がおじゃまゲートの一部であるかどうかを返す
+    is_part_of_garbage = function(_ENV, x, y)
+      for tmp_x = 1, x - 1 do
+        local gate = gates[tmp_x][y]
+
+        if gate:is_garbage() and x <= tmp_x + gate.span - 1 then
+          return true
+        end
+      end
+
+      return gates[x][y]:is_garbage()
+    end,
+
+    -- x, y が CNOT の一部であるかどうかを返す
+    is_part_of_cnot = function(_ENV, x, y)
+      for tmp_x = 1, x - 1 do
+        local gate = gates[tmp_x][y]
+
+        if (gate:is_cnot_x() or gate:is_control()) and x < gate.other_x then
+          return true
+        end
+      end
+
+      local gate = gates[x][y]
+      return gate:is_cnot_x() or gate:is_control()
     end,
 
     -------------------------------------------------------------------------------
