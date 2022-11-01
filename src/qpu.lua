@@ -21,33 +21,23 @@ function create_qpu(cursor)
         for new_x = 1, board.cols - 1 do
           for new_y = board.rows - 1, 1, -1 do
             local left_gate = board._gates[new_x][new_y]
+            local right_gate = board._gates[new_x][new_y]
 
-            -- CNOT を消すための戦略:
-            --   1. みつけたらとにかく縮める (右方向に)
-            --   2. 同じ方向にそろえる
-            --   3. 可能なら右によせる
-
-            -- CNOT を縮める
+            -- CNOT を消す戦略:
             --
+            -- 1. CNOT を縮める
             -- [X-]--C
             -- [C-]--X
-            if (left_gate:is_cnot_x() or left_gate:is_control()) and new_x + 1 < left_gate.other_x then
-              move_and_swap(_ENV, new_x, new_y)
-              return
-            end
-
-            -- CNOT を同じ方向にそろえる
             --
+            -- 2. CNOT を同じ方向にそろえる
             -- C-X --> X-C
-            if left_gate:is_control() and left_gate.other_x == new_x + 1 then
-              move_and_swap(_ENV, new_x, new_y)
-              return
-            end
-
-            -- CNOT を右に移動する
+            --
+            -- 3. CNOT を右に移動
             --
             -- X-[C ]
-            if left_gate:is_control() and left_gate.other_x < new_x and board:is_empty(new_x + 1, new_y) then
+            if ((left_gate:is_cnot_x() or left_gate:is_control()) and new_x + 1 < left_gate.other_x) or
+                (left_gate:is_control() and left_gate.other_x == new_x + 1) or
+                (left_gate:is_control() and left_gate.other_x < new_x and board:is_empty(new_x + 1, new_y)) then
               move_and_swap(_ENV, new_x, new_y)
               return
             end
@@ -56,8 +46,9 @@ function create_qpu(cursor)
             --
             -- [X  ]
             --  ■ X
-            if is_single_gate(_ENV, new_x, new_y) and (is_single_gate(_ENV, new_x + 1, new_y) or board:is_empty(new_x + 1, new_y)) and
-                board:gate_at(new_x, new_y).type == board:gate_at(new_x + 1, new_y + 1).type then
+            if is_single_gate(_ENV, new_x, new_y) and
+                (is_single_gate(_ENV, new_x + 1, new_y) or board:is_empty(new_x + 1, new_y)) and
+                left_gate.type == board:gate_at(new_x + 1, new_y + 1).type then
               move_and_swap(_ENV, new_x, new_y)
               return
             end
@@ -66,8 +57,9 @@ function create_qpu(cursor)
             --
             -- [  X]
             --  X ■
-            if (is_single_gate(_ENV, new_x, new_y) or board:is_empty(new_x, new_y)) and is_single_gate(_ENV, new_x + 1, new_y) and
-                board:gate_at(new_x + 1, new_y).type == board:gate_at(new_x, new_y + 1).type then
+            if (is_single_gate(_ENV, new_x, new_y) or board:is_empty(new_x, new_y)) and
+                is_single_gate(_ENV, new_x + 1, new_y) and
+                right_gate.type == board:gate_at(new_x, new_y + 1).type then
               move_and_swap(_ENV, new_x, new_y)
               return
             end
@@ -95,21 +87,17 @@ function create_qpu(cursor)
         end
 
         -- 何もすることがない場合、ランダムに入れ替える
-        -- NOTE: カーソルは 2 個分の幅があるので、ボードの右端には移動できない
-        local new_x = flr(rnd(board.cols - 1)) + 1
-        local new_y = flr(rnd(board.rows)) + 1
+        local random_x = flr(rnd(board.cols - 1)) + 1
+        local random_y = flr(rnd(board.rows)) + 1
 
-        -- x, y で入れ替えをする意味がある/可能な場合、
-        -- x, y まで移動 (move) & 入れ替え (swap) のコマンドを積み上げる
-        if not
-            (
-            (board:is_empty(new_x, new_y) and board:is_empty(new_x + 1, new_y)) or
-                board:is_garbage(new_x, new_y) or
-                board:is_cnot(new_x, new_y) or
-                board:is_garbage(new_x + 1, new_y) or
-                board:is_cnot(new_x + 1, new_y) or
-                board:gate_at(new_x, new_y).type == board:gate_at(new_x + 1, new_y).type) then
-          move_and_swap(_ENV, new_x, new_y)
+        -- x, y で入れ替えをする意味がある/可能であるかを調べる
+        if not ((board:is_empty(random_x, random_y) and board:is_empty(random_x + 1, random_y)) or
+            board:is_garbage(random_x, random_y) or
+            board:is_cnot(random_x, random_y) or
+            board:is_garbage(random_x + 1, random_y) or
+            board:is_cnot(random_x + 1, random_y) or
+            board:gate_at(random_x, random_y).type == board:gate_at(random_x + 1, random_y).type) then
+          move_and_swap(_ENV, random_x, random_y)
         end
       end
     end,
