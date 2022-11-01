@@ -24,6 +24,7 @@ function board:_init(offset_x)
   self.changed = false
   self.bounce_dy = 0
   self.chain_count = {}
+  self.is_empty_cache = {}
 end
 
 function board:init()
@@ -471,6 +472,21 @@ end
 -- x, y が空かどうかを返す
 -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
 function board:is_empty(x, y)
+  if self.is_empty_cache[x] == nil then
+    self.is_empty_cache[x] = {}
+  end
+
+  local result = self.is_empty_cache[x][y]
+
+  if result == nil then
+    result = self:is_empty_nocache(x, y)
+    self.is_empty_cache[x][y] = result
+  end
+
+  return result
+end
+
+function board:is_empty_nocache(x, y)
   for tmp_x = 1, x - 1 do
     local gate = self:gate_at(tmp_x, y)
 
@@ -526,6 +542,7 @@ function board:put(x, y, gate)
 
   self.gates[x][y] = gate
   self.changed = true
+  self.is_empty_cache = {}
 end
 
 function board:put_random_gate(x, y)
@@ -537,6 +554,7 @@ end
 function board:remove_gate(x, y)
   self:put(x, y, i_gate())
   self.changed = true
+  self.is_empty_cache = {}
 end
 
 function board:fall_garbage()
