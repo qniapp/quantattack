@@ -10,47 +10,47 @@ local game = game_class()
 
 local board_class = require("board")
 
-local board = board_class(3)
-board.attack_cube_target = { 78, 15 }
+local qpu1_board = board_class(3)
+qpu1_board.attack_cube_target = { 78, 15 }
 
-local qpu_board = board_class(78)
-qpu_board.attack_cube_target = { 48, 15, "left" }
+local qpu2_board = board_class(78)
+qpu2_board.attack_cube_target = { 48, 15, "left" }
 
 require("player_cursor")
-local player_cursor = create_player_cursor(board)
-local qpu_cursor = create_player_cursor(qpu_board)
+local qpu1_cursor = create_player_cursor(qpu1_board)
+local qpu2_cursor = create_player_cursor(qpu2_board)
 
-require("player")
+-- require("player")
 require("qpu")
-local player = create_player()
-local qpu = create_qpu(qpu_cursor)
+local qpu1 = create_qpu(qpu1_cursor)
+local qpu2 = create_qpu(qpu2_cursor)
 
 vs.type = ':vs'
 
 function vs:on_enter()
-  player:init()
-  board:initialize_with_random_gates()
-  player_cursor:init()
+  qpu1:init()
+  qpu1_board:initialize_with_random_gates()
+  qpu1_cursor:init()
 
-  qpu:init()
-  qpu_board:initialize_with_random_gates()
-  qpu_cursor:init()
+  qpu2:init()
+  qpu2_board:initialize_with_random_gates()
+  qpu2_cursor:init()
 
   game:init()
-  game:add_player(player, player_cursor, board, qpu_board)
-  game:add_player(qpu, qpu_cursor, qpu_board, board)
+  game:add_player(qpu1, qpu1_cursor, qpu1_board, qpu2_board)
+  game:add_player(qpu2, qpu2_cursor, qpu2_board, qpu1_board)
 end
 
 function vs:update()
-  if board:is_game_over() and board.win == nil then
-    board.win = false
-    qpu_board.win = true
-  elseif qpu_board:is_game_over() and qpu_board.win == nil then
-    board.win = true
-    qpu_board.win = false
+  if qpu1_board:is_game_over() and qpu1_board.win == nil then
+    qpu1_board.win = false
+    qpu2_board.win = true
+  elseif qpu2_board:is_game_over() and qpu2_board.win == nil then
+    qpu1_board.win = true
+    qpu2_board.win = false
   end
 
-  if board:is_game_over() or qpu_board:is_game_over() then
+  if qpu1_board:is_game_over() or qpu2_board:is_game_over() then
     if btnp(5) then
       flow:query_gamestate_type(':title')
     end
