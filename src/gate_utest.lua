@@ -1,8 +1,6 @@
 require("engine/test/bustedhelper")
 require("gate")
 
-local gate = require("gate")
-
 describe('gate', function()
   describe('render', function()
     it('should render without errors', function()

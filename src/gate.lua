@@ -264,29 +264,8 @@ function create_gate(_type, _span)
           _state, right_gate._state = "idle", "idle"
         end
       elseif is_falling(_ENV) then
-        _screen_dy = _screen_dy + gate_fall_speed
-        local new_y = y
-        if _screen_dy >= tile_size then
-          new_y = new_y + 1
-        end
-
-        if new_y == y then
-          -- 同じ場所にとどまっている場合、何もしない
-        elseif board:is_gate_fallable(x, y) then
-          -- 一個下が空いている場合、そこに移動する
-          board:remove_gate(x, y)
-          board:put(x, new_y, _ENV)
-          _screen_dy = _screen_dy - tile_size
-
-          if other_x and x < other_x then
-            local other_gate = board:gate_at(other_x, y)
-            board:remove_gate(other_x, y)
-            board:put(other_x, new_y, other_gate)
-            other_gate._screen_dy = _screen_dy
-          end
-        else
-          -- 一個下が空いていない場合、落下を終了
-
+        -- 一個下が空いていない場合、落下を終了
+        if not board:is_gate_fallable(x, y) then
           -- おじゃまユニタリの最初の落下
           if _garbage_first_drop then
             board:bounce()
@@ -308,6 +287,28 @@ function create_gate(_type, _span)
           end
 
           board.changed = true
+        else
+          _screen_dy = _screen_dy + gate_fall_speed
+          local new_y = y
+          if _screen_dy >= tile_size then
+            new_y = new_y + 1
+          end
+
+          if new_y == y then
+            -- 同じ場所にとどまっている場合、何もしない
+          elseif board:is_gate_fallable(x, y) then
+            -- 一個下が空いている場合、そこに移動する
+            board:remove_gate(x, y)
+            board:put(x, new_y, _ENV)
+            _screen_dy = _screen_dy - tile_size
+
+            if other_x and x < other_x then
+              local other_gate = board:gate_at(other_x, y)
+              board:remove_gate(other_x, y)
+              board:put(other_x, new_y, other_gate)
+              other_gate._screen_dy = _screen_dy
+            end
+          end
         end
       elseif is_match(_ENV) then
         --#if assert
