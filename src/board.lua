@@ -294,16 +294,12 @@ function create_board(_offset_x)
     -------------------------------------------------------------------------------
 
     gate_at = function(_ENV, x, y)
-      --#if assert
       assert(1 <= x and x <= cols, "x = " .. x)
       assert(1 <= y and y <= row_next_gates, "y = " .. y)
-      --#endif
 
       local gate = gates[x][y]
 
-      --#if assert
       assert(gate)
-      --#endif
 
       return gate
     end,

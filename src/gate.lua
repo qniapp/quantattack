@@ -210,9 +210,7 @@ function create_gate(_type, _span)
           end
         end
       elseif is_swapping(_ENV) then
-        --#if assert
         assert(not is_garbage(_ENV))
-        --#endif
 
         if _tick_swap < swap_animation_frame_count then
           _tick_swap = _tick_swap + 1
@@ -221,10 +219,8 @@ function create_gate(_type, _span)
           local new_x = x + 1
           local right_gate = board:gate_at(new_x, y)
 
-          --#if assert
           assert(_is_swapping_with_right(_ENV), _state)
           assert(right_gate:_is_swapping_with_left(), right_gate._state)
-          --#endif
 
           if not right_gate:is_i() then
             create_particle_set(board:screen_x(x) - 2, board:screen_y(y) + 3,
@@ -256,9 +252,7 @@ function create_gate(_type, _span)
           elseif other_x and right_gate.other_x then -- 4.
             other_x, right_gate.other_x = x, new_x
           else
-            --#if assert
             assert(false, "we should not reach here")
-            --#endif
           end
 
           _state, right_gate._state = "idle", "idle"

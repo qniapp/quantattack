@@ -2,7 +2,7 @@ require("engine/test/bustedhelper")
 require("board")
 require("gate")
 
-describe('gate', function()
+describe('ゲートの落下', function()
   local board
 
   before_each(function()
@@ -189,6 +189,35 @@ describe('gate', function()
       board:update()
       board:update()
 
+      assert.is_true(swap_left:is_idle())
+      assert.is_true(swap_right:is_idle())
+    end)
+
+    it('下のゲートをずらして落とす', function()
+      --
+      -- S-S  --->  S-S    --->
+      --   H            H        S-S H
+      board:put(1, 11, swap_left)
+      board:put(2, 11, swap_right)
+      board:put(2, 12, h_gate())
+
+      board:swap(2, 12)
+
+      -- swap が 4 フレーム
+      board:update()
+      board:update()
+      board:update()
+      board:update()
+
+      -- 4 フレームでひとつ下に落ち idle 状態に
+      board:update()
+      board:update()
+      board:update()
+      board:update()
+      board:update()
+
+      assert.are_equal(swap_left, board:gate_at(1, 12))
+      assert.are_equal(swap_right, board:gate_at(2, 12))
       assert.is_true(swap_left:is_idle())
       assert.is_true(swap_right:is_idle())
     end)
