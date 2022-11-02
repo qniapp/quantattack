@@ -44,7 +44,7 @@ function solo:render() -- override
   -- solo 独自の処理
 
   -- スコア表示
-  color(colors.white)
+  color(7)
   cursor(board.offset_x * 2 + board.width, board.offset_y)
   print("score " .. player.score .. (player.score == 0 and "" or "0"))
 

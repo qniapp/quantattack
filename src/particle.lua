@@ -1,4 +1,5 @@
 ---@diagnostic disable: lowercase-global
+require("engine/render/color")
 
 all_particles = {}
 

@@ -386,9 +386,9 @@ function create_board(_offset_x)
 
       draw_rounded_box(center_x - 22, center_y - 7,
         center_x + 20, center_y + 22,
-        colors.dark_blue, colors.white)
-      print_centered("game over", center_x, center_y, colors.red)
-      print_centered("push x\nto replay", center_x, center_y + character_height * 2, colors.black)
+        1, 7)
+      print_centered("game over", center_x, center_y, 8)
+      print_centered("push x\nto replay", center_x, center_y + character_height * 2, 0)
     end,
 
     -------------------------------------------------------------------------------
@@ -467,7 +467,7 @@ function create_board(_offset_x)
         local line_x = screen_x(_ENV, x) + 3
         line(line_x, offset_y,
           line_x, offset_y + height,
-          colors.dark_gray)
+          5)
       end
 
       -- draw gates
@@ -479,7 +479,7 @@ function create_board(_offset_x)
             local connection_y = scr_y + 3
             line(scr_x + 3, connection_y,
               screen_x(_ENV, gate.other_x) + 3, connection_y,
-              colors.yellow)
+              10)
           end
 
           gate:render(scr_x, scr_y)
@@ -495,14 +495,14 @@ function create_board(_offset_x)
         local center_x, center_y = offset_x + width / 2, offset_y + height / 2
 
         draw_rounded_box(center_x - 22, center_y - 7, center_x + 20, center_y + 7,
-          colors.dark_blue, colors.white)
-        print_centered("win", center_x, center_y, colors.red)
+          1, 7)
+        print_centered("win", center_x, center_y, 8)
       elseif win == false then
         local center_x, center_y = offset_x + width / 2, offset_y + height / 2
 
         draw_rounded_box(center_x - 22, center_y - 7, center_x + 20, center_y + 7,
-          colors.dark_blue, colors.white)
-        print_centered("lose", center_x, center_y, colors.dark_gray)
+          1, 7)
+        print_centered("lose", center_x, center_y, 5)
       end
     end,
 

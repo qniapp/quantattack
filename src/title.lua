@@ -9,7 +9,8 @@ title.type = ':title'
 -- sequence of menu items to display, with their target states
 title._items = {
   menu_item("solo", ':solo'),
-  menu_item("vs qpu", ':vs')
+  menu_item("vs qpu", ':vs'),
+  menu_item("qpu vs qpu", ':qpu_vs_qpu')
 }
 
 local text_menu = text_menu_class(title._items)
@@ -24,7 +25,7 @@ function title:render()
   spr(128, 29, 35, 9, 2)
 
   -- メニューを表示
-  text_menu:draw(48, 72) -- 40 + 4 * character_height
+  text_menu:draw(40, 72) -- 40 + 4 * character_height
 end
 
 return title

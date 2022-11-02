@@ -125,13 +125,13 @@ function create_qpu(cursor)
     add_move_command = function(_ENV, direction, count)
       for i = 1, count do
         add(commands, direction)
-        -- add_sleep_command(_ENV, 5)
+        add_sleep_command(_ENV, 5)
       end
     end,
 
     add_swap_command = function(_ENV)
       add(commands, "o")
-      -- add_sleep_command(_ENV, 20)
+      add_sleep_command(_ENV, 20)
     end,
 
     add_raise_command = function(_ENV)

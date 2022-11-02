@@ -25,7 +25,7 @@ function game.combo_callback(combo_count, x, y, player, board, other_board)
   end
 
   create_bubble("combo", combo_count, board:screen_x(x), board:screen_y(y))
-  create_attack_cube(combo_count, board:screen_x(x), board:screen_y(y), attack_cube_callback,
+  create_attack_cube(board:screen_x(x), board:screen_y(y), attack_cube_callback,
     unpack(board.attack_cube_target))
 end
 
@@ -42,7 +42,7 @@ function game.chain_callback(chain_count, x, y, player, board, other_board)
     end
 
     create_bubble("chain", chain_count, board:screen_x(x), board:screen_y(y))
-    create_attack_cube(chain_count, board:screen_x(x), board:screen_y(y), attack_cube_callback,
+    create_attack_cube(board:screen_x(x), board:screen_y(y), attack_cube_callback,
       unpack(board.attack_cube_target))
   end
 end
@@ -136,7 +136,7 @@ function game:render() -- override
   render_bubbles()
   render_attack_cubes()
 
-  color(colors.white)
+  color(7)
   cursor(1, 1)
   print(stat(1))
   cursor(1, 8)
