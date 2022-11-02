@@ -37,7 +37,6 @@ function create_qpu(cursor)
             -- C-X --> X-C
             --
             -- 3. CNOT を右に移動
-            --
             -- X-[C ]
             if ((left_gate:is_cnot_x() or left_gate:is_control()) and new_x + 1 < left_gate.other_x) or
                 (left_gate:is_control() and left_gate.other_x == new_x + 1) or
