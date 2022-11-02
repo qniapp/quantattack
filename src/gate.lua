@@ -8,7 +8,7 @@ gate.match_animation_frame_count = 45
 gate.match_delay_per_gate = 15
 gate.swap_animation_frame_count = 4
 
-local fall_speed = 3
+local fall_speed = 2
 
 local sprites = {
   h = {
@@ -176,9 +176,9 @@ function gate:update(board, x, y)
       if self.other_x == nil and right_gate.other_x == nil then -- 1.
         -- NOP
       elseif not self:is_i() and right_gate:is_i() then -- 2.
-        board:gate_at(self.other_x, y).other_x = new_x
+        board.gates[self.other_x][y].other_x = new_x
       elseif self:is_i() and not right_gate:is_i() then -- 3.
-        board:gate_at(right_gate.other_x, y).other_x = x
+        board.gates[right_gate.other_x][y].other_x = x
       elseif self.other_x and right_gate.other_x then -- 4.
         self.other_x, right_gate.other_x = x, new_x
       else
@@ -337,10 +337,6 @@ end
 
 function gate:is_falling()
   return self._state == "falling"
-end
-
-function gate:is_landed()
-  return self._state == "landed"
 end
 
 -------------------------------------------------------------------------------

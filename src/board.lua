@@ -51,17 +51,6 @@ function create_board(_offset_x)
       end
     end,
 
-    put = function(_ENV, x, y, gate)
-      --#if assert
-      assert(1 <= x and x <= cols, x)
-      assert(1 <= y and y <= row_next_gates, y)
-      --#endif
-
-      gates[x][y] = gate
-      changed = true
-      is_empty_cache = {}
-    end,
-
     reduce_gates = function(_ENV, game, player, other_board)
       -- 同時消しで変化したゲートの数
       -- 同じフレーム内で一度に消えたゲートを数えるため、
@@ -251,60 +240,6 @@ function create_board(_offset_x)
       return reduction
     end,
 
-    reducible_gate_at = function(_ENV, x, y)
-      local gate = gates[x][y]
-
-      return gate:is_reducible() and gate or i_gate()
-    end,
-
-    fall_gates = function(_ENV)
-      for y = rows - 1, 1, -1 do
-        for x = 1, cols do
-          local gate = gates[x][y]
-
-          if gate:is_fallable() and is_gate_fallable(_ENV, x, y) then
-            if gate.other_x then
-              if x < gate.other_x and gates[gate.other_x][y]:is_fallable() then
-                gate:fall()
-                gates[gate.other_x][y]:fall()
-              end
-            else
-              gate:fall()
-            end
-          end
-        end
-      end
-    end,
-
-    -- 指定したゲートが行 gate_y + 1 に落とせるかどうかを返す。
-    is_gate_fallable = function(_ENV, gate_x, gate_y)
-      --#if assert
-      assert(1 <= gate_x and gate_x <= cols)
-      assert(1 <= gate_y and gate_y <= row_next_gates)
-      --#endif
-
-      if gate_y == rows then
-        return false
-      end
-
-      local gate = gates[gate_x][gate_y]
-      local start_x, end_x
-
-      if gate.other_x then
-        start_x, end_x = min(gate_x, gate.other_x), max(gate_x, gate.other_x)
-      else
-        start_x, end_x = gate_x, gate_x + gate.span - 1
-      end
-
-      for x = start_x, end_x do
-        if not is_empty(_ENV, x, gate_y + 1) then
-          return false
-        end
-      end
-
-      return true
-    end,
-
     -- ボード上の X 座標を画面上の X 座標に変換
     screen_x = function(_ENV, x)
       return offset_x + (x - 1) * tile_size
@@ -315,32 +250,11 @@ function create_board(_offset_x)
       return offset_y + (y - 1) * tile_size - raised_dots + bounce_screen_dy
     end,
 
-    gate_at = function(_ENV, x, y)
-      --#if assert
-      assert(1 <= x and x <= cols, "x = " .. x)
-      assert(1 <= y and y <= row_next_gates, "y = " .. y)
-      --#endif
-
-      local gate = gates[x][y]
-
-      --#if assert
-      assert(gate)
-      --#endif
-
-      return gate
-    end,
-
     _random_single_gate = function(_ENV)
       local single_gate_types = { h_gate, x_gate, y_gate, z_gate, s_gate, t_gate }
       local gate_type = single_gate_types[flr(rnd(#single_gate_types)) + 1]
 
       return gate_type()
-    end,
-
-    remove_gate = function(_ENV, x, y)
-      put(_ENV, x, y, i_gate())
-      changed = true
-      is_empty_cache = {}
     end,
 
     render = function(_ENV)
@@ -388,8 +302,20 @@ function create_board(_offset_x)
       end
     end,
 
-    is_game_over = function(_ENV)
-      return state == "over"
+    -------------------------------------------------------------------------------
+    -- board の状態
+    -------------------------------------------------------------------------------
+
+    top_gate_y = function(_ENV)
+      for y = 1, rows do
+        for x = 1, cols do
+          if not is_empty(_ENV, x, y) then
+            return y
+          end
+        end
+      end
+
+      return rows
     end,
 
     is_busy = function(_ENV)
@@ -402,6 +328,66 @@ function create_board(_offset_x)
       end
 
       return false
+    end,
+
+    is_game_over = function(_ENV)
+      return state == "over"
+    end,
+
+    -------------------------------------------------------------------------------
+    -- board の操作
+    -------------------------------------------------------------------------------
+
+    gate_at = function(_ENV, x, y)
+      --#if assert
+      assert(1 <= x and x <= cols, "x = " .. x)
+      assert(1 <= y and y <= row_next_gates, "y = " .. y)
+      --#endif
+
+      local gate = gates[x][y]
+
+      --#if assert
+      assert(gate)
+      --#endif
+
+      return gate
+    end,
+
+    reducible_gate_at = function(_ENV, x, y)
+      local gate = gates[x][y]
+
+      return gate:is_reducible() and gate or i_gate()
+    end,
+
+    put = function(_ENV, x, y, gate)
+      --#if assert
+      assert(1 <= x and x <= cols, x)
+      assert(1 <= y and y <= row_next_gates, y)
+      --#endif
+
+      gates[x][y] = gate
+
+      changed = true
+      is_empty_cache = {}
+    end,
+
+    remove_gate = function(_ENV, x, y)
+      put(_ENV, x, y, i_gate())
+    end,
+
+    fall_garbage = function(_ENV)
+      local span = flr(rnd(4)) + 3
+      local x = flr(rnd(cols - span + 1)) + 1
+
+      for i = x, x + span - 1 do
+        if not is_empty(_ENV, x, 1) then
+          return
+        end
+      end
+
+      local garbage = garbage_gate(span)
+      put(_ENV, x, 1, garbage)
+      garbage:fall()
     end,
 
     insert_gates_at_bottom = function(_ENV, steps)
@@ -440,21 +426,6 @@ function create_board(_offset_x)
       end
     end,
 
-    fall_garbage = function(_ENV)
-      local span = flr(rnd(4)) + 3
-      local x = flr(rnd(cols - span + 1)) + 1
-
-      for i = x, x + span - 1 do
-        if not is_empty(_ENV, x, 1) then
-          return
-        end
-      end
-
-      local garbage = garbage_gate(span)
-      put(_ENV, x, 1, garbage)
-      garbage:fall()
-    end,
-
     game_over = function(_ENV)
       local center_x, center_y = offset_x + width / 2, offset_y + height / 2
 
@@ -463,18 +434,6 @@ function create_board(_offset_x)
         colors.dark_blue, colors.white)
       print_centered("game over", center_x, center_y, colors.red)
       print_centered("push x\nto replay", center_x, center_y + character_height * 2, colors.black)
-    end,
-
-    top_gate_y = function(_ENV)
-      for y = 1, rows do
-        for x = 1, cols do
-          if not is_empty(_ENV, x, y) then
-            return y
-          end
-        end
-      end
-
-      return rows
     end,
 
     -------------------------------------------------------------------------------
@@ -565,14 +524,29 @@ function create_board(_offset_x)
         changed = false
       end
 
-      fall_gates(_ENV)
-
-      -- すべてのゲートを更新
+      -- 落下と更新処理をすべてのゲートに対して行う。
+      --
       -- swap などのペアとなるゲートを正しく落とすために、
-      -- 一番下の行から上に向かって順番に update していく
+      -- 一番下の行から上に向かって順に処理
       for y = row_next_gates, 1, -1 do
         for x = 1, cols do
-          gates[x][y]:update(_ENV, x, y)
+          local gate = gates[x][y]
+
+          -- 落下できるゲートを落とす
+          if gate:is_fallable() and is_gate_fallable(_ENV, x, y) then
+            if gate.other_x then
+              local other_gate = gates[gate.other_x][y]
+              if x < gate.other_x and other_gate:is_fallable() and is_gate_fallable(_ENV, gate.other_x, y) then
+                gate:fall()
+                other_gate:fall()
+              end
+            else
+              gate:fall()
+            end
+          end
+
+          -- ゲートを更新
+          gate:update(_ENV, x, y)
         end
       end
 
@@ -681,6 +655,39 @@ function create_board(_offset_x)
 
       local gate = gates[x][y]
       return gate:is_cnot_x() or gate:is_control()
+    end,
+
+    -------------------------------------------------------------------------------
+    -- ゲートの状態
+    -------------------------------------------------------------------------------
+
+    -- ゲート x, y が x, y + 1 に落とせるかどうかを返す。
+    is_gate_fallable = function(_ENV, x, y)
+      --#if assert
+      assert(1 <= x and x <= cols)
+      assert(1 <= y and y <= row_next_gates)
+      --#endif
+
+      if y >= rows then
+        return false
+      end
+
+      local gate = gates[x][y]
+      local start_x, end_x
+
+      if gate.other_x then
+        start_x, end_x = min(x, gate.other_x), max(x, gate.other_x)
+      else
+        start_x, end_x = x, x + gate.span - 1
+      end
+
+      for tmp_x = start_x, end_x do
+        if not is_empty(_ENV, tmp_x, y + 1) then
+          return false
+        end
+      end
+
+      return true
     end,
 
     -------------------------------------------------------------------------------

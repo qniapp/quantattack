@@ -38,7 +38,7 @@ describe('連鎖 (chain)', function()
     board:put(1, 12, h_gate())
     board:put(1, 13, t_gate())
 
-    for i = 0, 82 do
+    for i = 0, 83 do
       board:update()
     end
 
@@ -67,7 +67,7 @@ describe('連鎖 (chain)', function()
     board:put(1, 11, h_gate())
     board:put(1, 12, x_gate())
 
-    for i = 0, 82 do
+    for i = 0, 83 do
       board:update()
     end
 
@@ -115,7 +115,7 @@ describe('連鎖 (chain)', function()
     board:put(1, 12, h_gate())
     board:put(1, 13, t_gate())
 
-    for i = 1, 83 do
+    for i = 1, 84 do
       board:update()
     end
 

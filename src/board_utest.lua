@@ -1088,16 +1088,6 @@ describe('board', function()
     -- end)
   end)
 
-  describe('fall_gates', function()
-    it('should drop gates', function()
-      board:put(1, 1, h_gate())
-
-      board:fall_gates()
-
-      assert.is_true(board:gate_at(1, 1):is_falling())
-    end)
-  end)
-
   describe('update', function()
     it('should drop swap pair', function()
       board:put(1, 11, swap_gate(3))
