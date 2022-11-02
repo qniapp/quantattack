@@ -145,4 +145,92 @@ describe('gate', function()
       assert.is_true(cnot_x:is_idle())
     end)
   end)
+
+  describe('SWAP ゲートが落ちる', function()
+    local swap_left, swap_right
+
+    before_each(function()
+      swap_left = swap_gate(2)
+      swap_right = swap_gate(1)
+    end)
+
+    it("状態が falling になる", function()
+      board:put(1, 11, swap_left)
+      board:put(2, 11, swap_right)
+
+      board:update()
+
+      assert.is_true(swap_left:is_falling())
+      assert.is_true(swap_right:is_falling())
+    end)
+
+    it("4 フレームで 1 ゲートほど落下する", function()
+      board:put(1, 11, swap_left)
+      board:put(2, 11, swap_right)
+
+      board:update()
+      board:update()
+      board:update()
+      board:update()
+
+      assert.is_true(swap_left:is_falling())
+      assert.is_true(swap_right:is_falling())
+      assert.are_equal(swap_left, board:gate_at(1, 12))
+      assert.are_equal(swap_right, board:gate_at(2, 12))
+    end)
+
+    it("着地後 1 フレームで状態が idle になる", function()
+      board:put(1, 11, swap_left)
+      board:put(2, 11, swap_right)
+
+      board:update()
+      board:update()
+      board:update()
+      board:update()
+      board:update()
+
+      assert.is_true(swap_left:is_idle())
+      assert.is_true(swap_right:is_idle())
+    end)
+  end)
+
+  describe('おじゃまゲートが落ちる', function()
+    local garbage
+
+    before_each(function()
+      garbage = garbage_gate(2)
+    end)
+
+    it("状態が falling になる", function()
+      board:put(1, 11, garbage)
+
+      board:update()
+
+      assert.is_true(garbage:is_falling())
+    end)
+
+    it("4 フレームで 1 ゲートほど落下する", function()
+      board:put(1, 11, garbage)
+
+      board:update()
+      board:update()
+      board:update()
+      board:update()
+
+      assert.is_true(garbage:is_falling())
+      assert.are_equal(garbage, board:gate_at(1, 12))
+    end)
+
+    it("着地後 1 フレームで状態が idle になる", function()
+      board:put(1, 11, garbage)
+
+      board:update()
+      board:update()
+      board:update()
+      board:update()
+      board:update()
+
+      assert.is_true(garbage:is_idle())
+    end)
+  end)
 end)
