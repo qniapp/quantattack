@@ -136,6 +136,10 @@ function create_gate(_type, _span)
       return type == "cnot_x"
     end,
 
+    is_swap = function(_ENV)
+      return type == "swap"
+    end,
+
     -- おじゃまゲートの先頭 (左端) である場合 true を返す
     is_garbage = function(_ENV)
       return type == "g"
@@ -152,6 +156,7 @@ function create_gate(_type, _span)
 
       _state = "swapping_with_right"
       _tick_swap = 0
+      chain_id = nil
     end,
 
     swap_with_left = function(_ENV, new_x)
@@ -161,6 +166,7 @@ function create_gate(_type, _span)
 
       _state = "swapping_with_left"
       _tick_swap = 0
+      chain_id = nil
     end,
 
     replace_with = function(_ENV, other, match_index, garbage_span, _chain_id)
@@ -189,7 +195,7 @@ function create_gate(_type, _span)
     update = function(_ENV, board, x, y)
       if is_idle(_ENV) then
         if y <= board.rows then
-          local gate_below = board.gates[x][y + 1]
+          local gate_below = board:gate_at(x, y + 1)
 
           if gate_below.chain_id == nil or (gate_below:is_i() and not board:is_empty(x, y + 1)) then
             chain_id = nil
@@ -213,7 +219,7 @@ function create_gate(_type, _span)
         else
           -- SWAP 完了
           local new_x = x + 1
-          local right_gate = board.gates[new_x][y]
+          local right_gate = board:gate_at(new_x, y)
 
           --#if assert
           assert(_is_swapping_with_right(_ENV), _state)
@@ -244,9 +250,9 @@ function create_gate(_type, _span)
           if other_x == nil and right_gate.other_x == nil then -- 1.
             -- NOP
           elseif not is_i(_ENV) and right_gate:is_i() then -- 2.
-            board.gates[other_x][y].other_x = new_x
+            board:gate_at(other_x, y).other_x = new_x
           elseif is_i(_ENV) and not right_gate:is_i() then -- 3.
-            board.gates[right_gate.other_x][y].other_x = x
+            board:gate_at(right_gate.other_x, y).other_x = x
           elseif other_x and right_gate.other_x then -- 4.
             other_x, right_gate.other_x = x, new_x
           else
@@ -265,16 +271,15 @@ function create_gate(_type, _span)
         end
 
         if new_y == y then
-          -- 同じ場所にとどまっているので、何もしない
+          -- 同じ場所にとどまっている場合、何もしない
         elseif board:is_gate_fallable(x, y) then
-          -- 一個下が空いている場合そこに移動する
+          -- 一個下が空いている場合、そこに移動する
           board:remove_gate(x, y)
           board:put(x, new_y, _ENV)
           _screen_dy = _screen_dy - tile_size
 
-          -- SWAP または CNOT の場合、ペアとなるゲートもここで移動する
           if other_x and x < other_x then
-            local other_gate = board.gates[other_x][y]
+            local other_gate = board:gate_at(other_x, y)
             board:remove_gate(other_x, y)
             board:put(other_x, new_y, other_gate)
             other_gate._screen_dy = _screen_dy
@@ -296,7 +301,7 @@ function create_gate(_type, _span)
           _tick_landed = 0
 
           if other_x and x < other_x then
-            local other_gate = board.gates[other_x][y]
+            local other_gate = board:gate_at(other_x, y)
             other_gate._state = "idle"
             other_gate._tick_landed = 0
             other_gate._screen_dy = 0

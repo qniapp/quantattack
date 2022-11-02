@@ -20,6 +20,7 @@ function create_qpu(cursor)
       else
         if board:top_gate_y() > 5 then
           add_raise_command(_ENV)
+          return
         end
 
         for new_x = 1, board.cols - 1 do

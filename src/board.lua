@@ -591,11 +591,11 @@ function create_board(_offset_x)
     -- ゲートの種類判定
     -------------------------------------------------------------------------------
 
-    -- TODO: board:is_part_of_swap の条件も追加
     is_single_gate = function(_ENV, x, y)
       return not (is_empty(_ENV, x, y) or
           is_part_of_garbage(_ENV, x, y) or
-          is_part_of_cnot(_ENV, x, y))
+          is_part_of_cnot(_ENV, x, y) or
+          is_part_of_swap(_ENV, x, y))
     end,
 
     -- x, y が空かどうかを返す
@@ -655,6 +655,19 @@ function create_board(_offset_x)
 
       local gate = gates[x][y]
       return gate:is_cnot_x() or gate:is_control()
+    end,
+
+    -- x, y が SWAP ペアの一部であるかどうかを返す
+    is_part_of_swap = function(_ENV, x, y)
+      for tmp_x = 1, x - 1 do
+        local gate = gates[tmp_x][y]
+
+        if gate:is_swap() and x < gate.other_x then
+          return true
+        end
+      end
+
+      return gates[x][y]:is_swap()
     end,
 
     -------------------------------------------------------------------------------
