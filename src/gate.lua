@@ -1,7 +1,6 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
 require("engine/application/constants")
-require("engine/core/class")
 require("particle")
 
 match_animation_frame_count = 45
