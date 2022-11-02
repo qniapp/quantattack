@@ -1,14 +1,13 @@
+---@diagnostic disable: global-in-nil-env, lowercase-global
+
 require("engine/application/constants")
 require("engine/core/class")
 require("particle")
 
-local gate = new_class()
-
-gate.match_animation_frame_count = 45
-gate.match_delay_per_gate = 15
-gate.swap_animation_frame_count = 4
-
-local fall_speed = 2
+match_animation_frame_count = 45
+match_delay_per_gate = 15
+swap_animation_frame_count = 4
+gate_fall_speed = 2
 
 local sprites = {
   h = {
@@ -63,314 +62,345 @@ local sprites = {
   },
 }
 
-function gate:_init(type, span)
-  self.type = type
-  self.span = span or 1
-  self._state = "idle"
-  self._screen_dy = 0
-  self.chain_id = nil
-end
+function create_gate(_type, _span)
+  return setmetatable({
+    type = _type,
+    span = _span or 1,
+    _state = "idle",
+    _screen_dy = 0,
+    chain_id = nil,
 
--- gate type
+    -------------------------------------------------------------------------------
+    -- gate state
+    -------------------------------------------------------------------------------
 
-function gate:is_i()
-  return self.type == "i"
-end
+    -- ゲートが idle である場合 true を返す
+    is_idle = function(_ENV)
+      return _state == "idle"
+    end,
 
-function gate:is_control()
-  return self.type == "control"
-end
+    -- 他のゲートが通過 (ドロップ) できる場合 true を返す
+    is_empty = function(_ENV)
+      return (is_i(_ENV) and not is_swapping(_ENV)) or
+          is_falling(_ENV)
+    end,
 
-function gate:is_cnot_x()
-  return self.type == "cnot_x"
-end
+    -- マッチ状態である場合 true を返す
+    is_match = function(_ENV)
+      return _state == "match"
+    end,
 
--- おじゃまゲートの先頭 (左端) である場合 true を返す
-function gate:is_garbage()
-  return self.type == "g"
-end
+    -- おじゃまユニタリがゲートに変化した後の硬直中
+    is_freeze = function(_ENV)
+      return _state == "freeze"
+    end,
 
--- gate state
+    -- マッチできる場合 true を返す
+    is_reducible = function(_ENV)
+      return not is_i(_ENV) and is_idle(_ENV)
+    end,
 
--- ゲートが idle である場合 true を返す
-function gate:is_idle()
-  return self._state == "idle"
-end
+    is_falling = function(_ENV)
+      return _state == "falling"
+    end,
 
--- 他のゲートが通過 (ドロップ) できる場合 true を返す
-function gate:is_empty()
-  return (self:is_i() and not self:is_swapping()) or
-      self:is_falling()
-end
+    is_swapping = function(_ENV)
+      return _is_swapping_with_right(_ENV) or _is_swapping_with_left(_ENV)
+    end,
 
--- マッチ状態である場合 true を返す
-function gate:is_match()
-  return self._state == "match"
-end
+    _is_swapping_with_left = function(_ENV)
+      return _state == "swapping_with_left"
+    end,
 
--- おじゃまユニタリがゲートに変化した後の硬直中
-function gate:is_freeze()
-  return self._state == "freeze"
-end
+    _is_swapping_with_right = function(_ENV)
+      return _state == "swapping_with_right"
+    end,
 
--- マッチできる場合 true を返す
-function gate:is_reducible()
-  return not self:is_i() and self:is_idle()
-end
+    -- ゲートが下に落とせる状態にあるかどうかを返す
+    is_fallable = function(_ENV)
+      return not (is_i(_ENV) or type == "!" or is_falling(_ENV) or is_swapping(_ENV) or is_freeze(_ENV))
+    end,
 
-function gate:update(board, x, y)
-  if self:is_idle() then
-    if y <= board.rows then
-      local gate_below = board.gates[x][y + 1]
+    -------------------------------------------------------------------------------
+    -- gate type
+    -------------------------------------------------------------------------------
 
-      if gate_below.chain_id == nil or (gate_below:is_i() and not board:is_empty(x, y + 1)) then
-        self.chain_id = nil
-      end
-    end
+    is_i = function(_ENV)
+      return type == "i"
+    end,
 
-    if self._tick_landed then
-      self._tick_landed = self._tick_landed + 1
+    is_control = function(_ENV)
+      return type == "control"
+    end,
 
-      if self._tick_landed == 12 then
-        self._tick_landed = nil
-      end
-    end
-  elseif self:is_swapping() then
-    --#if assert
-    assert(not self:is_garbage())
-    --#endif
+    is_cnot_x = function(_ENV)
+      return type == "cnot_x"
+    end,
 
-    if self._tick_swap < gate.swap_animation_frame_count then
-      self._tick_swap = self._tick_swap + 1
-    else
-      -- SWAP 完了
-      local new_x = x + 1
-      local right_gate = board.gates[new_x][y]
+    -- おじゃまゲートの先頭 (左端) である場合 true を返す
+    is_garbage = function(_ENV)
+      return type == "g"
+    end,
 
+    -------------------------------------------------------------------------------
+    -- ゲート操作
+    -------------------------------------------------------------------------------
+
+    swap_with_right = function(_ENV, new_x)
       --#if assert
-      assert(self:_is_swapping_with_right(), self._state)
-      assert(right_gate:_is_swapping_with_left(), right_gate._state)
+      assert(2 <= new_x)
       --#endif
 
-      if not right_gate:is_i() then
-        create_particle_set(board:screen_x(x) - 2, board:screen_y(y) + 3,
-          "1,yellow,yellow,5,left|1,yellow,yellow,5,left|0,yellow,yellow,5,left|0,yellow,yellow,5,left")
-      end
-      if not self:is_i() then
-        create_particle_set(board:screen_x(new_x) + 10, board:screen_y(y) + 3,
-          "1,yellow,yellow,5,right|1,yellow,yellow,5,right|0,yellow,yellow,5,right|0,yellow,yellow,5,right")
-      end
+      _state = "swapping_with_right"
+      _tick_swap = 0
+    end,
 
-      -- A を SWAP や CNOT の一部とすると、
-      --
-      -- 1.   [BC]
-      -- 2. --[A_], [A-]--
-      -- 3. --[-A], [_A]--
-      -- 4.   [AA]
-      --
-      -- の 4 パターンで左側だけ考える
+    swap_with_left = function(_ENV, new_x)
+      --#if assert
+      assert(1 <= new_x)
+      --#endif
 
-      board:put(new_x, y, self)
-      board:put(x, y, right_gate)
+      _state = "swapping_with_left"
+      _tick_swap = 0
+    end,
 
-      if self.other_x == nil and right_gate.other_x == nil then -- 1.
-        -- NOP
-      elseif not self:is_i() and right_gate:is_i() then -- 2.
-        board.gates[self.other_x][y].other_x = new_x
-      elseif self:is_i() and not right_gate:is_i() then -- 3.
-        board.gates[right_gate.other_x][y].other_x = x
-      elseif self.other_x and right_gate.other_x then -- 4.
-        self.other_x, right_gate.other_x = x, new_x
-      else
+    replace_with = function(_ENV, other, match_index, garbage_span, _chain_id)
+      _state = "match"
+      _reduce_to = other
+      _match_index = match_index or 0
+      _garbage_span = garbage_span
+      _tick_match = 1
+      chain_id = _chain_id
+      other.chain_id = _chain_id
+    end,
+
+    fall = function(_ENV)
+      --#if assert
+      assert(is_fallable(_ENV))
+      --#endif
+
+      _state = "falling"
+      _screen_dy = 0
+    end,
+
+    -------------------------------------------------------------------------------
+    -- update and render
+    -------------------------------------------------------------------------------
+
+    update = function(_ENV, board, x, y)
+      if is_idle(_ENV) then
+        if y <= board.rows then
+          local gate_below = board.gates[x][y + 1]
+
+          if gate_below.chain_id == nil or (gate_below:is_i() and not board:is_empty(x, y + 1)) then
+            chain_id = nil
+          end
+        end
+
+        if _tick_landed then
+          _tick_landed = _tick_landed + 1
+
+          if _tick_landed == 12 then
+            _tick_landed = nil
+          end
+        end
+      elseif is_swapping(_ENV) then
         --#if assert
-        assert(false, "we should not reach here")
+        assert(not is_garbage(_ENV))
         --#endif
+
+        if _tick_swap < swap_animation_frame_count then
+          _tick_swap = _tick_swap + 1
+        else
+          -- SWAP 完了
+          local new_x = x + 1
+          local right_gate = board.gates[new_x][y]
+
+          --#if assert
+          assert(_is_swapping_with_right(_ENV), _state)
+          assert(right_gate:_is_swapping_with_left(), right_gate._state)
+          --#endif
+
+          if not right_gate:is_i() then
+            create_particle_set(board:screen_x(x) - 2, board:screen_y(y) + 3,
+              "1,yellow,yellow,5,left|1,yellow,yellow,5,left|0,yellow,yellow,5,left|0,yellow,yellow,5,left")
+          end
+          if not is_i(_ENV) then
+            create_particle_set(board:screen_x(new_x) + 10, board:screen_y(y) + 3,
+              "1,yellow,yellow,5,right|1,yellow,yellow,5,right|0,yellow,yellow,5,right|0,yellow,yellow,5,right")
+          end
+
+          -- A を SWAP や CNOT の一部とすると、
+          --
+          -- 1.   [BC]
+          -- 2. --[A_], [A-]--
+          -- 3. --[-A], [_A]--
+          -- 4.   [AA]
+          --
+          -- の 4 パターンで左側だけ考える
+
+          board:put(new_x, y, _ENV)
+          board:put(x, y, right_gate)
+
+          if other_x == nil and right_gate.other_x == nil then -- 1.
+            -- NOP
+          elseif not is_i(_ENV) and right_gate:is_i() then -- 2.
+            board.gates[other_x][y].other_x = new_x
+          elseif is_i(_ENV) and not right_gate:is_i() then -- 3.
+            board.gates[right_gate.other_x][y].other_x = x
+          elseif other_x and right_gate.other_x then -- 4.
+            other_x, right_gate.other_x = x, new_x
+          else
+            --#if assert
+            assert(false, "we should not reach here")
+            --#endif
+          end
+
+          _state, right_gate._state = "idle", "idle"
+        end
+      elseif is_falling(_ENV) then
+        _screen_dy = _screen_dy + gate_fall_speed
+        local new_y = y
+        if _screen_dy >= tile_size then
+          new_y = new_y + 1
+        end
+
+        if new_y == y then
+          -- 同じ場所にとどまっているので、何もしない
+        elseif board:is_gate_fallable(x, y) then
+          -- 一個下が空いている場合そこに移動する
+          board:remove_gate(x, y)
+          board:put(x, new_y, _ENV)
+          _screen_dy = _screen_dy - tile_size
+
+          -- SWAP または CNOT の場合、ペアとなるゲートもここで移動する
+          if other_x and x < other_x then
+            local other_gate = board.gates[other_x][y]
+            board:remove_gate(other_x, y)
+            board:put(other_x, new_y, other_gate)
+            other_gate._screen_dy = _screen_dy
+          end
+        else
+          -- 一個下が空いていない場合、落下を終了
+
+          -- おじゃまユニタリの最初の落下
+          if _garbage_first_drop then
+            board:bounce()
+            sfx(1)
+            _garbage_first_drop = false
+          else
+            sfx(4)
+          end
+
+          _screen_dy = 0
+          _state = "idle"
+          _tick_landed = 0
+
+          if other_x and x < other_x then
+            local other_gate = board.gates[other_x][y]
+            other_gate._state = "idle"
+            other_gate._tick_landed = 0
+            other_gate._screen_dy = 0
+          end
+
+          board.changed = true
+        end
+      elseif is_match(_ENV) then
+        --#if assert
+        assert(not is_garbage(_ENV))
+        --#endif
+
+        if _tick_match <= match_animation_frame_count + _match_index * match_delay_per_gate then
+          _tick_match = _tick_match + 1
+        else
+          local new_gate = _reduce_to
+          board:put(x, y, new_gate)
+
+          sfx(3, -1, (_match_index - 1) * 4, 4)
+          create_particle_set(board:screen_x(x) + 3, board:screen_y(y) + 3,
+            "3,white,dark_gray,20|3,white,dark_gray,20|2,white,dark_gray,20|2,dark_purple,dark_gray,20|2,light_gray,dark_gray,20|1,white,dark_gray,20|1,white,dark_gray,20|1,light_gray,dark_gray,20|1,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
+
+          if _garbage_span then
+            new_gate._tick_freeze = 0
+            new_gate._freeze_frame_count = (_garbage_span - _match_index) * 15
+            new_gate._state = "freeze"
+          end
+        end
+      elseif is_freeze(_ENV) then
+        if _tick_freeze < _freeze_frame_count then
+          _tick_freeze = _tick_freeze + 1
+        else
+          _state = "idle"
+        end
+      end
+    end,
+
+    render = function(_ENV, screen_x, screen_y)
+      if is_i(_ENV) then
+        return
       end
 
-      self._state, right_gate._state = "idle", "idle"
-    end
-  elseif self:is_falling() then
-    self._screen_dy = self._screen_dy + fall_speed
-    local new_y = y
-    if self._screen_dy >= tile_size then
-      new_y = new_y + 1
-    end
+      if span > 1 then
+        for x = 0, span - 1 do
+          local sprite_id = _sprite_middle
+          if (x == 0) then -- 左端
+            sprite_id = _sprite_left
+          end
+          if (x == span - 1) then -- 右端
+            sprite_id = _sprite_right
+          end
 
-    if new_y == y then
-      -- 同じ場所にとどまっているので、何もしない
-    elseif board:is_gate_fallable(x, y) then
-      -- 一個下が空いている場合そこに移動する
-      board:remove_gate(x, y)
-      board:put(x, new_y, self)
-      self._screen_dy = self._screen_dy - tile_size
-
-      -- SWAP または CNOT の場合、ペアとなるゲートもここで移動する
-      if self.other_x and x < self.other_x then
-        local other_gate = board.gates[self.other_x][y]
-        board:remove_gate(self.other_x, y)
-        board:put(self.other_x, new_y, other_gate)
-        other_gate._screen_dy = self._screen_dy
-      end
-    else
-      -- 一個下が空いていない場合、落下を終了
-
-      -- おじゃまユニタリの最初の落下
-      if self._garbage_first_drop then
-        board:bounce()
-        sfx(1)
-        self._garbage_first_drop = false
+          spr(sprite_id, screen_x + x * tile_size, screen_y + _screen_dy)
+        end
       else
-        sfx(4)
+        local screen_dx = 0
+        local diff = (_tick_swap or 0) * (tile_size / swap_animation_frame_count)
+        if _is_swapping_with_right(_ENV) then
+          screen_dx = diff
+        elseif _is_swapping_with_left(_ENV) then
+          screen_dx = -diff
+        end
+
+        spr(_sprite(_ENV), screen_x + screen_dx, screen_y + _screen_dy)
       end
+    end,
 
-      self._screen_dy = 0
-      self._state = "idle"
-      self._tick_landed = 0
-
-      if self.other_x and x < self.other_x then
-        local other_gate = board.gates[self.other_x][y]
-        other_gate._state = "idle"
-        other_gate._tick_landed = 0
-        other_gate._screen_dy = 0
+    _sprite = function(_ENV)
+      if is_idle(_ENV) and _tick_landed then
+        return sprites[type].landed[_tick_landed]
+      elseif is_match(_ENV) then
+        local sequence = sprites[type].match
+        return _tick_match <= 15 and sequence[_tick_match] or sequence[#sequence]
+      else
+        return sprites[type].default
       end
+    end,
 
-      board.changed = true
+    -------------------------------------------------------------------------------
+    -- debug
+    -------------------------------------------------------------------------------
+
+    --#if debug
+    _tostring = function(_ENV)
+      local typestr, statestr = {
+        i = '_',
+        control = 'C',
+        cnot_x = 'X',
+        swap = 'S'
+      },
+          {
+            idle = " ",
+            swapping_with_left = "<",
+            swapping_with_right = ">",
+            falling = "|",
+            match = "*",
+            freeze = "f"
+          }
+
+      return (typestr[type] or type) .. statestr[_state]
     end
-  elseif self:is_match() then
-    --#if assert
-    assert(not self:is_garbage())
     --#endif
-
-    if self._tick_match <= gate.match_animation_frame_count + self._match_index * gate.match_delay_per_gate then
-      self._tick_match = self._tick_match + 1
-    else
-      local new_gate = self._reduce_to
-      board:put(x, y, new_gate)
-
-      sfx(3, -1, (self._match_index - 1) * 4, 4)
-      create_particle_set(board:screen_x(x) + 3, board:screen_y(y) + 3,
-        "3,white,dark_gray,20|3,white,dark_gray,20|2,white,dark_gray,20|2,dark_purple,dark_gray,20|2,light_gray,dark_gray,20|1,white,dark_gray,20|1,white,dark_gray,20|1,light_gray,dark_gray,20|1,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
-
-      if self._garbage_span then
-        new_gate._tick_freeze = 0
-        new_gate._freeze_frame_count = (self._garbage_span - self._match_index) * 15
-        new_gate._state = "freeze"
-      end
-    end
-  elseif self:is_freeze() then
-    if self._tick_freeze < self._freeze_frame_count then
-      self._tick_freeze = self._tick_freeze + 1
-    else
-      self._state = "idle"
-    end
-  end
-end
-
-function gate:render(screen_x, screen_y)
-  if self:is_i() then
-    return
-  end
-
-  if self.span > 1 then
-    for x = 0, self.span - 1 do
-      local sprite_id = self._sprite_middle
-      if (x == 0) then -- 左端
-        sprite_id = self._sprite_left
-      end
-      if (x == self.span - 1) then -- 右端
-        sprite_id = self._sprite_right
-      end
-
-      spr(sprite_id, screen_x + x * tile_size, screen_y + self._screen_dy)
-    end
-  else
-    local screen_dx = 0
-    local diff = (self._tick_swap or 0) * (tile_size / gate.swap_animation_frame_count)
-    if self:_is_swapping_with_right() then
-      screen_dx = diff
-    elseif self:_is_swapping_with_left() then
-      screen_dx = -diff
-    end
-
-    spr(self:_sprite(), screen_x + screen_dx, screen_y + self._screen_dy)
-  end
-end
-
-function gate:_sprite()
-  if self:is_idle() and self._tick_landed then
-    return sprites[self.type].landed[self._tick_landed]
-  elseif self:is_match() then
-    local sequence = sprites[self.type].match
-    return self._tick_match <= 15 and sequence[self._tick_match] or sequence[#sequence]
-  else
-    return sprites[self.type].default
-  end
-end
-
-function gate:replace_with(other, match_index, garbage_span, chain_id)
-  self._state = "match"
-  self._reduce_to = other
-  self._match_index = match_index or 0
-  self._garbage_span = garbage_span
-  self._tick_match = 1
-  self.chain_id = chain_id
-  other.chain_id = chain_id
-end
-
--------------------------------------------------------------------------------
--- fall
--------------------------------------------------------------------------------
-
--- ゲートが下に落とせる状態にあるかどうかを返す
-function gate:is_fallable()
-  return not (self:is_i() or self.type == "!" or self:is_falling() or self:is_swapping() or self:is_freeze())
-end
-
-function gate:fall()
-  --#if assert
-  assert(self:is_fallable())
-  --#endif
-
-  self._state = "falling"
-  self._screen_dy = 0
-end
-
-function gate:is_falling()
-  return self._state == "falling"
-end
-
--------------------------------------------------------------------------------
--- swap
--------------------------------------------------------------------------------
-
-function gate:is_swapping()
-  return self:_is_swapping_with_right() or self:_is_swapping_with_left()
-end
-
-function gate:_is_swapping_with_left()
-  return self._state == "swapping_with_left"
-end
-
-function gate:_is_swapping_with_right()
-  return self._state == "swapping_with_right"
-end
-
-function gate:swap_with_right(new_x)
-  --#if assert
-  assert(2 <= new_x)
-  --#endif
-
-  self._state = "swapping_with_right"
-  self._tick_swap = 0
-end
-
-function gate:swap_with_left(new_x)
-  --#if assert
-  assert(1 <= new_x)
-  --#endif
-
-  self._state = "swapping_with_left"
-  self._tick_swap = 0
+  }, { __index = _ENV })
 end
 
 -------------------------------------------------------------------------------
@@ -378,47 +408,47 @@ end
 -------------------------------------------------------------------------------
 
 function i_gate()
-  return gate('i')
+  return create_gate('i')
 end
 
 function h_gate()
-  return gate('h')
+  return create_gate('h')
 end
 
 function x_gate()
-  return gate('x')
+  return create_gate('x')
 end
 
 function y_gate()
-  return gate('y')
+  return create_gate('y')
 end
 
 function z_gate()
-  return gate('z')
+  return create_gate('z')
 end
 
 function s_gate()
-  return gate('s')
+  return create_gate('s')
 end
 
 function t_gate()
-  return gate('t')
+  return create_gate('t')
 end
 
 function control_gate(other_x)
-  local control = gate('control')
+  local control = create_gate('control')
   control.other_x = other_x
   return control
 end
 
 function cnot_x_gate(other_x)
-  local cnot_x = gate('cnot_x')
+  local cnot_x = create_gate('cnot_x')
   cnot_x.other_x = other_x
   return cnot_x
 end
 
 function swap_gate(other_x)
-  local swap = gate('swap')
+  local swap = create_gate('swap')
   swap.other_x = other_x
   return swap
 end
@@ -428,7 +458,7 @@ function garbage_gate(span)
   assert(span)
   --#endif
 
-  local garbage = gate('g', span)
+  local garbage = create_gate('g', span)
   garbage._sprite_middle = 87
   garbage._sprite_left = 86
   garbage._sprite_right = 88
@@ -438,33 +468,5 @@ function garbage_gate(span)
 end
 
 function garbage_match_gate()
-  return gate('!')
+  return create_gate('!')
 end
-
--------------------------------------------------------------------------------
--- debug
--------------------------------------------------------------------------------
-
---#if debug
-function gate:_tostring()
-  local typestr, statestr = {
-    i = '_',
-    control = 'C',
-    cnot_x = 'X',
-    swap = 'S'
-  },
-      {
-        idle = " ",
-        swapping_with_left = "<",
-        swapping_with_right = ">",
-        falling = "|",
-        match = "*",
-        freeze = "f"
-      }
-
-  return (typestr[self.type] or self.type) .. statestr[self._state]
-end
-
---#endif
-
-return gate

@@ -2,8 +2,8 @@
 require("engine/application/constants")
 require("engine/core/helper")
 require("helpers")
+require("gate")
 
-local gate_class = require("gate")
 local reduction_rules = require("reduction_rules")
 
 function create_board(_offset_x)
@@ -92,7 +92,7 @@ function create_board(_offset_x)
             for index, r in pairs(reduction.to) do
               local dx = r.dx and reduction.dx or 0
               local dy = r.dy or 0
-              local new_gate = gate_class(r.gate_type)
+              local new_gate = create_gate(r.gate_type)
 
               if new_gate.type == "swap" or new_gate.type == "cnot_x" or new_gate.type == "control" then
                 if r.dx then
