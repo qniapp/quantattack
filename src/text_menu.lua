@@ -1,5 +1,4 @@
 require("engine/application/constants")
-require("engine/render/color")
 
 local flow = require("engine/application/flow")
 local input = require("engine/input/input")
@@ -57,7 +56,7 @@ function text_menu:draw(left, top)
     else
       label = "  " .. label
     end
-    api.print(label, left, y, colors.white)
+    api.print(label, left, y, 7)
     y = y + character_height
   end
 end

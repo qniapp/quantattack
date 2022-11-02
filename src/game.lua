@@ -136,7 +136,7 @@ function game:render() -- override
   render_bubbles()
   render_attack_cubes()
 
-  color(colors.white)
+  color(7)
   cursor(1, 1)
   print(stat(1))
   cursor(1, 8)

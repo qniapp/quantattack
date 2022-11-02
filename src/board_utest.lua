@@ -1,15 +1,15 @@
 require("engine/test/bustedhelper")
 require("engine/debug/dump")
+require("board")
 require("gate")
 
 local profiler = require("profiler")
-local board_class = require("board")
 
 describe('board', function()
   local board
 
   before_each(function()
-    board = board_class()
+    board = create_board()
   end)
 
   describe('swap', function()
@@ -106,7 +106,7 @@ describe('board', function()
     --           X (next gates)
     it('should not reduce when y is the last and include_next_gates = true', function()
       board:put(1, board.rows, h_gate())
-      board:put(1, board_class.row_next_gates, x_gate())
+      board:put(1, board.row_next_gates, x_gate())
 
       local reduction = board:reduce(1, board.rows, true)
 
@@ -119,7 +119,7 @@ describe('board', function()
     --           X (next gates)
     it('should not reduce when y is the last and include_next_gates = true', function()
       board:put(1, board.rows, h_gate())
-      board:put(1, board_class.row_next_gates, x_gate())
+      board:put(1, board.row_next_gates, x_gate())
 
       local reduction = board:reduce(1, board.rows, true)
 
@@ -129,7 +129,7 @@ describe('board', function()
     --           -
     -- reduce -> I (next gates)
     it('should not reduce when y is the next gates row and include_next_gates = true', function()
-      local reduction = board:reduce(1, board_class.row_next_gates, true)
+      local reduction = board:reduce(1, board.row_next_gates, true)
 
       assert.are.same({}, reduction.to)
     end)
@@ -1088,16 +1088,6 @@ describe('board', function()
     -- end)
   end)
 
-  describe('fall_gates', function()
-    it('should drop gates', function()
-      board:put(1, 1, h_gate())
-
-      board:fall_gates()
-
-      assert.is_true(board:gate_at(1, 1):is_falling())
-    end)
-  end)
-
   describe('update', function()
     it('should drop swap pair', function()
       board:put(1, 11, swap_gate(3))
@@ -1111,8 +1101,7 @@ describe('board', function()
       board:update()
       board:update()
       board:update()
-      board:fall_gates()
-      board:_update_gates()
+      board:update()
       board:update()
 
       assert.are_equal('swap', board:gate_at(1, 11).type)

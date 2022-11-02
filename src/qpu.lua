@@ -18,6 +18,10 @@ function create_qpu(cursor)
         del(commands, next_action)
         _ENV[next_action] = true
       else
+        if board:top_gate_y() > 5 then
+          add_raise_command(_ENV)
+        end
+
         for new_x = 1, board.cols - 1 do
           for new_y = board.rows - 1, 1, -1 do
             local left_gate = board:reducible_gate_at(new_x, new_y)
@@ -45,8 +49,8 @@ function create_qpu(cursor)
             --
             -- [X  ]
             --  ■ X
-            if is_single_gate(_ENV, new_x, new_y) and
-                (is_single_gate(_ENV, new_x + 1, new_y) or board:is_empty(new_x + 1, new_y)) and
+            if board:is_single_gate(new_x, new_y) and
+                (board:is_single_gate(new_x + 1, new_y) or board:is_empty(new_x + 1, new_y)) and
                 left_gate.type == board:reducible_gate_at(new_x + 1, new_y + 1).type then
               move_and_swap(_ENV, new_x, new_y)
               return
@@ -56,8 +60,8 @@ function create_qpu(cursor)
             --
             -- [  X]
             --  X ■
-            if (is_single_gate(_ENV, new_x, new_y) or board:is_empty(new_x, new_y)) and
-                is_single_gate(_ENV, new_x + 1, new_y) and
+            if (board:is_single_gate(new_x, new_y) or board:is_empty(new_x, new_y)) and
+                board:is_single_gate(new_x + 1, new_y) and
                 right_gate.type == board:reducible_gate_at(new_x, new_y + 1).type then
               move_and_swap(_ENV, new_x, new_y)
               return
@@ -67,7 +71,7 @@ function create_qpu(cursor)
             --
             -- [X  ]
             --  H
-            if is_single_gate(_ENV, new_x, new_y) and board:is_empty(new_x + 1, new_y) and
+            if board:is_single_gate(new_x, new_y) and board:is_empty(new_x + 1, new_y) and
                 board:is_empty(new_x + 1, new_y + 1) then
               move_and_swap(_ENV, new_x, new_y)
               return
@@ -77,7 +81,7 @@ function create_qpu(cursor)
             --
             -- [  X]
             --    H
-            if board:is_empty(new_x, new_y) and is_single_gate(_ENV, new_x + 1, new_y) and
+            if board:is_empty(new_x, new_y) and board:is_single_gate(new_x + 1, new_y) and
                 board:is_empty(new_x, new_y + 1) then
               move_and_swap(_ENV, new_x, new_y)
               return
@@ -91,18 +95,14 @@ function create_qpu(cursor)
 
         -- x, y で入れ替えをする意味がある/可能であるかを調べる
         if not ((board:is_empty(random_x, random_y) and board:is_empty(random_x + 1, random_y)) or
-            board:is_garbage(random_x, random_y) or
-            board:is_cnot(random_x, random_y) or
-            board:is_garbage(random_x + 1, random_y) or
-            board:is_cnot(random_x + 1, random_y) or
+            board:is_part_of_garbage(random_x, random_y) or
+            board:is_part_of_cnot(random_x, random_y) or
+            board:is_part_of_garbage(random_x + 1, random_y) or
+            board:is_part_of_cnot(random_x + 1, random_y) or
             board:reducible_gate_at(random_x, random_y).type == board:reducible_gate_at(random_x + 1, random_y).type) then
           move_and_swap(_ENV, random_x, random_y)
         end
       end
-    end,
-
-    is_single_gate = function(_ENV, x, y)
-      return not board:is_empty(x, y) and not board:is_garbage(x, y) and not board:is_cnot(x, y)
     end,
 
     move_and_swap = function(_ENV, new_x, new_y)
@@ -121,20 +121,25 @@ function create_qpu(cursor)
       add_swap_command(_ENV)
     end,
 
-    add_move_command = function(_ENV, direction, times)
-      for _a = 1, times do
+    add_move_command = function(_ENV, direction, count)
+      for i = 1, count do
         add(commands, direction)
-
-        for _s = 1, 5 + flr(rnd(10)) do
-          add(commands, "sleep")
-        end
+        add_sleep_command(_ENV, 5)
       end
     end,
 
     add_swap_command = function(_ENV)
       add(commands, "o")
+      add_sleep_command(_ENV, 20)
+    end,
 
-      for _s = 1, 20 + flr(rnd(10)) do
+    add_raise_command = function(_ENV)
+      add(commands, "x")
+      add_sleep_command(_ENV, 5)
+    end,
+
+    add_sleep_command = function(_ENV, count)
+      for i = 1, count do
         add(commands, "sleep")
       end
     end

@@ -1,9 +1,10 @@
 require("engine/test/bustedhelper")
 require("test_helper")
-local match = require("luassert.match")
+require("board")
 
+local match = require("luassert.match")
 local game = require("game")
-local board_class = require("board")
+
 require("player")
 
 describe('chain', function()
@@ -12,7 +13,7 @@ describe('chain', function()
 
   before_each(function()
     stub(game, "chain_callback")
-    board = board_class()
+    board = create_board()
     board.attack_cube_target = { 85, 30 }
     player = create_player()
   end)

@@ -1,15 +1,7 @@
 require("engine/test/bustedhelper")
 require("gate")
 
-local board_class = require("board")
-
 describe('garbage_gate', function()
-  local board
-
-  before_each(function()
-    board = board_class()
-  end)
-
   describe("gate type", function()
     local garbage
 

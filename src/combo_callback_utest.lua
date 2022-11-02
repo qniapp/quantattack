@@ -1,16 +1,15 @@
 require("engine/test/bustedhelper")
 require("test_helper")
-local match = require("luassert.match")
+require("board")
 
+local match = require("luassert.match")
 local game = require("game")
-local board_class = require("board")
-local player_class = require("player")
 
 describe('コンボ (同時消し) のコールバック', function()
   local board
 
   before_each(function()
-    board = board_class()
+    board = create_board()
     stub(game, "combo_callback")
   end)
 

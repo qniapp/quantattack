@@ -1,4 +1,7 @@
-require("engine/core/class")
+require("board")
+require("player")
+require("player_cursor")
+require("qpu")
 
 local flow = require("engine/application/flow")
 
@@ -8,20 +11,15 @@ local vs = derived_class(gamestate)
 local game_class = require("game")
 local game = game_class()
 
-local board_class = require("board")
-
-local board = board_class(3)
+local board = create_board(3)
 board.attack_cube_target = { 78, 15 }
 
-local qpu_board = board_class(78)
+local qpu_board = create_board(78)
 qpu_board.attack_cube_target = { 48, 15, "left" }
 
-require("player_cursor")
 local player_cursor = create_player_cursor(board)
 local qpu_cursor = create_player_cursor(qpu_board)
 
-require("player")
-require("qpu")
 local player = create_player()
 local qpu = create_qpu(qpu_cursor)
 
