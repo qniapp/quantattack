@@ -257,51 +257,6 @@ function create_board(_offset_x)
       return gate_type()
     end,
 
-    render = function(_ENV)
-      for x = 1, cols do
-        -- draw wires
-        local line_x = screen_x(_ENV, x) + 3
-        line(line_x, offset_y,
-          line_x, offset_y + height,
-          colors.dark_gray)
-      end
-
-      -- draw idle gates
-      for x = 1, cols do
-        for y = 1, row_next_gates do
-          local gate, scr_x, scr_y = gates[x][y], screen_x(_ENV, x), screen_y(_ENV, y)
-
-          if gate.other_x and x < gate.other_x then
-            local connection_y = scr_y + 3
-            line(scr_x + 3, connection_y,
-              screen_x(_ENV, gate.other_x) + 3, connection_y,
-              colors.yellow)
-          end
-
-          gate:render(scr_x, scr_y)
-
-          -- マスクを描画
-          if y == row_next_gates then
-            spr(102, scr_x, scr_y)
-          end
-        end
-      end
-
-      if win then
-        local center_x, center_y = offset_x + width / 2, offset_y + height / 2
-
-        draw_rounded_box(center_x - 22, center_y - 7, center_x + 20, center_y + 7,
-          colors.dark_blue, colors.white)
-        print_centered("win", center_x, center_y, colors.red)
-      elseif win == false then
-        local center_x, center_y = offset_x + width / 2, offset_y + height / 2
-
-        draw_rounded_box(center_x - 22, center_y - 7, center_x + 20, center_y + 7,
-          colors.dark_blue, colors.white)
-        print_centered("lose", center_x, center_y, colors.dark_gray)
-      end
-    end,
-
     -------------------------------------------------------------------------------
     -- board の状態
     -------------------------------------------------------------------------------
@@ -503,6 +458,51 @@ function create_board(_offset_x)
         _update_game(_ENV, game, player, other_board)
       elseif state == "over" then
         -- NOP
+      end
+    end,
+
+    render = function(_ENV)
+      for x = 1, cols do
+        -- draw wires
+        local line_x = screen_x(_ENV, x) + 3
+        line(line_x, offset_y,
+          line_x, offset_y + height,
+          colors.dark_gray)
+      end
+
+      -- draw gates
+      for x = 1, cols do
+        for y = 1, row_next_gates do
+          local gate, scr_x, scr_y = gates[x][y], screen_x(_ENV, x), screen_y(_ENV, y)
+
+          if gate.other_x and x < gate.other_x then
+            local connection_y = scr_y + 3
+            line(scr_x + 3, connection_y,
+              screen_x(_ENV, gate.other_x) + 3, connection_y,
+              colors.yellow)
+          end
+
+          gate:render(scr_x, scr_y)
+
+          -- マスクを描画
+          if y == row_next_gates then
+            spr(102, scr_x, scr_y)
+          end
+        end
+      end
+
+      if win then
+        local center_x, center_y = offset_x + width / 2, offset_y + height / 2
+
+        draw_rounded_box(center_x - 22, center_y - 7, center_x + 20, center_y + 7,
+          colors.dark_blue, colors.white)
+        print_centered("win", center_x, center_y, colors.red)
+      elseif win == false then
+        local center_x, center_y = offset_x + width / 2, offset_y + height / 2
+
+        draw_rounded_box(center_x - 22, center_y - 7, center_x + 20, center_y + 7,
+          colors.dark_blue, colors.white)
+        print_centered("lose", center_x, center_y, colors.dark_gray)
       end
     end,
 
