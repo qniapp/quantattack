@@ -34,7 +34,7 @@
 
 	// When pico8_gpio is defined, reading and writing to gpio pins will read and write to these values
 	var pico8_gpio = new Array(128);
-
+	
 	// When pico8_audio_context context is defined, the html shell (this file) is responsible for creating and managing it.
 	// This makes satisfying browser requirements easier -- e.g. initialising audio from a short script in response to a user action.
 	// Otherwise PICO-8 will try to create and use its own context.
@@ -81,21 +81,18 @@
 
 		if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0])
 		{
+			var filename = e.dataTransfer.files[0].name;
 			// read from file
 			reader = new FileReader();
-			reader.onload = function (event)
-			{
-				p8_dropped_cart_name = 'untitled.p8';
-				if (typeof e.dataTransfer.files[0].name !== 'undefined') p8_dropped_cart_name = e.dataTransfer.files[0].name;
-				if (typeof e.dataTransfer.files[0].fileName !== 'undefined') p8_dropped_cart_name = e.dataTransfer.files[0].fileName;
+			reader.onload = function (event) {
+				p8_dropped_cart_name = filename;
 				p8_dropped_cart = reader.result;
 				// data:image/png;base64
 				e.stopPropagation();
-				e.preventDefault();
-				codo_command = 9; // read directly from p8_dropped_cart with libb64 decoder
+				e.preventDefault(); 
 			};
 			reader.readAsDataURL(e.dataTransfer.files[0]);
-			
+			codo_command = 9; // read directly from p8_dropped_cart with libb64 decoder
 		}
 		else
 		{
@@ -121,23 +118,6 @@
 		evt.stopPropagation();
 		evt.preventDefault();
 		Module.pico8DragStop();
-	}
-
-	// download (pico-8 0.2.4d web exports can save a .wav file)
-	function download_browser_file(filename, contents)
-	{
-	  var element = document.createElement('a');
-	  if (filename.substr(filename.length - 7) == ".p8.png")
-	  	element.setAttribute('href', 'data:image/png;base64,' + encodeURIComponent(contents));
-	  else if (filename.substr(filename.length - 4) == ".wav")
-	  	element.setAttribute('href', 'data:audio/x-wav;base64,' + encodeURIComponent(contents));
-	  else
-	  	element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(contents));
-	  element.setAttribute('download', filename);
-	  element.style.display = 'none';
-	  document.body.appendChild(element);
-	  element.click();
-	  document.body.removeChild(element);
 	}
 	// --------------------------------------------------------------------------------------------------------------------------------
 
@@ -247,13 +227,12 @@
 
 			// mouse (0.1.12d)
 
-			let canvas = document.getElementById("canvas");
+			var canvas = document.getElementById("canvas");
 			if (p8_touch_detected)
 			if (typeof(pico8_mouse) !== 'undefined')
 			if (canvas)
 			{
 				var rect = canvas.getBoundingClientRect();
-				//console.log(rect.top, rect.right, rect.bottom, rect.left, x, y);
 
 				if (x >= rect.left && x < rect.right && y >= rect.top && y < rect.bottom)
 				{
@@ -629,10 +608,24 @@
 			if (typeof(p8_buttons_hash) !== 'undefined')
 				p8_buttons_hash = -33;
 
+			var canvas = document.getElementById("canvas");
+			p8_crt_effect_init(canvas);
 
+			// install drag&drop listeners
+			/*{
+				var canvas = document.getElementById("canvas");
+				if (canvas)
+				{
+					canvas.addEventListener('dragenter', dragover, false);
+					canvas.addEventListener('dragover', dragover, false);
+					canvas.addEventListener('dragleave', dragstop, false);
+					canvas.addEventListener('drop', nop, false);
+					canvas.addEventListener('drop', p8_drop_file, false);
+				}
+			}*/
 		}
 		e.type = "application/javascript";
-		e.src = "qitaev_v0.1_release.js";
+		e.src = "##js_file##";
 		e.id = "e_script";
 		
 		document.body.appendChild(e); // load and run
@@ -653,18 +646,6 @@
 			}
 		}
 
-		// install drag&drop listeners
-		{
-			let canvas = document.getElementById("canvas");
-			if (canvas)
-			{
-				canvas.addEventListener('dragenter', dragover, false);
-				canvas.addEventListener('dragover', dragover, false);
-				canvas.addEventListener('dragleave', dragstop, false);
-				canvas.addEventListener('drop', nop, false);
-				canvas.addEventListener('drop', p8_drop_file, false);
-			}
-		}
 	}
 
 	
@@ -893,16 +874,15 @@
 	// End of gamepad code
 
 
-	// key blocker. prevent browser operations while playing cart so that PICO-8 can use those keys e.g. cursors to scroll, ctrl-r to reload
+	// key blocker. prevent cursor keys from scrolling page while playing cart.
+	// also don't act on M, R so that can mute / reset cart
 	document.addEventListener('keydown',
 	function (event) {
 		event = event || window.event;
 		if (!p8_is_running) return;
-
 		if (pico8_state.has_focus == 1)
-			if ([32, 37, 38, 39, 40, 77, 82, 80, 9].indexOf(event.keyCode) > -1)       // block only cursors, M R P, tab
+			if ([32, 37, 38, 39, 40, 77, 82, 80, 9].indexOf(event.keyCode) > -1)       // block cursors, M R P, tab
 				if (event.preventDefault) event.preventDefault();
-
 	},{passive: false});
 
 	// when using codo_textarea to determine focus, need to explicitly hand focus back when clicking a p8_menu_button
@@ -1068,8 +1048,6 @@ canvas{
 
 			<!-- used for clipboard access & keyboard input; displayed and used by PICO-8 only once needed. can be safely removed if clipboard / key presses not needed. -->
 			<!-- (needs to be inside p8_playarea so that it still works under Chrome when fullscreened) -->
-			<!-- 0.2.5: added "display:none"; pico8.js shows on demand to avoid mac osx accent character selector // https://www.lexaloffle.com/bbs/?tid=47743 -->
-
 			<textarea id="codo_textarea" class="emscripten" style="display:none; position:absolute; left:-9999px; height:0px; overflow:hidden"></textarea>
 
 		</div> <!--p8_playarea -->
@@ -1117,12 +1095,487 @@ canvas{
 </script>
 
 
-
 <!-- Add content below the cart here -->
-
-
 
 
 </div> <!-- body_0 -->
 </body></html>
 
+<!-- 8< -- ## GL SHADER STUFF STARTS HERE ## -- -->
+
+<!-- Based on PICO-8 CRT framework by ultrabrite (twitter: @SpaceTrucker2k0) -->
+<!-- https://www.lexaloffle.com/bbs/?tid=33488 -->
+
+<!-- Updated with CRT shader by Mattias Gustavsson (twitter: @Mattias_G) -->
+<!-- https://github.com/mattiasgustavsson/crtview -->
+
+<!-- common vertex shader -->
+<script id="common-vertex-shader" type="x-shader/x-vertex">
+	attribute vec4 pos;
+	varying vec2 uv;
+	void main() {
+		gl_Position = vec4(pos.xy, 0, 1);
+		uv = pos.zw;
+	}
+</script>
+
+<script id="crt-fragment-shader" type="x-shader/x-fragment">
+	precision mediump float;
+	varying vec2 uv;
+	uniform vec2 resolution;
+	uniform float time;
+	uniform sampler2D backbuffer;
+	uniform sampler2D blurbuffer;
+	vec3 tsample(sampler2D samp, vec2 tc) {
+		vec3 s=pow(abs(texture2D(samp,vec2(tc.x,1.0-tc.y)).rgb),vec3(2.2));
+		return s*vec3(1.25);
+	}
+	vec3 filmic(vec3 lcol) {
+		vec3 x=max(vec3(0),lcol-vec3(0.004));
+		return (x*(6.2*x+0.5))/(x*(6.2*x+1.7)+0.06);
+	}
+	vec2 curve(vec2 uv) {
+		uv=(uv-0.5)*2.0;
+		uv*=vec2(1.049,1.042);
+		uv-=vec2(-0.008,0.008);
+		uv.x*=1.0+pow(abs(uv.y)/5.0,2.0);
+		uv.y*=1.0+pow(abs(uv.x)/4.0,2.0);
+		uv=uv*0.5+0.5;
+		return uv;
+	}
+	highp float rand(vec2 co) {
+		/* iPad needs highp to avoid artifacts */
+		highp float a = 12.9898;
+		highp float b = 78.233;
+		highp float c = 43758.5453;
+		highp float dt = dot(co.xy,vec2(a,b));
+		highp float sn = mod(dt,3.14);
+		return fract(sin(sn) * c);
+	}
+	void main() {
+		/* curve */
+		vec2 curved_uv=mix(curve(uv),uv,0.4);
+		#if 0 /* dead code in original */
+			float scale=0.04;
+			vec2 scuv=curved_uv*(1.0-scale)+scale*0.5+vec2(0.003,-0.001);
+		#else
+			vec2 scuv=curved_uv;
+		#endif
+
+		/* main color, bleed */
+		vec3 col;
+		float x=sin(0.1*time+curved_uv.y*13.0)
+				*sin(0.23*time+curved_uv.y*19.0)
+				*sin(0.3+0.11*time+curved_uv.y*23.0)
+				*0.0012;
+		float o=sin(gl_FragCoord.y/1.5)/resolution.x;
+		x+=o*0.25;
+		x*=0.2;
+		col.r=tsample(backbuffer,vec2(x+scuv.x+0.0009,scuv.y+0.0009)).x+0.02;
+		col.g=tsample(backbuffer,vec2(x+scuv.x+0.0000,scuv.y-0.0011)).y+0.02;
+		col.b=tsample(backbuffer,vec2(x+scuv.x-0.0015,scuv.y+0.0000)).z+0.02;
+
+		float i=clamp(col.r*0.299+col.g*0.587+col.b*0.114,0.0,1.0);
+		i=pow(1.0-pow(i,2.0),1.0);
+		i=(1.0-i)*0.85+0.15;
+
+		/* ghosting */
+		float ghs=0.15;
+		vec3 r=tsample(blurbuffer, 
+			vec2(x-0.014*1.0, -0.027)*0.85
+				+0.007*vec2(0.35*sin(1.0/7.0 + 15.0*curved_uv.y + 0.9*time), 0.35*sin(2.0/7.0 + 10.0*curved_uv.y + 1.37*time))
+				+vec2(scuv.x+0.001,scuv.y+0.001)
+			).xyz*vec3(0.5,0.25,0.25);
+		vec3 g=tsample(blurbuffer, 
+			vec2(x-0.019*1.0, -0.020)*0.85
+				+0.007*vec2(0.35*cos(1.0/9.0 + 15.0*curved_uv.y + 0.5*time), 0.35*sin(2.0/9.0 + 10.0*curved_uv.y + 1.50*time))
+				+vec2(scuv.x+0.000,scuv.y-0.002)
+			).xyz*vec3(0.25,0.5,0.25);
+		vec3 b=tsample(blurbuffer, 
+			vec2(x-0.017*1.0, -0.003)*0.85
+				+0.007*vec2(0.35*sin(2.0/3.0 + 15.0*curved_uv.y + 0.7*time), 0.35*cos(2.0/3.0 + 10.0*curved_uv.y + 1.63*time))
+				+vec2(scuv.x-0.002,scuv.y+0.000)
+			).xyz*vec3(0.25,0.25,0.5);
+
+		vec3 ghost=vec3(0.0);
+		ghost+=vec3(ghs*(1.0-0.299))*pow(clamp(vec3(3.0)*r,vec3(0.0),vec3(1.0)),vec3(2.0))*vec3(i);
+		ghost+=vec3(ghs*(1.0-0.587))*pow(clamp(vec3(3.0)*g,vec3(0.0),vec3(1.0)),vec3(2.0))*vec3(i);
+		ghost+=vec3(ghs*(1.0-0.114))*pow(clamp(vec3(3.0)*b,vec3(0.0),vec3(1.0)),vec3(2.0))*vec3(i);
+		col+=ghost;
+
+		/* level adjustment (curves) */
+		col*=vec3(0.95,1.05,0.95);
+		col=clamp(1.3*col+0.75*col*col+1.25*col*col*col*col*col,vec3(0.0),vec3(10.0));
+
+		/* vignette */
+		float vig=0.1+16.0*curved_uv.x*curved_uv.y*(1.0-curved_uv.x)*(1.0-curved_uv.y);
+		#if 0 /* original */
+			vig=1.3*pow(vig,0.5);
+		#else /* less dark around edges; better for PICO-8 visibility */
+			vig=1.5*pow(vig,0.25);
+			vig=(vig>1.0) ? (1.0 + smoothstep(1.0,1.5,vig)*0.2) : vig;
+		#endif
+		col*=vig;
+
+		/* scanlines */
+		float scans=clamp(0.35+0.18*sin(6.0*time+curved_uv.y*resolution.y*1.5),0.0,1.0);
+		float s=pow(scans,0.9);
+		col*=s;
+
+		/* vertical lines (shadow mask) */
+		col*=1.0-0.23*clamp((mod(gl_FragCoord.xy.x,3.0))*0.5,0.0,1.0);
+		
+		/* tone map */
+		col=filmic(col);
+
+		/* noise */
+		vec2 seed=curved_uv*resolution.xy;
+		vec3 noise=pow(vec3(rand(seed+time),rand(seed+time*2.0),rand(seed+time*3.0)),vec3(1.5));
+		col-=0.015*noise;
+
+		/* flicker */
+		col*=(1.0-0.004*(sin(50.0*time+curved_uv.y*2.0)*0.5+0.5));
+
+		/* clamp */
+		if (curved_uv.x < 0.0 || curved_uv.x > 1.0)
+			col*= 0.0;
+		if (curved_uv.y < 0.0 || curved_uv.y > 1.0)
+			col*= 0.0;
+
+		gl_FragColor = vec4(col, 1.0);
+	}
+</script>
+
+<script id="blur-fragment-shader" type="x-shader/x-fragment">
+	precision mediump float;
+	varying vec2 uv;
+	uniform vec2 blur;
+	uniform sampler2D texture;
+	void main() {
+		vec4 sum=texture2D(texture,uv)*0.2270270270;
+		sum+=texture2D(texture,vec2(uv.x-4.0*blur.x,uv.y-4.0*blur.y))*0.0162162162;
+		sum+=texture2D(texture,vec2(uv.x-3.0*blur.x,uv.y-3.0*blur.y))*0.0540540541;
+		sum+=texture2D(texture,vec2(uv.x-2.0*blur.x,uv.y-2.0*blur.y))*0.1216216216;
+		sum+=texture2D(texture,vec2(uv.x-1.0*blur.x,uv.y-1.0*blur.y))*0.1945945946;
+		sum+=texture2D(texture,vec2(uv.x+1.0*blur.x,uv.y+1.0*blur.y))*0.1945945946;
+		sum+=texture2D(texture,vec2(uv.x+2.0*blur.x,uv.y+2.0*blur.y))*0.1216216216;
+		sum+=texture2D(texture,vec2(uv.x+3.0*blur.x,uv.y+3.0*blur.y))*0.0540540541;
+		sum+=texture2D(texture,vec2(uv.x+4.0*blur.x,uv.y+4.0*blur.y))*0.0162162162;
+		gl_FragColor=sum;
+	}
+</script>
+
+<script id="accumulate-fragment-shader" type="x-shader/x-fragment">
+	precision mediump float;
+	varying vec2 uv;
+	uniform sampler2D tex0;
+	uniform sampler2D tex1;
+	uniform float modulate;
+	void main() {
+		vec4 a = texture2D(tex0, uv) * vec4(modulate);
+		vec4 b = texture2D(tex1, uv);
+		gl_FragColor = max(a, b * 0.96);
+	}
+</script>
+
+<script id="blend-fragment-shader" type="x-shader/x-fragment">
+	precision mediump float;
+	varying vec2 uv;
+	uniform sampler2D tex0;
+	uniform sampler2D tex1;
+	uniform float modulate;
+	void main() {
+		vec4 a = texture2D(tex0, uv) * vec4(modulate);
+		vec4 b = texture2D(tex1, uv);
+		gl_FragColor = max(a, b * 0.32);
+	}
+</script>
+
+<script id="copy-fragment-shader" type="x-shader/x-fragment">
+	precision mediump float;
+	varying vec2 uv;
+	uniform sampler2D tex0;
+	void main() {
+		gl_FragColor = texture2D(tex0, uv);
+	}
+</script>
+
+<script type="text/javascript">
+	function p8_crt_effect_init(pico8_canvas) {
+		var canvas = document.createElement('canvas');
+		canvas.id = "crtcanvas";
+		canvas.className = "canvas";
+		canvas.style.position = "absolute";
+		canvas.style.top = 0;
+		canvas.style.left = 0;
+		canvas.width = pico8_canvas.clientWidth;
+		canvas.height = pico8_canvas.clientHeight;
+		var gl = canvas.getContext('webgl');
+		if (!gl)
+			return;
+
+		var pico8_ctx = pico8_canvas.getContext('2d');
+
+		pico8_canvas.parentNode.insertBefore(canvas, pico8_canvas);
+		/* keep pico8_canvas in DOM for event handling, but hide it via opacity */
+		pico8_canvas.style.opacity = 0;
+
+		function unbind() {
+			for (var i = 0; i < arguments.length; ++i) {
+				var arg = arguments[i];
+				switch (arg) {
+					case gl.FRAMEBUFFER:
+						gl.bindFramebuffer(arg, null);
+						break;
+					case gl.TEXTURE_2D:
+						gl.bindTexture(arg, null);
+						break;
+					case gl.ARRAY_BUFFER:
+						gl.bindBuffer(arg, null);
+						break;
+					default:
+						gl.activeTexture(arg);
+						gl.bindTexture(gl.TEXTURE_2D, null);
+				}
+			}
+		}
+
+		function compileShader(source, type) {
+			var shader = gl.createShader(type);
+			gl.shaderSource(shader, source);
+			gl.compileShader(shader);
+			if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+				var info = gl.getShaderInfoLog(shader);
+				throw ("could not compile shader:" + info);
+			}
+			return shader;
+		};
+
+		var vs = compileShader(document.getElementById("common-vertex-shader").text, gl.VERTEX_SHADER);
+		var fs_crt = compileShader(document.getElementById("crt-fragment-shader").text, gl.FRAGMENT_SHADER);
+		var fs_blur = compileShader(document.getElementById("blur-fragment-shader").text, gl.FRAGMENT_SHADER);
+		var fs_accumulate = compileShader(document.getElementById("accumulate-fragment-shader").text, gl.FRAGMENT_SHADER);
+		var fs_blend = compileShader(document.getElementById("blend-fragment-shader").text, gl.FRAGMENT_SHADER);
+		var fs_copy = compileShader(document.getElementById("copy-fragment-shader").text, gl.FRAGMENT_SHADER);
+
+		function createProgram(vs, fs, name) {
+			var program = gl.createProgram();
+			gl.attachShader(program, vs);
+			gl.attachShader(program, fs);
+			gl.linkProgram(program);
+			if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+				var info = gl.getProgramInfoLog(program);
+				throw ("shader " + name + " failed to link:" + info);
+			}
+			return program;
+		}
+
+		var crt_program = createProgram(vs, fs_crt, "crt_program");
+		const loc_crt_pos = gl.getAttribLocation(crt_program, "pos");
+		const loc_crt_time = gl.getUniformLocation(crt_program, "time");
+		const loc_crt_backbuffer = gl.getUniformLocation(crt_program, "backbuffer");
+		const loc_crt_blurbuffer = gl.getUniformLocation(crt_program, "blurbuffer");
+		const loc_crt_resolution = gl.getUniformLocation(crt_program, "resolution");
+
+		var blur_program = createProgram(vs, fs_blur, "blur_program");
+		const loc_blur_pos = gl.getAttribLocation(blur_program, "pos");
+		const loc_blur_blur = gl.getUniformLocation(blur_program, "blur");
+		const loc_blur_texture = gl.getUniformLocation(blur_program, "texture");
+
+		var accumulate_program = createProgram(vs, fs_accumulate, "accumulate_program");
+		const loc_accumulate_pos = gl.getAttribLocation(accumulate_program, "pos");
+		const loc_accumulate_tex0 = gl.getUniformLocation(accumulate_program, "tex0");
+		const loc_accumulate_tex1 = gl.getUniformLocation(accumulate_program, "tex1");
+		const loc_accumulate_modulate = gl.getUniformLocation(accumulate_program, "modulate");
+
+		var blend_program = createProgram(vs, fs_blend, "blend_program");
+		const loc_blend_pos = gl.getAttribLocation(blend_program, "pos");
+		const loc_blend_tex0 = gl.getUniformLocation(blend_program, "tex0");
+		const loc_blend_tex1 = gl.getUniformLocation(blend_program, "tex1");
+		const loc_blend_modulate = gl.getUniformLocation(blend_program, "modulate");
+
+		var copy_program = createProgram(vs, fs_copy, "copy_program");
+		const loc_copy_pos = gl.getAttribLocation(copy_program, "pos");
+		const loc_copy_tex0 = gl.getUniformLocation(copy_program, "tex0");
+
+		var posBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(
+			[-1, -1, 0, 0,
+				1, -1, 1, 0,
+				1,  1, 1, 1,
+				-1,  1, 0, 1]), gl.STATIC_DRAW);
+		unbind(gl.ARRAY_BUFFER);
+
+		function bindVertexBuffer(loc_pos) {
+			gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+			gl.vertexAttribPointer(loc_pos, 4, gl.FLOAT, false, 0, 0);
+			gl.enableVertexAttribArray(loc_pos);
+		}
+
+		var tex_backbuffer = gl.createTexture();
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, tex_backbuffer);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		unbind(gl.TEXTURE_2D)
+
+		var texfbos = [];
+		for (var i = 0; i < 4; ++i) {
+			var tex = gl.createTexture();
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D,  tex);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			unbind(gl.TEXTURE_2D)
+			var fbo = gl.createFramebuffer();
+			texfbos.push({tex: tex, fbo: fbo});
+		}
+		const blur_buf = texfbos[0];
+		const blur_tmp = texfbos[1];
+		const accum_buf = texfbos[2];
+		const accum_cpy = texfbos[3];
+
+		function drawBlurAxis(srctex, dstbuf, blurx, blury) {
+			gl.bindFramebuffer(gl.FRAMEBUFFER, dstbuf);
+			gl.useProgram(blur_program);
+			bindVertexBuffer(loc_blur_pos);
+			gl.uniform2f(loc_blur_blur, blurx, blury);
+			gl.uniform1i(loc_blur_texture, 0);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, srctex);
+			gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+			unbind(gl.TEXTURE_2D, gl.ARRAY_BUFFER, gl.FRAMEBUFFER);
+		}
+
+		function drawBlur(srctex, dstbuf, tmp, r, w, h) {
+			drawBlurAxis(srctex, tmp.fbo, r/w, 0);
+			drawBlurAxis(tmp.tex, dstbuf, 0, r/h);
+		}
+
+		function drawCopy(srctex, dstbuf) {
+			gl.bindFramebuffer(gl.FRAMEBUFFER, dstbuf);
+			gl.useProgram(copy_program);
+			bindVertexBuffer(loc_copy_pos);
+			gl.uniform1i(loc_copy_tex0, 0);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, srctex);
+			gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+			unbind(gl.TEXTURE_2D, gl.ARRAY_BUFFER, gl.FRAMEBUFFER);
+		}
+
+		var lastdw = -1;
+		var lastdh = -1;
+
+		function draw(now) {
+			var time = now * 0.001;
+
+			/* hack fix for Safari: texImage2D fails to copy pico8_canvas to tex_backbuffer */
+			pico8_ctx.resetTransform();
+			pico8_ctx.clearRect(-1, -1, 1, 1);
+
+			var p8scale = Math.ceil(Math.max(
+				pico8_canvas.clientWidth / pico8_canvas.width,
+				pico8_canvas.clientHeight / pico8_canvas.height));
+			p8scale = Math.max(1, Math.min(4, p8scale));
+
+			var dw = pico8_canvas.width * p8scale;
+			var dh = pico8_canvas.height * p8scale;
+
+			if (lastdw != dw || lastdh != dh) {
+				for (var i = 0; i < texfbos.length; ++i) {
+					var texture = texfbos[i].tex;
+					var framebuffer = texfbos[i].fbo;
+					gl.activeTexture(gl.TEXTURE0);
+					gl.bindTexture(gl.TEXTURE_2D, texture);
+					gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, dw, dh, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+					gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+					gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+					unbind(gl.TEXTURE_2D, gl.FRAMEBUFFER);
+				}
+			}
+
+			/* blit pico8 screen to backbuffer; backbuffer = texImage2D(pico8_canvas) */
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, tex_backbuffer);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, pico8_canvas);
+			unbind(gl.TEXTURE_2D);
+
+			gl.viewport(0, 0, dw, dh);
+
+			/* blur previous accumulation buffer; blur_buf = blur(accum_cpy) */
+			drawBlur(accum_cpy.tex, blur_buf.fbo, blur_tmp, 1.0, dw, dh);
+
+			/* update accumulation buffer; accum_buf = accumulate(backbuffer, blur_buf) */
+			gl.bindFramebuffer(gl.FRAMEBUFFER, accum_buf.fbo);
+			gl.useProgram(accumulate_program);
+			bindVertexBuffer(loc_accumulate_pos);
+			gl.uniform1i(loc_accumulate_tex0, 0);
+			gl.uniform1i(loc_accumulate_tex1, 1);
+			gl.uniform1f(loc_accumulate_modulate, 1.0);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, tex_backbuffer);
+			gl.activeTexture(gl.TEXTURE1);
+			gl.bindTexture(gl.TEXTURE_2D, blur_buf.tex);
+			gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+			unbind(gl.TEXTURE0, gl.TEXTURE1, gl.ARRAY_BUFFER, gl.FRAMEBUFFER);
+
+			/* store copy of accumulation buffer; accum_cpy = copy(accum_buf) */
+			drawCopy(accum_buf.tex, accum_cpy.fbo);
+
+			/* blend accumulation and backbuffer; accum_buf = blend(backbuffer, accum_cpy) */
+			gl.bindFramebuffer(gl.FRAMEBUFFER, accum_buf.fbo);
+			gl.useProgram(blend_program);
+			bindVertexBuffer(loc_blend_pos);
+			gl.uniform1i(loc_blend_tex0, 0);
+			gl.uniform1i(loc_blend_tex1, 1);
+			gl.uniform1f(loc_blend_modulate, 1.0);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, tex_backbuffer);
+			gl.activeTexture(gl.TEXTURE1);
+			gl.bindTexture(gl.TEXTURE_2D, accum_cpy.tex);
+			gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+			unbind(gl.TEXTURE0, gl.TEXTURE1, gl.ARRAY_BUFFER, gl.FRAMEBUFFER);
+
+			/* add slight blur to backbuffer; accum_buf = blur(accum_buf) */
+			drawBlur(accum_buf.tex, accum_buf.fbo, blur_tmp, 0.17, dw, dh);
+
+			/* create fully blurred version of backbuffer; blur_buf = blur(accum_buf) */
+			drawBlur(accum_buf.tex, blur_buf.fbo, blur_tmp, 1.0, dw, dh);
+
+			/* ensure crt canvas overlays pico8_canvas */
+			canvas.style.top = pico8_canvas.offsetTop;
+			canvas.style.left = pico8_canvas.offsetLeft;
+			var cw = canvas.width = pico8_canvas.clientWidth;
+			var ch = canvas.height = pico8_canvas.clientHeight;
+			gl.viewport(0, 0, cw, ch);
+
+			/* apply crt shader; canvas = crt(accum_buf, blur_buf) */
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			gl.useProgram(crt_program);
+			bindVertexBuffer(loc_crt_pos);
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, accum_buf.tex);
+			gl.activeTexture(gl.TEXTURE1);
+			gl.bindTexture(gl.TEXTURE_2D, blur_buf.tex);
+			gl.uniform2f(loc_crt_resolution, cw, ch);
+			gl.uniform1f(loc_crt_time, 1.5 * time);
+			gl.uniform1i(loc_crt_backbuffer, 0);
+			gl.uniform1i(loc_crt_blurbuffer, 1);
+			gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+			unbind(gl.TEXTURE0, gl.TEXTURE1, gl.ARRAY_BUFFER, gl.FRAMEBUFFER);
+
+			lastdw = dw;
+			lastdh = dh;
+
+			requestAnimationFrame(draw);
+		}
+
+		requestAnimationFrame(draw);
+	}
+</script>
+<!-- 8< -- ## GL SHADER STUFF ENDS HERE ## -- -->

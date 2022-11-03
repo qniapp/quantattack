@@ -9,7 +9,7 @@
 
 # Configuration: paths
 picoboots_scripts_path="$(dirname "$0")/pico-boots/scripts"
-picoboots_plates_path="$(dirname "$0")/pico-boots/plates"
+plates_path="$(dirname "$0")/plates"
 game_scripts_path="$(dirname "$0")"
 data_path="$(dirname "$0")/data"
 # Linux only
@@ -72,10 +72,10 @@ fi
 
 # Copy custom template to PICO-8 config plates folder as "${cartridge_basename}_template.html"
 # (just to avoid conflicts with other games)
-cp "${picoboots_plates_path}/custom_template.html" "${config_plates_dirpath}/${cartridge_stem}_template.html"
+cp "${plates_path}/crtplate.html" "${config_plates_dirpath}/${cartridge_stem}_template.html"
 
 # Export via PICO-8 editor: PNG cartridges, binaries, HTML
-pico8 -x "$game_scripts_path/export_game_release.p8"
+/Applications/PICO-8.app/Contents/MacOS/pico8 -x "$game_scripts_path/export_game_release.p8"
 
 if [[ $? -ne 0 ]]; then
   echo ""
@@ -83,45 +83,45 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-# ingame is the biggest cartridge so if PNG export fails, this one will fail first
-if [[ ! -f "${png_folder}/picosonic_ingame.p8.png" ]]; then
-  echo ""
-  echo "Exporting PNG cartridge for ingame via PICO-8 failed, STOP. Check that this cartridge compressed size <= 100% even after adding '.png' for reload."
-  exit 1
-fi
+# vs_qpu is the biggest cartridge so if PNG export fails, this one will fail first
+# if [[ ! -f "${png_folder}/qitaev_vs_qpu.p8.png" ]]; then
+#   echo ""
+#   echo "Exporting PNG cartridge for vs_qpu via PICO-8 failed, STOP. Check that this cartridge compressed size <= 100% even after adding '.png' for reload."
+#   exit 1
+# fi
 
-if [[ ! -d "$bin_folder" || ! $(ls -A "$bin_folder") ]]; then
-  echo ""
-  echo "Exporting game release binaries via PICO-8 failed, STOP. Check that each cartridge compressed size <= 100%."
-  exit 1
-fi
+# if [[ ! -d "$bin_folder" || ! $(ls -A "$bin_folder") ]]; then
+#   echo ""
+#   echo "Exporting game release binaries via PICO-8 failed, STOP. Check that each cartridge compressed size <= 100%."
+#   exit 1
+# fi
 
 # Patch the runtime binaries in-place with 4x_token, fast_reload, fast_load (experimental) if available
-patch_bin_cmd="\"$picoboots_scripts_path/patch_pico8_runtime.sh\" --inplace \"$pico8_version\" \"$bin_folder\" \"$cartridge_basename\""
-echo "> $patch_bin_cmd"
-bash -c "$patch_bin_cmd"
+# patch_bin_cmd="\"$picoboots_scripts_path/patch_pico8_runtime.sh\" --inplace \"$pico8_version\" \"$bin_folder\" \"$cartridge_basename\""
+# echo "> $patch_bin_cmd"
+# bash -c "$patch_bin_cmd"
 
-if [[ $? -ne 0 ]]; then
-  echo ""
-  echo "Patch bin step failed, STOP."
-  exit 1
-fi
+# if [[ $? -ne 0 ]]; then
+#   echo ""
+#   echo "Patch bin step failed, STOP."
+#   exit 1
+# fi
 
 # Rename HTML file to index.html for direct play-in-browser
 html_filepath="${web_folder}/${cartridge_basename}.html"
 mv "$html_filepath" "${web_folder}/index.html"
 
-# Patch the HTML export in-place with 4x_token, fast_reload
-js_filepath="${web_folder}/${cartridge_basename}.js"
-patch_js_cmd="python3.6 \"$picoboots_scripts_path/patch_pico8_js.py\" \"$js_filepath\" \"$js_filepath\""
-echo "> $patch_js_cmd"
-bash -c "$patch_js_cmd"
+# # Patch the HTML export in-place with 4x_token, fast_reload
+# js_filepath="${web_folder}/${cartridge_basename}.js"
+# patch_js_cmd="python3.6 \"$picoboots_scripts_path/patch_pico8_js.py\" \"$js_filepath\" \"$js_filepath\""
+# echo "> $patch_js_cmd"
+# bash -c "$patch_js_cmd"
 
-if [[ $? -ne 0 ]]; then
-  echo ""
-  echo "Patch JS step failed, STOP."
-  exit 1
-fi
+# if [[ $? -ne 0 ]]; then
+#   echo ""
+#   echo "Patch JS step failed, STOP."
+#   exit 1
+# fi
 
 # Archiving
 # The archives we create here keep all the files under a folder with the full game name
@@ -130,54 +130,54 @@ fi
 #  with folder structure changing slightly (renaming containing folder and executable), so don't worry
 #  about providing those customized zip archives to butler.
 # Note that for OSX, the .app folder is at the same time the app and the top-level element.
-pushd "${export_folder}"
+# pushd "${export_folder}"
 
-  # P8 cartridges archive (delete existing one to be safe)
-  rm -f "${cartridge_basename}_cartridges.zip"
-  zip -r "${cartridge_basename}_cartridges.zip" "$rel_p8_folder"
+#   # P8 cartridges archive (delete existing one to be safe)
+#   rm -f "${cartridge_basename}_cartridges.zip"
+#   zip -r "${cartridge_basename}_cartridges.zip" "$rel_p8_folder"
 
-  # PNG cartridges archive (delete existing one to be safe)
-  rm -f "${cartridge_basename}_png_cartridges.zip"
-  zip -r "${cartridge_basename}_png_cartridges.zip" "$rel_png_folder"
+#   # PNG cartridges archive (delete existing one to be safe)
+#   rm -f "${cartridge_basename}_png_cartridges.zip"
+#   zip -r "${cartridge_basename}_png_cartridges.zip" "$rel_png_folder"
 
-  # PNG cartridges archive (delete existing one to be safe)
-  rm -f "${cartridge_basename}_png_cartridges.zip"
-  zip -r "${cartridge_basename}_png_cartridges.zip" "$rel_png_folder"
+#   # PNG cartridges archive (delete existing one to be safe)
+#   rm -f "${cartridge_basename}_png_cartridges.zip"
+#   zip -r "${cartridge_basename}_png_cartridges.zip" "$rel_png_folder"
 
-  # HTML archive (delete existing one to be safe)
-  rm -f "${cartridge_basename}_web.zip"
-  zip -r "${cartridge_basename}_web.zip" "${cartridge_basename}_web"
+#   # HTML archive (delete existing one to be safe)
+#   rm -f "${cartridge_basename}_web.zip"
+#   zip -r "${cartridge_basename}_web.zip" "${cartridge_basename}_web"
 
-  # Bin archives
-  pushd "${rel_bin_folder}"
+#   # Bin archives
+#   pushd "${rel_bin_folder}"
 
-    # Linux archive
+#     # Linux archive
 
-    # Rename linux folder with full game name so our archive contains a self-explanatory folder ()
-    mv "linux" "${cartridge_basename}_linux"
+#     # Rename linux folder with full game name so our archive contains a self-explanatory folder ()
+#     mv "linux" "${cartridge_basename}_linux"
 
-    # To minimize operations, do not recreate the archive, just replace the executable in the archive generated by PICO-8 export
-    # with the patched executable. We still get some warnings about "Local Version Needed To Extract does not match CD"
-    # on other files, so make the operation quiet (-q)
-    zip -q "${cartridge_basename}_linux.zip" "${cartridge_basename}_linux/${cartridge_basename}"
-
-
-    # OSX archive
-
-    # Replace the executable in the archive generated by PICO-8 export with the patched executable
-    zip -q "${cartridge_basename}_osx.zip" "${cartridge_basename}.app/Contents/MacOS/${cartridge_basename}"
+#     # To minimize operations, do not recreate the archive, just replace the executable in the archive generated by PICO-8 export
+#     # with the patched executable. We still get some warnings about "Local Version Needed To Extract does not match CD"
+#     # on other files, so make the operation quiet (-q)
+#     zip -q "${cartridge_basename}_linux.zip" "${cartridge_basename}_linux/${cartridge_basename}"
 
 
-    # Windows archive
+#     # OSX archive
 
-    # Rename linux folder with full game name so our archive contains a self-explanatory folder as the initial archive
-    mv "windows" "${cartridge_basename}_windows"
+#     # Replace the executable in the archive generated by PICO-8 export with the patched executable
+#     zip -q "${cartridge_basename}_osx.zip" "${cartridge_basename}.app/Contents/MacOS/${cartridge_basename}"
 
-    # To minimize operations, do not recreate the archive, just replace the executable in the archive generated by PICO-8 export
-    # with the patched executable. We still get some warnings about "Local Version Needed To Extract does not match CD"
-    # on other files, so make the operation quiet (-q)
-    zip -q "${cartridge_basename}_windows.zip" "${cartridge_basename}_windows/${cartridge_basename}.exe"
 
-  popd
+#     # Windows archive
 
-popd
+#     # Rename linux folder with full game name so our archive contains a self-explanatory folder as the initial archive
+#     mv "windows" "${cartridge_basename}_windows"
+
+#     # To minimize operations, do not recreate the archive, just replace the executable in the archive generated by PICO-8 export
+#     # with the patched executable. We still get some warnings about "Local Version Needed To Extract does not match CD"
+#     # on other files, so make the operation quiet (-q)
+#     zip -q "${cartridge_basename}_windows.zip" "${cartridge_basename}_windows/${cartridge_basename}.exe"
+
+#   popd
+
+# popd

@@ -16,9 +16,10 @@ local export_folder = "qitaev/v"..version.."_release"
 local game_basename = "qitaev_v"..version.."_release"
 local rel_png_folder = game_basename.."_png_cartridges"
 
+printh("export_folder = " .. export_folder)
 cd(export_folder)
 
-  local entry_cartridge = "qitaev_game.p8"
+  local entry_cartridge = "qitaev_title.p8"
 
   -- #cartridge (tagged to easily find what code to change when adding a new cartridge,
   -- and because this script cannot access external files like cartridges.txt)
@@ -47,6 +48,7 @@ cd(export_folder)
   -- PNG
 
   -- prepare folder for png cartridges
+  printh("mkdir: " .. rel_png_folder)
   mkdir(rel_png_folder)
 
   -- -- data do not contain any code, so no need to adapt reload ".p8" -> ".p8.png"
