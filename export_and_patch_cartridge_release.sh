@@ -9,7 +9,7 @@
 
 # Configuration: paths
 picoboots_scripts_path="$(dirname "$0")/pico-boots/scripts"
-plates_path="$(dirname "$0")/plates"
+picoboots_plates_path="$(dirname "$0")/pico-boots/plates"
 game_scripts_path="$(dirname "$0")"
 data_path="$(dirname "$0")/data"
 # Linux only
@@ -72,7 +72,7 @@ fi
 
 # Copy custom template to PICO-8 config plates folder as "${cartridge_basename}_template.html"
 # (just to avoid conflicts with other games)
-cp "${plates_path}/crtplate.html" "${config_plates_dirpath}/${cartridge_stem}_template.html"
+cp "${picoboots_plates_path}/custom_template.html" "${config_plates_dirpath}/${cartridge_stem}_template.html"
 
 # Export via PICO-8 editor: PNG cartridges, binaries, HTML
 /Applications/PICO-8.app/Contents/MacOS/pico8 -x "$game_scripts_path/export_game_release.p8"

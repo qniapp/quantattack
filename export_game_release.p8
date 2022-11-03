@@ -16,7 +16,6 @@ local export_folder = "qitaev/v"..version.."_release"
 local game_basename = "qitaev_v"..version.."_release"
 local rel_png_folder = game_basename.."_png_cartridges"
 
-printh("export_folder = " .. export_folder)
 cd(export_folder)
 
   local entry_cartridge = "qitaev_title.p8"
@@ -112,7 +111,7 @@ cd(export_folder)
   --  in current path. Instead, export directly into the _web folder
   -- Use custom template. It is located in plates/qitaev_template.html and copied into PICO-8 config dir plates
   --  in export_and_patch_cartridge_release.sh
-  export(game_basename.."_web/"..game_basename..".html "..additional_cartridges_string.." -i 46 -s 2 -c 14 -p qitaev_template")
+  export(game_basename.."_web/"..game_basename..".html "..additional_cartridges_string.." -i 46 -s 2 -c 14 -p crtplate")
   printh("Exported HTML in carts/"..export_folder.."/"..game_basename..".html")
 
 cd("..")
