@@ -255,6 +255,7 @@ function create_gate(_type, _span)
           end
 
           _state, right_gate._state = "idle", "idle"
+          chain_id, right_gate.chain_id = nil, nil
         end
       elseif is_falling(_ENV) then
         -- 一個下が空いていない場合、落下を終了
