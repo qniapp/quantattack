@@ -18,7 +18,6 @@ require("player_cursor")
 local qpu1_cursor = create_player_cursor(qpu1_board)
 local qpu2_cursor = create_player_cursor(qpu2_board)
 
--- require("player")
 require("qpu")
 local qpu1 = create_qpu(qpu1_cursor)
 local qpu2 = create_qpu(qpu2_cursor)
@@ -26,6 +25,8 @@ local qpu2 = create_qpu(qpu2_cursor)
 qpu_vs_qpu.type = ':qpu_vs_qpu'
 
 function qpu_vs_qpu:on_enter()
+  printh("qpu_vs_qpu:on_enter()")
+
   qpu1:init()
   qpu1_board:initialize_with_random_gates()
   qpu1_cursor:init()
