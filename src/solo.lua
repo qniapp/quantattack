@@ -49,7 +49,7 @@ function solo:render() -- override
   print("score " .. player.score .. (player.score == 0 and "" or "0"))
 
   -- skip 2 lines and draw score
-  cursor(board.offset_x * 2 + board.width, board.offset_y + character_height * 2)
+  cursor(board.offset_x * 2 + board.width, board.offset_y + 12)
   print(player.steps .. " steps")
 
   -- ゲームオーバー

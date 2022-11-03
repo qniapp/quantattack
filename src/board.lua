@@ -10,12 +10,12 @@ function create_board(_offset_x)
   local board = setmetatable({
     cols = 6,
     rows = 12,
-    row_next_gates = 13,
+    row_next_gates = 13, -- rows + 1
     gates = {},
-    width = 6 * tile_size,
-    height = 12 * tile_size,
+    width = 48, -- 6 * tile_size
+    height = 96, -- 12 * tile_size
     offset_x = _offset_x or 10,
-    offset_y = screen_height - 12 * tile_size,
+    offset_y = 32, -- screen_height - 12 * tile_size (128 - 96)
     changed = false,
     bounce_speed = 0,
     bounce_screen_dy = 0,
@@ -384,7 +384,7 @@ function create_board(_offset_x)
         center_x + 20, center_y + 22,
         1, 7)
       print_centered("game over", center_x, center_y, 8)
-      print_centered("push x\nto replay", center_x, center_y + character_height * 2, 0)
+      print_centered("push x\nto replay", center_x, center_y + 12, 0)
     end,
 
     -------------------------------------------------------------------------------
@@ -396,40 +396,36 @@ function create_board(_offset_x)
     swap = function(_ENV, x_left, y)
       local x_right = x_left + 1
 
-      --#if assert
       assert(1 <= x_left and x_left <= cols - 1)
       assert(2 <= x_right and x_right <= cols)
       assert(1 <= y and y <= rows)
-      --#endif
+
+      local left_gate = gates[x_left][y]
+      local right_gate = gates[x_right][y]
 
       if is_part_of_garbage(_ENV, x_left, y) or is_part_of_garbage(_ENV, x_right, y) then
         return false
       end
 
-      local left_gate = gates[x_left][y]
-      local right_gate = gates[x_right][y]
-
       if not (left_gate:is_idle() and right_gate:is_idle()) then
         return false
       end
 
-      -- 回路が A--[AB]--B のようになっている場合
-      -- [AB] は入れ替えできない
-      if left_gate.other_x and right_gate.other_x then
-        if left_gate.other_x ~= x_right then
-          return false
-        end
-      end
-
       -- 回路が A--[A?] のようになっている場合
       -- [A?] は入れ替えできない。
-      if left_gate.other_x and left_gate.other_x < x_left and not right_gate:is_i() then
+      if left_gate.other_x and left_gate.other_x < x_left and not is_empty(_ENV, x_right, y) then
         return false
       end
 
       -- 回路が [?A]--A のようになっている場合も、
       -- [?A] は入れ替えできない。
-      if not left_gate:is_i() and right_gate.other_x and x_right < right_gate.other_x then
+      if not is_empty(_ENV, x_left, y) and right_gate.other_x and x_right < right_gate.other_x then
+        return false
+      end
+
+      -- left_gate の上、または right_gate の上のゲートが落下中である場合も
+      -- 入れ替えできない
+      if gates[x_left][y - 1]:is_falling() or gates[x_right][y - 1]:is_falling() then
         return false
       end
 
@@ -502,9 +498,14 @@ function create_board(_offset_x)
       end
     end,
 
+    -- 最上段にゲートが存在し、
+    -- raised_dots == 7 の場合 true を返す
     _gates_piled_up = function(_ENV)
       if raised_dots == tile_size - 1 then
         for x = 1, cols do
+          if gate_at(_ENV, x, 1):is_falling() then
+            return false
+          end
           if not is_empty(_ENV, x, 1) then
             return true
           end
@@ -691,7 +692,7 @@ function create_board(_offset_x)
       end
 
       for tmp_x = start_x, end_x do
-        if not is_empty(_ENV, tmp_x, y + 1) then
+        if not (is_empty(_ENV, tmp_x, y + 1) or gates[tmp_x][y + 1]:is_falling()) then
           return false
         end
       end

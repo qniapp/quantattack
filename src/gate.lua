@@ -5,7 +5,7 @@ require("particle")
 
 match_animation_frame_count = 45
 match_delay_per_gate = 15
-swap_animation_frame_count = 4
+gate_swap_animation_frame_count = 4
 gate_fall_speed = 2
 
 local sprites = {
@@ -80,8 +80,7 @@ function create_gate(_type, _span)
 
     -- 他のゲートが通過 (ドロップ) できる場合 true を返す
     is_empty = function(_ENV)
-      return (is_i(_ENV) and not is_swapping(_ENV)) or
-          is_falling(_ENV)
+      return is_i(_ENV) and not is_swapping(_ENV)
     end,
 
     -- マッチ状態である場合 true を返す
@@ -212,7 +211,7 @@ function create_gate(_type, _span)
       elseif is_swapping(_ENV) then
         assert(not is_garbage(_ENV))
 
-        if _tick_swap < swap_animation_frame_count then
+        if _tick_swap < gate_swap_animation_frame_count then
           _tick_swap = _tick_swap + 1
         else
           -- SWAP 完了
@@ -353,7 +352,7 @@ function create_gate(_type, _span)
         end
       else
         local screen_dx = 0
-        local diff = (_tick_swap or 0) * (tile_size / swap_animation_frame_count)
+        local diff = (_tick_swap or 0) * (tile_size / gate_swap_animation_frame_count)
         if _is_swapping_with_right(_ENV) then
           screen_dx = diff
         elseif _is_swapping_with_left(_ENV) then
