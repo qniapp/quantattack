@@ -31,7 +31,7 @@ function solo:update()
 
   if board:is_game_over() then
     if player.x then
-      load('game')
+      load('qitaev_title')
     end
   end
 end
