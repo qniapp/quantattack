@@ -205,7 +205,6 @@ fi
   -a "$author" -t "$title (${cartridge_extra_suffix}${cartridge_suffix})" \
   -p "$build_output_path"                                                 \
   -o "${cartridge_stem}_${cartridge_extra_suffix}${cartridge_suffix}"     \
-  -c "$config"                                                            \
   -s "$symbols"                                                           \
   --minify-level 1
 
