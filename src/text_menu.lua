@@ -43,7 +43,8 @@ end
 function text_menu:confirm_selection()
   -- currently, text menu is only used to navigate to other gamestates,
   -- but later, it may support generic on_confirm callbacks
-  flow:query_gamestate_type(self.items[self.selection_index].target_state)
+  -- flow:query_gamestate_type(self.items[self.selection_index].target_state)
+  load(self.items[self.selection_index].target_state)
 end
 
 function text_menu:draw(left, top)

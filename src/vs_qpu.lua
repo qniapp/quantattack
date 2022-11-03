@@ -3,8 +3,6 @@ require("player")
 require("player_cursor")
 require("qpu")
 
-local flow = require("engine/application/flow")
-
 local gamestate = require("engine/application/gamestate")
 local vs_qpu = derived_class(gamestate)
 
@@ -50,7 +48,7 @@ function vs_qpu:update()
 
   if board:is_game_over() or qpu_board:is_game_over() then
     if btnp(5) then
-      flow:query_gamestate_type(':title')
+      load('qitaev_title')
     end
   end
 

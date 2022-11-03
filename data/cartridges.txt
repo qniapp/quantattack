@@ -1,0 +1,4 @@
+title
+solo
+vs_qpu
+qpu_vs_qpu
