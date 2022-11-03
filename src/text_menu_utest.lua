@@ -129,27 +129,6 @@ describe('text_menu', function()
         end)
 
       end)
-
-      describe('confirm_selection', function()
-
-        setup(function()
-          stub(flow, "query_gamestate_type")
-        end)
-
-        teardown(function()
-          flow.query_gamestate_type:revert()
-        end)
-
-        it('should enter the credits state', function()
-          menu:confirm_selection()
-
-          local s = assert.spy(flow.query_gamestate_type)
-          s.was_called(1)
-          s.was_called_with(flow, ':credits')
-        end)
-
-      end)
-
     end)
   end) -- (with instance)
 

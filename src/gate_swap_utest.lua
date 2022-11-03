@@ -10,7 +10,7 @@ describe('ゲートの入れ替え', function()
   end)
 
   describe('フレーム数', function()
-    it("入れ替えると状態が swapping になる #solo", function()
+    it("入れ替えると状態が swapping になる", function()
       board:put(1, 12, h_gate())
       board:put(2, 12, x_gate())
 
@@ -19,7 +19,7 @@ describe('ゲートの入れ替え', function()
       assert.is_true(board:gate_at(1, 12):is_swapping())
     end)
 
-    it("4 フレームで入れ替わる #solo", function()
+    it("4 フレームで入れ替わる", function()
       board:put(1, 12, h_gate())
       board:put(2, 12, x_gate())
 
