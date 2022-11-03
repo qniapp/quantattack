@@ -28,9 +28,13 @@ function create_qpu(cursor)
             local left_gate = board:reducible_gate_at(new_x, new_y)
             local right_gate = board:reducible_gate_at(new_x + 1, new_y)
 
+            if not (left_gate:is_idle() and right_gate:is_idle()) then
+              goto next_gate
+            end
+
             -- 入れ替えることで右に落とせる場合
             --
-            -- [X  ]
+            -- [X ]
             --  H
             if board:is_single_gate(new_x, new_y) and board:is_empty(new_x + 1, new_y) and
                 board:is_empty(new_x + 1, new_y + 1) then
@@ -40,10 +44,9 @@ function create_qpu(cursor)
 
             -- 連続して左に移動すると落とせる場合
             --
-            --  [  X]
-            --    HH
-            if board:is_empty(new_x, new_y) and board:is_single_gate(new_x + 1, new_y) and
-                board:gate_at(new_x + 1, new_y):is_reducible() then
+            --  [ X]
+            --   HH
+            if board:is_empty(new_x, new_y) and board:is_single_gate(new_x + 1, new_y) then
               for x = new_x, 1, -1 do
                 if not board:is_empty(x, new_y) then
                   goto next_rule
@@ -56,6 +59,19 @@ function create_qpu(cursor)
             end
 
             ::next_rule::
+            -- 以下の形をみつけたら、上の X-C を左にずらして消す。
+            -- X-C を右にずらすので、この形は頻発する。
+            --
+            --   X-C
+            -- X-C
+            if board:is_empty(new_x, new_y) and right_gate:is_cnot_x() and
+                board:reducible_gate_at(new_x, new_y + 1):is_cnot_x() and
+                board:reducible_gate_at(new_x, new_y + 1).other_x == new_x + 1 then
+              move_and_swap(_ENV, new_x, new_y)
+              move_and_swap(_ENV, new_x + 1, new_y)
+              return
+            end
+
             -- CNOT を消す戦略:
             --
             -- 1. CNOT を縮める
@@ -95,6 +111,8 @@ function create_qpu(cursor)
               move_and_swap(_ENV, new_x, new_y)
               return
             end
+
+            ::next_gate::
           end
         end
 
@@ -143,7 +161,7 @@ function create_qpu(cursor)
 
     add_raise_command = function(_ENV)
       add(commands, "x")
-      add_sleep_command(_ENV, 5)
+      add_sleep_command(_ENV, 4)
     end,
 
     add_sleep_command = function(_ENV, count)
