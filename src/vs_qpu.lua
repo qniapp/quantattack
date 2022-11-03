@@ -6,7 +6,7 @@ require("qpu")
 local flow = require("engine/application/flow")
 
 local gamestate = require("engine/application/gamestate")
-local vs = derived_class(gamestate)
+local vs_qpu = derived_class(gamestate)
 
 local game_class = require("game")
 local game = game_class()
@@ -23,9 +23,9 @@ local qpu_cursor = create_player_cursor(qpu_board)
 local player = create_player()
 local qpu = create_qpu(qpu_cursor)
 
-vs.type = ':vs'
+vs_qpu.type = ':vs_qpu'
 
-function vs:on_enter()
+function vs_qpu:on_enter()
   player:init()
   board:initialize_with_random_gates()
   player_cursor:init()
@@ -39,7 +39,7 @@ function vs:on_enter()
   game:add_player(qpu, qpu_cursor, qpu_board, board)
 end
 
-function vs:update()
+function vs_qpu:update()
   if board:is_game_over() and board.win == nil then
     board.win = false
     qpu_board.win = true
@@ -57,8 +57,8 @@ function vs:update()
   game:update()
 end
 
-function vs:render() -- override
+function vs_qpu:render() -- override
   game:render()
 end
 
-return vs
+return vs_qpu
