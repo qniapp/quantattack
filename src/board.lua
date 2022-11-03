@@ -425,7 +425,7 @@ function create_board(_offset_x)
 
       -- left_gate の上、または right_gate の上のゲートが落下中である場合も
       -- 入れ替えできない
-      if gates[x_left][y - 1]:is_falling() or gates[x_right][y - 1]:is_falling() then
+      if y > 2 and gates[x_left][y - 1]:is_falling() or gates[x_right][y - 1]:is_falling() then
         return false
       end
 
