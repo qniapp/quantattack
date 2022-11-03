@@ -8,9 +8,9 @@ title.type = ':title'
 
 -- sequence of menu items to display, with their target states
 title._items = {
-  menu_item("solo", ':solo'),
-  menu_item("vs qpu", ':vs_qpu'),
-  menu_item("qpu vs qpu", ':qpu_vs_qpu')
+  menu_item("solo", 'solo'),
+  menu_item("vs qpu", 'vs_qpu'),
+  menu_item("qpu vs qpu", 'qpu_vs_qpu')
 }
 
 local text_menu = text_menu_class(title._items)

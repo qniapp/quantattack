@@ -1,7 +1,5 @@
 require("board")
 
-local flow = require("engine/application/flow")
-
 local gamestate = require("engine/application/gamestate")
 local qpu_vs_qpu = derived_class(gamestate)
 
@@ -49,7 +47,7 @@ function qpu_vs_qpu:update()
 
   if qpu1_board:is_game_over() or qpu2_board:is_game_over() then
     if btnp(5) then
-      flow:query_gamestate_type(':title')
+      load('game')
     end
   end
 

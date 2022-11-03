@@ -1,7 +1,5 @@
 require("board")
 
-local flow = require("engine/application/flow")
-
 local board = create_board()
 board.attack_cube_target = { 85, 30 }
 
@@ -33,7 +31,7 @@ function solo:update()
 
   if board:is_game_over() then
     if player.x then
-      flow:query_gamestate_type(':title')
+      load('game')
     end
   end
 end
