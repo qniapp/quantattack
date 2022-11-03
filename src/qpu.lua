@@ -60,14 +60,15 @@ function create_qpu(cursor)
 
             ::next_rule::
             -- 以下の形をみつけたら、上の X-C を左にずらして消す。
-            -- X-C を右にずらすので、この形は頻発する。
+            -- (QPU は X-C をどんどん右にずらすので、この形は頻発する)
             --
             --   X-C
             -- X-C
-            if board:is_empty(new_x, new_y) and right_gate:is_cnot_x() and
+            if board:is_empty(new_x, new_y) and right_gate:is_cnot_x() and right_gate.other_x == new_x + 2 and
                 board:reducible_gate_at(new_x, new_y + 1):is_cnot_x() and
                 board:reducible_gate_at(new_x, new_y + 1).other_x == new_x + 1 then
               move_and_swap(_ENV, new_x, new_y)
+              add_sleep_command(_ENV, 10) -- 超速くした場合、swap が終わる前に次のコマンドを実行してしまうのを防ぐ
               move_and_swap(_ENV, new_x + 1, new_y)
               return
             end

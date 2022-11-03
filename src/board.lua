@@ -214,6 +214,9 @@ function create_board(_offset_x)
             if gate1.type ~= gates[1] then
               goto next_rule
             end
+            if gate1.other_x and gate1.other_x ~= other_x then
+              goto next_rule
+            end
             if gate1.chain_id then
               chain_id = gate1.chain_id
             end
@@ -222,6 +225,9 @@ function create_board(_offset_x)
           if gates[2] and other_x then
             local gate2 = reducible_gate_at(_ENV, other_x, current_y)
             if gate2.type ~= gates[2] then
+              goto next_rule
+            end
+            if gate2.other_x and gate2.other_x ~= x then
               goto next_rule
             end
             if gate2.chain_id then
@@ -425,7 +431,8 @@ function create_board(_offset_x)
 
       -- left_gate の上、または right_gate の上のゲートが落下中である場合も
       -- 入れ替えできない
-      if y > 2 and gates[x_left][y - 1]:is_falling() or gates[x_right][y - 1]:is_falling() then
+      if y > 1 and
+          (gates[x_left][y - 1]:is_falling() or gates[x_right][y - 1]:is_falling()) then
         return false
       end
 

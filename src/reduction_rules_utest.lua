@@ -193,6 +193,24 @@ describe('ゲートの簡約ルール', function()
     assert.is_true(board:gate_at(3, 12)._reduce_to:is_i())
   end)
 
+  -- これは消えてはダメ
+  --
+  --   C-X
+  -- X-C X-C
+  it('まちがった C-X x2 は消えない #solo', function()
+    board:put(2, 11, control_gate(3))
+    board:put(3, 11, cnot_x_gate(2))
+
+    board:put(1, 12, cnot_x_gate(2))
+    board:put(2, 12, control_gate(1))
+    board:put(3, 12, cnot_x_gate(4))
+    board:put(4, 12, control_gate(3))
+
+    local reduction = board:reduce(2, 11)
+
+    assert.are_equal(0, #reduction.to)
+  end)
+
   -- C-X          I I
   -- X-C          I I
   -- C-X  ----->  S-S
