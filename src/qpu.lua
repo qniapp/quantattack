@@ -28,6 +28,34 @@ function create_qpu(cursor)
             local left_gate = board:reducible_gate_at(new_x, new_y)
             local right_gate = board:reducible_gate_at(new_x + 1, new_y)
 
+            -- 入れ替えることで右に落とせる場合
+            --
+            -- [X  ]
+            --  H
+            if board:is_single_gate(new_x, new_y) and board:is_empty(new_x + 1, new_y) and
+                board:is_empty(new_x + 1, new_y + 1) then
+              move_and_swap(_ENV, new_x, new_y)
+              return
+            end
+
+            -- 連続して左に移動すると落とせる場合
+            --
+            --  [  X]
+            --    HH
+            if board:is_empty(new_x, new_y) and board:is_single_gate(new_x + 1, new_y) and
+                board:gate_at(new_x + 1, new_y):is_reducible() then
+              for x = new_x, 1, -1 do
+                if not board:is_empty(x, new_y) then
+                  goto next_rule
+                end
+                if board:is_empty(x, new_y + 1) then
+                  move_and_swap(_ENV, new_x, new_y)
+                  return
+                end
+              end
+            end
+
+            ::next_rule::
             -- CNOT を消す戦略:
             --
             -- 1. CNOT を縮める
@@ -67,26 +95,6 @@ function create_qpu(cursor)
               move_and_swap(_ENV, new_x, new_y)
               return
             end
-
-            -- 入れ替えることで右に落とせる場合
-            --
-            -- [X  ]
-            --  H
-            if board:is_single_gate(new_x, new_y) and board:is_empty(new_x + 1, new_y) and
-                board:is_empty(new_x + 1, new_y + 1) then
-              move_and_swap(_ENV, new_x, new_y)
-              return
-            end
-
-            -- 入れ替えることで左に落とせる場合
-            --
-            -- [  X]
-            --    H
-            if board:is_empty(new_x, new_y) and board:is_single_gate(new_x + 1, new_y) and
-                board:is_empty(new_x, new_y + 1) then
-              move_and_swap(_ENV, new_x, new_y)
-              return
-            end
           end
         end
 
@@ -118,7 +126,6 @@ function create_qpu(cursor)
       elseif cursor.y < new_y then
         add_move_command(_ENV, "down", new_y - cursor.y)
       end
-
       add_swap_command(_ENV)
     end,
 
