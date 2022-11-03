@@ -4,7 +4,7 @@
 -- we must require engine/pico8/api at the top of our main.lua, so API bridges apply to all modules
 require("engine/pico8/api")
 
-local app_class = require("app")
+local app_class = require("app/title")
 
 --#if log
 local logging = require("engine/debug/logging")
