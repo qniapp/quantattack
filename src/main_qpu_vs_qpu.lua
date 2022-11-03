@@ -1,13 +1,11 @@
--- main entry file for the ingame cartridge
---  game states: stage
-
 -- must require at main top, to be used in any required modules from here
 require("engine/pico8/api")
-require("engine/common")
 
 -- we also require codetuner so any file can used tuned()
 -- if tuner symbol is defined, then we also initialize it in init
+--#if tuner
 local codetuner = require("engine/debug/codetuner")
+--#endif
 
 --#if log
 local logging = require("engine/debug/logging")
@@ -22,7 +20,6 @@ local profiler = require("engine/debug/profiler")
 --#endif
 
 local app_qpu_vs_qpu = require("app_qpu_vs_qpu")
-
 local app = app_qpu_vs_qpu()
 
 function _init()
