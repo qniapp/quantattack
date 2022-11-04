@@ -22,6 +22,7 @@ function create_board(_offset_x)
     chain_count = {},
     is_empty_cache = {},
     is_gate_fallable_cache = {},
+    is_single_gate_cache = {},
 
     init = function(_ENV)
       state = "play"
@@ -594,6 +595,10 @@ function create_board(_offset_x)
     -------------------------------------------------------------------------------
 
     is_single_gate = function(_ENV, x, y)
+      return memoize(_ENV, _is_single_gate_nocache, is_single_gate_cache, x, y)
+    end,
+
+    _is_single_gate_nocache = function(_ENV, x, y)
       return not (is_empty(_ENV, x, y) or
           is_part_of_garbage(_ENV, x, y) or
           is_part_of_cnot(_ENV, x, y) or
@@ -733,6 +738,7 @@ function create_board(_offset_x)
       changed = true
       is_empty_cache = {}
       is_gate_fallable_cache = {}
+      is_single_gate_cache = {}
     end,
 
     -------------------------------------------------------------------------------

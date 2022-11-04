@@ -75,7 +75,19 @@ function create_qpu(cursor)
                 board:reducible_gate_at(new_x, new_y + 1):is_cnot_x() and
                 board:reducible_gate_at(new_x, new_y + 1).other_x == new_x + 1 then
               move_and_swap(_ENV, new_x, new_y)
-              add_sleep_command(_ENV, 10) -- 超速くした場合、swap が終わる前に次のコマンドを実行してしまうのを防ぐ
+              move_and_swap(_ENV, new_x + 1, new_y)
+              return
+            end
+
+            -- 同様に下の X-C を左にずらして消す。
+            --
+            -- X-C
+            --   X-C
+            if new_y > 1 and
+              board:is_empty(new_x, new_y) and right_gate:is_cnot_x() and right_gate.other_x == new_x + 2 and
+                board:reducible_gate_at(new_x, new_y - 1):is_cnot_x() and
+                board:reducible_gate_at(new_x, new_y - 1).other_x == new_x + 1 then
+              move_and_swap(_ENV, new_x, new_y)
               move_and_swap(_ENV, new_x + 1, new_y)
               return
             end
