@@ -194,7 +194,7 @@ function create_gate(_type, _span)
     update = function(_ENV, board, x, y)
       if is_idle(_ENV) then
         if y <= board.rows then
-          local gate_below = board:gate_at(x, y + 1)
+          local gate_below = board.gates[x][y + 1]
 
           if gate_below.chain_id == nil or (gate_below:is_i() and not board:is_empty(x, y + 1)) then
             chain_id = nil
@@ -216,7 +216,7 @@ function create_gate(_type, _span)
         else
           -- SWAP 完了
           local new_x = x + 1
-          local right_gate = board:gate_at(new_x, y)
+          local right_gate = board.gates[new_x][y]
 
           assert(_is_swapping_with_right(_ENV), _state)
           assert(right_gate:_is_swapping_with_left(), right_gate._state)
@@ -245,9 +245,9 @@ function create_gate(_type, _span)
           if other_x == nil and right_gate.other_x == nil then -- 1.
             -- NOP
           elseif not is_i(_ENV) and right_gate:is_i() then -- 2.
-            board:gate_at(other_x, y).other_x = new_x
+            board.gates[other_x][y].other_x = new_x
           elseif is_i(_ENV) and not right_gate:is_i() then -- 3.
-            board:gate_at(right_gate.other_x, y).other_x = x
+            board.gates[right_gate.other_x][y].other_x = x
           elseif other_x and right_gate.other_x then -- 4.
             other_x, right_gate.other_x = x, new_x
           else
@@ -274,7 +274,7 @@ function create_gate(_type, _span)
           _tick_landed = 0
 
           if other_x and x < other_x then
-            local other_gate = board:gate_at(other_x, y)
+            local other_gate = board.gates[other_x][y]
             other_gate._state = "idle"
             other_gate._tick_landed = 0
             other_gate._screen_dy = 0
@@ -297,7 +297,7 @@ function create_gate(_type, _span)
             _screen_dy = _screen_dy - tile_size
 
             if other_x and x < other_x then
-              local other_gate = board:gate_at(other_x, y)
+              local other_gate = board.gates[other_x][y]
               board:remove_gate(other_x, y)
               board:put(other_x, new_y, other_gate)
               other_gate._screen_dy = _screen_dy
