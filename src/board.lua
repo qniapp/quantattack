@@ -21,6 +21,7 @@ function create_board(_offset_x)
     bounce_screen_dy = 0,
     chain_count = {},
     is_empty_cache = {},
+    is_gate_fallable_cache = {},
 
     init = function(_ENV)
       state = "play"
@@ -317,15 +318,12 @@ function create_board(_offset_x)
     end,
 
     put = function(_ENV, x, y, gate)
-      --#if assert
       assert(1 <= x and x <= cols, x)
       assert(1 <= y and y <= row_next_gates, y)
-      --#endif
 
       gates[x][y] = gate
-
-      changed = true
-      is_empty_cache = {}
+      gate:attach(_ENV)
+      observable_update(_ENV, gate)
     end,
 
     remove_gate = function(_ENV, x, y)
@@ -537,10 +535,10 @@ function create_board(_offset_x)
           local gate = gates[x][y]
 
           -- 落下できるゲートを落とす
-          if gate:is_fallable() and is_gate_fallable(_ENV, x, y) then
+          if not gate:is_falling() and is_gate_fallable(_ENV, x, y) then
             if gate.other_x then
               local other_gate = gates[gate.other_x][y]
-              if x < gate.other_x and other_gate:is_fallable() and is_gate_fallable(_ENV, gate.other_x, y) then
+              if x < gate.other_x and is_gate_fallable(_ENV, gate.other_x, y) then
                 gate:fall()
                 other_gate:fall()
               end
@@ -605,18 +603,7 @@ function create_board(_offset_x)
     -- x, y が空かどうかを返す
     -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
     is_empty = function(_ENV, x, y)
-      if is_empty_cache[x] == nil then
-        is_empty_cache[x] = {}
-      end
-
-      local result = is_empty_cache[x][y]
-
-      if result == nil then
-        result = _is_empty_nocache(_ENV, x, y)
-        is_empty_cache[x][y] = result
-      end
-
-      return result
+      return memoize(_ENV, _is_empty_nocache, is_empty_cache, x, y)
     end,
 
     _is_empty_nocache = function(_ENV, x, y)
@@ -680,6 +667,11 @@ function create_board(_offset_x)
 
     -- ゲート x, y が x, y + 1 に落とせるかどうかを返す。
     is_gate_fallable = function(_ENV, x, y)
+      return memoize(_ENV, _is_gate_fallable_nocache, is_gate_fallable_cache, x, y)
+    end,
+
+    -- ゲート x, y が x, y + 1 に落とせるかどうかを返す。
+    _is_gate_fallable_nocache = function(_ENV, x, y)
       --#if assert
       assert(1 <= x and x <= cols)
       assert(1 <= y and y <= row_next_gates)
@@ -690,6 +682,10 @@ function create_board(_offset_x)
       end
 
       local gate = gates[x][y]
+      if not gate:is_fallable() then
+        return false
+      end
+
       local start_x, end_x
 
       if gate.other_x then
@@ -705,6 +701,38 @@ function create_board(_offset_x)
       end
 
       return true
+    end,
+
+    -------------------------------------------------------------------------------
+    -- memoization
+    -------------------------------------------------------------------------------
+
+    -- 引数 x, y を取る関数 func をメモ化した関数を返す
+    memoize = function(_ENV, f, cache, x, y)
+      if cache[x] == nil then
+        cache[x] = {}
+      end
+
+      local result = cache[x][y]
+
+      if result == nil then
+        result = f(_ENV, x, y)
+        cache[x][y] = result
+      end
+
+      return result
+    end,
+
+    -------------------------------------------------------------------------------
+    -- observer pattern
+    -------------------------------------------------------------------------------
+
+    -- ボード内にあるいずれかのゲートが更新されたので、
+    -- changed フラグを立て各種キャッシュもクリア
+    observable_update = function(_ENV, observable)
+      changed = true
+      is_empty_cache = {}
+      is_gate_fallable_cache = {}
     end,
 
     -------------------------------------------------------------------------------
