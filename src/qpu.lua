@@ -23,15 +23,9 @@ function create_qpu(cursor)
           return
         end
 
-        for new_x = 1, board.cols - 1 do
-          for new_y = board.rows - 1, 1, -1 do
-            local left_gate = board:reducible_gate_at(new_x, new_y)
-            local right_gate = board:reducible_gate_at(new_x + 1, new_y)
-
-            if not (left_gate:is_idle() and right_gate:is_idle()) then
-              goto next_gate
-            end
-
+        -- 上から探すパターン
+        for new_y = 1, board.rows - 1 do
+          for new_x = 1, board.cols - 1 do
             -- 入れ替えることで右に落とせる場合
             --
             -- [X ]
@@ -49,13 +43,26 @@ function create_qpu(cursor)
             if board:is_empty(new_x, new_y) and board:is_single_gate(new_x + 1, new_y) then
               for x = new_x, 1, -1 do
                 if not board:is_empty(x, new_y) then
-                  goto next_rule
+                  goto rules_to_search_from_bottom
                 end
                 if board:is_empty(x, new_y + 1) then
                   move_and_swap(_ENV, new_x, new_y)
                   return
                 end
               end
+            end
+          end
+        end
+
+        ::rules_to_search_from_bottom::
+        -- 下から探すパターン
+        for new_y = board.rows - 1, 1, -1 do
+          for new_x = 1, board.cols - 1 do
+            local left_gate = board:reducible_gate_at(new_x, new_y)
+            local right_gate = board:reducible_gate_at(new_x + 1, new_y)
+
+            if not (left_gate:is_idle() and right_gate:is_idle()) then
+              goto next_gate
             end
 
             ::next_rule::
