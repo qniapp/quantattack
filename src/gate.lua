@@ -68,6 +68,7 @@ function create_gate(_type, _span)
     _state = "idle",
     _screen_dy = 0,
     chain_id = nil,
+    _observers = {},
 
     -------------------------------------------------------------------------------
     -- gate state
@@ -116,7 +117,7 @@ function create_gate(_type, _span)
 
     -- ゲートが下に落とせる状態にあるかどうかを返す
     is_fallable = function(_ENV)
-      return not (is_i(_ENV) or type == "!" or is_falling(_ENV) or is_swapping(_ENV) or is_freeze(_ENV))
+      return not (is_i(_ENV) or type == "!" or is_swapping(_ENV) or is_freeze(_ENV))
     end,
 
     -------------------------------------------------------------------------------
@@ -153,9 +154,10 @@ function create_gate(_type, _span)
       assert(2 <= new_x)
       --#endif
 
-      _state = "swapping_with_right"
       _tick_swap = 0
       chain_id = nil
+
+      change_state(_ENV, "swapping_with_right")
     end,
 
     swap_with_left = function(_ENV, new_x)
@@ -163,28 +165,33 @@ function create_gate(_type, _span)
       assert(1 <= new_x)
       --#endif
 
-      _state = "swapping_with_left"
       _tick_swap = 0
       chain_id = nil
+
+      change_state(_ENV, "swapping_with_left")
     end,
 
     replace_with = function(_ENV, other, match_index, garbage_span, _chain_id)
-      _state = "match"
       _reduce_to = other
       _match_index = match_index or 0
       _garbage_span = garbage_span
       _tick_match = 1
       chain_id = _chain_id
       other.chain_id = _chain_id
+
+      change_state(_ENV, "match")
     end,
 
     fall = function(_ENV)
-      --#if assert
       assert(is_fallable(_ENV))
-      --#endif
 
-      _state = "falling"
+      if is_falling(_ENV) then
+        return
+      end
+
       _screen_dy = 0
+
+      change_state(_ENV, "falling")
     end,
 
     -------------------------------------------------------------------------------
@@ -193,6 +200,7 @@ function create_gate(_type, _span)
 
     update = function(_ENV, board, x, y)
       if is_idle(_ENV) then
+        -- 着地したときに chain_id を消す
         if y <= board.rows then
           local gate_below = board.gates[x][y + 1]
 
@@ -254,8 +262,10 @@ function create_gate(_type, _span)
             assert(false, "we should not reach here")
           end
 
-          _state, right_gate._state = "idle", "idle"
           chain_id, right_gate.chain_id = nil, nil
+
+          change_state(_ENV, "idle")
+          right_gate:change_state("idle")
         end
       elseif is_falling(_ENV) then
         -- 一個下が空いていない場合、落下を終了
@@ -270,19 +280,22 @@ function create_gate(_type, _span)
           end
 
           _screen_dy = 0
-          _state = "idle"
           _tick_landed = 0
+
+          change_state(_ENV, "idle")
 
           if other_x and x < other_x then
             local other_gate = board.gates[other_x][y]
-            other_gate._state = "idle"
             other_gate._tick_landed = 0
             other_gate._screen_dy = 0
+
+            other_gate:change_state("idle")
           end
 
           board.changed = true
         else
           _screen_dy = _screen_dy + gate_fall_speed
+
           local new_y = y
           if _screen_dy >= tile_size then
             new_y = new_y + 1
@@ -322,14 +335,14 @@ function create_gate(_type, _span)
           if _garbage_span then
             new_gate._tick_freeze = 0
             new_gate._freeze_frame_count = (_garbage_span - _match_index) * 15
-            new_gate._state = "freeze"
+            new_gate:change_state("freeze")
           end
         end
       elseif is_freeze(_ENV) then
         if _tick_freeze < _freeze_frame_count then
           _tick_freeze = _tick_freeze + 1
         else
-          _state = "idle"
+          change_state(_ENV, "idle")
         end
       end
     end,
@@ -373,6 +386,27 @@ function create_gate(_type, _span)
       else
         return sprites[type].default
       end
+    end,
+
+    -------------------------------------------------------------------------------
+    -- observer pattern methods
+    -------------------------------------------------------------------------------
+
+    -- オブザーバ (board) を登録する
+    attach = function(_ENV, observer)
+      add(_observers, observer)
+    end,
+
+    notify_observers = function(_ENV)
+      for _, each in pairs(_observers) do
+        each:observable_update(_ENV)
+      end
+    end,
+
+    change_state = function(_ENV, new_state)
+      _state = new_state
+
+      notify_observers(_ENV)
     end,
 
     -------------------------------------------------------------------------------
