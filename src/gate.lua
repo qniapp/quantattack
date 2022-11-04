@@ -200,6 +200,7 @@ function create_gate(_type, _span)
 
     update = function(_ENV, board, x, y)
       if is_idle(_ENV) then
+        -- 着地したときに chain_id を消す
         if y <= board.rows then
           local gate_below = board.gates[x][y + 1]
 

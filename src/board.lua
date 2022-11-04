@@ -521,7 +521,6 @@ function create_board(_offset_x)
     end,
 
     _update_game = function(_ENV, game, player, other_board)
-      -- FIXME: reduce() をメモ化する
       if changed then
         reduce_gates(_ENV, game, player, other_board)
         changed = false
