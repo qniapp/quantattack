@@ -3,8 +3,6 @@ require("engine/debug/dump")
 require("board")
 require("gate")
 
-local profiler = require("profiler")
-
 describe('board', function()
   local board
 
@@ -272,14 +270,9 @@ describe('board', function()
 
       board:swap(5, 5)
 
-      profiler.start()
-
       for i = 0, 100 do
         board:update()
       end
-
-      profiler.stop()
-      profiler.report("profiler.log")
 
       assert.are_equal("s", board:gate_at(5, 12).type)
     end)

@@ -197,7 +197,7 @@ describe('ゲートの簡約ルール', function()
   --
   --   C-X
   -- X-C X-C
-  it('まちがった C-X x2 は消えない #solo', function()
+  it('まちがった C-X x2 は消えない', function()
     board:put(2, 11, control_gate(3))
     board:put(3, 11, cnot_x_gate(2))
 
