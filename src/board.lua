@@ -224,7 +224,7 @@ function create_board(_offset_x)
 
         ::check_match::
         -- chainable フラグがついたブロックがマッチしたゲートの中に 1 個でも含まれていたら連鎖
-        local chain_id = tostr(x) .. "," .. tostr(y)
+        local chain_id = x .. "," .. y
 
         -- マッチするかチェック
         for i, gates in pairs(gate_pattern_rows) do
