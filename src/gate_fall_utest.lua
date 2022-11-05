@@ -37,7 +37,7 @@ describe('ゲートの落下', function()
     end)
 
     it("着地後 1 フレームで状態が idle になる", function()
-      board:put(1, 11, gate)
+      board:put(1, 12, gate)
 
       board:update()
       board:update()
@@ -83,8 +83,8 @@ describe('ゲートの落下', function()
     end)
 
     it("着地後 1 フレームで状態が idle になる", function()
-      board:put(1, 10, gate1)
-      board:put(1, 11, gate2)
+      board:put(1, 11, gate1)
+      board:put(1, 12, gate2)
 
       board:update()
       board:update()
@@ -132,8 +132,8 @@ describe('ゲートの落下', function()
     end)
 
     it("着地後 1 フレームで状態が idle になる", function()
-      board:put(1, 11, control)
-      board:put(2, 11, cnot_x)
+      board:put(1, 12, control)
+      board:put(2, 12, cnot_x)
 
       board:update()
       board:update()
@@ -180,8 +180,8 @@ describe('ゲートの落下', function()
     end)
 
     it("着地後 1 フレームで状態が idle になる", function()
-      board:put(1, 11, swap_left)
-      board:put(2, 11, swap_right)
+      board:put(1, 12, swap_left)
+      board:put(2, 12, swap_right)
 
       board:update()
       board:update()
@@ -197,11 +197,11 @@ describe('ゲートの落下', function()
       --
       -- S-S  --->  S-S    --->
       --   H            H        S-S H
-      board:put(1, 11, swap_left)
-      board:put(2, 11, swap_right)
-      board:put(2, 12, h_gate())
+      board:put(1, 12, swap_left)
+      board:put(2, 12, swap_right)
+      board:put(2, 13, h_gate())
 
-      board:swap(2, 12)
+      board:swap(2, 13)
 
       -- swap が 4 フレーム
       board:update()
@@ -216,8 +216,8 @@ describe('ゲートの落下', function()
       board:update()
       board:update()
 
-      assert.are_equal(swap_left, board:gate_at(1, 12))
-      assert.are_equal(swap_right, board:gate_at(2, 12))
+      assert.are_equal(swap_left, board:gate_at(1, 13))
+      assert.are_equal(swap_right, board:gate_at(2, 13))
       assert.is_true(swap_left:is_idle())
       assert.is_true(swap_right:is_idle())
     end)
@@ -251,7 +251,7 @@ describe('ゲートの落下', function()
     end)
 
     it("着地後 1 フレームで状態が idle になる", function()
-      board:put(1, 11, garbage)
+      board:put(1, 12, garbage)
 
       board:update()
       board:update()

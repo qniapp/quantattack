@@ -80,15 +80,15 @@ describe('連鎖 (chain)', function()
     -- S
     -- T --> S
     -- T     S
-    board:put(1, 10, s_gate())
-    board:put(1, 11, t_gate())
+    board:put(1, 11, s_gate())
     board:put(1, 12, t_gate())
+    board:put(1, 13, t_gate())
 
     for i = 0, 82 do
       board:update()
     end
 
-    assert.are_equal(2, board.chain_count["1,11"])
+    assert.are_equal(2, board.chain_count["1,12"])
   end)
 
   it("3 連鎖 (ほかのゲートに変化したものとさらにマッチ)", function()

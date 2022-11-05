@@ -20,31 +20,31 @@ describe('ゲートの入れ替え', function()
     end)
 
     it("4 フレームで入れ替わる", function()
-      board:put(1, 12, h_gate())
-      board:put(2, 12, x_gate())
+      board:put(1, 13, h_gate())
+      board:put(2, 13, x_gate())
 
       -- swap 開始フレーム
-      board:swap(1, 12)
+      board:swap(1, 13)
       board:update()
-      assert.is_true(board:gate_at(1, 12):is_swapping())
-      assert.is_true(board:gate_at(2, 12):is_swapping())
+      assert.is_true(board:gate_at(1, 13):is_swapping())
+      assert.is_true(board:gate_at(2, 13):is_swapping())
 
       board:update()
-      assert.is_true(board:gate_at(1, 12):is_swapping())
-      assert.is_true(board:gate_at(2, 12):is_swapping())
+      assert.is_true(board:gate_at(1, 13):is_swapping())
+      assert.is_true(board:gate_at(2, 13):is_swapping())
 
       board:update()
-      assert.is_true(board:gate_at(1, 12):is_swapping())
-      assert.is_true(board:gate_at(2, 12):is_swapping())
+      assert.is_true(board:gate_at(1, 13):is_swapping())
+      assert.is_true(board:gate_at(2, 13):is_swapping())
 
       board:update()
-      assert.is_true(board:gate_at(1, 12):is_swapping())
-      assert.is_true(board:gate_at(2, 12):is_swapping())
+      assert.is_true(board:gate_at(1, 13):is_swapping())
+      assert.is_true(board:gate_at(2, 13):is_swapping())
 
       board:update()
 
-      assert.is_true(board:gate_at(1, 12):is_idle())
-      assert.is_true(board:gate_at(2, 12):is_idle())
+      assert.is_true(board:gate_at(1, 13):is_idle())
+      assert.is_true(board:gate_at(2, 13):is_idle())
     end)
   end)
 

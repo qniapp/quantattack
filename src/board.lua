@@ -17,8 +17,8 @@ end
 function create_board(_offset_x)
   local board = setmetatable({
     cols = 6,
-    rows = 12,
-    row_next_gates = 13, -- rows + 1
+    rows = 13,
+    row_next_gates = 14, -- rows + 1
     gates = {},
     width = 48, -- 6 * tile_size
     height = 96, -- 12 * tile_size
@@ -263,8 +263,9 @@ function create_board(_offset_x)
     end,
 
     -- ボード上の Y 座標を画面上の Y 座標に変換
+    -- 一行目は表示しないことに注意
     screen_y = function(_ENV, y)
-      return offset_y + (y - 1) * tile_size - raised_dots + bounce_screen_dy
+      return offset_y + (y - 2) * tile_size - raised_dots + bounce_screen_dy
     end,
 
     _random_single_gate = function(_ENV)
@@ -473,9 +474,11 @@ function create_board(_offset_x)
           5)
       end
 
-      -- draw gates
+      -- ゲートの描画
       for x = 1, cols do
-        for y = 1, row_next_gates do
+        -- 1 行目は画面に表示しないバッファとして使うので、
+        -- 2 行目以降を表示する
+        for y = 2, row_next_gates do
           local gate, scr_x, scr_y = gates[x][y], screen_x(_ENV, x), screen_y(_ENV, y)
 
           -- CNOT や SWAP の接続を描画

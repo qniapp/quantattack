@@ -67,12 +67,11 @@ describe('player_cursor', function()
       player_cursor:move_up() -- y = 4
       player_cursor:move_up() -- y = 3
       player_cursor:move_up() -- y = 2
-      player_cursor:move_up() -- y = 1
 
       player_cursor:move_up()
 
       assert.are_equal(3, player_cursor.x)
-      assert.are_equal(1, player_cursor.y)
+      assert.are_equal(2, player_cursor.y)
     end)
   end)
 
@@ -91,11 +90,12 @@ describe('player_cursor', function()
       player_cursor:move_down() -- y = 10
       player_cursor:move_down() -- y = 11
       player_cursor:move_down() -- y = 12
+      player_cursor:move_down() -- y = 13
 
       player_cursor:move_down()
 
       assert.are_equal(3, player_cursor.x)
-      assert.are_equal(12, player_cursor.y)
+      assert.are_equal(13, player_cursor.y)
     end)
   end)
 

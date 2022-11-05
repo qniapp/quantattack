@@ -98,7 +98,7 @@ function game:update()
         end
       end
       if each.x then
-        if board:top_gate_y() > 1 then
+        if board:top_gate_y() > 2 then
           self:_raise(each)
         end
       end

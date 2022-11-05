@@ -24,7 +24,7 @@ function create_qpu(cursor)
         end
 
         -- 上から探すパターン
-        for new_y = 1, board.rows - 1 do
+        for new_y = 2, board.rows - 1 do
           for new_x = 1, board.cols - 1 do
             -- 入れ替えることで右に落とせる場合
             --
@@ -56,7 +56,7 @@ function create_qpu(cursor)
 
         ::rules_to_search_from_bottom::
         -- 下から探すパターン
-        for new_y = board.rows - 1, 1, -1 do
+        for new_y = board.rows - 1, 2, -1 do
           for new_x = 1, board.cols - 1 do
             local left_gate = board:reducible_gate_at(new_x, new_y)
             local right_gate = board:reducible_gate_at(new_x + 1, new_y)

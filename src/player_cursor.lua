@@ -23,7 +23,9 @@ function create_player_cursor(board)
     end,
 
     move_up = function(_ENV)
-      if y > 1 then
+      -- board の一行目は画面に表示しないので、
+      -- カーソルが移動できるのは二行目まで
+      if y > 2 then
         y = y - 1
       end
     end,
