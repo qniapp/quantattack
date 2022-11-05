@@ -108,10 +108,6 @@ function game:update()
       self:_auto_raise(each)
 
       each.tick = each.tick + 1
-
-      --#if log
-      log("\n" .. board:_tostring())
-      --#endif
     end
   end
 

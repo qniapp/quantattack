@@ -28,6 +28,8 @@ function create_board(_offset_x)
     bounce_speed = 0,
     bounce_screen_dy = 0,
     chain_count = {},
+    reduce_cache = {},
+    reducible_gate_at_cache = {},
     is_empty_cache = {},
     is_gate_fallable_cache = {},
     is_single_gate_cache = {},
@@ -177,6 +179,14 @@ function create_board(_offset_x)
     end,
 
     reduce = function(_ENV, x, y, include_next_gates)
+      if include_next_gates then
+        return _reduce_nocache(_ENV, x, y, true)
+      else
+        return memoize(_ENV, _reduce_nocache, reduce_cache, x, y)
+      end
+    end,
+
+    _reduce_nocache = function(_ENV, x, y, include_next_gates)
       local reduction = { to = {}, score = 0 }
       local gate = gates[x][y]
 
@@ -323,6 +333,10 @@ function create_board(_offset_x)
     end,
 
     reducible_gate_at = function(_ENV, x, y)
+      return memoize(_ENV, _reducible_gate_at_nocache, reducible_gate_at_cache, x, y)
+    end,
+
+    _reducible_gate_at_nocache = function(_ENV, x, y)
       local gate = gates[x][y]
 
       return gate:is_reducible() and gate or i_gate()
@@ -746,6 +760,8 @@ function create_board(_offset_x)
     -- changed フラグを立て各種キャッシュもクリア
     observable_update = function(_ENV, observable)
       changed = true
+      reduce_cache = {}
+      reducible_gate_at_cache = {}
       is_empty_cache = {}
       is_gate_fallable_cache = {}
       is_single_gate_cache = {}

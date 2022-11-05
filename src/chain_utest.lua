@@ -1,8 +1,6 @@
 require("engine/test/bustedhelper")
 require("board")
 
-local profiler = require("profiler")
-
 describe('連鎖 (chain)', function()
   local board
 
@@ -101,14 +99,9 @@ describe('連鎖 (chain)', function()
     board:put(1, 11, t_gate())
     board:put(1, 12, t_gate())
 
-    profiler.start()
-
     for i = 0, 152 do
       board:update()
     end
-
-    profiler.stop()
-    profiler.report("profiler.log")
 
     assert.are_equal(3, board.chain_count["1,11"])
   end)
