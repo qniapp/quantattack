@@ -37,12 +37,12 @@ function qpu_vs_qpu:on_enter()
 end
 
 function qpu_vs_qpu:update()
-  if qpu1_board:is_game_over() and qpu1_board.win == nil then
-    qpu1_board.win = false
+  if qpu1_board:is_game_over() and qpu1_board.win == false then
+    qpu1_board.lose = true
     qpu2_board.win = true
-  elseif qpu2_board:is_game_over() and qpu2_board.win == nil then
+  elseif qpu2_board:is_game_over() and qpu2_board.win == false then
     qpu1_board.win = true
-    qpu2_board.win = false
+    qpu2_board.lose = true
   end
 
   if qpu1_board:is_game_over() or qpu2_board:is_game_over() then

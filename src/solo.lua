@@ -52,7 +52,7 @@ function solo:render() -- override
 
   -- ゲームオーバー
   if board:is_game_over() then
-    board:game_over()
+    board.lose = true
   end
 end
 

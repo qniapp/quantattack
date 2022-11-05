@@ -27,7 +27,8 @@ function create_board(_offset_x)
     init = function(_ENV)
       state = "play"
       raised_dots = 0
-      win = nil
+      win = false
+      lose = false
 
       -- fill the board with I gates
       for x = 1, cols do
@@ -382,16 +383,6 @@ function create_board(_offset_x)
       end
     end,
 
-    game_over = function(_ENV)
-      local center_x, center_y = offset_x + width / 2, offset_y + height / 2
-
-      draw_rounded_box(center_x - 22, center_y - 7,
-        center_x + 20, center_y + 22,
-        1, 7)
-      print_centered("game over", center_x, center_y, 8)
-      print_centered("push x\nto replay", center_x, center_y + 12, 0)
-    end,
-
     -------------------------------------------------------------------------------
     -- ユーザーによるゲート操作
     -------------------------------------------------------------------------------
@@ -446,7 +437,7 @@ function create_board(_offset_x)
     -------------------------------------------------------------------------------
 
     update = function(_ENV, game, player, other_board)
-      if _gates_piled_up(_ENV) or win ~= nil then
+      if _gates_piled_up(_ENV) or win or lose then
         state = "over"
       end
 
@@ -455,7 +446,13 @@ function create_board(_offset_x)
       if state == "play" then
         _update_game(_ENV, game, player, other_board)
       elseif state == "over" then
-        -- NOP
+        if lose then
+          for x = 1, cols do
+            for y = 1, row_next_gates do
+              gates[x][y]._state = "over"
+            end
+          end
+        end
       end
     end,
 
@@ -473,34 +470,29 @@ function create_board(_offset_x)
         for y = 1, row_next_gates do
           local gate, scr_x, scr_y = gates[x][y], screen_x(_ENV, x), screen_y(_ENV, y)
 
+          -- CNOT や SWAP の接続を描画
           if gate.other_x and x < gate.other_x then
             local connection_y = scr_y + 3
             line(scr_x + 3, connection_y,
               screen_x(_ENV, gate.other_x) + 3, connection_y,
-              10)
+              lose and 5 or 10)
           end
 
           gate:render(scr_x, scr_y)
 
           -- マスクを描画
           if y == row_next_gates then
-            spr(102, scr_x, scr_y)
+            spr(85, scr_x, scr_y)
           end
         end
       end
 
+      -- WIN! または LOSE を描画
       if win then
-        local center_x, center_y = offset_x + width / 2, offset_y + height / 2
-
-        draw_rounded_box(center_x - 22, center_y - 7, center_x + 20, center_y + 7,
-          1, 7)
-        print_centered("win", center_x, center_y, 8)
-      elseif win == false then
-        local center_x, center_y = offset_x + width / 2, offset_y + height / 2
-
-        draw_rounded_box(center_x - 22, center_y - 7, center_x + 20, center_y + 7,
-          1, 7)
-        print_centered("lose", center_x, center_y, 5)
+        sspr(0, 80, 32, 16, offset_x + width / 2 - 16, offset_y + 16)
+      end
+      if lose then
+        sspr(32, 80, 32, 16, offset_x + width / 2 - 16, offset_y + 16)
       end
     end,
 
