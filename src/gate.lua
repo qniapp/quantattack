@@ -77,7 +77,7 @@ function create_gate(_type, _span)
     _state = "idle",
     _screen_dy = 0,
     chain_id = nil,
-    _observers = {},
+    board = nil,
 
     -------------------------------------------------------------------------------
     -- gate state
@@ -199,7 +199,7 @@ function create_gate(_type, _span)
     -- update and render
     -------------------------------------------------------------------------------
 
-    update = function(_ENV, board)
+    update = function(_ENV)
       assert(x)
       assert(y)
 
@@ -359,7 +359,7 @@ function create_gate(_type, _span)
     end,
 
     -- FIXME: 引数に screen_x, screen_y ではなく board を取るようにする
-    render = function(_ENV, board)
+    render = function(_ENV)
       if is_i(_ENV) then
         return
       end
@@ -409,20 +409,13 @@ function create_gate(_type, _span)
     -------------------------------------------------------------------------------
 
     -- オブザーバ (board) を登録する
-    attach = function(_ENV, observer)
-      add(_observers, observer)
-    end,
-
-    notify_observers = function(_ENV)
-      for _, each in pairs(_observers) do
-        each:observable_update(_ENV)
-      end
+    attach = function(_ENV, _board)
+      board = _board
     end,
 
     change_state = function(_ENV, new_state)
       _state = new_state
-
-      notify_observers(_ENV)
+      board:observable_update(_ENV)
     end,
 
     -------------------------------------------------------------------------------

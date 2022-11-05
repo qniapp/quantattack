@@ -492,7 +492,7 @@ function create_board(_offset_x)
               lose and 5 or 10)
           end
 
-          gate:render(_ENV)
+          gate:render()
 
           -- マスクを描画
           if y == row_next_gates then
@@ -559,7 +559,7 @@ function create_board(_offset_x)
           end
 
           -- ゲートを更新
-          gate:update(_ENV)
+          gate:update()
         end
       end
 

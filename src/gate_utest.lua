@@ -18,7 +18,10 @@ describe('gate', function()
     local gate
 
     before_each(function()
+      local board = create_board()
       gate = h_gate()
+
+      board:put(2, 1, gate)
     end)
 
     it('should swap with the left gate without errors', function()
@@ -36,7 +39,10 @@ describe('gate', function()
     local gate
 
     before_each(function()
+      local board = create_board()
       gate = h_gate()
+
+      board:put(1, 1, gate)
     end)
 
     it('should swap with the right gate without errors', function()
@@ -54,7 +60,10 @@ describe('gate', function()
     local gate
 
     before_each(function()
+      local board = create_board()
       gate = h_gate()
+
+      board:put(1, 1, gate)
     end)
 
     it('should drop the gate without errors', function()
@@ -69,8 +78,10 @@ describe('gate', function()
   end)
 
   it('should replace with other gate', function()
+    local board = create_board()
     local gate = h_gate()
     local other_gate = x_gate()
+    board:put(1, 1, gate)
 
     assert.has_no.errors(function() gate:replace_with(other_gate) end)
   end)
