@@ -47,7 +47,7 @@ function vs_qpu:update()
   end
 
   if board:is_game_over() or qpu_board:is_game_over() then
-    if btnp(5) then
+    if btn(4) or btn(5) then -- x または z でタイトルへ戻る
       load('qitaev_title')
     end
   end
