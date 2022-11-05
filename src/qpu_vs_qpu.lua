@@ -46,7 +46,7 @@ function qpu_vs_qpu:update()
   end
 
   if qpu1_board:is_game_over() or qpu2_board:is_game_over() then
-    if btnp(5) then
+    if btn(5) then
       load('qitaev_title')
     end
   end

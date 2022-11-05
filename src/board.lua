@@ -6,6 +6,14 @@ require("gate")
 
 local reduction_rules = require("reduction_rules")
 
+function print_outlined(str, x, y, color) -- 21 tokens, 6.3 seconds
+  print(str, x - 1, y, 0)
+  print(str, x + 1, y)
+  print(str, x, y - 1)
+  print(str, x, y + 1)
+  print(str, x, y, color)
+end
+
 function create_board(_offset_x)
   local board = setmetatable({
     cols = 6,
@@ -488,11 +496,15 @@ function create_board(_offset_x)
       end
 
       -- WIN! または LOSE を描画
-      if win then
-        sspr(0, 80, 32, 16, offset_x + width / 2 - 16, offset_y + 16)
-      end
-      if lose then
-        sspr(32, 80, 32, 16, offset_x + width / 2 - 16, offset_y + 16)
+      if is_game_over(_ENV) then
+        local sx, sy
+        if win then
+          sx, sy = 0, 80
+        else
+          sx, sy = 32, 80
+        end
+        sspr(sx, sy, 32, 16, offset_x + width / 2 - 16, offset_y + 16)
+        print_outlined("push any key!", offset_x - 1, offset_y + 80, 8)
       end
     end,
 
