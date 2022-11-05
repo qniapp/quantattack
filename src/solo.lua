@@ -30,7 +30,7 @@ function solo:update()
   game:update()
 
   if board:is_game_over() then
-    if player.x then
+    if btn(4) or btn(5) then -- x または z でタイトルへ戻る
       load('qitaev_title')
     end
   end
@@ -52,7 +52,7 @@ function solo:render() -- override
 
   -- ゲームオーバー
   if board:is_game_over() then
-    board:game_over()
+    board.lose = true
   end
 end
 

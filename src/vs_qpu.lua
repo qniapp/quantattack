@@ -38,16 +38,16 @@ function vs_qpu:on_enter()
 end
 
 function vs_qpu:update()
-  if board:is_game_over() and board.win == nil then
-    board.win = false
+  if board:is_game_over() and board.win == false then
+    board.lose = true
     qpu_board.win = true
-  elseif qpu_board:is_game_over() and qpu_board.win == nil then
+  elseif qpu_board:is_game_over() and qpu_board.win == false then
     board.win = true
-    qpu_board.win = false
+    qpu_board.lose = true
   end
 
   if board:is_game_over() or qpu_board:is_game_over() then
-    if btnp(5) then
+    if btn(4) or btn(5) then -- x または z でタイトルへ戻る
       load('qitaev_title')
     end
   end

@@ -12,47 +12,56 @@ local sprites = {
   h = {
     default = 0,
     landed = split("16,16,16,16,48,48,32,32,32,16,16,16"),
-    match = split("9,9,9,25,25,25,9,9,9,41,41,41,0,0,0,57")
+    match = split("9,9,9,25,25,25,9,9,9,41,41,41,0,0,0,57"),
+    over = 90,
   },
   x = {
     default = 1,
     landed = split("17,17,17,17,49,49,33,33,33,17,17,17"),
-    match = split("10,10,10,26,26,26,10,10,10,42,42,42,1,1,1,58")
+    match = split("10,10,10,26,26,26,10,10,10,42,42,42,1,1,1,58"),
+    over = 91,
   },
   y = {
     default = 2,
     landed = split("18,18,18,18,50,50,34,34,34,18,18,18"),
-    match = split("11,11,11,27,27,27,11,11,11,43,43,43,2,2,2,59")
+    match = split("11,11,11,27,27,27,11,11,11,43,43,43,2,2,2,59"),
+    over = 92,
   },
   z = {
     default = 3,
     landed = split("19,19,19,19,51,51,35,35,35,19,19,19"),
-    match = split("12,12,12,28,28,28,12,12,12,44,44,44,3,3,3,60")
+    match = split("12,12,12,28,28,28,12,12,12,44,44,44,3,3,3,60"),
+    over = 93,
   },
   s = {
     default = 4,
     landed = split("20,20,20,20,52,52,36,36,36,20,20,20"),
-    match = split("13,13,13,29,29,29,13,13,13,45,45,45,4,4,4,61")
+    match = split("13,13,13,29,29,29,13,13,13,45,45,45,4,4,4,61"),
+    over = 94,
   },
   t = {
     default = 5,
     landed = split("21,21,21,21,53,53,37,37,37,21,21,21"),
-    match = split("14,14,14,30,30,30,14,14,14,46,46,46,5,5,5,62")
+    match = split("14,14,14,30,30,30,14,14,14,46,46,46,5,5,5,62"),
+    over = 95,
   },
   control = {
     default = 6,
     landed = split("22,22,22,22,54,54,38,38,38,22,22,22"),
-    match = split("15,15,15,31,31,31,15,15,15,47,47,47,6,6,6,63")
+    match = split("15,15,15,31,31,31,15,15,15,47,47,47,6,6,6,63"),
+    over = 106,
   },
   cnot_x = {
     default = 7,
     landed = split("23,23,23,23,55,55,39,39,39,23,23,23"),
-    match = split("64,64,64,80,80,80,64,64,64,96,96,96,7,7,7,112")
+    match = split("64,64,64,80,80,80,64,64,64,96,96,96,7,7,7,112"),
+    over = 91,
   },
   swap = {
     default = 8,
     landed = split("24,24,24,24,56,56,40,40,40,24,24,24"),
-    match = split("65,65,65,81,81,81,65,65,65,97,97,97,8,8,8,113")
+    match = split("65,65,65,81,81,81,65,65,65,97,97,97,8,8,8,113"),
+    over = 107,
   },
   ["!"] = {
     default = 89,
@@ -354,12 +363,12 @@ function create_gate(_type, _span)
 
       if span > 1 then
         for x = 0, span - 1 do
-          local sprite_id = _sprite_middle
+          local sprite_id = _state == "over" and _sprite_middle_over or _sprite_middle
           if (x == 0) then -- 左端
-            sprite_id = _sprite_left
+            sprite_id = _state == "over" and _sprite_left_over or _sprite_left
           end
           if (x == span - 1) then -- 右端
-            sprite_id = _sprite_right
+            sprite_id = _state == "over" and _sprite_right_over or _sprite_right
           end
 
           spr(sprite_id, screen_x + x * tile_size, screen_y + _screen_dy)
@@ -383,6 +392,8 @@ function create_gate(_type, _span)
       elseif is_match(_ENV) then
         local sequence = sprites[type].match
         return _tick_match <= 15 and sequence[_tick_match] or sequence[#sequence]
+      elseif _state == "over" then
+        return sprites[type].over
       else
         return sprites[type].default
       end
@@ -493,8 +504,11 @@ function garbage_gate(span)
 
   local garbage = create_gate('g', span)
   garbage._sprite_middle = 87
+  garbage._sprite_middle_over = 110
   garbage._sprite_left = 86
+  garbage._sprite_left_over = 109
   garbage._sprite_right = 88
+  garbage._sprite_right_over = 111
   garbage._garbage_first_drop = true
 
   return garbage
