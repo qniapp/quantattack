@@ -1,12 +1,16 @@
 require("engine/test/bustedhelper")
+require("board")
 require("gate")
 
 describe('gate', function()
   describe('render', function()
     it('should render without errors', function()
+      local board = create_board()
       local gate = h_gate()
 
-      assert.has_no.errors(function() gate:render(0, 0) end)
+      board:put(1, 1, gate)
+
+      assert.has_no.errors(function() gate:render(board) end)
     end)
   end)
 
@@ -18,11 +22,11 @@ describe('gate', function()
     end)
 
     it('should swap with the left gate without errors', function()
-      assert.has_no.errors(function() gate:swap_with_left(1) end)
+      assert.has_no.errors(function() gate:swap_with_left() end)
     end)
 
     it('should transition its state to swapping', function()
-      gate:swap_with_left(1)
+      gate:swap_with_left()
 
       assert.is_true(gate:is_swapping())
     end)
@@ -36,11 +40,11 @@ describe('gate', function()
     end)
 
     it('should swap with the right gate without errors', function()
-      assert.has_no.errors(function() gate:swap_with_right(2) end)
+      assert.has_no.errors(function() gate:swap_with_right() end)
     end)
 
     it('should transition its state to swapping', function()
-      gate:swap_with_right(2)
+      gate:swap_with_right()
 
       assert.is_true(gate:is_swapping())
     end)

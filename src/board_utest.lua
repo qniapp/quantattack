@@ -26,7 +26,7 @@ describe('board', function()
 
     it('should not swap gates if the left gate is in swap', function()
       board:put(2, 12, h_gate())
-      board:gate_at(2, 12):swap_with_left(1)
+      board:gate_at(2, 12):swap_with_left()
       board:put(3, 12, x_gate())
 
       local swapped = board:swap(2, 12)
@@ -39,7 +39,7 @@ describe('board', function()
     it('should not swap gates if the right gate is in swap', function()
       board:put(1, 12, h_gate())
       board:put(2, 12, x_gate())
-      board:gate_at(2, 12):swap_with_right(3)
+      board:gate_at(2, 12):swap_with_right()
 
       local swapped = board:swap(1, 12)
 
@@ -48,9 +48,7 @@ describe('board', function()
       assert.is_true(board:gate_at(1, 12):is_idle())
     end)
 
-    -- (S は SWAP ゲート)
-    --
-    --  S-S →(右 の S を左の I と入れ換え)→ SS
+    -- S-I-S →(右 の S を I と入れ換え)→ S-S
     it('should update swap_gate.other_x after a swap', function()
       board:put(1, 12, swap_gate(3))
       board:put(3, 12, swap_gate(1))

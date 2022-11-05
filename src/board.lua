@@ -332,6 +332,8 @@ function create_board(_offset_x)
       assert(1 <= x and x <= cols, x)
       assert(1 <= y and y <= row_next_gates, y)
 
+      gate.x = x
+      gate.y = y
       gates[x][y] = gate
       gate:attach(_ENV)
       observable_update(_ENV, gate)
@@ -435,8 +437,8 @@ function create_board(_offset_x)
         return false
       end
 
-      left_gate:swap_with_right(x_right)
-      right_gate:swap_with_left(x_left)
+      left_gate:swap_with_right()
+      right_gate:swap_with_left()
 
       return true
     end,
@@ -482,6 +484,7 @@ function create_board(_offset_x)
           local gate, scr_x, scr_y = gates[x][y], screen_x(_ENV, x), screen_y(_ENV, y)
 
           -- CNOT や SWAP の接続を描画
+          -- TODO: gate 側で描画する。
           if gate.other_x and x < gate.other_x then
             local connection_y = scr_y + 3
             line(scr_x + 3, connection_y,
@@ -489,7 +492,7 @@ function create_board(_offset_x)
               lose and 5 or 10)
           end
 
-          gate:render(scr_x, scr_y)
+          gate:render(_ENV)
 
           -- マスクを描画
           if y == row_next_gates then
@@ -556,7 +559,7 @@ function create_board(_offset_x)
           end
 
           -- ゲートを更新
-          gate:update(_ENV, x, y)
+          gate:update(_ENV)
         end
       end
 

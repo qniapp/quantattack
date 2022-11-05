@@ -3,8 +3,8 @@
 require("engine/application/constants")
 require("particle")
 
-match_animation_frame_count = 45
-match_delay_per_gate = 15
+gate_match_animation_frame_count = 45
+gate_match_delay_per_gate = 15
 gate_swap_animation_frame_count = 4
 gate_fall_speed = 2
 
@@ -158,22 +158,14 @@ function create_gate(_type, _span)
     -- ゲート操作
     -------------------------------------------------------------------------------
 
-    swap_with_right = function(_ENV, new_x)
-      --#if assert
-      assert(2 <= new_x)
-      --#endif
-
+    swap_with_right = function(_ENV)
       _tick_swap = 0
       chain_id = nil
 
       change_state(_ENV, "swapping_with_right")
     end,
 
-    swap_with_left = function(_ENV, new_x)
-      --#if assert
-      assert(1 <= new_x)
-      --#endif
-
+    swap_with_left = function(_ENV)
       _tick_swap = 0
       chain_id = nil
 
@@ -207,7 +199,10 @@ function create_gate(_type, _span)
     -- update and render
     -------------------------------------------------------------------------------
 
-    update = function(_ENV, board, x, y)
+    update = function(_ENV, board)
+      assert(x)
+      assert(y)
+
       if is_idle(_ENV) then
         -- 着地したときに chain_id を消す
         if y <= board.rows then
@@ -256,17 +251,21 @@ function create_gate(_type, _span)
           --
           -- の 4 パターンで左側だけ考える
 
+          -- 次の board:put で x の値が変化するので、
+          -- もともとの x の値をバックアップしていく
+          local orig_x = x
+
           board:put(new_x, y, _ENV)
-          board:put(x, y, right_gate)
+          board:put(orig_x, y, right_gate)
 
           if other_x == nil and right_gate.other_x == nil then -- 1.
             -- NOP
           elseif not is_i(_ENV) and right_gate:is_i() then -- 2.
             board.gates[other_x][y].other_x = new_x
           elseif is_i(_ENV) and not right_gate:is_i() then -- 3.
-            board.gates[right_gate.other_x][y].other_x = x
+            board.gates[right_gate.other_x][y].other_x = orig_x
           elseif other_x and right_gate.other_x then -- 4.
-            other_x, right_gate.other_x = x, new_x
+            other_x, right_gate.other_x = orig_x, new_x
           else
             assert(false, "we should not reach here")
           end
@@ -306,6 +305,7 @@ function create_gate(_type, _span)
           _screen_dy = _screen_dy + gate_fall_speed
 
           local new_y = y
+
           if _screen_dy >= tile_size then
             new_y = new_y + 1
           end
@@ -313,14 +313,16 @@ function create_gate(_type, _span)
           if new_y == y then
             -- 同じ場所にとどまっている場合、何もしない
           elseif board:is_gate_fallable(x, y) then
+            local orig_y = y
+
             -- 一個下が空いている場合、そこに移動する
             board:remove_gate(x, y)
             board:put(x, new_y, _ENV)
             _screen_dy = _screen_dy - tile_size
 
             if other_x and x < other_x then
-              local other_gate = board.gates[other_x][y]
-              board:remove_gate(other_x, y)
+              local other_gate = board.gates[other_x][orig_y]
+              board:remove_gate(other_x, orig_y)
               board:put(other_x, new_y, other_gate)
               other_gate._screen_dy = _screen_dy
             end
@@ -331,7 +333,7 @@ function create_gate(_type, _span)
         assert(not is_garbage(_ENV))
         --#endif
 
-        if _tick_match <= match_animation_frame_count + _match_index * match_delay_per_gate then
+        if _tick_match <= gate_match_animation_frame_count + _match_index * gate_match_delay_per_gate then
           _tick_match = _tick_match + 1
         else
           local new_gate = _reduce_to
@@ -356,10 +358,13 @@ function create_gate(_type, _span)
       end
     end,
 
-    render = function(_ENV, screen_x, screen_y)
+    -- FIXME: 引数に screen_x, screen_y ではなく board を取るようにする
+    render = function(_ENV, board)
       if is_i(_ENV) then
         return
       end
+
+      local screen_x, screen_y = board:screen_x(x), board:screen_y(y)
 
       if span > 1 then
         for x = 0, span - 1 do
