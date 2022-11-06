@@ -372,7 +372,8 @@ function create_board(_offset_x)
         end
       end
 
-      local garbage = garbage_gate(span)
+      -- TODO: おじゃまの高さを fall_garbage の引数で指定するようにする
+      local garbage = garbage_gate(span, rnd({ 1, 2, 3 }))
       put(_ENV, x, 1, garbage)
       garbage:fall()
     end,
@@ -662,8 +663,8 @@ function create_board(_offset_x)
           local gate = gates[_x][_y]
 
           if gate:is_garbage() and
-            _x <= x and x <= _x + gate.span - 1 and -- 幅に x が含まれる
-            y <= _y and y >= _y - gate.height + 1 then -- 高さに y が含まれる
+              _x <= x and x <= _x + gate.span - 1 and -- 幅に x が含まれる
+              y <= _y and y >= _y - gate.height + 1 then -- 高さに y が含まれる
             return true
           end
         end

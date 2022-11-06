@@ -472,35 +472,69 @@ function swap_gate(other_x)
   return swap
 end
 
-function garbage_gate(span, height)
-  assert(span)
+function garbage_gate(_span, _height)
+  assert(_span)
 
-  local garbage = create_gate('g', span, height)
+  local garbage = create_gate('g', _span, _height)
 
   garbage.render = function(_ENV)
-    -- TODO: height が 2 以上の場合にも対応
-    for _x = 0, span - 1 do
-      local sprite_id = _state == "over" and _sprite_middle_over or _sprite_middle
-      if (_x == 0) then -- 左端
-        sprite_id = _state == "over" and _sprite_left_over or _sprite_left
-      end
-      if (_x == span - 1) then -- 右端
-        sprite_id = _state == "over" and _sprite_right_over or _sprite_right
-      end
+    -- FIXME: 即値を埋め込む
+    local _sprite_middle = 71
+    local _sprite_middle_over = 110
+    local _sprite_left = 70
+    local _sprite_left_over = 109
+    local _sprite_right = 72
+    local _sprite_right_over = 111
 
-      printh("_x, y = " .. _x .. ", " .. y)
-      printh("_screen_dy = " .. _screen_dy)
+    if height == 1 then
+      for i = 0, span - 1 do
+        local sprite_id = _state == "over" and _sprite_middle_over or _sprite_middle
+        if i == 0 then -- 左端
+          sprite_id = _state == "over" and _sprite_left_over or _sprite_left
+        elseif i == span - 1 then -- 右端
+          sprite_id = _state == "over" and _sprite_right_over or _sprite_right
+        end
 
-      spr(sprite_id, board:screen_x(x) + _x * tile_size, board:screen_y(y) + _screen_dy)
+        spr(sprite_id, board:screen_x(x) + i * tile_size, board:screen_y(y) + _screen_dy)
+      end
+    else
+      -- height が 2 以上の場合
+      for j = 0, height - 1 do
+        for i = 0, span - 1 do
+          local sprite_id
+
+          if i == 0 then -- 左端
+            if j == 0 then -- 左下
+              sprite_id = 118
+            elseif j == height - 1 then -- 左上
+              sprite_id = 86
+            else
+              sprite_id = 102
+            end
+          elseif i == span - 1 then -- 右端
+            if j == 0 then -- 右下
+              sprite_id = 120
+            elseif j == height - 1 then -- 右上
+              sprite_id = 88
+            else
+              sprite_id = 104
+            end
+          else
+            if j == 0 then -- 下真ん中
+              sprite_id = 119
+            elseif j == height - 1 then -- 上真ん中
+              sprite_id = 87
+            else
+              sprite_id = 103
+            end
+          end
+
+          spr(sprite_id, board:screen_x(x) + i * tile_size, board:screen_y(y) - j * tile_size + _screen_dy)
+        end
+      end
     end
   end
 
-  garbage._sprite_middle = 71
-  garbage._sprite_middle_over = 110
-  garbage._sprite_left = 70
-  garbage._sprite_left_over = 109
-  garbage._sprite_right = 72
-  garbage._sprite_right_over = 111
   garbage._garbage_first_drop = true
 
   return garbage
