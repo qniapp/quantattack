@@ -701,11 +701,6 @@ function create_board(_offset_x)
 
     -- ゲート x, y が x, y + 1 に落とせるかどうかを返す。
     _is_gate_fallable_nocache = function(_ENV, x, y)
-      --#if assert
-      assert(1 <= x and x <= cols)
-      assert(1 <= y and y <= row_next_gates)
-      --#endif
-
       if y >= rows then
         return false
       end
@@ -715,29 +710,14 @@ function create_board(_offset_x)
         return false
       end
 
-      -- CNOT または SWAP の端点か単一ゲートだった場合
-      if gate.other_x or gate.height == nil then
-        local start_x, end_x
+      local start_x, end_x = x, x + gate.span - 1
+      if gate.other_x then
+        start_x, end_x = min(x, gate.other_x), max(x, gate.other_x)
+      end
 
-        -- 左側であった場合だけチェックする?
-        if gate.other_x then
-          start_x, end_x = min(x, gate.other_x), max(x, gate.other_x)
-        else
-          start_x, end_x = x, x + gate.span - 1
-        end
-
-        for tmp_x = start_x, end_x do
-          if not (is_empty(_ENV, tmp_x, y + 1) or gates[tmp_x][y + 1]:is_falling()) then
-            return false
-          end
-        end
-      elseif gate.height then
-        local start_x, end_x = x, x + gate.span - 1
-
-        for tmp_x = start_x, end_x do
-          if not (is_empty(_ENV, tmp_x, y + 1) or gates[tmp_x][y + 1]:is_falling()) then
-            return false
-          end
+      for tmp_x = start_x, end_x do
+        if not (is_empty(_ENV, tmp_x, y + 1) or gates[tmp_x][y + 1]:is_falling()) then
+          return false
         end
       end
 
