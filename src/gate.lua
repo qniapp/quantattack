@@ -478,21 +478,13 @@ function garbage_gate(_span, _height)
   local garbage = create_gate('g', _span, _height)
 
   garbage.render = function(_ENV)
-    -- FIXME: 即値を埋め込む
-    local _sprite_middle = 71
-    local _sprite_middle_over = 110
-    local _sprite_left = 70
-    local _sprite_left_over = 109
-    local _sprite_right = 72
-    local _sprite_right_over = 111
-
     if height == 1 then
       for i = 0, span - 1 do
-        local sprite_id = _state == "over" and _sprite_middle_over or _sprite_middle
+        local sprite_id = _state == "over" and 110 or 71
         if i == 0 then -- 左端
-          sprite_id = _state == "over" and _sprite_left_over or _sprite_left
+          sprite_id = _state == "over" and 109 or 70
         elseif i == span - 1 then -- 右端
-          sprite_id = _state == "over" and _sprite_right_over or _sprite_right
+          sprite_id = _state == "over" and 111 or 72
         end
 
         spr(sprite_id, board:screen_x(x) + i * tile_size, board:screen_y(y) + _screen_dy)
