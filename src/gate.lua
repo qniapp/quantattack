@@ -173,10 +173,11 @@ function create_gate(_type, _span, _height)
       change_state(_ENV, "swapping_with_left")
     end,
 
-    replace_with = function(_ENV, other, match_index, garbage_span, _chain_id)
+    replace_with = function(_ENV, other, match_index, garbage_span, garbage_height, _chain_id)
       _reduce_to = other
       _match_index = match_index or 0
       _garbage_span = garbage_span
+      _garbage_height = garbage_height
       _tick_match = 1
       chain_id = _chain_id
       other.chain_id = _chain_id
@@ -339,7 +340,7 @@ function create_gate(_type, _span, _height)
 
           if _garbage_span then
             new_gate._tick_freeze = 0
-            new_gate._freeze_frame_count = (_garbage_span - _match_index) * 15
+            new_gate._freeze_frame_count = (_garbage_span * _garbage_height - _match_index) * 15
             new_gate:change_state("freeze")
           end
         end

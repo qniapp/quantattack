@@ -116,7 +116,7 @@ function create_board(_offset_x)
                 end
               end
 
-              gates[x + dx][y + dy]:replace_with(new_gate, index, nil, chain_id)
+              gates[x + dx][y + dy]:replace_with(new_gate, index, nil, nil, chain_id)
 
               -- ゲートが消える、または変化するとき、その上にあるゲートすべてにフラグを付ける
               for chainable_y = y + dy - 1, 1, -1 do
@@ -172,7 +172,7 @@ function create_board(_offset_x)
               for i = 0, span - 1 do
                 for j = 0, gate.height - 1 do
                   put(_ENV, x + i, y - j, garbage_match_gate())
-                  gates[x + i][y - j]:replace_with(_random_single_gate(_ENV), i + j * span, span)
+                  gates[x + i][y - j]:replace_with(_random_single_gate(_ENV), i + j * span, span, gate.height)
                 end
               end
             end

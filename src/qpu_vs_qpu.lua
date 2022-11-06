@@ -1,4 +1,6 @@
 require("board")
+require("player_cursor")
+require("qpu")
 
 local gamestate = require("engine/application/gamestate")
 local qpu_vs_qpu = derived_class(gamestate)
@@ -12,11 +14,9 @@ qpu1_board.attack_cube_target = { 78, 15 }
 local qpu2_board = create_board(78)
 qpu2_board.attack_cube_target = { 48, 15, "left" }
 
-require("player_cursor")
 local qpu1_cursor = create_player_cursor(qpu1_board)
 local qpu2_cursor = create_player_cursor(qpu2_board)
 
-require("qpu")
 local qpu1 = create_qpu(qpu1_cursor)
 local qpu2 = create_qpu(qpu2_cursor)
 
