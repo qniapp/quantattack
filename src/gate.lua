@@ -64,9 +64,9 @@ local sprites = {
     over = 107,
   },
   ["!"] = {
-    default = 89,
-    landed = split("89,89,89,89,89,89,89,89,89,89,89,89"),
-    match = split("89,89,89,89,89,89,89,89,89,89,89,89,89,89,89,89")
+    default = 73,
+    landed = split("73,73,73,73,73,73,73,73,73,73,73,73"),
+    match = split("73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73")
   },
 }
 
@@ -352,37 +352,20 @@ function create_gate(_type, _span, _height)
       end
     end,
 
-    -- FIXME: 引数に screen_x, screen_y ではなく board を取るようにする
     render = function(_ENV)
       if is_i(_ENV) then
         return
       end
 
-      local screen_x, screen_y = board:screen_x(x), board:screen_y(y)
-
-      if span > 1 then
-        for x = 0, span - 1 do
-          local sprite_id = _state == "over" and _sprite_middle_over or _sprite_middle
-          if (x == 0) then -- 左端
-            sprite_id = _state == "over" and _sprite_left_over or _sprite_left
-          end
-          if (x == span - 1) then -- 右端
-            sprite_id = _state == "over" and _sprite_right_over or _sprite_right
-          end
-
-          spr(sprite_id, screen_x + x * tile_size, screen_y + _screen_dy)
-        end
-      else
-        local screen_dx = 0
-        local diff = (_tick_swap or 0) * (tile_size / gate_swap_animation_frame_count)
-        if _is_swapping_with_right(_ENV) then
-          screen_dx = diff
-        elseif _is_swapping_with_left(_ENV) then
-          screen_dx = -diff
-        end
-
-        spr(_sprite(_ENV), screen_x + screen_dx, screen_y + _screen_dy)
+      local screen_dx = 0
+      local diff = (_tick_swap or 0) * (tile_size / gate_swap_animation_frame_count)
+      if _is_swapping_with_right(_ENV) then
+        screen_dx = diff
+      elseif _is_swapping_with_left(_ENV) then
+        screen_dx = -diff
       end
+
+      spr(_sprite(_ENV), board:screen_x(x) + screen_dx, board:screen_y(y) + _screen_dy)
     end,
 
     _sprite = function(_ENV)
@@ -493,11 +476,30 @@ function garbage_gate(span, height)
   assert(span)
 
   local garbage = create_gate('g', span, height)
-  garbage._sprite_middle = 87
+
+  garbage.render = function(_ENV)
+    -- TODO: height が 2 以上の場合にも対応
+    for _x = 0, span - 1 do
+      local sprite_id = _state == "over" and _sprite_middle_over or _sprite_middle
+      if (_x == 0) then -- 左端
+        sprite_id = _state == "over" and _sprite_left_over or _sprite_left
+      end
+      if (_x == span - 1) then -- 右端
+        sprite_id = _state == "over" and _sprite_right_over or _sprite_right
+      end
+
+      printh("_x, y = " .. _x .. ", " .. y)
+      printh("_screen_dy = " .. _screen_dy)
+
+      spr(sprite_id, board:screen_x(x) + _x * tile_size, board:screen_y(y) + _screen_dy)
+    end
+  end
+
+  garbage._sprite_middle = 71
   garbage._sprite_middle_over = 110
-  garbage._sprite_left = 86
+  garbage._sprite_left = 70
   garbage._sprite_left_over = 109
-  garbage._sprite_right = 88
+  garbage._sprite_right = 72
   garbage._sprite_right_over = 111
   garbage._garbage_first_drop = true
 
