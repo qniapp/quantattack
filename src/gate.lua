@@ -70,10 +70,11 @@ local sprites = {
   },
 }
 
-function create_gate(_type, _span)
+function create_gate(_type, _span, _height)
   return setmetatable({
     type = _type,
     span = _span or 1,
+    height = _height or 1,
     _state = "idle",
     _screen_dy = 0,
     chain_id = nil,
@@ -488,12 +489,10 @@ function swap_gate(other_x)
   return swap
 end
 
-function garbage_gate(span)
-  --#if assert
+function garbage_gate(span, height)
   assert(span)
-  --#endif
 
-  local garbage = create_gate('g', span)
+  local garbage = create_gate('g', span, height)
   garbage._sprite_middle = 87
   garbage._sprite_middle_over = 110
   garbage._sprite_left = 86

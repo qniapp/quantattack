@@ -1,7 +1,40 @@
 require("engine/test/bustedhelper")
+require("board")
 require("gate")
 
-describe('garbage_gate', function()
+describe('garbage_gate #solo', function()
+  describe("おじゃまゲートのインスタンス生成", function()
+    it("幅 (span) をセットできる", function()
+      local garbage = garbage_gate(3)
+
+      assert.are_equal(3, garbage.span)
+    end)
+
+    it("高さ (height) をセットできる", function()
+      local garbage = garbage_gate(3, 4)
+
+      assert.are_equal(4, garbage.height)
+    end)
+  end)
+
+  describe("指定した座標がおじゃまゲートかどうかの判定", function()
+    it("高さ 1 のおじゃまゲートに含まれる座標", function()
+      local board = create_board()
+
+      -- 13 行目の 1, 2, 3 列目はおじゃまゲートに含まれる
+      --
+      -- g g g _ _ _
+      board:put(1, 13, garbage_gate(3, 1))
+
+      assert.is_true(board:is_part_of_garbage(1, 13))
+      assert.is_true(board:is_part_of_garbage(2, 13))
+      assert.is_true(board:is_part_of_garbage(3, 13))
+      assert.is_false(board:is_part_of_garbage(4, 13))
+      assert.is_false(board:is_part_of_garbage(5, 13))
+      assert.is_false(board:is_part_of_garbage(6, 13))
+    end)
+  end)
+
   describe("gate type", function()
     local garbage
 
