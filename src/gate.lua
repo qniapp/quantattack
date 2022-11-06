@@ -334,7 +334,7 @@ function create_gate(_type, _span, _height)
           local new_gate = _reduce_to
           board:put(x, y, new_gate)
 
-          sfx(3, -1, (_match_index - 1) * 4, 4)
+          sfx(3, -1, (_match_index % 6 - 1) * 4, 4)
           create_particle_set(board:screen_x(x) + 3, board:screen_y(y) + 3,
             "3,white,dark_gray,20|3,white,dark_gray,20|2,white,dark_gray,20|2,dark_purple,dark_gray,20|2,light_gray,dark_gray,20|1,white,dark_gray,20|1,white,dark_gray,20|1,light_gray,dark_gray,20|1,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
 

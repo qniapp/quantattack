@@ -19,14 +19,12 @@ function game.combo_callback(combo_count, x, y, player, board, other_board)
   local attack_cube_callback = function()
     player.score = player.score + combo_count
     local b = other_board or board
-    if combo_count > 4 then
-      b:fall_garbage()
-    end
+    b:send_garbage(combo_count > 6 and 6 or combo_count - 1, 1)
   end
 
   create_bubble("combo", combo_count, board:screen_x(x), board:screen_y(y))
   create_attack_cube(board:screen_x(x), board:screen_y(y), attack_cube_callback,
-    unpack(board.attack_cube_target))
+                     unpack(board.attack_cube_target))
 end
 
 function game.chain_callback(chain_count, x, y, player, board, other_board)
@@ -36,14 +34,13 @@ function game.chain_callback(chain_count, x, y, player, board, other_board)
     local attack_cube_callback = function()
       player.score = player.score + (chain_bonus[chain_count] or 180)
       local b = other_board or board
-      if chain_count > 2 then
-        b:fall_garbage()
-      end
+      -- TODO: おじゃまゲートの高さ上限を決める
+      b:send_garbage(6, chain_count - 1)
     end
 
     create_bubble("chain", chain_count, board:screen_x(x), board:screen_y(y))
     create_attack_cube(board:screen_x(x), board:screen_y(y), attack_cube_callback,
-      unpack(board.attack_cube_target))
+                       unpack(board.attack_cube_target))
   end
 end
 

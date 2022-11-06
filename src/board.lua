@@ -40,6 +40,7 @@ function create_board(_offset_x)
       raised_dots = 0
       win = false
       lose = false
+      waiting_garbage_gates = {}
 
       -- fill the board with I gates
       for x = 1, cols do
@@ -375,20 +376,42 @@ function create_board(_offset_x)
       put(_ENV, x, y, i_gate())
     end,
 
-    fall_garbage = function(_ENV)
-      local span = flr(rnd(4)) + 3
-      local x = flr(rnd(cols - span + 1)) + 1
+    send_garbage = function(_ENV, span, _height)
+      -- もしキューの中に幅 6 のおじゃまゲートが存在し、
+      -- 新たに幅 6 のおじゃまゲートを作ろうとする場合、
+      -- 古いおじゃまゲートをキューから削除して、
+      -- 新しいおじゃまゲートをキューに追加
 
-      for i = x, x + span - 1 do
-        if not is_empty(_ENV, x, 1) then
-          return
+      if span == 6 then
+        for _, each in pairs(waiting_garbage_gates) do
+          if each.span == 6 and each.height == _height - 1 then
+            each.height = _height
+            return
+          end
         end
       end
 
-      -- TODO: おじゃまの高さを fall_garbage の引数で指定するようにする
-      local garbage = garbage_gate(span, rnd({ 1, 2, 3 }))
-      put(_ENV, x, 1, garbage)
-      garbage:fall()
+      local garbage = garbage_gate(span, _height)
+      garbage.wait_time = 120
+      add(waiting_garbage_gates, garbage)
+    end,
+
+    update_waiting_garbage_gates = function(_ENV)
+      for _, each in pairs(waiting_garbage_gates) do
+        each.wait_time = each.wait_time - 1
+        if each.wait_time == 0 then
+          local x
+          if each.span == 6 then
+            x = 1
+          else
+            x = flr(rnd(cols - each.span + 1)) + 1
+          end
+
+          del(waiting_garbage_gates, each)
+          put(_ENV, x, 1, each)
+          each:fall()
+        end
+      end
     end,
 
     insert_gates_at_bottom = function(_ENV, steps)
@@ -485,6 +508,7 @@ function create_board(_offset_x)
         state = "over"
       end
 
+      update_waiting_garbage_gates(_ENV)
       _update_bounce(_ENV)
 
       if state == "play" then
@@ -513,7 +537,7 @@ function create_board(_offset_x)
       --
       -- 1 行目は画面に表示しないバッファとして使うので、
       -- 2 行目以降を表示する
-      for y = row_next_gates, 2, -1 do--
+      for y = row_next_gates, 2, -1 do
         for x = 1, cols do
           local gate, scr_x, scr_y = gates[x][y], screen_x(_ENV, x), screen_y(_ENV, y)
 
