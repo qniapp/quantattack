@@ -32,15 +32,15 @@ describe('連鎖 (chain)', function()
     -- X
     -- H ---> Y
     -- H      X
-    board:put(1, 9, y_gate())
-    board:put(1, 10, x_gate())
-    board:put(1, 11, h_gate())
+    board:put(1, 10, y_gate())
+    board:put(1, 11, x_gate())
     board:put(1, 12, h_gate())
-    board:put(1, 13, t_gate())
+    board:put(1, 13, h_gate())
 
-    for i = 0, 83 do
+    repeat
       board:update()
-    end
+    until board:gate_at(1, 13).type == "x" and board:gate_at(1, 13):is_idle()
+    board:update()
 
     assert.is_nil(board:gate_at(1, 11).chain_id)
     assert.is_nil(board:gate_at(1, 12).chain_id)

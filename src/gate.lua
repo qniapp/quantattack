@@ -204,13 +204,8 @@ function create_gate(_type, _span)
       assert(y)
 
       if is_idle(_ENV) then
-        -- 着地したときに chain_id を消す
-        if y <= board.rows then
-          local gate_below = board.gates[x][y + 1]
-
-          if gate_below.chain_id == nil or (gate_below:is_i() and not board:is_empty(x, y + 1)) then
-            chain_id = nil
-          end
+        if chain_id and board.gates[x][y + 1].chain_id == nil then
+          chain_id = nil
         end
 
         if _tick_landed then
@@ -299,8 +294,6 @@ function create_gate(_type, _span)
 
             other_gate:change_state("idle")
           end
-
-          board.changed = true
         else
           _screen_dy = _screen_dy + gate_fall_speed
 

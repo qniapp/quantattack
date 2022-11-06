@@ -18,7 +18,7 @@ describe('chain', function()
     player = create_player()
   end)
 
-  it("連鎖でコールバックが呼ばれる", function()
+  it("コールバックが呼ばれる #solo", function()
     --    Y           Y          Y
     -- [X H]        H X
     --  H X  -----> H X ----->     ----->   Y
@@ -36,9 +36,8 @@ describe('chain', function()
     local chain_callback = assert.spy(game.chain_callback)
 
     wait_swap_to_finish(board)
-
     -- TODO: update 回数を式として書く
-    for _i = 1, 158 do
+    for _i = 1, 81 do
       board:update(game, player)
     end
 

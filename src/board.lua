@@ -1,4 +1,5 @@
----@diagnostic disable: global-in-nil-env, lowercase-global
+---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
+
 require("engine/application/constants")
 require("engine/core/helper")
 require("helpers")
@@ -197,21 +198,27 @@ function create_board(_offset_x)
 
       for _, rule in pairs(rules) do
         -- other_x と dx を決める
-        local gate_pattern_rows = rule[1]
-        local other_x
-        local dx
+        local gate_pattern_rows, other_x, dx = rule[1]
 
         if (include_next_gates and y + #gate_pattern_rows - 1 > row_next_gates) or
             (not include_next_gates and y + #gate_pattern_rows - 1 > rows) then
           goto next_rule
         end
 
-        for i, gates in pairs(gate_pattern_rows) do
-          if gates[2] then
+        for i, gate_types in pairs(gate_pattern_rows) do
+          -- other_x と dx を決める際に、パターンにマッチしないゲートがあれば
+          -- 先にここではじいておく
+          if gate_types[1] ~= "?" then
+            if reducible_gate_at(_ENV, x, y + i - 1).type ~= gate_types[1] then
+              goto next_rule
+            end
+          end
+
+          if gate_types[2] then
             local current_gate = reducible_gate_at(_ENV, x, y + i - 1)
 
             if current_gate.other_x then
-              if current_gate.type == gates[1] then
+              if current_gate.type == gate_types[1] then
                 other_x = current_gate.other_x
                 dx = other_x - x
                 goto check_match
@@ -227,30 +234,28 @@ function create_board(_offset_x)
         local chain_id = x .. "," .. y
 
         -- マッチするかチェック
-        for i, gates in pairs(gate_pattern_rows) do
+        for i, gate_types in pairs(gate_pattern_rows) do
           local current_y = y + i - 1
 
-          if gates[1] ~= "?" then
+          if gate_types[1] ~= "?" then
             local gate1 = reducible_gate_at(_ENV, x, current_y)
-            if gate1.type ~= gates[1] then
+            if gate1.type ~= gate_types[1] or
+                (gate1.other_x and gate1.other_x ~= other_x) then
               goto next_rule
             end
-            if gate1.other_x and gate1.other_x ~= other_x then
-              goto next_rule
-            end
+
             if gate1.chain_id then
               chain_id = gate1.chain_id
             end
           end
 
-          if gates[2] and other_x then
+          if gate_types[2] then
             local gate2 = reducible_gate_at(_ENV, other_x, current_y)
-            if gate2.type ~= gates[2] then
+            if gate2.type ~= gate_types[2] or
+                (gate2.other_x and gate2.other_x ~= x) then
               goto next_rule
             end
-            if gate2.other_x and gate2.other_x ~= x then
-              goto next_rule
-            end
+
             if gate2.chain_id then
               chain_id = gate2.chain_id
             end
