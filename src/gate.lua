@@ -105,7 +105,7 @@ function create_gate(_type, _span)
 
     -- マッチできる場合 true を返す
     is_reducible = function(_ENV)
-      return not is_i(_ENV) and is_idle(_ENV)
+      return not is_i(_ENV) and type ~= "!" and is_idle(_ENV)
     end,
 
     is_falling = function(_ENV)

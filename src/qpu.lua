@@ -23,9 +23,16 @@ function create_qpu(cursor)
           return
         end
 
-        -- 上から探すパターン
+        -- 上から探す
         for new_y = 2, board.rows - 1 do
           for new_x = 1, board.cols - 1 do
+            local left_gate = board:reducible_gate_at(new_x, new_y)
+            local right_gate = board:reducible_gate_at(new_x + 1, new_y)
+
+            if not (left_gate:is_idle() and right_gate:is_idle()) then
+              goto next_gate
+            end
+
             -- 入れ替えることで右に落とせる場合
             --
             -- [X ]
@@ -36,44 +43,13 @@ function create_qpu(cursor)
               return
             end
 
-            -- 連続して左に移動すると落とせる場合
-            --
-            --  [ X]
-            --   HH
-            if board:is_empty(new_x, new_y) and board:is_single_gate(new_x + 1, new_y) then
-              for x = new_x, 1, -1 do
-                if not board:is_empty(x, new_y) then
-                  goto rules_to_search_from_bottom
-                end
-                if board:is_empty(x, new_y + 1) then
-                  move_and_swap(_ENV, new_x, new_y)
-                  return
-                end
-              end
-            end
-          end
-        end
-
-        ::rules_to_search_from_bottom::
-        -- 下から探すパターン
-        for new_y = board.rows - 1, 2, -1 do
-          for new_x = 1, board.cols - 1 do
-            local left_gate = board:reducible_gate_at(new_x, new_y)
-            local right_gate = board:reducible_gate_at(new_x + 1, new_y)
-
-            if not (left_gate:is_idle() and right_gate:is_idle()) then
-              goto next_gate
-            end
-
-            ::next_rule::
             -- 以下の形をみつけたら、上の X-C を左にずらして消す。
             -- (QPU は X-C をどんどん右にずらすので、この形は頻発する)
             --
-            --   X-C
-            -- X-C
+            -- [  X]-C
+            --  X-C
             if board:is_empty(new_x, new_y) and right_gate:is_cnot_x() and right_gate.other_x == new_x + 2 and
-                board:reducible_gate_at(new_x, new_y + 1):is_cnot_x() and
-                board:reducible_gate_at(new_x, new_y + 1).other_x == new_x + 1 then
+                board:reducible_gate_at(new_x, new_y + 1):is_cnot_x() and board:reducible_gate_at(new_x, new_y + 1).other_x == new_x + 1 then
               move_and_swap(_ENV, new_x, new_y)
               move_and_swap(_ENV, new_x + 1, new_y)
               return
@@ -81,12 +57,11 @@ function create_qpu(cursor)
 
             -- 同様に下の X-C を左にずらして消す。
             --
-            -- X-C
-            --   X-C
+            --  X-C
+            -- [  X]-C
             if new_y > 1 and
               board:is_empty(new_x, new_y) and right_gate:is_cnot_x() and right_gate.other_x == new_x + 2 and
-                board:reducible_gate_at(new_x, new_y - 1):is_cnot_x() and
-                board:reducible_gate_at(new_x, new_y - 1).other_x == new_x + 1 then
+                board:reducible_gate_at(new_x, new_y - 1):is_cnot_x() and board:reducible_gate_at(new_x, new_y - 1).other_x == new_x + 1 then
               move_and_swap(_ENV, new_x, new_y)
               move_and_swap(_ENV, new_x + 1, new_y)
               return
@@ -132,22 +107,25 @@ function create_qpu(cursor)
               return
             end
 
+            -- 連続して左に移動すると落とせる場合
+            -- 手数のかかる操作なので、優先度は一番下
+            --
+            --  [ X]
+            --   HH
+            if board:is_empty(new_x, new_y) and board:is_single_gate(new_x + 1, new_y) then
+              for i = new_x, 1, -1 do
+                if not board:is_empty(i, new_y) then
+                  goto next_gate
+                end
+                if board:is_empty(i, new_y + 1) then
+                  move_and_swap(_ENV, new_x, new_y)
+                  return
+                end
+              end
+            end
+
             ::next_gate::
           end
-        end
-
-        -- 何もすることがない場合、ランダムに入れ替える
-        local random_x = flr(rnd(board.cols - 1)) + 1
-        local random_y = flr(rnd(board.rows)) + 1
-
-        -- x, y で入れ替えをする意味がある/可能であるかを調べる
-        if not ((board:is_empty(random_x, random_y) and board:is_empty(random_x + 1, random_y)) or
-            board:is_part_of_garbage(random_x, random_y) or
-            board:is_part_of_cnot(random_x, random_y) or
-            board:is_part_of_garbage(random_x + 1, random_y) or
-            board:is_part_of_cnot(random_x + 1, random_y) or
-            board:reducible_gate_at(random_x, random_y).type == board:reducible_gate_at(random_x + 1, random_y).type) then
-          move_and_swap(_ENV, random_x, random_y)
         end
       end
     end,
@@ -176,12 +154,12 @@ function create_qpu(cursor)
 
     add_swap_command = function(_ENV)
       add(commands, "o")
-      add_sleep_command(_ENV, 20)
+      add_sleep_command(_ENV, 10)
     end,
 
     add_raise_command = function(_ENV)
       add(commands, "x")
-      add_sleep_command(_ENV, 4)
+      add_sleep_command(_ENV, 3)
     end,
 
     add_sleep_command = function(_ENV, count)
