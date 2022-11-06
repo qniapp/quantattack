@@ -172,7 +172,18 @@ function create_board(_offset_x)
               for i = 0, span - 1 do
                 for j = 0, gate.height - 1 do
                   put(_ENV, x + i, y - j, garbage_match_gate())
-                  gates[x + i][y - j]:replace_with(_random_single_gate(_ENV), i + j * span, span, gate.height)
+
+                  local new_gate
+                  if j == 0 then -- 一行目にはランダムなゲートを入れる
+                    new_gate = _random_single_gate(_ENV)
+                  elseif j == 1 and i == 0 then
+                    -- 二行目の先頭にはおじゃまゲート
+                    new_gate = garbage_gate(span, gate.height - 1)
+                  else
+                    new_gate = i_gate()
+                  end
+
+                  gates[x + i][y - j]:replace_with(new_gate, i + j * span, span, gate.height)
                 end
               end
             end
@@ -499,10 +510,11 @@ function create_board(_offset_x)
       end
 
       -- ゲートの描画
-      for x = 1, cols do
-        -- 1 行目は画面に表示しないバッファとして使うので、
-        -- 2 行目以降を表示する
-        for y = 2, row_next_gates do
+      --
+      -- 1 行目は画面に表示しないバッファとして使うので、
+      -- 2 行目以降を表示する
+      for y = row_next_gates, 2, -1 do--
+        for x = 1, cols do
           local gate, scr_x, scr_y = gates[x][y], screen_x(_ENV, x), screen_y(_ENV, y)
 
           -- CNOT や SWAP の接続を描画
