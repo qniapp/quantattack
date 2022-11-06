@@ -642,18 +642,8 @@ function create_board(_offset_x)
     end,
 
     _is_empty_nocache = function(_ENV, x, y)
-      for tmp_x = 1, x - 1 do
-        local gate = gates[tmp_x][y]
-
-        if gate:is_garbage() and (not gate:is_empty()) and x <= tmp_x + gate.span - 1 then
-          return false
-        end
-        if gate.other_x and (not gate:is_empty()) and x < gate.other_x then
-          return false
-        end
-      end
-
-      return gates[x][y]:is_empty()
+      return gates[x][y]:is_empty() and
+          not (is_part_of_garbage(_ENV, x, y) or is_part_of_cnot(_ENV, x, y) or is_part_of_swap(_ENV, x, y))
     end,
 
     -- x, y がおじゃまゲートの一部であるかどうかを返す
@@ -725,17 +715,29 @@ function create_board(_offset_x)
         return false
       end
 
-      local start_x, end_x
+      -- CNOT または SWAP の端点か単一ゲートだった場合
+      if gate.other_x or gate.height == nil then
+        local start_x, end_x
 
-      if gate.other_x then
-        start_x, end_x = min(x, gate.other_x), max(x, gate.other_x)
-      else
-        start_x, end_x = x, x + gate.span - 1
-      end
+        -- 左側であった場合だけチェックする?
+        if gate.other_x then
+          start_x, end_x = min(x, gate.other_x), max(x, gate.other_x)
+        else
+          start_x, end_x = x, x + gate.span - 1
+        end
 
-      for tmp_x = start_x, end_x do
-        if not (is_empty(_ENV, tmp_x, y + 1) or gates[tmp_x][y + 1]:is_falling()) then
-          return false
+        for tmp_x = start_x, end_x do
+          if not (is_empty(_ENV, tmp_x, y + 1) or gates[tmp_x][y + 1]:is_falling()) then
+            return false
+          end
+        end
+      elseif gate.height then
+        local start_x, end_x = x, x + gate.span - 1
+
+        for tmp_x = start_x, end_x do
+          if not (is_empty(_ENV, tmp_x, y + 1) or gates[tmp_x][y + 1]:is_falling()) then
+            return false
+          end
         end
       end
 
