@@ -657,15 +657,19 @@ function create_board(_offset_x)
 
     -- x, y がおじゃまゲートの一部であるかどうかを返す
     is_part_of_garbage = function(_ENV, x, y)
-      for tmp_x = 1, x - 1 do
-        local gate = gates[tmp_x][y]
+      for _y = rows, y, -1 do
+        for _x = 1, cols do
+          local gate = gates[_x][_y]
 
-        if gate:is_garbage() and x <= tmp_x + gate.span - 1 then
-          return true
+          if gate:is_garbage() and
+            _x <= x and x <= _x + gate.span - 1 and -- 幅に x が含まれる
+            y <= _y and y >= _y - gate.height + 1 then -- 高さに y が含まれる
+            return true
+          end
         end
       end
 
-      return gates[x][y]:is_garbage()
+      return false
     end,
 
     -- x, y が CNOT の一部であるかどうかを返す

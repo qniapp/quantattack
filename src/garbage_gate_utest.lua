@@ -2,8 +2,8 @@ require("engine/test/bustedhelper")
 require("board")
 require("gate")
 
-describe('garbage_gate #solo', function()
-  describe("おじゃまゲートのインスタンス生成", function()
+describe('おじゃまゲート #solo', function()
+  describe("インスタンス生成", function()
     it("幅 (span) をセットできる", function()
       local garbage = garbage_gate(3)
 
@@ -17,43 +17,63 @@ describe('garbage_gate #solo', function()
     end)
   end)
 
-  describe("指定した座標がおじゃまゲートかどうかの判定", function()
-    it("高さ 1 のおじゃまゲートに含まれる座標", function()
+  describe("判定", function()
+    it("おじゃまゲートであるかどうかの判定", function()
+      local garbage = garbage_gate(1)
+
+      assert.is_true(garbage:is_garbage())
+    end)
+
+    it("指定した座標がおじゃまゲートに含まれるかどうかを判定", function()
       local board = create_board()
 
-      -- 13 行目の 1, 2, 3 列目はおじゃまゲートに含まれる
-      --
-      -- g g g _ _ _
-      board:put(1, 13, garbage_gate(3, 1))
+      -- 行
+      --  9 _ _ _ _ _ _
+      -- 10 _ g g g _ _
+      -- 11 _ g g g _ _
+      -- 12 _ g g g _ _
+      -- 13 _ _ _ _ _ _
+      board:put(2, 12, garbage_gate(3, 3))
 
-      assert.is_true(board:is_part_of_garbage(1, 13))
-      assert.is_true(board:is_part_of_garbage(2, 13))
-      assert.is_true(board:is_part_of_garbage(3, 13))
+      -- 9 行目
+      assert.is_false(board:is_part_of_garbage(1, 9))
+      assert.is_false(board:is_part_of_garbage(2, 9))
+      assert.is_false(board:is_part_of_garbage(3, 9))
+      assert.is_false(board:is_part_of_garbage(4, 9))
+      assert.is_false(board:is_part_of_garbage(5, 9))
+      assert.is_false(board:is_part_of_garbage(6, 9))
+
+      -- 10 行目
+      assert.is_false(board:is_part_of_garbage(1, 10))
+      assert.is_true(board:is_part_of_garbage(2, 10))
+      assert.is_true(board:is_part_of_garbage(3, 10))
+      assert.is_true(board:is_part_of_garbage(4, 10))
+      assert.is_false(board:is_part_of_garbage(5, 10))
+      assert.is_false(board:is_part_of_garbage(6, 10))
+
+      -- 11 行目
+      assert.is_false(board:is_part_of_garbage(1, 11))
+      assert.is_true(board:is_part_of_garbage(2, 11))
+      assert.is_true(board:is_part_of_garbage(3, 11))
+      assert.is_true(board:is_part_of_garbage(4, 11))
+      assert.is_false(board:is_part_of_garbage(5, 11))
+      assert.is_false(board:is_part_of_garbage(6, 11))
+
+      -- 12 行目
+      assert.is_false(board:is_part_of_garbage(1, 12))
+      assert.is_true(board:is_part_of_garbage(2, 12))
+      assert.is_true(board:is_part_of_garbage(3, 12))
+      assert.is_true(board:is_part_of_garbage(4, 12))
+      assert.is_false(board:is_part_of_garbage(5, 12))
+      assert.is_false(board:is_part_of_garbage(6, 12))
+
+      -- 13 行目
+      assert.is_false(board:is_part_of_garbage(1, 13))
+      assert.is_false(board:is_part_of_garbage(2, 13))
+      assert.is_false(board:is_part_of_garbage(3, 13))
       assert.is_false(board:is_part_of_garbage(4, 13))
       assert.is_false(board:is_part_of_garbage(5, 13))
       assert.is_false(board:is_part_of_garbage(6, 13))
-    end)
-  end)
-
-  describe("gate type", function()
-    local garbage
-
-    before_each(function()
-      garbage = garbage_gate(1)
-    end)
-
-    describe("type", function()
-      describe("is_i", function()
-        it("should return false", function()
-          assert.is_false(garbage:is_i())
-        end)
-      end)
-
-      describe("is_garbage", function()
-        it("should return true", function()
-          assert.is_true(garbage:is_garbage())
-        end)
-      end)
     end)
   end)
 
