@@ -169,9 +169,11 @@ function create_board(_offset_x)
             end
 
             if match then
-              for dx = 0, span - 1 do
-                put(_ENV, x + dx, y, garbage_match_gate())
-                gates[x + dx][y]:replace_with(_random_single_gate(_ENV), dx, span)
+              for i = 0, span - 1 do
+                for j = 0, gate.height - 1 do
+                  put(_ENV, x + i, y - j, garbage_match_gate())
+                  gates[x + i][y - j]:replace_with(_random_single_gate(_ENV), i + j * span, span)
+                end
               end
             end
           end
