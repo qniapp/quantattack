@@ -516,7 +516,14 @@ function garbage_gate(_span, _height)
           end
         end
 
+        if _state == "over" then
+          pal(7, 5)
+          pal(13, 1)
+        end
+
         spr(sprite_id, board:screen_x(x) + i * tile_size, board:screen_y(y) - j * tile_size + _screen_dy)
+
+        pal()
       end
     end
   end
