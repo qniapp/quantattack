@@ -33,7 +33,6 @@ function create_board(_offset_x)
     reducible_gate_at_cache = {},
     is_empty_cache = {},
     is_gate_fallable_cache = {},
-    is_single_gate_cache = {},
 
     init = function(_ENV)
       state = "play"
@@ -466,11 +465,8 @@ function create_board(_offset_x)
       local left_gate = gates[x_left][y]
       local right_gate = gates[x_right][y]
 
-      if is_part_of_garbage(_ENV, x_left, y) or is_part_of_garbage(_ENV, x_right, y) then
-        return false
-      end
-
-      if not (left_gate:is_idle() and right_gate:is_idle()) then
+      if is_part_of_garbage(_ENV, x_left, y) or is_part_of_garbage(_ENV, x_right, y) or
+          not (left_gate:is_idle() and right_gate:is_idle()) then
         return false
       end
 
@@ -668,17 +664,6 @@ function create_board(_offset_x)
     -- ゲートの種類判定
     -------------------------------------------------------------------------------
 
-    is_single_gate = function(_ENV, x, y)
-      return memoize(_ENV, _is_single_gate_nocache, is_single_gate_cache, x, y)
-    end,
-
-    _is_single_gate_nocache = function(_ENV, x, y)
-      return not (is_empty(_ENV, x, y) or
-          is_part_of_garbage(_ENV, x, y) or
-          is_part_of_cnot(_ENV, x, y) or
-          is_part_of_swap(_ENV, x, y))
-    end,
-
     -- x, y が空かどうかを返す
     -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
     is_empty = function(_ENV, x, y)
@@ -760,6 +745,7 @@ function create_board(_offset_x)
     -- ゲートの状態
     -------------------------------------------------------------------------------
 
+    -- TODO: 使わない場合このメソッドを削除
     is_gate_idle = function(_ENV, x, y)
       -- x, y のゲートが
       --   * おじゃまゲートの一部であった場合、
@@ -767,7 +753,8 @@ function create_board(_offset_x)
       --   * SWAP の一部であった場合、
       -- 先頭のゲートについて is_idle() を返す
       -- そうでない場合は、gates[x][y]:is_idle() を返す
-      local gate = _garbage_head_gate(_ENV, x, y) or _cnot_head_gate(_ENV, x, y) or _swap_head_gate(_ENV, x, y) or gates[x][y]
+      local gate = _garbage_head_gate(_ENV, x, y) or _cnot_head_gate(_ENV, x, y) or _swap_head_gate(_ENV, x, y) or
+          gates[x][y]
       return gate:is_idle()
     end,
 
@@ -833,7 +820,6 @@ function create_board(_offset_x)
       reducible_gate_at_cache = {}
       is_empty_cache = {}
       is_gate_fallable_cache = {}
-      is_single_gate_cache = {}
     end,
 
     -------------------------------------------------------------------------------

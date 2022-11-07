@@ -158,6 +158,10 @@ function create_gate(_type, _span, _height)
       return type == "g"
     end,
 
+    is_single_gate = function(_ENV)
+      return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
+    end,
+
     -------------------------------------------------------------------------------
     -- ゲート操作
     -------------------------------------------------------------------------------

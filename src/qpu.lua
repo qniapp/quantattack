@@ -29,6 +29,7 @@ function create_qpu(cursor)
             local left_gate = board:reducible_gate_at(new_x, new_y)
             local right_gate = board:reducible_gate_at(new_x + 1, new_y)
 
+            -- TODO: left_gate がおじゃまゲートの一部だった場合もはじく
             if not (left_gate:is_idle() and right_gate:is_idle()) then
               goto next_gate
             end
@@ -37,7 +38,7 @@ function create_qpu(cursor)
             --
             -- [X ]
             --  H
-            if board:is_single_gate(new_x, new_y) and board:is_empty(new_x + 1, new_y) and
+            if left_gate:is_single_gate() and board:is_empty(new_x + 1, new_y) and
                 board:is_empty(new_x + 1, new_y + 1) then
               move_and_swap(_ENV, new_x, new_y)
               return
@@ -89,8 +90,8 @@ function create_qpu(cursor)
             --
             -- [X  ]
             --  ■ X
-            if board:is_single_gate(new_x, new_y) and
-                (board:is_single_gate(new_x + 1, new_y) or board:is_empty(new_x + 1, new_y)) and
+            if left_gate:is_single_gate() and
+                (right_gate:is_single_gate() or board:is_empty(new_x + 1, new_y)) and
                 left_gate.type == board:reducible_gate_at(new_x + 1, new_y + 1).type then
               move_and_swap(_ENV, new_x, new_y)
               return
@@ -100,8 +101,8 @@ function create_qpu(cursor)
             --
             -- [  X]
             --  X ■
-            if (board:is_single_gate(new_x, new_y) or board:is_empty(new_x, new_y)) and
-                board:is_single_gate(new_x + 1, new_y) and
+            if (left_gate:is_single_gate() or board:is_empty(new_x, new_y)) and
+                right_gate:is_single_gate() and
                 right_gate.type == board:reducible_gate_at(new_x, new_y + 1).type then
               move_and_swap(_ENV, new_x, new_y)
               return
@@ -112,7 +113,7 @@ function create_qpu(cursor)
             --
             --  [ X]
             --   HH
-            if board:is_empty(new_x, new_y) and board:is_single_gate(new_x + 1, new_y) then
+            if board:is_empty(new_x, new_y) and right_gate:is_single_gate() then
               for i = new_x, 1, -1 do
                 if not board:is_empty(i, new_y) then
                   goto next_gate
