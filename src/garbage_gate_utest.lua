@@ -2,7 +2,7 @@ require("engine/test/bustedhelper")
 require("board")
 require("gate")
 
-describe('おじゃまゲート #solo', function()
+describe('おじゃまゲート', function()
   describe("インスタンス生成", function()
     it("幅 (span) をセットできる", function()
       local garbage = garbage_gate(3)
