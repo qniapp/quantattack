@@ -38,8 +38,7 @@ function create_board(_offset_x)
     init = function(_ENV)
       state = "play"
       raised_dots = 0
-      win = false
-      lose = false
+      win, lose = false, false
       waiting_garbage_gates = {}
 
       -- fill the board with I gates
@@ -139,11 +138,12 @@ function create_board(_offset_x)
       -- おじゃまゲートのマッチ
       for y = rows, 1, -1 do
         for x = 1, cols do
-          local gate = gates[x][y]
+          local gate, chain_id = gates[x][y]
 
           if gate:is_garbage() then
             local garbage_span, garbage_height = gate.span, gate.height
             local is_matching = function(g)
+              chain_id = g.chain_id
               return g:is_match() and g.type ~= "!"
             end
 
@@ -183,12 +183,14 @@ function create_board(_offset_x)
             goto next_gate
 
             ::match::
+
             for i = 0, garbage_span - 1 do
               for j = 0, garbage_height - 1 do
                 put(_ENV, x + i, y - j, garbage_match_gate())
 
                 local new_gate
-                if j == 0 then -- 一行目にはランダムなゲートを入れる
+                if j == 0 then
+                  -- 一行目にはランダムなゲートを入れる
                   new_gate = _random_single_gate(_ENV)
                 elseif j == 1 and i == 0 then
                   -- 二行目の先頭にはおじゃまゲート
@@ -197,7 +199,7 @@ function create_board(_offset_x)
                   new_gate = i_gate()
                 end
 
-                gates[x + i][y - j]:replace_with(new_gate, i + j * garbage_span, garbage_span, garbage_height)
+                gates[x + i][y - j]:replace_with(new_gate, i + j * garbage_span, garbage_span, garbage_height, j == 0 and chain_id or nil)
               end
             end
 

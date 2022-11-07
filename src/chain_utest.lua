@@ -1,5 +1,6 @@
 require("engine/test/bustedhelper")
 require("board")
+require("gate")
 
 describe('連鎖 (chain)', function()
   local board
@@ -104,6 +105,71 @@ describe('連鎖 (chain)', function()
     end
 
     assert.are_equal(3, board.chain_count["1,12"])
+  end)
+
+  -- G G G      X Y Z
+  -- H     --->       --->
+  -- H Y          Y        X   Z
+  it("おじゃまゲート 2 連鎖", function()
+    board:put(1, 11, garbage_gate(3, 1))
+    board:put(1, 12, h_gate())
+    board:put(1, 13, h_gate())
+    board:put(2, 13, y_gate())
+
+    -- HH とおじゃまゲートがマッチ
+    board:update()
+
+    -- おじゃまゲートの一番左が分解
+    for i = 1, gate_match_animation_frame_count do
+      board:update()
+    end
+    assert.is_true(board.gates[1][11]:is_freeze())
+
+    -- おじゃまゲートの真ん中が分解
+    for i = 1, gate_match_delay_per_gate do
+      board:update()
+    end
+    assert.is_true(board.gates[2][11]:is_freeze())
+
+    -- おじゃまゲートの一番右が分解
+    for i = 1, gate_match_delay_per_gate do
+      board:update()
+    end
+    assert.is_true(board.gates[3][11]:is_freeze())
+
+    -- 分解してできたゲートすべてのフリーズ解除
+    for i = 1, gate_match_delay_per_gate do
+      board:update()
+    end
+    board:update()
+
+    assert.is_false(board.gates[1][11]:is_freeze())
+    assert.is_false(board.gates[2][11]:is_freeze())
+    assert.is_false(board.gates[3][11]:is_freeze())
+
+    assert.are_equal("1,12", board.gates[1][11].chain_id)
+    assert.are_equal("1,12", board.gates[2][11].chain_id)
+    assert.are_equal("1,12", board.gates[3][11].chain_id)
+
+    -- 下の Y とマッチするように
+    -- おじゃまゲート真ん中が分解してできたゲートを Y にする
+    board.gates[2][11].type = "y"
+
+    -- 1 マス落下
+    for i = 1, 4 do
+      board:update()
+    end
+
+    -- 落下完了
+    board:update()
+
+    -- YY がマッチ
+    board:update()
+    assert.is_true(board.gates[2][12]:is_match())
+    assert.is_true(board.gates[2][13]:is_match())
+
+    -- 全部で 2 連鎖
+    assert.are_equal(2, board.chain_count["1,12"])
   end)
 
   it("chaina_id を持つゲートが接地すると chain_id が消える", function()

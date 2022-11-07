@@ -9,17 +9,10 @@ local vs_qpu = derived_class(gamestate)
 local game_class = require("game")
 local game = game_class()
 
-local board = create_board(3)
-board.attack_cube_target = { 78, 15 }
-
-local qpu_board = create_board(78)
-qpu_board.attack_cube_target = { 48, 15, "left" }
-
-local player_cursor = create_player_cursor(board)
-local qpu_cursor = create_player_cursor(qpu_board)
-
-local player = create_player()
-local qpu = create_qpu(qpu_cursor)
+local board, qpu_board = create_board(3), create_board(78)
+board.attack_cube_target, qpu_board.attack_cube_target = { 78, 15 }, { 48, 15, "left" }
+local player_cursor, qpu_cursor = create_player_cursor(board), create_player_cursor(qpu_board)
+local player, qpu = create_player(), create_qpu(qpu_cursor)
 
 vs_qpu.type = ':vs_qpu'
 
@@ -39,11 +32,9 @@ end
 
 function vs_qpu:update()
   if board:is_game_over() and board.win == false then
-    board.lose = true
-    qpu_board.win = true
+    board.lose, qpu_board.win = true, true
   elseif qpu_board:is_game_over() and qpu_board.win == false then
-    board.win = true
-    qpu_board.lose = true
+    board.win, qpu_board.lose = true, true
   end
 
   if board:is_game_over() or qpu_board:is_game_over() then
