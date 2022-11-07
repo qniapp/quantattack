@@ -18,8 +18,11 @@ end
 function game.combo_callback(combo_count, x, y, player, board, other_board)
   local attack_cube_callback = function()
     player.score = player.score + combo_count
-    local b = other_board or board
-    b:send_garbage(combo_count > 6 and 6 or combo_count - 1, 1)
+
+    -- 対戦相手がいる時、おじゃまゲートを送る
+    if other_board then
+      other_board:send_garbage(combo_count > 6 and 6 or combo_count - 1, 1)
+    end
   end
 
   create_bubble("combo", combo_count, board:screen_x(x), board:screen_y(y))
@@ -33,9 +36,12 @@ function game.chain_callback(chain_count, x, y, player, board, other_board)
   if chain_count > 1 then
     local attack_cube_callback = function()
       player.score = player.score + (chain_bonus[chain_count] or 180)
-      local b = other_board or board
-      -- TODO: おじゃまゲートの高さ上限を決める
-      b:send_garbage(6, chain_count - 1)
+
+      -- 対戦相手がいる時、おじゃまゲートを送る
+      if other_board then
+        -- TODO: おじゃまゲートの高さ上限を決める
+        other_board:send_garbage(6, chain_count - 1)
+      end
     end
 
     create_bubble("chain", chain_count, board:screen_x(x), board:screen_y(y))

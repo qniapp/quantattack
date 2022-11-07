@@ -17,6 +17,8 @@ local solo = derived_class(gamestate)
 
 solo.type = ':solo'
 
+local last_steps = 0
+
 function solo:on_enter()
   player:init()
   board:initialize_with_random_gates()
@@ -28,6 +30,15 @@ end
 
 function solo:update()
   game:update()
+
+  if player.steps > last_steps then
+    -- 10 ステップごとにおじゃまゲートを降らせる
+    -- 最大 10 段
+    if player.steps > 0 and player.steps % 10 == 0 then
+      board:send_garbage(6, player.steps / 10 < 11 and player.steps / 10 or 10)
+    end
+    last_steps = player.steps
+  end
 
   if board:is_game_over() then
     if not game_over_time then
