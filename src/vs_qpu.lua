@@ -21,6 +21,8 @@ local qpu_cursor = create_player_cursor(qpu_board)
 local player = create_player()
 local qpu = create_qpu(qpu_cursor)
 
+local game_over_time
+
 vs_qpu.type = ':vs_qpu'
 
 function vs_qpu:on_enter()
@@ -47,8 +49,12 @@ function vs_qpu:update()
   end
 
   if board:is_game_over() or qpu_board:is_game_over() then
-    if btn(4) or btn(5) then -- x または z でタイトルへ戻る
-      load('qitaev_title')
+    if not game_over_time then
+      game_over_time = time()
+    else
+      if time() - game_over_time > 3 and btn(4) or btn(5) then -- x または z でタイトルへ戻る
+        load('qitaev_title')
+      end
     end
   end
 
