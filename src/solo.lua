@@ -15,8 +15,6 @@ local game = game_class()
 local gamestate = require("engine/application/gamestate")
 local solo = derived_class(gamestate)
 
-local game_over_time
-
 solo.type = ':solo'
 
 function solo:on_enter()
@@ -35,8 +33,11 @@ function solo:update()
     if not game_over_time then
       game_over_time = time()
     else
-      if time() - game_over_time > 3 and btn(4) or btn(5) then -- x または z でタイトルへ戻る
-        load('qitaev_title')
+      if time() - game_over_time > 2 then
+        board.push_any_key = true
+        if btn(4) or btn(5) then -- x または z でタイトルへ戻る
+          load('qitaev_title')
+        end
       end
     end
   end

@@ -590,7 +590,9 @@ function create_board(_offset_x)
           sx, sy = 32, 80
         end
         sspr(sx, sy, 32, 16, offset_x + width / 2 - 16, offset_y + 16)
-        print_outlined("push any key!", offset_x - 1, offset_y + 80, 8)
+        if push_any_key then
+          print_outlined("push any key!", offset_x - 1, offset_y + 80, 8)
+        end
       end
     end,
 

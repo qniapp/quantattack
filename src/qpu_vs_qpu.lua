@@ -46,8 +46,16 @@ function qpu_vs_qpu:update()
   end
 
   if qpu1_board:is_game_over() or qpu2_board:is_game_over() then
-    if btn(4) or btn(5) then -- x または z でタイトルへ戻る
-      load('qitaev_title')
+    if not game_over_time then
+      game_over_time = time()
+    else
+      if time() - game_over_time > 2 then
+        qpu1_board.push_any_key = true
+        qpu2_board.push_any_key = true
+        if btn(4) or btn(5) then -- x または z でタイトルへ戻る
+          load('qitaev_title')
+        end
+      end
     end
   end
 
