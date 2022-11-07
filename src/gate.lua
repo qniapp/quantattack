@@ -220,7 +220,7 @@ function create_gate(_type, _span, _height)
         if _tick_landed then
           _tick_landed = _tick_landed + 1
 
-          if _tick_landed == 12 then
+          if _tick_landed == 13 then
             _tick_landed = nil
           end
         end
@@ -292,13 +292,13 @@ function create_gate(_type, _span, _height)
           end
 
           _screen_dy = 0
-          _tick_landed = 0
+          _tick_landed = 1
 
           change_state(_ENV, "idle")
 
           if other_x and x < other_x then
             local other_gate = board.gates[other_x][y]
-            other_gate._tick_landed = 0
+            other_gate._tick_landed = 1
             other_gate._screen_dy = 0
 
             other_gate:change_state("idle")
