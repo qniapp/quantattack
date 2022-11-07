@@ -347,7 +347,7 @@ function create_gate(_type, _span, _height)
 
           if _garbage_span then
             new_gate._tick_freeze = 0
-            new_gate._freeze_frame_count = (_garbage_span * _garbage_height - _match_index) * 15
+            new_gate._freeze_frame_count = (_garbage_span * _garbage_height - _match_index) * gate_match_delay_per_gate
             new_gate:change_state("freeze")
           end
         end
@@ -381,7 +381,7 @@ function create_gate(_type, _span, _height)
         return sprites[type].landed[_tick_landed]
       elseif is_match(_ENV) then
         local sequence = sprites[type].match
-        return _tick_match <= 15 and sequence[_tick_match] or sequence[#sequence]
+        return _tick_match <= gate_match_delay_per_gate and sequence[_tick_match] or sequence[#sequence]
       elseif _state == "over" then
         return sprites[type].over
       else
