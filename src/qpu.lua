@@ -19,11 +19,6 @@ function create_qpu(cursor)
         del(commands, next_action)
         _ENV[next_action] = true
       else
-        if board:top_gate_y() > 8 then
-          add_raise_command(_ENV)
-          return
-        end
-
         for new_y = 2, board.rows do
           for new_x = 1, board.cols - 1 do
             local left_gate, right_gate = board:reducible_gate_at(new_x, new_y),
@@ -163,11 +158,6 @@ function create_qpu(cursor)
     add_swap_command = function(_ENV)
       add(commands, "o")
       add_sleep_command(_ENV, 10)
-    end,
-
-    add_raise_command = function(_ENV)
-      add(commands, "x")
-      add_sleep_command(_ENV, 3)
     end,
 
     add_sleep_command = function(_ENV, count)
