@@ -51,6 +51,7 @@ function game.chain_callback(chain_count, x, y, player, board, other_board)
 end
 
 function game:_init()
+  self.auto_raise_frame_count = 30
 end
 
 function game:init()
@@ -146,8 +147,7 @@ end
 
 -- ゲートをせりあげる
 function game:_raise(player)
-  local board = player.board
-  local cursor = player.player_cursor
+  local board, cursor = player.board, player.player_cursor
 
   board.raised_dots = board.raised_dots + 1
 
@@ -159,20 +159,16 @@ function game:_raise(player)
   end
 end
 
+-- 可能な場合ゲートを自動的にせりあげる
 function game:_auto_raise(player)
-  if (player.tick < 30) then -- TODO: 30 をどこか定数化
-    return false
+  if player.tick < self.auto_raise_frame_count or
+    player.board:is_busy() then
+    return
   end
 
   player.tick = 0
 
-  if player.board:is_busy() then
-    return false
-  end
-
   self:_raise(player)
-
-  return true
 end
 
 return game
