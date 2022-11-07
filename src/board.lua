@@ -689,7 +689,7 @@ function create_board(_offset_x)
     -- 一部でない場合は nil を返す
     _garbage_head_gate = function(_ENV, x, y)
       for ghead_y = rows, y, -1 do
-        for ghead_x = 1, cols do
+        for ghead_x = 1, x do
           local ghead = gates[ghead_x][ghead_y]
 
           if ghead:is_garbage() and
