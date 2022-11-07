@@ -140,54 +140,68 @@ function create_board(_offset_x)
       for y = rows, 1, -1 do
         for x = 1, cols do
           local gate = gates[x][y]
-          local span = gate.span
 
           if gate:is_garbage() then
-            local adjacent_gates = {}
-            local match = false
+            local garbage_span, garbage_height = gate.span, gate.height
+            local is_matching = function(g)
+              return g:is_match() and g.type ~= "!"
+            end
 
             if x > 1 then
-              add(adjacent_gates, gates[x - 1][y])
-            end
-
-            if x + span <= cols then
-              add(adjacent_gates, gates[x + span][y])
-            end
-
-            for gx = x, x + span - 1 do
-              if y > 1 then
-                add(adjacent_gates, gates[gx][y - 1])
-              end
-              if y < rows then
-                add(adjacent_gates, gates[gx][y + 1])
-              end
-            end
-
-            for _, each in pairs(adjacent_gates) do
-              if (each:is_match() and each.type ~= "!") then
-                match = true
-              end
-            end
-
-            if match then
-              for i = 0, span - 1 do
-                for j = 0, gate.height - 1 do
-                  put(_ENV, x + i, y - j, garbage_match_gate())
-
-                  local new_gate
-                  if j == 0 then -- 一行目にはランダムなゲートを入れる
-                    new_gate = _random_single_gate(_ENV)
-                  elseif j == 1 and i == 0 then
-                    -- 二行目の先頭にはおじゃまゲート
-                    new_gate = garbage_gate(span, gate.height - 1)
-                  else
-                    new_gate = i_gate()
-                  end
-
-                  gates[x + i][y - j]:replace_with(new_gate, i + j * span, span, gate.height)
+              -- 左側
+              for i = 0, garbage_height - 1 do
+                if y - i > 0 and is_matching(gates[x - 1][y - i]) then
+                  goto match
                 end
               end
             end
+
+            if x + garbage_span <= cols then
+              -- 右側
+              for i = 0, garbage_height - 1 do
+                if y - i > 0 and is_matching(gates[x + garbage_span][y - i]) then
+                  goto match
+                end
+              end
+            end
+
+            for gx = x, x + garbage_span - 1 do
+              if y - garbage_height > 1 then
+                -- 上側
+                if is_matching(gates[gx][y - garbage_height]) then
+                  goto match
+                end
+              end
+              if y < rows then
+                -- 下側
+                if is_matching(gates[gx][y + 1]) then
+                  goto match
+                end
+              end
+            end
+
+            goto next_gate
+
+            ::match::
+            for i = 0, garbage_span - 1 do
+              for j = 0, garbage_height - 1 do
+                put(_ENV, x + i, y - j, garbage_match_gate())
+
+                local new_gate
+                if j == 0 then -- 一行目にはランダムなゲートを入れる
+                  new_gate = _random_single_gate(_ENV)
+                elseif j == 1 and i == 0 then
+                  -- 二行目の先頭にはおじゃまゲート
+                  new_gate = garbage_gate(garbage_span, garbage_height - 1)
+                else
+                  new_gate = i_gate()
+                end
+
+                gates[x + i][y - j]:replace_with(new_gate, i + j * garbage_span, garbage_span, garbage_height)
+              end
+            end
+
+            ::next_gate::
           end
         end
       end
