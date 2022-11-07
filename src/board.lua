@@ -33,6 +33,7 @@ function create_board(_offset_x)
     reducible_gate_at_cache = {},
     is_gate_empty_cache = {},
     is_gate_fallable_cache = {},
+    gate_or_its_head_gate_cache = {},
 
     init = function(_ENV)
       state = "play"
@@ -397,7 +398,10 @@ function create_board(_offset_x)
 
     update_waiting_garbage_gates = function(_ENV)
       for _, each in pairs(waiting_garbage_gates) do
-        each.wait_time = each.wait_time - 1
+        if each.wait_time > 0 then
+          each.wait_time = each.wait_time - 1
+        end
+
         if each.wait_time == 0 then
           local x
           if each.span == 6 then
@@ -406,10 +410,18 @@ function create_board(_offset_x)
             x = flr(rnd(cols - each.span + 1)) + 1
           end
 
+          for i = x, x + each.span - 1 do
+            if not is_gate_empty(_ENV, i, 1) then
+              goto next_garbage_gate
+            end
+          end
+
           del(waiting_garbage_gates, each)
           put(_ENV, x, 1, each)
           each:fall()
         end
+
+        ::next_garbage_gate::
       end
     end,
 
@@ -568,21 +580,13 @@ function create_board(_offset_x)
       end
     end,
 
-    -- 最上段にゲートが存在し、
+    -- 最上段に落下中でないゲートが存在し、
     -- raised_dots == 7 の場合 true を返す
     _gates_piled_up = function(_ENV)
       if raised_dots == tile_size - 1 then
         for x = 1, cols do
-          -- FIXME: x, 1 がおじゃまゲートの一部であった場合、
-          -- おじゃまゲート先頭について is_falling() を調べる
-          -- そのようなメソッド board:is_gate_falling() を board に追加
-          -- board 内では gate:is_falling() ではなく board:is_gate_falling() を使う
-          if gate_at(_ENV, x, 1):is_falling() then
-            return false
-          end
-
-          -- TODO: return true を上のと一箇所にまとめる
-          if not is_gate_empty(_ENV, x, 1) then
+          if not is_gate_empty(_ENV, x, 1) and
+              not gate_or_its_head_gate(_ENV, x, 1):is_falling() then
             return true
           end
         end
@@ -745,23 +749,16 @@ function create_board(_offset_x)
     -- ゲートの状態
     -------------------------------------------------------------------------------
 
-    -- TODO: 使わない場合このメソッドを削除
-    is_gate_idle = function(_ENV, x, y)
-      -- x, y のゲートが
-      --   * おじゃまゲートの一部であった場合、
-      --   * CNOT の一部であった場合、
-      --   * SWAP の一部であった場合、
-      -- 先頭のゲートについて is_idle() を返す
-      -- そうでない場合は、gates[x][y]:is_idle() を返す
-      local gate = _garbage_head_gate(_ENV, x, y) or _cnot_head_gate(_ENV, x, y) or _swap_head_gate(_ENV, x, y) or
-          gates[x][y]
-      return gate:is_idle()
+    -- TODO: プライベート化して、別の場所に移動
+    gate_or_its_head_gate = function(_ENV, x, y)
+      return memoize(_ENV, _gate_or_its_head_gate_nocache, gate_or_its_head_gate_cache, x, y)
     end,
 
-    is_gate_falling = function(_ENV, x, y)
-      local gate = _garbage_head_gate(_ENV, x, y) or _cnot_head_gate(_ENV, x, y) or _swap_head_gate(_ENV, x, y) or
+    _gate_or_its_head_gate_nocache = function(_ENV, x, y)
+      return _garbage_head_gate(_ENV, x, y) or
+          _cnot_head_gate(_ENV, x, y) or
+          _swap_head_gate(_ENV, x, y) or
           gates[x][y]
-      return gate:is_falling()
     end,
 
     -- ゲート x, y が x, y + 1 に落とせるかどうかを返す。
@@ -780,13 +777,17 @@ function create_board(_offset_x)
         return false
       end
 
+      -- CNOT, SWAP の場合
+      -- おじゃまゲートの場合
+      -- シングルゲートの場合
+
       local start_x, end_x = x, x + gate.span - 1
       if gate.other_x then
         start_x, end_x = min(x, gate.other_x), max(x, gate.other_x)
       end
 
       for tmp_x = start_x, end_x do
-        if not (is_gate_empty(_ENV, tmp_x, y + 1) or gates[tmp_x][y + 1]:is_falling()) then
+        if not (is_gate_empty(_ENV, tmp_x, y + 1) or gate_or_its_head_gate(_ENV, tmp_x, y + 1):is_falling()) then
           return false
         end
       end
@@ -826,6 +827,7 @@ function create_board(_offset_x)
       reducible_gate_at_cache = {}
       is_gate_empty_cache = {}
       is_gate_fallable_cache = {}
+      gate_or_its_head_gate_cache = {}
     end,
 
     -------------------------------------------------------------------------------
