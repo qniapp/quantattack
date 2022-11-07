@@ -577,9 +577,15 @@ function create_board(_offset_x)
     _gates_piled_up = function(_ENV)
       if raised_dots == tile_size - 1 then
         for x = 1, cols do
+          -- FIXME: x, 1 がおじゃまゲートの一部であった場合、
+          -- おじゃまゲート先頭について is_falling() を調べる
+          -- そのようなメソッド board:is_gate_falling() を board に追加
+          -- board 内では gate:is_falling() ではなく board:is_gate_falling() を使う
           if gate_at(_ENV, x, 1):is_falling() then
             return false
           end
+
+          -- TODO: return true を上のと一箇所にまとめる
           if not is_empty(_ENV, x, 1) then
             return true
           end
@@ -686,51 +692,84 @@ function create_board(_offset_x)
 
     -- x, y がおじゃまゲートの一部であるかどうかを返す
     is_part_of_garbage = function(_ENV, x, y)
-      for _y = rows, y, -1 do
-        for _x = 1, cols do
-          local gate = gates[_x][_y]
+      return _garbage_head_gate(_ENV, x, y) ~= nil
+    end,
 
-          if gate:is_garbage() and
-              _x <= x and x <= _x + gate.span - 1 and -- 幅に x が含まれる
-              y <= _y and y >= _y - gate.height + 1 then -- 高さに y が含まれる
-            return true
+    -- x, y がおじゃまゲートの一部であった場合、
+    -- おじゃまゲート先頭のゲートを返す
+    -- 一部でない場合は nil を返す
+    _garbage_head_gate = function(_ENV, x, y)
+      for ghead_y = rows, y, -1 do
+        for ghead_x = 1, cols do
+          local ghead = gates[ghead_x][ghead_y]
+
+          if ghead:is_garbage() and
+              ghead_x <= x and x <= ghead_x + ghead.span - 1 and -- 幅に x が含まれる
+              y <= ghead_y and y >= ghead_y - ghead.height + 1 then -- 高さに y が含まれる
+            return ghead
           end
         end
       end
 
-      return false
+      return nil
     end,
 
     -- x, y が CNOT の一部であるかどうかを返す
     is_part_of_cnot = function(_ENV, x, y)
+      return _cnot_head_gate(_ENV, x, y) ~= nil
+    end,
+
+    -- x, y が CNOT の一部であった場合、
+    -- CNOT 左端のゲート (control または cnot_x) を返す
+    -- 一部でない場合は nil を返す
+    _cnot_head_gate = function(_ENV, x, y)
       for tmp_x = 1, x - 1 do
         local gate = gates[tmp_x][y]
 
         if (gate:is_cnot_x() or gate:is_control()) and x < gate.other_x then
-          return true
+          return gate
         end
       end
 
       local gate = gates[x][y]
-      return gate:is_cnot_x() or gate:is_control()
+      return (gate:is_cnot_x() or gate:is_control()) and gate or nil
     end,
 
     -- x, y が SWAP ペアの一部であるかどうかを返す
     is_part_of_swap = function(_ENV, x, y)
+      return _swap_head_gate(_ENV, x, y) ~= nil
+    end,
+
+    -- x, y が SWAP ペアの一部であった場合、
+    -- SWAP ペア左端のゲートを返す
+    -- 一部でない場合は nil を返す
+    _swap_head_gate = function(_ENV, x, y)
       for tmp_x = 1, x - 1 do
         local gate = gates[tmp_x][y]
 
         if gate:is_swap() and x < gate.other_x then
-          return true
+          return gate
         end
       end
 
-      return gates[x][y]:is_swap()
+      local gate = gates[x][y]
+      return gate:is_swap() and gate or nil
     end,
 
     -------------------------------------------------------------------------------
     -- ゲートの状態
     -------------------------------------------------------------------------------
+
+    is_gate_idle = function(_ENV, x, y)
+      -- x, y のゲートが
+      --   * おじゃまゲートの一部であった場合、
+      --   * CNOT の一部であった場合、
+      --   * SWAP の一部であった場合、
+      -- 先頭のゲートについて is_idle() を返す
+      -- そうでない場合は、gates[x][y]:is_idle() を返す
+      local gate = _garbage_head_gate(_ENV, x, y) or _cnot_head_gate(_ENV, x, y) or _swap_head_gate(_ENV, x, y) or gates[x][y]
+      return gate:is_idle()
+    end,
 
     -- ゲート x, y が x, y + 1 に落とせるかどうかを返す。
     is_gate_fallable = function(_ENV, x, y)

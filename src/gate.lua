@@ -150,7 +150,10 @@ function create_gate(_type, _span, _height)
       return type == "swap"
     end,
 
-    -- おじゃまゲートの先頭 (左端) である場合 true を返す
+    -- おじゃまゲートの先頭 (左下) である場合 true を返す
+    --
+    -- 注: ゲートがおじゃまゲートの一部であるかどうかを判定するには、
+    -- board:is_part_of_garbage(x, y) を使う
     is_garbage = function(_ENV)
       return type == "g"
     end,
