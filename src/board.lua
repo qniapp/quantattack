@@ -31,7 +31,7 @@ function create_board(_offset_x)
     chain_count = {},
     reduce_cache = {},
     reducible_gate_at_cache = {},
-    is_empty_cache = {},
+    is_gate_empty_cache = {},
     is_gate_fallable_cache = {},
 
     init = function(_ENV)
@@ -56,7 +56,7 @@ function create_board(_offset_x)
       for y = row_next_gates, 6, -1 do
         for x = 1, cols do
           if y >= rows - 2 or
-              (y < rows - 2 and rnd(1) > (y - 11) * -0.1 and (not is_empty(_ENV, x, y + 1))) then
+              (y < rows - 2 and rnd(1) > (y - 11) * -0.1 and (not is_gate_empty(_ENV, x, y + 1))) then
             repeat
               put(_ENV, x, y, _random_single_gate(_ENV))
             until #reduce(_ENV, x, y, true).to == 0
@@ -310,7 +310,7 @@ function create_board(_offset_x)
     top_gate_y = function(_ENV)
       for y = 1, rows do
         for x = 1, cols do
-          if not is_empty(_ENV, x, y) then
+          if not is_gate_empty(_ENV, x, y) then
             return y
           end
         end
@@ -441,7 +441,7 @@ function create_board(_offset_x)
 
       -- 最下段の空いている部分に新しいゲートを置く
       for x = 1, cols do
-        if is_empty(_ENV, x, row_next_gates) then
+        if is_gate_empty(_ENV, x, row_next_gates) then
           repeat
             put(_ENV, x, row_next_gates, _random_single_gate(_ENV))
           until #reduce(_ENV, x, rows, true).to == 0
@@ -472,13 +472,13 @@ function create_board(_offset_x)
 
       -- 回路が A--[A?] のようになっている場合
       -- [A?] は入れ替えできない。
-      if left_gate.other_x and left_gate.other_x < x_left and not is_empty(_ENV, x_right, y) then
+      if left_gate.other_x and left_gate.other_x < x_left and not is_gate_empty(_ENV, x_right, y) then
         return false
       end
 
       -- 回路が [?A]--A のようになっている場合も、
       -- [?A] は入れ替えできない。
-      if not is_empty(_ENV, x_left, y) and right_gate.other_x and x_right < right_gate.other_x then
+      if not is_gate_empty(_ENV, x_left, y) and right_gate.other_x and x_right < right_gate.other_x then
         return false
       end
 
@@ -582,7 +582,7 @@ function create_board(_offset_x)
           end
 
           -- TODO: return true を上のと一箇所にまとめる
-          if not is_empty(_ENV, x, 1) then
+          if not is_gate_empty(_ENV, x, 1) then
             return true
           end
         end
@@ -666,11 +666,11 @@ function create_board(_offset_x)
 
     -- x, y が空かどうかを返す
     -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
-    is_empty = function(_ENV, x, y)
-      return memoize(_ENV, _is_empty_nocache, is_empty_cache, x, y)
+    is_gate_empty = function(_ENV, x, y)
+      return memoize(_ENV, _is_gate_empty_nocache, is_gate_empty_cache, x, y)
     end,
 
-    _is_empty_nocache = function(_ENV, x, y)
+    _is_gate_empty_nocache = function(_ENV, x, y)
       return gates[x][y]:is_empty() and
           not (is_part_of_garbage(_ENV, x, y) or is_part_of_cnot(_ENV, x, y) or is_part_of_swap(_ENV, x, y))
     end,
@@ -758,6 +758,12 @@ function create_board(_offset_x)
       return gate:is_idle()
     end,
 
+    is_gate_falling = function(_ENV, x, y)
+      local gate = _garbage_head_gate(_ENV, x, y) or _cnot_head_gate(_ENV, x, y) or _swap_head_gate(_ENV, x, y) or
+          gates[x][y]
+      return gate:is_falling()
+    end,
+
     -- ゲート x, y が x, y + 1 に落とせるかどうかを返す。
     is_gate_fallable = function(_ENV, x, y)
       return memoize(_ENV, _is_gate_fallable_nocache, is_gate_fallable_cache, x, y)
@@ -780,7 +786,7 @@ function create_board(_offset_x)
       end
 
       for tmp_x = start_x, end_x do
-        if not (is_empty(_ENV, tmp_x, y + 1) or gates[tmp_x][y + 1]:is_falling()) then
+        if not (is_gate_empty(_ENV, tmp_x, y + 1) or gates[tmp_x][y + 1]:is_falling()) then
           return false
         end
       end
@@ -818,7 +824,7 @@ function create_board(_offset_x)
       changed = true
       reduce_cache = {}
       reducible_gate_at_cache = {}
-      is_empty_cache = {}
+      is_gate_empty_cache = {}
       is_gate_fallable_cache = {}
     end,
 

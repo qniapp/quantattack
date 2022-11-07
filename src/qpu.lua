@@ -38,8 +38,8 @@ function create_qpu(cursor)
             --
             -- [X ]
             --  H
-            if left_gate:is_single_gate() and board:is_empty(new_x + 1, new_y) and
-                board:is_empty(new_x + 1, new_y + 1) then
+            if left_gate:is_single_gate() and board:is_gate_empty(new_x + 1, new_y) and
+                board:is_gate_empty(new_x + 1, new_y + 1) then
               move_and_swap(_ENV, new_x, new_y)
               return
             end
@@ -49,8 +49,9 @@ function create_qpu(cursor)
             --
             -- [  X]-C
             --  X-C
-            if board:is_empty(new_x, new_y) and right_gate:is_cnot_x() and right_gate.other_x == new_x + 2 and
-                board:reducible_gate_at(new_x, new_y + 1):is_cnot_x() and board:reducible_gate_at(new_x, new_y + 1).other_x == new_x + 1 then
+            if board:is_gate_empty(new_x, new_y) and right_gate:is_cnot_x() and right_gate.other_x == new_x + 2 and
+                board:reducible_gate_at(new_x, new_y + 1):is_cnot_x() and
+                board:reducible_gate_at(new_x, new_y + 1).other_x == new_x + 1 then
               move_and_swap(_ENV, new_x, new_y)
               move_and_swap(_ENV, new_x + 1, new_y)
               return
@@ -61,8 +62,9 @@ function create_qpu(cursor)
             --  X-C
             -- [  X]-C
             if new_y > 1 and
-              board:is_empty(new_x, new_y) and right_gate:is_cnot_x() and right_gate.other_x == new_x + 2 and
-                board:reducible_gate_at(new_x, new_y - 1):is_cnot_x() and board:reducible_gate_at(new_x, new_y - 1).other_x == new_x + 1 then
+                board:is_gate_empty(new_x, new_y) and right_gate:is_cnot_x() and right_gate.other_x == new_x + 2 and
+                board:reducible_gate_at(new_x, new_y - 1):is_cnot_x() and
+                board:reducible_gate_at(new_x, new_y - 1).other_x == new_x + 1 then
               move_and_swap(_ENV, new_x, new_y)
               move_and_swap(_ENV, new_x + 1, new_y)
               return
@@ -81,7 +83,7 @@ function create_qpu(cursor)
             -- X-[C ]
             if ((left_gate:is_cnot_x() or left_gate:is_control()) and new_x + 1 < left_gate.other_x) or
                 (left_gate:is_control() and left_gate.other_x == new_x + 1) or
-                (left_gate:is_control() and left_gate.other_x < new_x and board:is_empty(new_x + 1, new_y)) then
+                (left_gate:is_control() and left_gate.other_x < new_x and board:is_gate_empty(new_x + 1, new_y)) then
               move_and_swap(_ENV, new_x, new_y)
               return
             end
@@ -91,7 +93,7 @@ function create_qpu(cursor)
             -- [X  ]
             --  ■ X
             if left_gate:is_single_gate() and
-                (right_gate:is_single_gate() or board:is_empty(new_x + 1, new_y)) and
+                (right_gate:is_single_gate() or board:is_gate_empty(new_x + 1, new_y)) and
                 left_gate.type == board:reducible_gate_at(new_x + 1, new_y + 1).type then
               move_and_swap(_ENV, new_x, new_y)
               return
@@ -101,7 +103,7 @@ function create_qpu(cursor)
             --
             -- [  X]
             --  X ■
-            if (left_gate:is_single_gate() or board:is_empty(new_x, new_y)) and
+            if (left_gate:is_single_gate() or board:is_gate_empty(new_x, new_y)) and
                 right_gate:is_single_gate() and
                 right_gate.type == board:reducible_gate_at(new_x, new_y + 1).type then
               move_and_swap(_ENV, new_x, new_y)
@@ -113,12 +115,12 @@ function create_qpu(cursor)
             --
             --  [ X]
             --   HH
-            if board:is_empty(new_x, new_y) and right_gate:is_single_gate() then
+            if board:is_gate_empty(new_x, new_y) and right_gate:is_single_gate() then
               for i = new_x, 1, -1 do
-                if not board:is_empty(i, new_y) then
+                if not board:is_gate_empty(i, new_y) then
                   goto next_gate
                 end
-                if board:is_empty(i, new_y + 1) then
+                if board:is_gate_empty(i, new_y + 1) then
                   move_and_swap(_ENV, new_x, new_y)
                   return
                 end
