@@ -4,7 +4,7 @@ require("engine/application/constants")
 require("particle")
 
 gate_match_animation_frame_count = 45
-gate_match_delay_per_gate = 15
+gate_match_delay_per_gate = 10
 gate_swap_animation_frame_count = 4
 gate_fall_speed = 2
 
@@ -64,16 +64,17 @@ local sprites = {
     over = 107,
   },
   ["!"] = {
-    default = 89,
-    landed = split("89,89,89,89,89,89,89,89,89,89,89,89"),
-    match = split("89,89,89,89,89,89,89,89,89,89,89,89,89,89,89,89")
+    default = 73,
+    landed = split("73,73,73,73,73,73,73,73,73,73,73,73"),
+    match = split("73,73,73,73,73,73,73,73,73,73,73,73,73,73,73,73")
   },
 }
 
-function create_gate(_type, _span)
+function create_gate(_type, _span, _height)
   return setmetatable({
     type = _type,
     span = _span or 1,
+    height = _height or 1,
     _state = "idle",
     _screen_dy = 0,
     chain_id = nil,
@@ -149,9 +150,16 @@ function create_gate(_type, _span)
       return type == "swap"
     end,
 
-    -- おじゃまゲートの先頭 (左端) である場合 true を返す
+    -- おじゃまゲートの先頭 (左下) である場合 true を返す
+    --
+    -- 注: ゲートがおじゃまゲートの一部であるかどうかを判定するには、
+    -- board:is_part_of_garbage(x, y) を使う
     is_garbage = function(_ENV)
       return type == "g"
+    end,
+
+    is_single_gate = function(_ENV)
+      return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
     end,
 
     -------------------------------------------------------------------------------
@@ -172,10 +180,11 @@ function create_gate(_type, _span)
       change_state(_ENV, "swapping_with_left")
     end,
 
-    replace_with = function(_ENV, other, match_index, garbage_span, _chain_id)
+    replace_with = function(_ENV, other, match_index, garbage_span, garbage_height, _chain_id)
       _reduce_to = other
       _match_index = match_index or 0
       _garbage_span = garbage_span
+      _garbage_height = garbage_height
       _tick_match = 1
       chain_id = _chain_id
       other.chain_id = _chain_id
@@ -211,7 +220,7 @@ function create_gate(_type, _span)
         if _tick_landed then
           _tick_landed = _tick_landed + 1
 
-          if _tick_landed == 12 then
+          if _tick_landed == 13 then
             _tick_landed = nil
           end
         end
@@ -283,13 +292,13 @@ function create_gate(_type, _span)
           end
 
           _screen_dy = 0
-          _tick_landed = 0
+          _tick_landed = 1
 
           change_state(_ENV, "idle")
 
           if other_x and x < other_x then
             local other_gate = board.gates[other_x][y]
-            other_gate._tick_landed = 0
+            other_gate._tick_landed = 1
             other_gate._screen_dy = 0
 
             other_gate:change_state("idle")
@@ -332,13 +341,13 @@ function create_gate(_type, _span)
           local new_gate = _reduce_to
           board:put(x, y, new_gate)
 
-          sfx(3, -1, (_match_index - 1) * 4, 4)
+          sfx(3, -1, (_match_index % 6 - 1) * 4, 4)
           create_particle_set(board:screen_x(x) + 3, board:screen_y(y) + 3,
             "3,white,dark_gray,20|3,white,dark_gray,20|2,white,dark_gray,20|2,dark_purple,dark_gray,20|2,light_gray,dark_gray,20|1,white,dark_gray,20|1,white,dark_gray,20|1,light_gray,dark_gray,20|1,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
 
           if _garbage_span then
             new_gate._tick_freeze = 0
-            new_gate._freeze_frame_count = (_garbage_span - _match_index) * 15
+            new_gate._freeze_frame_count = (_garbage_span * _garbage_height - _match_index) * gate_match_delay_per_gate
             new_gate:change_state("freeze")
           end
         end
@@ -351,37 +360,20 @@ function create_gate(_type, _span)
       end
     end,
 
-    -- FIXME: 引数に screen_x, screen_y ではなく board を取るようにする
     render = function(_ENV)
       if is_i(_ENV) then
         return
       end
 
-      local screen_x, screen_y = board:screen_x(x), board:screen_y(y)
-
-      if span > 1 then
-        for x = 0, span - 1 do
-          local sprite_id = _state == "over" and _sprite_middle_over or _sprite_middle
-          if (x == 0) then -- 左端
-            sprite_id = _state == "over" and _sprite_left_over or _sprite_left
-          end
-          if (x == span - 1) then -- 右端
-            sprite_id = _state == "over" and _sprite_right_over or _sprite_right
-          end
-
-          spr(sprite_id, screen_x + x * tile_size, screen_y + _screen_dy)
-        end
-      else
-        local screen_dx = 0
-        local diff = (_tick_swap or 0) * (tile_size / gate_swap_animation_frame_count)
-        if _is_swapping_with_right(_ENV) then
-          screen_dx = diff
-        elseif _is_swapping_with_left(_ENV) then
-          screen_dx = -diff
-        end
-
-        spr(_sprite(_ENV), screen_x + screen_dx, screen_y + _screen_dy)
+      local screen_dx = 0
+      local diff = (_tick_swap or 0) * (tile_size / gate_swap_animation_frame_count)
+      if _is_swapping_with_right(_ENV) then
+        screen_dx = diff
+      elseif _is_swapping_with_left(_ENV) then
+        screen_dx = -diff
       end
+
+      spr(_sprite(_ENV), board:screen_x(x) + screen_dx, board:screen_y(y) + _screen_dy)
     end,
 
     _sprite = function(_ENV)
@@ -389,7 +381,7 @@ function create_gate(_type, _span)
         return sprites[type].landed[_tick_landed]
       elseif is_match(_ENV) then
         local sequence = sprites[type].match
-        return _tick_match <= 15 and sequence[_tick_match] or sequence[#sequence]
+        return _tick_match <= gate_match_delay_per_gate and sequence[_tick_match] or sequence[#sequence]
       elseif _state == "over" then
         return sprites[type].over
       else
@@ -488,18 +480,54 @@ function swap_gate(other_x)
   return swap
 end
 
-function garbage_gate(span)
-  --#if assert
-  assert(span)
-  --#endif
+function garbage_gate(_span, _height)
+  assert(_span)
 
-  local garbage = create_gate('g', span)
-  garbage._sprite_middle = 87
-  garbage._sprite_middle_over = 110
-  garbage._sprite_left = 86
-  garbage._sprite_left_over = 109
-  garbage._sprite_right = 88
-  garbage._sprite_right_over = 111
+  local garbage = create_gate('g', _span, _height)
+
+  garbage.render = function(_ENV)
+    for j = 0, height == 1 and 0 or height - 1 do
+      for i = 0, span - 1 do
+        local sprite_id
+
+        if i == 0 then -- 左端
+          if j == 0 then -- 左下
+            sprite_id = height == 1 and 70 or 118
+          elseif j == height - 1 then -- 左上
+            sprite_id = 86
+          else
+            sprite_id = 102
+          end
+        elseif i == span - 1 then -- 右端
+          if j == 0 then -- 右下
+            sprite_id = height == 1 and 72 or 120
+          elseif j == height - 1 then -- 右上
+            sprite_id = 88
+          else
+            sprite_id = 104
+          end
+        else
+          if j == 0 then -- 下真ん中
+            sprite_id = height == 1 and 71 or 119
+          elseif j == height - 1 then -- 上真ん中
+            sprite_id = 87
+          else
+            sprite_id = 103
+          end
+        end
+
+        if _state == "over" then
+          pal(7, 5)
+          pal(13, 1)
+        end
+
+        spr(sprite_id, board:screen_x(x) + i * tile_size, board:screen_y(y) - j * tile_size + _screen_dy)
+
+        pal()
+      end
+    end
+  end
+
   garbage._garbage_first_drop = true
 
   return garbage

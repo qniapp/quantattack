@@ -62,16 +62,16 @@ describe('連鎖 (chain)', function()
     -- H
     -- H --> X
     -- X     X
-    board:put(1, 9, x_gate())
-    board:put(1, 10, h_gate())
+    board:put(1, 10, x_gate())
     board:put(1, 11, h_gate())
-    board:put(1, 12, x_gate())
+    board:put(1, 12, h_gate())
+    board:put(1, 13, x_gate())
 
     for i = 0, 83 do
       board:update()
     end
 
-    assert.are_equal(2, board.chain_count["1,10"])
+    assert.are_equal(2, board.chain_count["1,11"])
   end)
 
   it("2 連鎖 (ほかのゲートに変化したものとさらにマッチ)", function()
@@ -94,16 +94,16 @@ describe('連鎖 (chain)', function()
     -- S     Z
     -- T --> S --> Z
     -- T     S     Z
-    board:put(1, 9, z_gate())
-    board:put(1, 10, s_gate())
-    board:put(1, 11, t_gate())
+    board:put(1, 10, z_gate())
+    board:put(1, 11, s_gate())
     board:put(1, 12, t_gate())
+    board:put(1, 13, t_gate())
 
     for i = 0, 152 do
       board:update()
     end
 
-    assert.are_equal(3, board.chain_count["1,11"])
+    assert.are_equal(3, board.chain_count["1,12"])
   end)
 
   it("chaina_id を持つゲートが接地すると chain_id が消える", function()

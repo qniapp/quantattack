@@ -18,7 +18,7 @@ describe('chain', function()
     player = create_player()
   end)
 
-  it("コールバックが呼ばれる #solo", function()
+  it("コールバックが呼ばれる", function()
     --    Y           Y          Y
     -- [X H]        H X
     --  H X  -----> H X ----->     ----->   Y

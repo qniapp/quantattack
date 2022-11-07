@@ -31,15 +31,16 @@ function create_board(_offset_x)
     chain_count = {},
     reduce_cache = {},
     reducible_gate_at_cache = {},
-    is_empty_cache = {},
+    is_gate_empty_cache = {},
     is_gate_fallable_cache = {},
-    is_single_gate_cache = {},
+    gate_or_its_head_gate_cache = {},
 
     init = function(_ENV)
       state = "play"
       raised_dots = 0
       win = false
       lose = false
+      waiting_garbage_gates = {}
 
       -- fill the board with I gates
       for x = 1, cols do
@@ -56,7 +57,7 @@ function create_board(_offset_x)
       for y = row_next_gates, 6, -1 do
         for x = 1, cols do
           if y >= rows - 2 or
-              (y < rows - 2 and rnd(1) > (y - 11) * -0.1 and (not is_empty(_ENV, x, y + 1))) then
+              (y < rows - 2 and rnd(1) > (y - 11) * -0.1 and (not is_gate_empty(_ENV, x, y + 1))) then
             repeat
               put(_ENV, x, y, _random_single_gate(_ENV))
             until #reduce(_ENV, x, y, true).to == 0
@@ -116,7 +117,7 @@ function create_board(_offset_x)
                 end
               end
 
-              gates[x + dx][y + dy]:replace_with(new_gate, index, nil, chain_id)
+              gates[x + dx][y + dy]:replace_with(new_gate, index, nil, nil, chain_id)
 
               -- ゲートが消える、または変化するとき、その上にあるゲートすべてにフラグを付ける
               for chainable_y = y + dy - 1, 1, -1 do
@@ -139,41 +140,68 @@ function create_board(_offset_x)
       for y = rows, 1, -1 do
         for x = 1, cols do
           local gate = gates[x][y]
-          local span = gate.span
 
           if gate:is_garbage() then
-            local adjacent_gates = {}
-            local match = false
+            local garbage_span, garbage_height = gate.span, gate.height
+            local is_matching = function(g)
+              return g:is_match() and g.type ~= "!"
+            end
 
             if x > 1 then
-              add(adjacent_gates, gates[x - 1][y])
+              -- 左側
+              for i = 0, garbage_height - 1 do
+                if y - i > 0 and is_matching(gates[x - 1][y - i]) then
+                  goto match
+                end
+              end
             end
 
-            if x + span <= cols then
-              add(adjacent_gates, gates[x + span][y])
+            if x + garbage_span <= cols then
+              -- 右側
+              for i = 0, garbage_height - 1 do
+                if y - i > 0 and is_matching(gates[x + garbage_span][y - i]) then
+                  goto match
+                end
+              end
             end
 
-            for gx = x, x + span - 1 do
-              if y > 1 then
-                add(adjacent_gates, gates[gx][y - 1])
+            for gx = x, x + garbage_span - 1 do
+              if y - garbage_height > 1 then
+                -- 上側
+                if is_matching(gates[gx][y - garbage_height]) then
+                  goto match
+                end
               end
               if y < rows then
-                add(adjacent_gates, gates[gx][y + 1])
+                -- 下側
+                if is_matching(gates[gx][y + 1]) then
+                  goto match
+                end
               end
             end
 
-            for _, each in pairs(adjacent_gates) do
-              if (each:is_match() and each.type ~= "!") then
-                match = true
+            goto next_gate
+
+            ::match::
+            for i = 0, garbage_span - 1 do
+              for j = 0, garbage_height - 1 do
+                put(_ENV, x + i, y - j, garbage_match_gate())
+
+                local new_gate
+                if j == 0 then -- 一行目にはランダムなゲートを入れる
+                  new_gate = _random_single_gate(_ENV)
+                elseif j == 1 and i == 0 then
+                  -- 二行目の先頭にはおじゃまゲート
+                  new_gate = garbage_gate(garbage_span, garbage_height - 1)
+                else
+                  new_gate = i_gate()
+                end
+
+                gates[x + i][y - j]:replace_with(new_gate, i + j * garbage_span, garbage_span, garbage_height)
               end
             end
 
-            if match then
-              for dx = 0, span - 1 do
-                put(_ENV, x + dx, y, garbage_match_gate())
-                gates[x + dx][y]:replace_with(_random_single_gate(_ENV), dx, span)
-              end
-            end
+            ::next_gate::
           end
         end
       end
@@ -297,7 +325,7 @@ function create_board(_offset_x)
     top_gate_y = function(_ENV)
       for y = 1, rows do
         for x = 1, cols do
-          if not is_empty(_ENV, x, y) then
+          if not is_gate_empty(_ENV, x, y) then
             return y
           end
         end
@@ -362,19 +390,53 @@ function create_board(_offset_x)
       put(_ENV, x, y, i_gate())
     end,
 
-    fall_garbage = function(_ENV)
-      local span = flr(rnd(4)) + 3
-      local x = flr(rnd(cols - span + 1)) + 1
+    send_garbage = function(_ENV, span, _height)
+      -- もしキューの中に幅 6 のおじゃまゲートが存在し、
+      -- 新たに幅 6 のおじゃまゲートを作ろうとする場合、
+      -- 古いおじゃまゲートをキューから削除して、
+      -- 新しいおじゃまゲートをキューに追加
 
-      for i = x, x + span - 1 do
-        if not is_empty(_ENV, x, 1) then
-          return
+      if span == 6 then
+        for _, each in pairs(waiting_garbage_gates) do
+          if each.span == 6 and each.height == _height - 1 then
+            each.height = _height
+            return
+          end
         end
       end
 
-      local garbage = garbage_gate(span)
-      put(_ENV, x, 1, garbage)
-      garbage:fall()
+      local garbage = garbage_gate(span, _height)
+      garbage.wait_time = 120
+      add(waiting_garbage_gates, garbage)
+    end,
+
+    update_waiting_garbage_gates = function(_ENV)
+      for _, each in pairs(waiting_garbage_gates) do
+        if each.wait_time > 0 then
+          each.wait_time = each.wait_time - 1
+        end
+
+        if each.wait_time == 0 then
+          local x
+          if each.span == 6 then
+            x = 1
+          else
+            x = flr(rnd(cols - each.span + 1)) + 1
+          end
+
+          for i = x, x + each.span - 1 do
+            if not is_gate_empty(_ENV, i, 1) then
+              goto next_garbage_gate
+            end
+          end
+
+          del(waiting_garbage_gates, each)
+          put(_ENV, x, 1, each)
+          each:fall()
+        end
+
+        ::next_garbage_gate::
+      end
     end,
 
     insert_gates_at_bottom = function(_ENV, steps)
@@ -405,7 +467,7 @@ function create_board(_offset_x)
 
       -- 最下段の空いている部分に新しいゲートを置く
       for x = 1, cols do
-        if is_empty(_ENV, x, row_next_gates) then
+        if is_gate_empty(_ENV, x, row_next_gates) then
           repeat
             put(_ENV, x, row_next_gates, _random_single_gate(_ENV))
           until #reduce(_ENV, x, rows, true).to == 0
@@ -429,23 +491,20 @@ function create_board(_offset_x)
       local left_gate = gates[x_left][y]
       local right_gate = gates[x_right][y]
 
-      if is_part_of_garbage(_ENV, x_left, y) or is_part_of_garbage(_ENV, x_right, y) then
-        return false
-      end
-
-      if not (left_gate:is_idle() and right_gate:is_idle()) then
+      if is_part_of_garbage(_ENV, x_left, y) or is_part_of_garbage(_ENV, x_right, y) or
+          not (left_gate:is_idle() and right_gate:is_idle()) then
         return false
       end
 
       -- 回路が A--[A?] のようになっている場合
       -- [A?] は入れ替えできない。
-      if left_gate.other_x and left_gate.other_x < x_left and not is_empty(_ENV, x_right, y) then
+      if left_gate.other_x and left_gate.other_x < x_left and not is_gate_empty(_ENV, x_right, y) then
         return false
       end
 
       -- 回路が [?A]--A のようになっている場合も、
       -- [?A] は入れ替えできない。
-      if not is_empty(_ENV, x_left, y) and right_gate.other_x and x_right < right_gate.other_x then
+      if not is_gate_empty(_ENV, x_left, y) and right_gate.other_x and x_right < right_gate.other_x then
         return false
       end
 
@@ -471,6 +530,7 @@ function create_board(_offset_x)
         state = "over"
       end
 
+      update_waiting_garbage_gates(_ENV)
       _update_bounce(_ENV)
 
       if state == "play" then
@@ -496,10 +556,11 @@ function create_board(_offset_x)
       end
 
       -- ゲートの描画
-      for x = 1, cols do
-        -- 1 行目は画面に表示しないバッファとして使うので、
-        -- 2 行目以降を表示する
-        for y = 2, row_next_gates do
+      --
+      -- 1 行目は画面に表示しないバッファとして使うので、
+      -- 2 行目以降を表示する
+      for y = row_next_gates, 2, -1 do
+        for x = 1, cols do
           local gate, scr_x, scr_y = gates[x][y], screen_x(_ENV, x), screen_y(_ENV, y)
 
           -- CNOT や SWAP の接続を描画
@@ -533,15 +594,13 @@ function create_board(_offset_x)
       end
     end,
 
-    -- 最上段にゲートが存在し、
+    -- 最上段に落下中でないゲートが存在し、
     -- raised_dots == 7 の場合 true を返す
     _gates_piled_up = function(_ENV)
       if raised_dots == tile_size - 1 then
         for x = 1, cols do
-          if gate_at(_ENV, x, 1):is_falling() then
-            return false
-          end
-          if not is_empty(_ENV, x, 1) then
+          if not is_gate_empty(_ENV, x, 1) and
+              not gate_or_its_head_gate(_ENV, x, 1):is_falling() then
             return true
           end
         end
@@ -623,81 +682,98 @@ function create_board(_offset_x)
     -- ゲートの種類判定
     -------------------------------------------------------------------------------
 
-    is_single_gate = function(_ENV, x, y)
-      return memoize(_ENV, _is_single_gate_nocache, is_single_gate_cache, x, y)
-    end,
-
-    _is_single_gate_nocache = function(_ENV, x, y)
-      return not (is_empty(_ENV, x, y) or
-          is_part_of_garbage(_ENV, x, y) or
-          is_part_of_cnot(_ENV, x, y) or
-          is_part_of_swap(_ENV, x, y))
-    end,
-
     -- x, y が空かどうかを返す
     -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
-    is_empty = function(_ENV, x, y)
-      return memoize(_ENV, _is_empty_nocache, is_empty_cache, x, y)
+    is_gate_empty = function(_ENV, x, y)
+      return memoize(_ENV, _is_gate_empty_nocache, is_gate_empty_cache, x, y)
     end,
 
-    _is_empty_nocache = function(_ENV, x, y)
-      for tmp_x = 1, x - 1 do
-        local gate = gates[tmp_x][y]
-
-        if gate:is_garbage() and (not gate:is_empty()) and x <= tmp_x + gate.span - 1 then
-          return false
-        end
-        if gate.other_x and (not gate:is_empty()) and x < gate.other_x then
-          return false
-        end
-      end
-
-      return gates[x][y]:is_empty()
+    _is_gate_empty_nocache = function(_ENV, x, y)
+      return gates[x][y]:is_empty() and
+          not (is_part_of_garbage(_ENV, x, y) or is_part_of_cnot(_ENV, x, y) or is_part_of_swap(_ENV, x, y))
     end,
 
     -- x, y がおじゃまゲートの一部であるかどうかを返す
     is_part_of_garbage = function(_ENV, x, y)
-      for tmp_x = 1, x - 1 do
-        local gate = gates[tmp_x][y]
+      return _garbage_head_gate(_ENV, x, y) ~= nil
+    end,
 
-        if gate:is_garbage() and x <= tmp_x + gate.span - 1 then
-          return true
+    -- x, y がおじゃまゲートの一部であった場合、
+    -- おじゃまゲート先頭のゲートを返す
+    -- 一部でない場合は nil を返す
+    _garbage_head_gate = function(_ENV, x, y)
+      for ghead_y = rows, y, -1 do
+        for ghead_x = 1, x do
+          local ghead = gates[ghead_x][ghead_y]
+
+          if ghead:is_garbage() and
+              ghead_x <= x and x <= ghead_x + ghead.span - 1 and -- 幅に x が含まれる
+              y <= ghead_y and y >= ghead_y - ghead.height + 1 then -- 高さに y が含まれる
+            return ghead
+          end
         end
       end
 
-      return gates[x][y]:is_garbage()
+      return nil
     end,
 
     -- x, y が CNOT の一部であるかどうかを返す
     is_part_of_cnot = function(_ENV, x, y)
+      return _cnot_head_gate(_ENV, x, y) ~= nil
+    end,
+
+    -- x, y が CNOT の一部であった場合、
+    -- CNOT 左端のゲート (control または cnot_x) を返す
+    -- 一部でない場合は nil を返す
+    _cnot_head_gate = function(_ENV, x, y)
       for tmp_x = 1, x - 1 do
         local gate = gates[tmp_x][y]
 
         if (gate:is_cnot_x() or gate:is_control()) and x < gate.other_x then
-          return true
+          return gate
         end
       end
 
       local gate = gates[x][y]
-      return gate:is_cnot_x() or gate:is_control()
+      return (gate:is_cnot_x() or gate:is_control()) and gate or nil
     end,
 
     -- x, y が SWAP ペアの一部であるかどうかを返す
     is_part_of_swap = function(_ENV, x, y)
+      return _swap_head_gate(_ENV, x, y) ~= nil
+    end,
+
+    -- x, y が SWAP ペアの一部であった場合、
+    -- SWAP ペア左端のゲートを返す
+    -- 一部でない場合は nil を返す
+    _swap_head_gate = function(_ENV, x, y)
       for tmp_x = 1, x - 1 do
         local gate = gates[tmp_x][y]
 
         if gate:is_swap() and x < gate.other_x then
-          return true
+          return gate
         end
       end
 
-      return gates[x][y]:is_swap()
+      local gate = gates[x][y]
+      return gate:is_swap() and gate or nil
     end,
 
     -------------------------------------------------------------------------------
     -- ゲートの状態
     -------------------------------------------------------------------------------
+
+    -- TODO: プライベート化して、別の場所に移動
+    gate_or_its_head_gate = function(_ENV, x, y)
+      return memoize(_ENV, _gate_or_its_head_gate_nocache, gate_or_its_head_gate_cache, x, y)
+    end,
+
+    _gate_or_its_head_gate_nocache = function(_ENV, x, y)
+      return _garbage_head_gate(_ENV, x, y) or
+          _cnot_head_gate(_ENV, x, y) or
+          _swap_head_gate(_ENV, x, y) or
+          gates[x][y]
+    end,
 
     -- ゲート x, y が x, y + 1 に落とせるかどうかを返す。
     is_gate_fallable = function(_ENV, x, y)
@@ -706,11 +782,6 @@ function create_board(_offset_x)
 
     -- ゲート x, y が x, y + 1 に落とせるかどうかを返す。
     _is_gate_fallable_nocache = function(_ENV, x, y)
-      --#if assert
-      assert(1 <= x and x <= cols)
-      assert(1 <= y and y <= row_next_gates)
-      --#endif
-
       if y >= rows then
         return false
       end
@@ -720,16 +791,17 @@ function create_board(_offset_x)
         return false
       end
 
-      local start_x, end_x
+      -- CNOT, SWAP の場合
+      -- おじゃまゲートの場合
+      -- シングルゲートの場合
 
+      local start_x, end_x = x, x + gate.span - 1
       if gate.other_x then
         start_x, end_x = min(x, gate.other_x), max(x, gate.other_x)
-      else
-        start_x, end_x = x, x + gate.span - 1
       end
 
       for tmp_x = start_x, end_x do
-        if not (is_empty(_ENV, tmp_x, y + 1) or gates[tmp_x][y + 1]:is_falling()) then
+        if not (is_gate_empty(_ENV, tmp_x, y + 1) or gate_or_its_head_gate(_ENV, tmp_x, y + 1):is_falling()) then
           return false
         end
       end
@@ -767,9 +839,9 @@ function create_board(_offset_x)
       changed = true
       reduce_cache = {}
       reducible_gate_at_cache = {}
-      is_empty_cache = {}
+      is_gate_empty_cache = {}
       is_gate_fallable_cache = {}
-      is_single_gate_cache = {}
+      gate_or_its_head_gate_cache = {}
     end,
 
     -------------------------------------------------------------------------------
