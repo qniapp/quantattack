@@ -1,6 +1,6 @@
 ---@diagnostic disable: lowercase-global
 
-local all_cubes, data = {}, split("122413345657687815263748", 1)
+local all_cubes, cube_data = {}, split("122413345657687815263748", 1)
 
 function update_attack_cubes()
   foreach(all_cubes, function(each)
@@ -24,8 +24,6 @@ function update_attack_cubes()
 end
 
 function render_attack_cubes()
-  local cube_color = flr(rnd(16)) + 1
-
   foreach(all_cubes, function(each)
     local _ENV = each
 
@@ -33,10 +31,10 @@ function render_attack_cubes()
       if i % 2 > 0 then
         line()
       end
-      local f = apex[data[i]]
+      local f = _apex[cube_data[i]]
       local x, y, z = f.x, f.y, f.z + f.x * .0125
       f.x, f.y, f.z = x - f.z * .0125, y - z * .0125, z + y * .0125
-      line(f.x + _x, f.y + _y, cube_color)
+      line(f.x + _x, f.y + _y, _color)
     end
   end)
 end
@@ -44,12 +42,12 @@ end
 function create_attack_cube(x, y, callback, target_x, target_y, left)
   local _ENV = setmetatable({}, { __index = _ENV })
 
-  _x, _y, _callback, _target_x, _target_y, _tick, _left, apex = x, y, callback, target_x, target_y, 0, left ~= nil, {}
+  _x, _y, _callback, _target_x, _target_y, _tick, _left, _apex, _color = x, y, callback, target_x, target_y, 0, left ~= nil, {}, flr(rnd(16)) + 1
 
-  for x = -4, 4, 8 do
-    for y = -4, 4, 8 do
-      for z = -4, 4, 8 do
-        add(apex, { x = x, y = y, z = z })
+  for ax = -4, 4, 8 do
+    for ay = -4, 4, 8 do
+      for az = -4, 4, 8 do
+        add(_apex, { x = ax, y = ay, z = az })
       end
     end
   end

@@ -5,6 +5,7 @@ function create_qpu(cursor)
     cursor = cursor,
     commands = {},
 
+    -- TODO: 引数に board を渡せるようにする
     init = function(_ENV)
       steps, score = 0, 0
     end,
@@ -145,19 +146,19 @@ function create_qpu(cursor)
       elseif cursor.y < new_y then
         add_move_command(_ENV, "down", new_y - cursor.y)
       end
+
       add_swap_command(_ENV)
     end,
 
     add_move_command = function(_ENV, direction, count)
       for i = 1, count do
         add(commands, direction)
-        add_sleep_command(_ENV, 6)
+        add_sleep_command(_ENV, 5 + flr(rnd(10)))
       end
     end,
 
     add_swap_command = function(_ENV)
       add(commands, "o")
-      add_sleep_command(_ENV, 10)
     end,
 
     add_sleep_command = function(_ENV, count)

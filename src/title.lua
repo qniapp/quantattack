@@ -25,7 +25,7 @@ function title:render()
   spr(128, 29, 35, 9, 2)
 
   -- メニューを表示
-  text_menu:draw(40, 72) -- 40 + 4 * character_height
+  text_menu:draw(40, 72) -- 40 + 4 * character_height (= 6)
 end
 
 return title
