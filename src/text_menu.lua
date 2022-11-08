@@ -1,6 +1,5 @@
-require("engine/application/constants")
+---@diagnostic disable: discard-returns
 
-local flow = require("engine/application/flow")
 local input = require("engine/input/input")
 
 -- text menu: class representing a menu with labels and arrow-based navigation
@@ -58,7 +57,7 @@ function text_menu:draw(left, top)
       label = "  " .. label
     end
     api.print(label, left, y, 7)
-    y = y + character_height
+    y = y + 6 -- character_height = 6
   end
 end
 
