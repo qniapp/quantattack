@@ -1,6 +1,5 @@
-require("engine/application/constants")
+---@diagnostic disable: discard-returns
 
-local flow = require("engine/application/flow")
 local input = require("engine/input/input")
 
 -- text menu: class representing a menu with labels and arrow-based navigation

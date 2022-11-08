@@ -1,6 +1,5 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
-require("engine/application/constants")
 require("particle")
 
 gate_match_animation_frame_count = 45
@@ -307,7 +306,7 @@ function create_gate(_type, _span, _height)
 
           local new_y = y
 
-          if _fall_screen_dy >= tile_size then
+          if _fall_screen_dy >= 8 then
             new_y = new_y + 1
           end
 
@@ -319,7 +318,7 @@ function create_gate(_type, _span, _height)
             -- 一個下が空いている場合、そこに移動する
             board:remove_gate(x, y)
             board:put(x, new_y, _ENV)
-            _fall_screen_dy = _fall_screen_dy - tile_size
+            _fall_screen_dy = _fall_screen_dy - 8
 
             if other_x and x < other_x then
               local other_gate = board.gates[other_x][orig_y]
@@ -362,7 +361,7 @@ function create_gate(_type, _span, _height)
       end
 
       local swap_screen_dx = 0
-      local diff = (_tick_swap or 0) * (tile_size / gate_swap_animation_frame_count)
+      local diff = (_tick_swap or 0) * (8 / gate_swap_animation_frame_count)
       if _is_swapping_with_right(_ENV) then
         swap_screen_dx = diff
       elseif _is_swapping_with_left(_ENV) then
