@@ -76,9 +76,7 @@ function create_gate(_type, _span, _height)
     span = _span or 1,
     height = _height or 1,
     _state = "idle",
-    _screen_dy = 0,
-    chain_id = nil,
-    board = nil,
+    _fall_screen_dy = 0,
 
     -------------------------------------------------------------------------------
     -- gate state
@@ -181,7 +179,7 @@ function create_gate(_type, _span, _height)
     end,
 
     replace_with = function(_ENV, other, match_index, garbage_span, garbage_height, _chain_id)
-      _reduce_to = other
+      new_gate = other
       _match_index = match_index or 0
       _garbage_span = garbage_span
       _garbage_height = garbage_height
@@ -199,7 +197,7 @@ function create_gate(_type, _span, _height)
         return
       end
 
-      _screen_dy = 0
+      _fall_screen_dy = 0
 
       change_state(_ENV, "falling")
     end,
@@ -291,7 +289,7 @@ function create_gate(_type, _span, _height)
             sfx(4)
           end
 
-          _screen_dy = 0
+          _fall_screen_dy = 0
           _tick_landed = 1
 
           change_state(_ENV, "idle")
@@ -299,16 +297,16 @@ function create_gate(_type, _span, _height)
           if other_x and x < other_x then
             local other_gate = board.gates[other_x][y]
             other_gate._tick_landed = 1
-            other_gate._screen_dy = 0
+            other_gate._fall_screen_dy = 0
 
             other_gate:change_state("idle")
           end
         else
-          _screen_dy = _screen_dy + gate_fall_speed
+          _fall_screen_dy = _fall_screen_dy + gate_fall_speed
 
           local new_y = y
 
-          if _screen_dy >= tile_size then
+          if _fall_screen_dy >= tile_size then
             new_y = new_y + 1
           end
 
@@ -320,25 +318,22 @@ function create_gate(_type, _span, _height)
             -- 一個下が空いている場合、そこに移動する
             board:remove_gate(x, y)
             board:put(x, new_y, _ENV)
-            _screen_dy = _screen_dy - tile_size
+            _fall_screen_dy = _fall_screen_dy - tile_size
 
             if other_x and x < other_x then
               local other_gate = board.gates[other_x][orig_y]
               board:remove_gate(other_x, orig_y)
               board:put(other_x, new_y, other_gate)
-              other_gate._screen_dy = _screen_dy
+              other_gate._fall_screen_dy = _fall_screen_dy
             end
           end
         end
       elseif is_match(_ENV) then
-        --#if assert
         assert(not is_garbage(_ENV))
-        --#endif
 
         if _tick_match <= gate_match_animation_frame_count + _match_index * gate_match_delay_per_gate then
           _tick_match = _tick_match + 1
         else
-          local new_gate = _reduce_to
           board:put(x, y, new_gate)
 
           sfx(3, -1, (_match_index % 6 - 1) * 4, 4)
@@ -365,27 +360,29 @@ function create_gate(_type, _span, _height)
         return
       end
 
-      local screen_dx = 0
+      local swap_screen_dx = 0
       local diff = (_tick_swap or 0) * (tile_size / gate_swap_animation_frame_count)
       if _is_swapping_with_right(_ENV) then
-        screen_dx = diff
+        swap_screen_dx = diff
       elseif _is_swapping_with_left(_ENV) then
-        screen_dx = -diff
+        swap_screen_dx = -diff
       end
 
-      spr(_sprite(_ENV), board:screen_x(x) + screen_dx, board:screen_y(y) + _screen_dy)
+      spr(_sprite(_ENV), board:screen_x(x) + swap_screen_dx, board:screen_y(y) + _fall_screen_dy)
     end,
 
     _sprite = function(_ENV)
+      local sprite_set = sprites[type]
+
       if is_idle(_ENV) and _tick_landed then
-        return sprites[type].landed[_tick_landed]
+        return sprite_set.landed[_tick_landed]
       elseif is_match(_ENV) then
-        local sequence = sprites[type].match
+        local sequence = sprite_set.match
         return _tick_match <= gate_match_delay_per_gate and sequence[_tick_match] or sequence[#sequence]
       elseif _state == "over" then
-        return sprites[type].over
+        return sprite_set.over
       else
-        return sprites[type].default
+        return sprite_set.default
       end
     end,
 
@@ -486,7 +483,8 @@ function garbage_gate(_span, _height)
   local garbage = create_gate('g', _span, _height)
 
   garbage.render = function(_ENV)
-    local x0, y0, x1, y1, bg_color = board:screen_x(x), board:screen_y(y - height + 1) + _screen_dy, board:screen_x(x + span) - 2, board:screen_y(y + 1) - 2 + _screen_dy, _state ~= "over" and 7 or 5
+    local x0, y0, x1, y1, bg_color = board:screen_x(x), board:screen_y(y - height + 1) + _fall_screen_dy,
+        board:screen_x(x + span) - 2, board:screen_y(y + 1) - 2 + _fall_screen_dy, _state ~= "over" and 7 or 5
     draw_rounded_box(x0, y0, x1, y1, bg_color, bg_color)
     draw_rounded_box(x0 + 1, y0 + 1, x1 - 1, y1 - 1, _state ~= "over" and 13 or 1)
   end
