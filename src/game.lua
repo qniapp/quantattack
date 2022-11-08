@@ -27,7 +27,7 @@ function game.combo_callback(combo_count, x, y, player, board, other_board)
 
   create_bubble("combo", combo_count, board:screen_x(x), board:screen_y(y))
   create_attack_cube(board:screen_x(x), board:screen_y(y), attack_cube_callback,
-                     unpack(board.attack_cube_target))
+    unpack(board.attack_cube_target))
 end
 
 function game.chain_callback(chain_count, x, y, player, board, other_board)
@@ -46,7 +46,7 @@ function game.chain_callback(chain_count, x, y, player, board, other_board)
 
     create_bubble("chain", chain_count, board:screen_x(x), board:screen_y(y))
     create_attack_cube(board:screen_x(x), board:screen_y(y), attack_cube_callback,
-                       unpack(board.attack_cube_target))
+      unpack(board.attack_cube_target))
   end
 end
 
@@ -176,7 +176,7 @@ function game:_raise(player)
 
   board.raised_dots = board.raised_dots + 1
 
-  if board.raised_dots == tile_size then
+  if board.raised_dots == 8 then
     board.raised_dots = 0
     board:insert_gates_at_bottom(player.steps)
     cursor:move_up()
@@ -187,7 +187,7 @@ end
 -- 可能な場合ゲートを自動的にせりあげる
 function game:_auto_raise(player)
   if player.tick < self.auto_raise_frame_count or
-    player.board:is_busy() then
+      player.board:is_busy() then
     return
   end
 

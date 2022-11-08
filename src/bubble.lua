@@ -45,7 +45,7 @@ end
 function create_bubble(bubble_type, count, x, y)
   local _ENV = setmetatable({}, { __index = _ENV })
 
-  _type, _count, _x, _y, _tick = bubble_type, count, x, y - tile_size, 0
+  _type, _count, _x, _y, _tick = bubble_type, count, x, y - 8, 0
 
   add(all_bubbles, _ENV)
 end
