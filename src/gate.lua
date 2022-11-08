@@ -486,46 +486,9 @@ function garbage_gate(_span, _height)
   local garbage = create_gate('g', _span, _height)
 
   garbage.render = function(_ENV)
-    for j = 0, height == 1 and 0 or height - 1 do
-      for i = 0, span - 1 do
-        local sprite_id
-
-        if i == 0 then -- 左端
-          if j == 0 then -- 左下
-            sprite_id = height == 1 and 70 or 118
-          elseif j == height - 1 then -- 左上
-            sprite_id = 86
-          else
-            sprite_id = 102
-          end
-        elseif i == span - 1 then -- 右端
-          if j == 0 then -- 右下
-            sprite_id = height == 1 and 72 or 120
-          elseif j == height - 1 then -- 右上
-            sprite_id = 88
-          else
-            sprite_id = 104
-          end
-        else
-          if j == 0 then -- 下真ん中
-            sprite_id = height == 1 and 71 or 119
-          elseif j == height - 1 then -- 上真ん中
-            sprite_id = 87
-          else
-            sprite_id = 103
-          end
-        end
-
-        if _state == "over" then
-          pal(7, 5)
-          pal(13, 1)
-        end
-
-        spr(sprite_id, board:screen_x(x) + i * tile_size, board:screen_y(y) - j * tile_size + _screen_dy)
-
-        pal()
-      end
-    end
+    local x0, y0, x1, y1, bg_color = board:screen_x(x), board:screen_y(y - height + 1) + _screen_dy, board:screen_x(x + span) - 2, board:screen_y(y + 1) - 2 + _screen_dy, _state ~= "over" and 7 or 5
+    draw_rounded_box(x0, y0, x1, y1, bg_color, bg_color)
+    draw_rounded_box(x0 + 1, y0 + 1, x1 - 1, y1 - 1, _state ~= "over" and 13 or 1)
   end
 
   garbage._garbage_first_drop = true
