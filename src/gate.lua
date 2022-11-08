@@ -368,7 +368,13 @@ function create_gate(_type, _span, _height)
         swap_screen_dx = -diff
       end
 
+      if type == "!" then
+        palt(0, false)
+      end
+
       spr(_sprite(_ENV), board:screen_x(x) + swap_screen_dx, board:screen_y(y) + _fall_screen_dy)
+
+      palt()
     end,
 
     _sprite = function(_ENV)
@@ -485,8 +491,9 @@ function garbage_gate(_span, _height)
   garbage.render = function(_ENV)
     local x0, y0, x1, y1, bg_color = board:screen_x(x), board:screen_y(y - height + 1) + _fall_screen_dy,
         board:screen_x(x + span) - 2, board:screen_y(y + 1) - 2 + _fall_screen_dy, _state ~= "over" and 7 or 5
-    draw_rounded_box(x0, y0, x1, y1, bg_color, bg_color)
-    draw_rounded_box(x0 + 1, y0 + 1, x1 - 1, y1 - 1, _state ~= "over" and 13 or 1)
+    draw_rounded_box(x0, y0 + 1, x1, y1 + 1, 1, 1) -- 影
+    draw_rounded_box(x0, y0, x1, y1, bg_color, bg_color) -- 本体
+    draw_rounded_box(x0 + 1, y0 + 1, x1 - 1, y1 - 1, _state ~= "over" and 13 or 1) -- 内側の線
   end
 
   garbage._garbage_first_drop = true
