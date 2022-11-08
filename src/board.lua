@@ -7,7 +7,7 @@ require("gate")
 
 local reduction_rules = require("reduction_rules")
 
-function print_outlined(str, x, y, color) -- 21 tokens, 6.3 seconds
+function print_outlined(str, x, y, color) -- 21 tokens
   print(str, x - 1, y, 0)
   print(str, x + 1, y)
   print(str, x, y - 1)
@@ -23,7 +23,7 @@ function create_board(_offset_x)
     gates = {},
     width = 48, -- 6 * tile_size
     height = 96, -- 12 * tile_size
-    offset_x = _offset_x or 10,
+    offset_x = _offset_x or 11,
     offset_y = 32, -- screen_height - 12 * tile_size (128 - 96)
     changed = false,
     bounce_speed = 0,
@@ -576,25 +576,29 @@ function create_board(_offset_x)
 
           gate:render()
 
-          -- マスクを描画
+          -- 一番下のマスクを描画
           if y == row_next_gates then
             spr(85, scr_x, scr_y)
           end
         end
       end
 
+      -- 上からはみ出した部分のマスクを描画
+      rectfill(offset_x, 0, offset_x + 48, offset_y - 1, 0)
+
+      -- 枠線の描画
+      for i, color in pairs({1, 13, 2, 13}) do
+        f = i < 4 and rect or draw_rounded_box
+        f(offset_x - 2 - i, offset_y - i, offset_x + 48 + i, 128, color)
+      end
+
       -- WIN! または LOSE を描画
       if is_game_over(_ENV) then
-        local sx, sy
-        if win then
-          sx, sy = 0, 80
-        else
-          sx, sy = 32, 80
-        end
-        sspr(sx, sy, 32, 16, offset_x + width / 2 - 16, offset_y + 16)
-        if push_any_key then
-          print_outlined("push any key!", offset_x - 1, offset_y + 80, 8)
-        end
+        sspr(win and 0 or 32, 80, 32, 16, offset_x + width / 2 - 16, offset_y + 16)
+      end
+
+      if push_any_key then
+        print_outlined("push any key!", offset_x - 1, offset_y + 80, 8)
       end
     end,
 
