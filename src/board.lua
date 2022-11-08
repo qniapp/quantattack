@@ -1,9 +1,7 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
-require("engine/application/constants")
-require("engine/core/helper")
-require("helpers")
 require("gate")
+require("helpers")
 
 local reduction_rules = require("reduction_rules")
 
@@ -304,13 +302,13 @@ function create_board(_offset_x)
 
     -- ボード上の X 座標を画面上の X 座標に変換
     screen_x = function(_ENV, x)
-      return offset_x + (x - 1) * tile_size
+      return offset_x + (x - 1) * 8
     end,
 
     -- ボード上の Y 座標を画面上の Y 座標に変換
     -- 一行目は表示しないことに注意
     screen_y = function(_ENV, y)
-      return offset_y + (y - 2) * tile_size - raised_dots + bounce_screen_dy
+      return offset_y + (y - 2) * 8 - raised_dots + bounce_screen_dy
     end,
 
     _random_single_gate = function(_ENV)
@@ -612,7 +610,7 @@ function create_board(_offset_x)
     -- 最上段に落下中でないゲートが存在し、
     -- raised_dots == 7 の場合 true を返す
     _gates_piled_up = function(_ENV)
-      if raised_dots == tile_size - 1 then
+      if raised_dots == 7 then
         for x = 1, cols do
           if not is_gate_empty(_ENV, x, 1) and
               not gate_or_its_head_gate(_ENV, x, 1):is_falling() then
