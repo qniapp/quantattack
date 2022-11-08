@@ -55,7 +55,7 @@ local sprites = {
     default = 7,
     landed = split("23,23,23,23,55,55,39,39,39,23,23,23"),
     match = split("64,64,64,80,80,80,64,64,64,96,96,96,7,7,7,112"),
-    over = 91
+    over = 103
   },
   swap = {
     default = 8,
