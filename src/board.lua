@@ -571,7 +571,7 @@ function create_board(_offset_x)
             local connection_y = scr_y + 3
             line(scr_x + 3, connection_y,
               screen_x(_ENV, gate.other_x) + 3, connection_y,
-              lose and 5 or 10)
+              gate:is_match() and 13 or (lose and 5 or 10))
           end
 
           gate:render()
