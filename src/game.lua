@@ -9,7 +9,7 @@ require("particle")
 require("bubble")
 require("attack_cube")
 
-local all_players
+local all_players, state, countdown
 
 function game.reduce_callback(score, player)
   player.score = player.score + score
@@ -56,6 +56,7 @@ end
 
 function game:init()
   all_players = {}
+  countdown = 240
 end
 
 function game:add_player(player, player_cursor, board, other_board)
@@ -68,6 +69,31 @@ function game:add_player(player, player_cursor, board, other_board)
 end
 
 function game:update()
+  if countdown then
+    countdown = countdown - 1
+    local countdown_number = flr(countdown / 60 + 1)
+
+    if countdown > 0 then
+      if countdown_number < 4 then
+        for _, each in pairs(all_players) do
+          each.board.countdown = countdown_number
+        end
+      end
+
+      if countdown % 60 == 0 then
+        sfx(5)
+      end
+    elseif countdown == 0 then
+      countdown = nil
+
+      for _, each in pairs(all_players) do
+        each.board.countdown = nil
+      end
+
+      sfx(6)
+    end
+  end
+
   for _, each in pairs(all_players) do
     local player_cursor = each.player_cursor
     local board = each.board
@@ -96,20 +122,19 @@ function game:update()
         sfx(0)
         player_cursor:move_down()
       end
-      if each.o then
-        if board:swap(player_cursor.x, player_cursor.y) then
-          sfx(2)
-        end
+      if each.o and not countdown and board:swap(player_cursor.x, player_cursor.y) then
+        sfx(2)
       end
-      if each.x then
-        if board:top_gate_y() > 2 then
-          self:_raise(each)
-        end
+      if each.x and not countdown and board:top_gate_y() > 2 then
+        self:_raise(each)
       end
 
       board:update(self, each, other_board)
       player_cursor:update()
-      self:_auto_raise(each)
+
+      if not countdown then
+        self:_auto_raise(each)
+      end
 
       each.tick = each.tick + 1
     end

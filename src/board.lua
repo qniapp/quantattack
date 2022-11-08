@@ -183,7 +183,6 @@ function create_board(_offset_x)
             goto next_gate
 
             ::match::
-
             for i = 0, garbage_span - 1 do
               for j = 0, garbage_height - 1 do
                 put(_ENV, x + i, y - j, garbage_match_gate())
@@ -199,7 +198,8 @@ function create_board(_offset_x)
                   new_gate = i_gate()
                 end
 
-                gates[x + i][y - j]:replace_with(new_gate, i + j * garbage_span, garbage_span, garbage_height, j == 0 and chain_id or nil)
+                gates[x + i][y - j]:replace_with(new_gate, i + j * garbage_span, garbage_span, garbage_height,
+                  j == 0 and chain_id or nil)
               end
             end
 
@@ -587,9 +587,16 @@ function create_board(_offset_x)
       rectfill(offset_x, 0, offset_x + 48, offset_y - 1, 0)
 
       -- 枠線の描画
-      for i, color in pairs({1, 13, 2, 13}) do
+      for i, color in pairs({ 1, 13, 2, 13 }) do
         f = i < 4 and rect or draw_rounded_box
         f(offset_x - 2 - i, offset_y - i, offset_x + 48 + i, 128, color)
+      end
+
+      if countdown then
+        local countdown_sprite_x = { 112, 96, 80 }
+        sspr(countdown_sprite_x[countdown], 32,
+          16, 16,
+          offset_x + 16 + (countdown == 1 and 4 or 0), offset_y + 16)
       end
 
       -- WIN! または LOSE を描画
