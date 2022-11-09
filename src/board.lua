@@ -39,6 +39,7 @@ function create_board(_offset_x)
       win, lose = false, false
       waiting_garbage_gates = {}
       topped_out_frame_count = 0
+      garbage_gates = {}
 
       -- fill the board with I gates
       for x = 1, cols do
@@ -382,6 +383,19 @@ function create_board(_offset_x)
 
       gate.x = x
       gate.y = y
+
+      -- おじゃまゲートを別のゲートと置き換える場合
+      -- おじゃまゲートキャッシュから消す
+      if gates[x] and gates[x][y] and gates[x][y]:is_garbage() then
+        del(garbage_gates, gates[x][y])
+      end
+
+      -- 新たにおじゃまゲートを置く場合
+      -- おじゃまゲートキャッシュに追加する
+      if gate:is_garbage() then
+        add(garbage_gates, gate)
+      end
+
       gates[x][y] = gate
       gate:attach(_ENV)
       observable_update(_ENV, gate)
@@ -717,30 +731,22 @@ function create_board(_offset_x)
 
     -- x, y がおじゃまゲートの一部であるかどうかを返す
     is_part_of_garbage = function(_ENV, x, y)
-      return _garbage_head_gate(_ENV, x, y) ~= false
-    end,
-
-    _garbage_head_gate = function(_ENV, x, y)
-      return memoize(_ENV, _garbage_head_gate_nocache, garbage_head_gate_cache, x, y)
+      return _garbage_head_gate(_ENV, x, y) ~= nil
     end,
 
     -- x, y がおじゃまゲートの一部であった場合、
     -- おじゃまゲート先頭のゲートを返す
-    -- 一部でない場合は false を返す
-    _garbage_head_gate_nocache = function(_ENV, x, y)
-      for ghead_y = rows, y, -1 do
-        for ghead_x = 1, x do
-          local ghead = gates[ghead_x][ghead_y]
-
-          if ghead:is_garbage() and
-              ghead_x <= x and x <= ghead_x + ghead.span - 1 and -- 幅に x が含まれる
-              y <= ghead_y and y >= ghead_y - ghead.height + 1 then -- 高さに y が含まれる
-            return ghead
-          end
+    -- 一部でない場合は nil を返す
+    _garbage_head_gate = function(_ENV, x, y)
+      for _, each in pairs(garbage_gates) do
+        local garbage_x, garbage_y = each.x, each.y
+        if garbage_x <= x and x <= garbage_x + each.span - 1 and -- 幅に x が含まれる
+          y <= garbage_y and y >= garbage_y - each.height + 1 then -- 高さに y が含まれる
+          return each
         end
       end
 
-      return false
+      return nil
     end,
 
     -- x, y が CNOT の一部であるかどうかを返す
@@ -868,7 +874,6 @@ function create_board(_offset_x)
       is_gate_empty_cache = {}
       is_gate_fallable_cache = {}
       gate_or_its_head_gate_cache = {}
-      garbage_head_gate_cache = {}
     end,
 
     -------------------------------------------------------------------------------
