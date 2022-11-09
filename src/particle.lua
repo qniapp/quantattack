@@ -4,7 +4,7 @@ require("engine/render/color")
 all_particles = {}
 
 function update_particles()
-  foreach(all_particles, function(each)
+  for _, each in pairs(all_particles) do
     local _ENV = each
 
     if _tick > _max_tick then
@@ -15,15 +15,15 @@ function update_particles()
     end
 
     _x, _y, _dx, _dy, _tick = _x + _dx, _y + _dy, _dx + _ddx, _dy + _ddy, _tick + 1
-  end)
+  end
 end
 
 function render_particles()
-  foreach(all_particles, function(each)
+  for _, each in pairs(all_particles) do
     local _ENV = each
 
     circfill(_x, _y, _radius, _color)
-  end)
+  end
 end
 
 function create_particle(x, y, radius, color, color_fade, max_tick, horizontal_direction)
@@ -46,7 +46,7 @@ function create_particle(x, y, radius, color, color_fade, max_tick, horizontal_d
 end
 
 function create_particle_set(x, y, data)
-  foreach(split(data, "|"), function(each)
+  for _, each in pairs(split(data, "|")) do
     create_particle(x, y, unpack(split(each)))
-  end)
+  end
 end
