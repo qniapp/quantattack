@@ -1,7 +1,5 @@
 ---@diagnostic disable: discard-returns
 
-local input = require("engine/input/input")
-
 -- text menu: class representing a menu with labels and arrow-based navigation
 local text_menu = new_class()
 
@@ -20,11 +18,11 @@ end
 
 -- handle navigation input
 function text_menu:update()
-  if input:is_just_pressed(button_ids.up) then
+  if btnp(2) then
     self:select_previous()
-  elseif input:is_just_pressed(button_ids.down) then
+  elseif btnp(3) then
     self:select_next()
-  elseif input:is_just_pressed(button_ids.x) or input:is_just_pressed(button_ids.o) then
+  elseif btnp(4) or btnp(5) then
     self:confirm_selection()
   end
 end

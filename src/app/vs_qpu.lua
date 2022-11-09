@@ -1,6 +1,6 @@
 require("engine/core/class")
 
-local gameapp = require("engine/application/gameapp")
+local gameapp = require("app/gameapp")
 local app = derived_class(gameapp)
 local vs_qpu = require("vs_qpu")
 
