@@ -31,13 +31,14 @@ function vs_qpu:on_enter()
 end
 
 function vs_qpu:update()
-  if board:is_game_over() and board.win == false then
-    board.lose, qpu_board.win = true, true
-  elseif qpu_board:is_game_over() and qpu_board.win == false then
-    board.win, qpu_board.lose = true, true
-  end
-
   if board:is_game_over() or qpu_board:is_game_over() then
+    if board.lose then
+      qpu_board.win = true
+    end
+    if qpu_board.lose then
+      board.win = true
+    end
+
     if not game_over_time then
       game_over_time = time()
     else

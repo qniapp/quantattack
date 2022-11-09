@@ -38,6 +38,7 @@ function create_board(_offset_x)
       raised_dots = 0
       win, lose = false, false
       waiting_garbage_gates = {}
+      topped_out_frame_count = 0
 
       -- fill the board with I gates
       for x = 1, cols do
@@ -526,7 +527,7 @@ function create_board(_offset_x)
     -------------------------------------------------------------------------------
 
     update = function(_ENV, game, player, other_board)
-      if _gates_piled_up(_ENV) or win or lose then
+      if win then
         state = "over"
       end
 
@@ -607,15 +608,11 @@ function create_board(_offset_x)
       end
     end,
 
-    -- 最上段に落下中でないゲートが存在し、
-    -- raised_dots == 7 の場合 true を返す
-    _gates_piled_up = function(_ENV)
-      if raised_dots == 7 then
-        for x = 1, cols do
-          if not is_gate_empty(_ENV, x, 1) and
-              not gate_or_its_head_gate(_ENV, x, 1):is_falling() then
-            return true
-          end
+    _is_topped_out = function(_ENV)
+      for x = 1, cols do
+        if not is_gate_empty(_ENV, x, 1) and
+          not gate_or_its_head_gate(_ENV, x, 1):is_falling() then
+          return true
         end
       end
 
@@ -623,6 +620,18 @@ function create_board(_offset_x)
     end,
 
     _update_game = function(_ENV, game, player, other_board)
+      if not is_busy(_ENV) and _is_topped_out(_ENV) then
+        topped_out_frame_count = topped_out_frame_count + 1
+
+        -- 120 はあとで要調整
+        if topped_out_frame_count > 120 then
+          lose = true
+          state = "over"
+        end
+      else
+        topped_out_frame_count = 0
+      end
+
       if changed then
         reduce_gates(_ENV, game, player, other_board)
         changed = false
