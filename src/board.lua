@@ -620,7 +620,7 @@ function create_board(_offset_x)
     end,
 
     _update_game = function(_ENV, game, player, other_board)
-      if not is_busy(_ENV) and _is_topped_out(_ENV) then
+      if _is_topped_out(_ENV) and not is_busy(_ENV) then
         topped_out_frame_count = topped_out_frame_count + 1
 
         -- 120 はあとで要調整
