@@ -136,76 +136,71 @@ function create_board(_offset_x)
       end
 
       -- おじゃまゲートのマッチ
-      for y = rows, 1, -1 do
-        for x = 1, cols do
-          local gate, chain_id = gates[x][y]
+      for _, gate in pairs(garbage_gates) do
+        local x, y, garbage_span, garbage_height = gate.x, gate.y, gate.span, gate.height
+        local chain_id
+        local is_matching = function(g)
+          chain_id = g.chain_id
+          return g:is_match() and g.type ~= "!"
+        end
 
-          if gate:is_garbage() then
-            local garbage_span, garbage_height = gate.span, gate.height
-            local is_matching = function(g)
-              chain_id = g.chain_id
-              return g:is_match() and g.type ~= "!"
+        if x > 1 then
+          -- 左側
+          for i = 0, garbage_height - 1 do
+            if y - i > 0 and is_matching(gates[x - 1][y - i]) then
+              goto match
             end
-
-            if x > 1 then
-              -- 左側
-              for i = 0, garbage_height - 1 do
-                if y - i > 0 and is_matching(gates[x - 1][y - i]) then
-                  goto match
-                end
-              end
-            end
-
-            if x + garbage_span <= cols then
-              -- 右側
-              for i = 0, garbage_height - 1 do
-                if y - i > 0 and is_matching(gates[x + garbage_span][y - i]) then
-                  goto match
-                end
-              end
-            end
-
-            for gx = x, x + garbage_span - 1 do
-              if y - garbage_height > 1 then
-                -- 上側
-                if is_matching(gates[gx][y - garbage_height]) then
-                  goto match
-                end
-              end
-              if y < rows then
-                -- 下側
-                if is_matching(gates[gx][y + 1]) then
-                  goto match
-                end
-              end
-            end
-
-            goto next_gate
-
-            ::match::
-            for i = 0, garbage_span - 1 do
-              for j = 0, garbage_height - 1 do
-                put(_ENV, x + i, y - j, garbage_match_gate())
-
-                local new_gate
-                if j == 0 then
-                  -- 一行目にはランダムなゲートを入れる
-                  new_gate = _random_single_gate(_ENV)
-                elseif j == 1 and i == 0 then
-                  -- 二行目の先頭にはおじゃまゲート
-                  new_gate = garbage_gate(garbage_span, garbage_height - 1)
-                else
-                  new_gate = i_gate()
-                end
-
-                gates[x + i][y - j]:replace_with(new_gate, i + j * garbage_span, garbage_span, garbage_height,
-                  j == 0 and chain_id or nil)
-              end
-            end
-
-            ::next_gate::
           end
         end
+
+        if x + garbage_span <= cols then
+          -- 右側
+          for i = 0, garbage_height - 1 do
+            if y - i > 0 and is_matching(gates[x + garbage_span][y - i]) then
+              goto match
+            end
+          end
+        end
+
+        for gx = x, x + garbage_span - 1 do
+          if y - garbage_height > 1 then
+            -- 上側
+            if is_matching(gates[gx][y - garbage_height]) then
+              goto match
+            end
+          end
+          if y < rows then
+            -- 下側
+            if is_matching(gates[gx][y + 1]) then
+              goto match
+            end
+          end
+        end
+
+        goto next_gate
+
+        ::match::
+        for i = 0, garbage_span - 1 do
+          for j = 0, garbage_height - 1 do
+            put(_ENV, x + i, y - j, garbage_match_gate())
+
+            local new_gate
+            if j == 0 then
+              -- 一行目にはランダムなゲートを入れる
+              new_gate = _random_single_gate(_ENV)
+            elseif j == 1 and i == 0 then
+              -- 二行目の先頭にはおじゃまゲート
+              new_gate = garbage_gate(garbage_span, garbage_height - 1)
+            else
+              new_gate = i_gate()
+            end
+
+            gates[x + i][y - j]:replace_with(new_gate, i + j * garbage_span, garbage_span, garbage_height,
+              j == 0 and chain_id or nil)
+          end
+        end
+
+        ::next_gate::
       end
     end,
 
@@ -625,7 +620,7 @@ function create_board(_offset_x)
     _is_topped_out = function(_ENV)
       for x = 1, cols do
         if not is_gate_empty(_ENV, x, 1) and
-          not gate_or_its_head_gate(_ENV, x, 1):is_falling() then
+            not gate_or_its_head_gate(_ENV, x, 1):is_falling() then
           return true
         end
       end
@@ -741,7 +736,7 @@ function create_board(_offset_x)
       for _, each in pairs(garbage_gates) do
         local garbage_x, garbage_y = each.x, each.y
         if garbage_x <= x and x <= garbage_x + each.span - 1 and -- 幅に x が含まれる
-          y <= garbage_y and y >= garbage_y - each.height + 1 then -- 高さに y が含まれる
+            y <= garbage_y and y >= garbage_y - each.height + 1 then -- 高さに y が含まれる
           return each
         end
       end
