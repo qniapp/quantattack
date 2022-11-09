@@ -3,7 +3,7 @@
 require("particle")
 
 gate_match_animation_frame_count = 45
-gate_match_delay_per_gate = 10
+gate_match_delay_per_gate = 8
 gate_swap_animation_frame_count = 4
 gate_fall_speed = 2
 
