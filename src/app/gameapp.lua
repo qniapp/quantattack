@@ -1,5 +1,4 @@
 local flow = require("engine/application/flow")
-local input = require("engine/input/input")
 
 local gameapp = new_class()
 
@@ -26,7 +25,7 @@ function gameapp:start()
 end
 
 function gameapp:update()
-  input:process_players_inputs()
+  -- input:process_players_inputs()
   flow:update()
 
   self:on_update()
