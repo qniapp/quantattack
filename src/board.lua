@@ -231,7 +231,7 @@ function create_board(_offset_x)
 
         if (include_next_gates and y + #gate_pattern_rows - 1 > row_next_gates) or
             (not include_next_gates and y + #gate_pattern_rows - 1 > rows) then
-          goto next_rule
+          return reduction
         end
 
         for i, gate_types in pairs(gate_pattern_rows) do
@@ -717,13 +717,17 @@ function create_board(_offset_x)
 
     -- x, y がおじゃまゲートの一部であるかどうかを返す
     is_part_of_garbage = function(_ENV, x, y)
-      return _garbage_head_gate(_ENV, x, y) ~= nil
+      return _garbage_head_gate(_ENV, x, y) ~= false
+    end,
+
+    _garbage_head_gate = function(_ENV, x, y)
+      return memoize(_ENV, _garbage_head_gate_nocache, garbage_head_gate_cache, x, y)
     end,
 
     -- x, y がおじゃまゲートの一部であった場合、
     -- おじゃまゲート先頭のゲートを返す
-    -- 一部でない場合は nil を返す
-    _garbage_head_gate = function(_ENV, x, y)
+    -- 一部でない場合は false を返す
+    _garbage_head_gate_nocache = function(_ENV, x, y)
       for ghead_y = rows, y, -1 do
         for ghead_x = 1, x do
           local ghead = gates[ghead_x][ghead_y]
@@ -736,7 +740,7 @@ function create_board(_offset_x)
         end
       end
 
-      return nil
+      return false
     end,
 
     -- x, y が CNOT の一部であるかどうかを返す
@@ -864,6 +868,7 @@ function create_board(_offset_x)
       is_gate_empty_cache = {}
       is_gate_fallable_cache = {}
       gate_or_its_head_gate_cache = {}
+      garbage_head_gate_cache = {}
     end,
 
     -------------------------------------------------------------------------------

@@ -31,7 +31,7 @@ describe('パフォーマンス', function()
     game:add_player(qpu2, qpu2_cursor, qpu2_board, qpu1_board)
 
     profiler.start()
-    for i = 1, 1000 do
+    for i = 1, 2000 do
       game:update()
     end
     profiler.stop()

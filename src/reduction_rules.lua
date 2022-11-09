@@ -7,6 +7,8 @@ local function transform(t, func)
   return transformed_t
 end
 
+-- 注意: ルールの行数を昇り順にならべておくことで、
+-- マッチする時に途中で探索を切り上げることができるようにする
 local reduction_rules = {
   h = {
     -- H          I
@@ -40,6 +42,15 @@ local reduction_rules = {
     -- S-S  ----->  S-S
     -- H            I
     "h\nswap,swap\n?,h|,,\ntrue,2,|2|5",
+
+    -- H Z          H I
+    -- X-C  ----->  X-C
+    -- H Z          H I
+    --
+    -- Z H          I H
+    -- C-X  ----->  X-C
+    -- Z H          I H
+    "h,z\ncnot_x,control\nh,z|true,,\ntrue,2,|2|10",
 
     -- H            I
     -- X            Z
@@ -84,15 +95,6 @@ local reduction_rules = {
     -- Z            I
     -- H            I
     "h\nswap,swap\n?,z\n?,h|,,x\ntrue,2,\ntrue,3,|3|7",
-
-    -- H Z          H I
-    -- X-C  ----->  X-C
-    -- H Z          H I
-    --
-    -- Z H          I H
-    -- C-X  ----->  X-C
-    -- Z H          I H
-    "h,z\ncnot_x,control\nh,z|true,,\ntrue,2,|2|10"
   },
 
   x = {
@@ -282,6 +284,15 @@ local reduction_rules = {
     -- T  ----->  Z
     "t\ns\nt|,,\n,1,\n,2,z|3|3",
 
+    -- T            S
+    -- S-S  ----->  S-S
+    --   T            I
+    --
+    --   T            S
+    -- S-S  ----->  S-S
+    -- T            I
+    "t\nswap,swap\n?,t|,,s\ntrue,2,|2|5",
+
     -- T          I
     -- Z          I
     -- S          I
@@ -293,15 +304,6 @@ local reduction_rules = {
     -- Z          I
     -- T  ----->  I
     "t\ns\nz\nt|,,\n,1,\n,2,\n,3,|4|4",
-
-    -- T            S
-    -- S-S  ----->  S-S
-    --   T            I
-    --
-    --   T            S
-    -- S-S  ----->  S-S
-    -- T            I
-    "t\nswap,swap\n?,t|,,s\ntrue,2,|2|5",
 
     -- T            I
     -- S            Z
