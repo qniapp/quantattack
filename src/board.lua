@@ -74,8 +74,11 @@ function create_board(_offset_x)
 
       for x = 1, cols do
         for y = 1, rows do
-          local reduction = reduce(_ENV, x, y)
+          if not gates[x][y]:is_reducible() then
+            goto next_gate
+          end
 
+          local reduction = reduce(_ENV, x, y)
           -- コンボ (同時消し) とチェイン (連鎖) の処理
           if #reduction.to > 0 then
             local chain_id = reduction.chain_id
@@ -123,15 +126,17 @@ function create_board(_offset_x)
                 local gate_to_fall = gates[x + dx][chainable_y]
                 if not gate_to_fall:is_i() then
                   if gate_to_fall:is_match() then
-                    goto next
+                    goto next_reduction
                   end
                   gate_to_fall.chain_id = chain_id
                 end
               end
 
-              ::next::
+              ::next_reduction::
             end
           end
+
+          ::next_gate::
         end
       end
 
