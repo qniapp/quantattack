@@ -3,13 +3,17 @@
 -- 新しい QPU プレーヤーを返す
 --
 -- TODO: ユニットテスト
-function create_qpu(cursor)
+function create_qpu(cursor, sleep)
   local qpu = setmetatable({
     cursor = cursor,
+    _sleep = sleep,
 
     init = function(_ENV)
       steps, score = 0, 0
       commands = {} -- 入力したコマンドの列
+      if sleep == nil then
+        _sleep = true
+      end
     end,
 
     update = function(_ENV, board)
@@ -51,135 +55,201 @@ function create_qpu(cursor)
             end
 
             if each:is_single_gate() then
+              -- 注目しているゲート each_x, each_y を左に動かす場合。
+              -- 左側に余裕が必要なので、1 < each_x の範囲で考える。
+              if 1 < each_x and each_y < board.rows then
+                --    each
+                --     |
+                --     v
+                --   ? X
+                --   _ ■
+                local left_gate = board.gates[each_x - 1][each_y]
+                if board:is_gate_empty(each_x - 1, each_y + 1) and -- 左下が空
+                    left_gate:is_idle() and
+                    (board:is_gate_empty(each_x - 1, each_y) or left_gate:is_single_gate()) then
+                  move_and_swap(_ENV, each_x - 1, each_y)
+                  return
+                end
+              end
+
               -- 注目しているゲート each_x, each_y を右に動かす場合。
               -- 右側に余裕が必要なので、each_x < board.cols の範囲で考える。
-              --
-              -- TODO: each_y < board.rows の条件を一か所にまとめる
               if each_x < board.cols and each_y < board.rows then
-                -- おじゃまゲートに対応しやすくするために、平らにならす。
-                -- ゲートを連続して右に移動すると落とせる、または同じゲートとマッチさせて消せる場合、
-                -- そのゲートを右に動かす。
-                --
-                --  each
-                --   |
-                --   v
-                --   X     or   X
-                --   ■ ■ _      ■ ■ X
-                for i = each_x + 1, board.cols do
-                  local gate_bottom_right = board.gates[i][each_y + 1]
-                  if board:is_gate_empty(i, each_y + 1) or
-                      (gate_bottom_right:is_idle() and gate_bottom_right.type == each.type) then
-                    if board:is_gate_empty(each_x + 1, each_y) then
-                      move_and_swap(_ENV, each_x, each_y)
-                      return
-                    else
-                      break
-                    end
-                  end
-                end
-
-                -- 入れ換えると右列がそろう場合、ゲートを右に動かして消す。
-                --
                 --  each
                 --   |
                 --   v
                 --   X ?
-                --   ■ X
+                --   ■ _
                 local right_gate = board.gates[each_x + 1][each_y]
-                if right_gate:is_idle() and
-                    (board:is_gate_empty(each_x + 1, each_y) or -- 「?」ゲートが空
-                        (
-                        right_gate:is_single_gate() and board:reducible_gate_at(each_x + 1, each_y + 1).type == each.type
-                        )) then -- 「？」ゲートが each と同じ場合
+                if board:is_gate_empty(each_x + 1, each_y + 1) and -- 右下が空
+                    right_gate:is_idle() and
+                    (board:is_gate_empty(each_x + 1, each_y) or right_gate:is_single_gate()) then
                   move_and_swap(_ENV, each_x, each_y)
                   return
                 end
               end
 
-
               -- 注目しているゲート each_x, each_y を左に動かす場合。
               -- 左側に余裕が必要なので、1 < each_x の範囲で考える。
               if 1 < each_x and each_y < board.rows then
-                -- ゲートを連続して左に移動すると落とせる、または同じゲートとマッチさせて消せる場合、
-                -- そのゲートを左に動かす。
-                --
-                --     each
-                --      |
-                --      v
-                --      X   or      X
-                --  _ ■ ■       X ■ ■
-                for i = each_x - 1, 1, -1 do
-                  local gate_bottom_left = board.gates[i][each_y + 1]
-                  if board:is_gate_empty(i, each_y + 1) or
-                      (gate_bottom_left:is_idle() and gate_bottom_left.type == each.type) then
-                    if board:is_gate_empty(each_x - 1, each_y) then
-                      move_and_swap(_ENV, each_x - 1, each_y)
-                      return
-                    else
-                      break
-                    end
-                  end
-                end
-
-                -- 入れ換えると左列がそろう場合、ゲートを左に動かして消す。
-                --
                 --    each
                 --     |
                 --     v
                 --   ? X
                 --   X ■
                 local left_gate = board.gates[each_x - 1][each_y]
-                if left_gate:is_idle() and
-                    (board:is_gate_empty(each_x - 1, each_y) or -- 「?」ゲートが空
-                        (
-                        left_gate:is_single_gate() and board:reducible_gate_at(each_x - 1, each_y + 1).type == each.type
-                        )
-                    ) then -- 「？」ゲートが each と同じ場合
+                local gate_bottom_left = board.gates[each_x - 1][each_y + 1]
+                if gate_bottom_left:is_idle() and gate_bottom_left.type == each.type and
+                    left_gate:is_idle() and
+                    (board:is_gate_empty(each_x - 1, each_y) or left_gate:is_single_gate()) then
                   move_and_swap(_ENV, each_x - 1, each_y)
                   return
                 end
               end
+
+              -- 注目しているゲート each_x, each_y を右に動かす場合。
+              -- 右側に余裕が必要なので、each_x < board.cols の範囲で考える。
+              if each_x < board.cols and each_y < board.rows then
+                --  each
+                --   |
+                --   v
+                --   X ?
+                --   ■ X
+                local right_gate = board.gates[each_x + 1][each_y]
+                local gate_bottom_right = board.gates[each_x + 1][each_y + 1]
+                if gate_bottom_right:is_idle() and gate_bottom_right.type == each.type and
+                    right_gate:is_idle() and
+                    (board:is_gate_empty(each_x + 1, each_y) or right_gate:is_single_gate()) then
+                  move_and_swap(_ENV, each_x, each_y)
+                  return
+                end
+              end
+
+              -- if each_x < board.cols and each_y < board.rows then
+              --   -- おじゃまゲートに対応しやすくするために、平らにならす。
+              --   -- ゲートを連続して右に移動すると落とせる、または同じゲートとマッチさせて消せる場合、
+              --   -- そのゲートを右に動かす。
+              --   --
+              --   --  each
+              --   --   |
+              --   --   v
+              --   --   X     or   X
+              --   --   ■ ■ _      ■ ■ X
+              --   for i = each_x + 1, board.cols do
+              --     local gate_bottom_right = board.gates[i][each_y + 1]
+              --     if board:is_gate_empty(i, each_y + 1) or
+              --         (gate_bottom_right:is_idle() and gate_bottom_right.type == each.type) then
+              --       if board:is_gate_empty(each_x + 1, each_y) then
+              --         move_and_swap(_ENV, each_x, each_y)
+              --         return
+              --       else
+              --         break
+              --       end
+              --     end
+              --   end
+
+              --   -- 入れ換えると右列がそろう場合、ゲートを右に動かして消す。
+              --   --
+              --   --  each
+              --   --   |
+              --   --   v
+              --   --   X ?
+              --   --   ■ X
+              --   local right_gate = board.gates[each_x + 1][each_y]
+              --   if right_gate:is_idle() and
+              --       (board:is_gate_empty(each_x + 1, each_y) or -- 「?」ゲートが空
+              --           (
+              --           right_gate:is_single_gate() and board:reducible_gate_at(each_x + 1, each_y + 1).type == each.type
+              --           )) then -- 「？」ゲートが each と同じ場合
+              --     move_and_swap(_ENV, each_x, each_y)
+              --     return
+              --   end
+              -- end
+
+
+              -- -- 注目しているゲート each_x, each_y を左に動かす場合。
+              -- -- 左側に余裕が必要なので、1 < each_x の範囲で考える。
+              -- if 1 < each_x and each_y < board.rows then
+              --   -- ゲートを連続して左に移動すると落とせる、または同じゲートとマッチさせて消せる場合、
+              --   -- そのゲートを左に動かす。
+              --   --
+              --   --     each
+              --   --      |
+              --   --      v
+              --   --      X   or      X
+              --   --  _ ■ ■       X ■ ■
+              --   for i = each_x - 1, 1, -1 do
+              --     local gate_bottom_left = board.gates[i][each_y + 1]
+              --     if board:is_gate_empty(i, each_y + 1) or
+              --         (gate_bottom_left:is_idle() and gate_bottom_left.type == each.type) then
+              --       if board:is_gate_empty(each_x - 1, each_y) then
+              --         move_and_swap(_ENV, each_x - 1, each_y)
+              --         return
+              --       else
+              --         break
+              --       end
+              --     end
+              --   end
+
+              --   -- 入れ換えると左列がそろう場合、ゲートを左に動かして消す。
+              --   --
+              --   --    each
+              --   --     |
+              --   --     v
+              --   --   ? X
+              --   --   X ■
+              --   local left_gate = board.gates[each_x - 1][each_y]
+              --   if left_gate:is_idle() and
+              --       (board:is_gate_empty(each_x - 1, each_y) or -- 「?」ゲートが空
+              --           (
+              --           left_gate:is_single_gate() and board:reducible_gate_at(each_x - 1, each_y + 1).type == each.type
+              --           )
+              --       ) then -- 「？」ゲートが each と同じ場合
+              --     move_and_swap(_ENV, each_x - 1, each_y)
+              --     return
+              --   end
+              -- end
             end
 
-            -- 1. CNOT を縮める
-            --
-            --   [X-]--C
-            --   [C-]--X
-            if (each:is_cnot_x() or each:is_control()) and each_x + 1 < each.other_x then
-              move_and_swap(_ENV, each_x, each_y)
-              return
-            end
+            -- -- 1. CNOT を縮める
+            -- --
+            -- --   [X-]--C
+            -- --   [C-]--X
+            -- if (each:is_cnot_x() or each:is_control()) and each_x + 1 < each.other_x then
+            --   move_and_swap(_ENV, each_x, each_y)
+            --   return
+            -- end
 
-            -- 2. CNOT を同じ方向にそろえる
-            --
-            --   C-X --> X-C
-            --   X-C --> X-C
-            if each:is_control() and each.other_x == each_x + 1 then
-              move_and_swap(_ENV, each_x, each_y)
-              return
-            end
+            -- -- 2. CNOT を同じ方向にそろえる
+            -- --
+            -- --   C-X --> X-C
+            -- --   X-C --> X-C
+            -- if each:is_control() and each.other_x == each_x + 1 then
+            --   move_and_swap(_ENV, each_x, each_y)
+            --   return
+            -- end
 
-            -- 3. CNOT を右に移動
-            --
-            --   X-[C ]
-            if each_x < board.cols and
-                each:is_control() and each.other_x < each_x and board:is_gate_empty(each_x + 1, each_y) then
-              move_and_swap(_ENV, each_x, each_y)
-              return
-            end
+            -- -- 3. CNOT を右に移動
+            -- --
+            -- --   X-[C ]
+            -- if each_x < board.cols and
+            --     each:is_control() and each.other_x < each_x and board:is_gate_empty(each_x + 1, each_y) then
+            --   move_and_swap(_ENV, each_x, each_y)
+            --   return
+            -- end
 
-            -- 下の X-C を左にずらして消す。
-            --
-            --  X-C
-            -- [  X]-C
-            if each_x > 1 and each_y > 1 and
-                board:is_gate_empty(each_x - 1, each_y) and each:is_cnot_x() and each.other_x == each_x + 1 and
-                board:reducible_gate_at(each_x, each_y - 1):is_control() and
-                board:reducible_gate_at(each_x, each_y - 1).other_x == each_x - 1 then
-              move_and_swap(_ENV, each_x - 1, each_y)
-              move_and_swap(_ENV, each_x, each_y)
-              return
-            end
+            -- -- 下の X-C を左にずらして消す。
+            -- --
+            -- --  X-C
+            -- -- [  X]-C
+            -- if each_x > 1 and each_y > 1 and
+            --     board:is_gate_empty(each_x - 1, each_y) and each:is_cnot_x() and each.other_x == each_x + 1 and
+            --     board:reducible_gate_at(each_x, each_y - 1):is_control() and
+            --     board:reducible_gate_at(each_x, each_y - 1).other_x == each_x - 1 then
+            --   move_and_swap(_ENV, each_x - 1, each_y)
+            --   move_and_swap(_ENV, each_x, each_y)
+            --   return
+            -- end
 
             ::next_gate::
           end
@@ -206,7 +276,10 @@ function create_qpu(cursor)
     add_move_command = function(_ENV, direction, count)
       for i = 1, count do
         add(commands, direction)
-        add_sleep_command(_ENV, 5 + flr(rnd(10)))
+
+        if _sleep then
+          add_sleep_command(_ENV, 5 + flr(rnd(10)))
+        end
       end
     end,
 
