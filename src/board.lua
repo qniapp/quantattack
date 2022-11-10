@@ -28,7 +28,6 @@ function create_board(_offset_x)
     bounce_screen_dy = 0,
     chain_count = {},
     reduce_cache = {},
-    reducible_gate_at_cache = {},
     is_gate_empty_cache = {},
     is_gate_fallable_cache = {},
     gate_or_its_head_gate_cache = {},
@@ -40,6 +39,7 @@ function create_board(_offset_x)
       waiting_garbage_gates = {}
       topped_out_frame_count = 0
       garbage_gates = {}
+      reducible_gates = { {}, {}, {}, {}, {}, {} }
 
       -- fill the board with I gates
       for x = 1, cols do
@@ -72,12 +72,8 @@ function create_board(_offset_x)
       -- 一度の reduce_gates() 呼び出し内での数をカウントする。
       local combo_count = nil
 
-      for x = 1, cols do
-        for y = 1, rows do
-          if not gates[x][y]:is_reducible() then
-            goto next_gate
-          end
-
+      for x, col in pairs(reducible_gates) do
+        for y, each in pairs(col) do
           local reduction = reduce(_ENV, x, y)
           -- コンボ (同時消し) とチェイン (連鎖) の処理
           if #reduction.to > 0 then
@@ -220,8 +216,6 @@ function create_board(_offset_x)
     _reduce_nocache = function(_ENV, x, y, include_next_gates)
       local reduction = { to = {}, score = 0 }
       local gate = gates[x][y]
-
-      if not gate:is_reducible() then return reduction end
 
       local rules = reduction_rules[gate.type]
       if not rules then return reduction end
@@ -368,13 +362,7 @@ function create_board(_offset_x)
     end,
 
     reducible_gate_at = function(_ENV, x, y)
-      return memoize(_ENV, _reducible_gate_at_nocache, reducible_gate_at_cache, x, y)
-    end,
-
-    _reducible_gate_at_nocache = function(_ENV, x, y)
-      local gate = gates[x][y]
-
-      return gate:is_reducible() and gate or i_gate()
+      return reducible_gates[x][y] or i_gate()
     end,
 
     put = function(_ENV, x, y, gate)
@@ -637,7 +625,7 @@ function create_board(_offset_x)
       if _is_topped_out(_ENV) and not is_busy(_ENV) then
         topped_out_frame_count = topped_out_frame_count + 1
 
-        -- 120 はあとで要調整
+        -- TODO: 120 はあとで要調整
         if topped_out_frame_count > 120 then
           lose = true
           state = "over"
@@ -868,9 +856,16 @@ function create_board(_offset_x)
     -- ボード内にあるいずれかのゲートが更新されたので、
     -- changed フラグを立て各種キャッシュもクリア
     observable_update = function(_ENV, observable)
+      local x, y = observable.x, observable.y
+
+      if observable:is_reducible() then
+        reducible_gates[x][y] = observable
+      else
+        reducible_gates[x][y] = nil
+      end
+
       changed = true
       reduce_cache = {}
-      reducible_gate_at_cache = {}
       is_gate_empty_cache = {}
       is_gate_fallable_cache = {}
       gate_or_its_head_gate_cache = {}
