@@ -89,80 +89,76 @@ function create_qpu(cursor, sleep)
                 end
               end
 
-              -- TODO: 下のルールと一緒にする
               if 1 < each_x and each_y < board.rows then
-                --      X <-- each
-                --  _ ■ ■
-                local fallable = false
+                -- ? ? X <-- each
+                -- _ ■ ■
+                --
+                -- または
+                --
+                -- ? ? X <-- each
+                -- X ■ ■
+                local moveable = false
 
                 for i = each_x - 1, 1, -1 do
-                  if not board:is_gate_empty(i, each_y) then
+                  if not _is_swappable(_ENV, board, i, each_y) then
                     break
                   end
-                  if board:is_gate_empty(i, each_y + 1) then
-                    fallable = true
-                    break
-                  end
-                end
-
-                if fallable then
-                  move_and_swap(_ENV, each_x - 1, each_y, true)
-                  return
-                end
-              end
-
-              if 1 < each_x and each_y < board.rows then
-                --      X <-- each
-                --  X ■ ■
-                local fallable = false
-
-                for i = each_x - 1, 1, -1 do
-                  if not board:is_gate_empty(i, each_y) then
-                    break
-                  end
-                  if _is_match(_ENV, each, board.gates[i][each_y + 1]) then
-                    fallable = true
+                  if board:is_gate_empty(i, each_y + 1) or _is_match(_ENV, each, board.gates[i][each_y + 1]) then
+                    moveable = true
                     break
                   end
                 end
 
-                if fallable then
+                if moveable then
                   move_and_swap(_ENV, each_x - 1, each_y, true)
                   return
                 end
               end
 
               if each_x < board.cols and each_y < board.rows then
-                --  X <-- each
-                --  ■ ■ _
-                local fallable = false
+                -- each --> X
+                --          ■ ■ _
+                --
+                -- または
+                --
+                -- each --> X
+                --          ■ ■ X
+                local moveable = false
 
                 for i = each_x + 1, board.cols do
                   if not board:is_gate_empty(i, each_y) then
                     break
                   end
-                  if board:is_gate_empty(i, each_y + 1) then
-                    fallable = true
+                  if board:is_gate_empty(i, each_y + 1) or _is_match(_ENV, each, board.gates[i][each_y + 1]) then
+                    moveable = true
                     break
                   end
                 end
 
-                if fallable then
+                if moveable then
                   move_and_swap(_ENV, each_x, each_y, true)
                   return
                 end
               end
 
-              if 1 < each_x and each_y < board.rows then
-                --  ? ? X <-- each
+              if 1 < each_x and 1 < each_y then
+                --   H ■ ■ ■ ■
+                --   ? H <-- each
+                if _is_match(_ENV, each, board.gates[each_x - 1][each_y - 1]) and
+                    _is_swappable(_ENV, board, each_x - 1, each_y) then
+                  move_and_swap(_ENV, each_x - 1, each_y)
+                  return
+                end
+
                 --  X ■ ■
+                --  ? ? X <-- each
                 local matchable = false
 
                 for i = each_x - 1, 1, -1 do
-                  if not _is_swappable(_ENV, board, i, each_y) then
+                  if not _is_swappable(_ENV, board, i, each_y - 1) then
                     break
                   end
-                  if _is_match(_ENV, each, board.gates[i][each_y + 1]) then
+                  if _is_match(_ENV, each, board.gates[i][each_y - 1]) then
                     matchable = true
                     break
                   end
@@ -174,36 +170,13 @@ function create_qpu(cursor, sleep)
                 end
               end
 
-              if 1 < each_x and 1 < each_y then
-                --   H ■ ■ ■ ■
-                --   ? H <-- each
-                do
-                  if _is_match(_ENV, each, board.gates[each_x - 1][each_y - 1]) and
-                      _is_swappable(_ENV, board, each_x - 1, each_y) then
-                    move_and_swap(_ENV, each_x - 1, each_y)
-                    return
-                  end
-                end
-
-                --  X ■ ■
-                --  ? ? X <-- each
-                do
-                  local matchable = false
-
-                  for i = each_x - 1, 1, -1 do
-                    if not _is_swappable(_ENV, board, i, each_y - 1) then
-                      break
-                    end
-                    if _is_match(_ENV, each, board.gates[i][each_y - 1]) then
-                      matchable = true
-                      break
-                    end
-                  end
-
-                  if matchable then
-                    move_and_swap(_ENV, each_x - 1, each_y, true)
-                    return
-                  end
+              if each_x < board.cols and 1 < each_y then
+                --    ■ ■ ■ ■ H
+                -- each --> H ?
+                if _is_match(_ENV, each, board.gates[each_x + 1][each_y - 1]) and
+                    _is_swappable(_ENV, board, each_x + 1, each_y) then
+                  move_and_swap(_ENV, each_x, each_y)
+                  return
                 end
               end
             end
