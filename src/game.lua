@@ -156,6 +156,9 @@ function game:render() -- override
     end
   end
 
+  -- ゲームオーバーの線
+  line(1, 41, 128, 41, 8)
+
   render_particles()
   render_bubbles()
   render_attack_cubes()

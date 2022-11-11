@@ -583,9 +583,6 @@ function create_board(_offset_x)
           offset_x + 16 + (countdown == 1 and 4 or 0), offset_y + 16)
       end
 
-      -- ゲームオーバーの線
-      line(1, 41, 128, 41, 8)
-
       -- WIN! または LOSE を描画
       if is_game_over(_ENV) then
         sspr(win and 0 or 32, 80, 32, 16, offset_x + width / 2 - 16, offset_y + 16)
