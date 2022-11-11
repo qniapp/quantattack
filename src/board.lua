@@ -30,6 +30,7 @@ function create_board(_offset_x)
       win, lose = false, false
       waiting_garbage_gates = {}
       topped_out_frame_count = 0
+      topped_out_delay_frame_count = 600 -- 60 * 10sec
       garbage_gates = {}
       reducible_gates = { {}, {}, {}, {}, {}, {} }
 
@@ -314,7 +315,26 @@ function create_board(_offset_x)
       for y = 1, rows do
         for x = 1, cols do
           if not is_gate_empty(_ENV, x, y) then
-            return y
+            local gate = gates[x][y]
+
+            if is_part_of_garbage(_ENV, x, y) then
+              gate = _garbage_head_gate(_ENV, x, y)
+            elseif is_part_of_cnot(_ENV, x, y) then
+              gate = _cnot_head_gate(_ENV, x, y)
+            elseif is_part_of_swap(_ENV, x, y) then
+              gate = _swap_head_gate(_ENV, x, y)
+            end
+
+            -- ひとつ下の段にひとつでもゲートがあれば
+            -- 落下中でもゲートが積み上がっている
+            --
+            -- FIXME: おじゃまゲートを積んで落とすと誤判定になるので、
+            -- バラして落とすようにする
+            for i = 1, cols do
+              if not is_gate_empty(_ENV, i, gate.y + 1) then
+                return y
+              end
+            end
           end
         end
       end
@@ -325,7 +345,8 @@ function create_board(_offset_x)
     is_busy = function(_ENV)
       for x = 1, cols do
         for y = 1, row_next_gates do
-          if not gates[x][y]:is_idle() then
+          local gate = gates[x][y]
+          if not (gate:is_idle() or gate:is_swapping()) then
             return true
           end
         end
@@ -576,6 +597,14 @@ function create_board(_offset_x)
         end
       end
 
+      -- 体力ゲージの描画
+      local topped_out_frame_count_left = topped_out_delay_frame_count - topped_out_frame_count
+      local gauge_length = topped_out_frame_count_left / topped_out_delay_frame_count * 128
+      if _is_topped_out(_ENV) then
+        line(offset_x - 4, 128 - gauge_length,
+          offset_x - 4, 128, 8)
+      end
+
       if countdown then
         local countdown_sprite_x = { 112, 96, 80 }
         sspr(countdown_sprite_x[countdown], 32,
@@ -594,24 +623,18 @@ function create_board(_offset_x)
     end,
 
     _is_topped_out = function(_ENV)
-      for x = 1, cols do
-        if not is_gate_empty(_ENV, x, 5) and
-            not gate_or_its_head_gate(_ENV, x, 5):is_falling() then
-          return true
-        end
-      end
-
-      return false
+      return top_gate_y(_ENV) < 8
     end,
 
     _update_game = function(_ENV, game, player, other_board)
-      if _is_topped_out(_ENV) and not is_busy(_ENV) then
-        topped_out_frame_count = topped_out_frame_count + 1
+      if _is_topped_out(_ENV) then
+        if not is_busy(_ENV) then
+          topped_out_frame_count = topped_out_frame_count + 1
 
-        -- TODO: 120 はあとで要調整
-        if topped_out_frame_count > 120 then
-          lose = true
-          state = "over"
+          if topped_out_frame_count >= topped_out_delay_frame_count then
+            lose = true
+            state = "over"
+          end
         end
       else
         topped_out_frame_count = 0
