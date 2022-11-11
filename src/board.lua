@@ -580,16 +580,16 @@ function create_board(_offset_x)
         local countdown_sprite_x = { 112, 96, 80 }
         sspr(countdown_sprite_x[countdown], 32,
           16, 16,
-          offset_x + 16 + (countdown == 1 and 4 or 0), offset_y + 16)
+          offset_x + 16 + (countdown == 1 and 4 or 0), offset_y + 56)
       end
 
       -- WIN! または LOSE を描画
       if is_game_over(_ENV) then
-        sspr(win and 0 or 32, 80, 32, 16, offset_x + width / 2 - 16, offset_y + 16)
+        sspr(win and 0 or 32, 80, 32, 16, offset_x + width / 2 - 16, offset_y + 56)
       end
 
       if push_any_key then
-        print_outlined("push any key!", offset_x - 1, offset_y + 80, 8)
+        print_outlined("push any key!", offset_x - 1, offset_y + 100, 8)
       end
     end,
 
