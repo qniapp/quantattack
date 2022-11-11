@@ -8,13 +8,13 @@ local reduction_rules = require("reduction_rules")
 function create_board(_offset_x)
   local board = setmetatable({
     cols = 6,
-    rows = 13,
-    row_next_gates = 14, -- rows + 1
+    rows = 17,
+    row_next_gates = 18, -- rows + 1
     gates = {},
     width = 48, -- 6 * tile_size
-    height = 96, -- 12 * tile_size
+    height = 128,
     offset_x = _offset_x or 11,
-    offset_y = 32, -- screen_height - 12 * tile_size (128 - 96)
+    offset_y = 0,
     changed = false,
     bounce_speed = 0,
     bounce_screen_dy = 0,
