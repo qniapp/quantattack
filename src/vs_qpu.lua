@@ -10,7 +10,7 @@ local game_class = require("game")
 local game = game_class()
 
 local board, qpu_board = create_board(6, "right"), create_board(75, "left")
-board.attack_cube_target, qpu_board.attack_cube_target = { 78, 15 }, { 48, 15, "left" }
+board.attack_cube_target, qpu_board.attack_cube_target = { 75 + 24, 0 }, { 6 + 24, 0, "left" }
 local player_cursor, qpu_cursor = create_player_cursor(board), create_player_cursor(qpu_board)
 local player, qpu = create_player(), create_qpu(qpu_cursor)
 
