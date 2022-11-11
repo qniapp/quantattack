@@ -45,10 +45,10 @@ function create_board(_offset_x)
     initialize_with_random_gates = function(_ENV)
       init(_ENV)
 
-      for y = row_next_gates, 6, -1 do
+      for y = row_next_gates, 10, -1 do
         for x = 1, cols do
           if y >= rows - 2 or
-              (y < rows - 2 and rnd(1) > (y - 11) * -0.1 and (not is_gate_empty(_ENV, x, y + 1))) then
+              (y < rows - 2 and rnd(1) > (y - 15) * -0.1 and (not is_gate_empty(_ENV, x, y + 1))) then
             repeat
               put(_ENV, x, y, _random_single_gate(_ENV))
             until #reduce(_ENV, x, y, true).to == 0
@@ -583,6 +583,9 @@ function create_board(_offset_x)
           offset_x + 16 + (countdown == 1 and 4 or 0), offset_y + 16)
       end
 
+      -- ゲームオーバーの線
+      line(1, 41, 128, 41, 8)
+
       -- WIN! または LOSE を描画
       if is_game_over(_ENV) then
         sspr(win and 0 or 32, 80, 32, 16, offset_x + width / 2 - 16, offset_y + 16)
@@ -595,8 +598,8 @@ function create_board(_offset_x)
 
     _is_topped_out = function(_ENV)
       for x = 1, cols do
-        if not is_gate_empty(_ENV, x, 1) and
-            not gate_or_its_head_gate(_ENV, x, 1):is_falling() then
+        if not is_gate_empty(_ENV, x, 5) and
+            not gate_or_its_head_gate(_ENV, x, 5):is_falling() then
           return true
         end
       end
