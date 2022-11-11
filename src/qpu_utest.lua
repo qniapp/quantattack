@@ -3,7 +3,7 @@ require("board")
 require("player_cursor")
 require("qpu")
 
-describe('qpu #solo', function()
+describe('qpu', function()
   describe('create_qpu', function()
     it("creates a qpu with steps = 0, score = 0", function()
       local qpu = create_qpu()
@@ -27,16 +27,22 @@ describe('qpu #solo', function()
   end)
 
   describe('update', function()
+    local board
+    local cursor
+    local qpu
+
+    before_each(function()
+      board = create_board()
+      cursor = create_player_cursor(board)
+      qpu = create_qpu(cursor, false)
+    end)
+
     -- ボードが次のようになっているとき、
     -- T を左に落とす (left, o)
     --
     --   [T  ]
     --  _ X Y
     it("左に落とす", function()
-      local board = create_board()
-      local cursor = create_player_cursor(board)
-      local qpu = create_qpu(cursor, false)
-
       board:put(2, 12, t_gate())
       board:put(2, 13, x_gate())
       board:put(3, 13, y_gate())
@@ -45,9 +51,13 @@ describe('qpu #solo', function()
 
       qpu:update(board)
 
-      assert.are_equal(2, #qpu.commands)
+      assert.are_equal(6, #qpu.commands)
       assert.are_equal("left", qpu.commands[1])
       assert.are_equal("o", qpu.commands[2])
+      assert.are_equal("sleep", qpu.commands[3])
+      assert.are_equal("sleep", qpu.commands[4])
+      assert.are_equal("sleep", qpu.commands[5])
+      assert.are_equal("sleep", qpu.commands[6])
     end)
 
     -- ボードが次のようになっているとき、
@@ -56,10 +66,6 @@ describe('qpu #solo', function()
     --   [T  ]
     --  X Y
     it("右に落とす", function()
-      local board = create_board()
-      local cursor = create_player_cursor(board)
-      local qpu = create_qpu(cursor, false)
-
       board:put(2, 12, t_gate())
       board:put(1, 13, x_gate())
       board:put(2, 13, y_gate())
@@ -68,8 +74,12 @@ describe('qpu #solo', function()
 
       qpu:update(board)
 
-      assert.are_equal(1, #qpu.commands)
+      assert.are_equal(5, #qpu.commands)
       assert.are_equal("o", qpu.commands[1])
+      assert.are_equal("sleep", qpu.commands[2])
+      assert.are_equal("sleep", qpu.commands[3])
+      assert.are_equal("sleep", qpu.commands[4])
+      assert.are_equal("sleep", qpu.commands[5])
     end)
 
     -- ボードが次のようになっているとき、
@@ -78,10 +88,6 @@ describe('qpu #solo', function()
     --   [T  ]
     --  T X Y
     it("左に動かしてマッチ", function()
-      local board = create_board()
-      local cursor = create_player_cursor(board)
-      local qpu = create_qpu(cursor, false)
-
       board:put(2, 12, t_gate())
       board:put(1, 13, t_gate())
       board:put(2, 13, x_gate())
@@ -91,9 +97,13 @@ describe('qpu #solo', function()
 
       qpu:update(board)
 
-      assert.are_equal(2, #qpu.commands)
+      assert.are_equal(6, #qpu.commands)
       assert.are_equal("left", qpu.commands[1])
       assert.are_equal("o", qpu.commands[2])
+      assert.are_equal("sleep", qpu.commands[3])
+      assert.are_equal("sleep", qpu.commands[4])
+      assert.are_equal("sleep", qpu.commands[5])
+      assert.are_equal("sleep", qpu.commands[6])
     end)
 
     -- ボードが次のようになっているとき、
@@ -102,10 +112,6 @@ describe('qpu #solo', function()
     --  H[T  ]
     --  T X Y
     it("左に動かしてマッチ (他のゲートとの入れ替えあり)", function()
-      local board = create_board()
-      local cursor = create_player_cursor(board)
-      local qpu = create_qpu(cursor, false)
-
       board:put(1, 12, h_gate())
       board:put(2, 12, t_gate())
       board:put(1, 13, t_gate())
@@ -116,9 +122,13 @@ describe('qpu #solo', function()
 
       qpu:update(board)
 
-      assert.are_equal(2, #qpu.commands)
+      assert.are_equal(6, #qpu.commands)
       assert.are_equal("left", qpu.commands[1])
       assert.are_equal("o", qpu.commands[2])
+      assert.are_equal("sleep", qpu.commands[3])
+      assert.are_equal("sleep", qpu.commands[4])
+      assert.are_equal("sleep", qpu.commands[5])
+      assert.are_equal("sleep", qpu.commands[6])
     end)
 
     -- ボードが次のようになっているとき、
@@ -127,10 +137,6 @@ describe('qpu #solo', function()
     --   [T  ]
     --  X Y T
     it("右に動かしてマッチ", function()
-      local board = create_board()
-      local cursor = create_player_cursor(board)
-      local qpu = create_qpu(cursor, false)
-
       board:put(2, 12, t_gate())
       board:put(1, 13, x_gate())
       board:put(2, 13, y_gate())
@@ -140,8 +146,12 @@ describe('qpu #solo', function()
 
       qpu:update(board)
 
-      assert.are_equal(1, #qpu.commands)
+      assert.are_equal(5, #qpu.commands)
       assert.are_equal("o", qpu.commands[1])
+      assert.are_equal("sleep", qpu.commands[2])
+      assert.are_equal("sleep", qpu.commands[3])
+      assert.are_equal("sleep", qpu.commands[4])
+      assert.are_equal("sleep", qpu.commands[5])
     end)
 
     -- ボードが次のようになっているとき、
@@ -150,10 +160,6 @@ describe('qpu #solo', function()
     --   [T H]
     --  X Y T
     it("右に動かしてマッチ (入れ替えあり)", function()
-      local board = create_board()
-      local cursor = create_player_cursor(board)
-      local qpu = create_qpu(cursor, false)
-
       board:put(2, 12, t_gate())
       board:put(3, 12, h_gate())
       board:put(1, 13, x_gate())
@@ -164,8 +170,85 @@ describe('qpu #solo', function()
 
       qpu:update(board)
 
-      assert.are_equal(1, #qpu.commands)
+      assert.are_equal(5, #qpu.commands)
       assert.are_equal("o", qpu.commands[1])
+      assert.are_equal("sleep", qpu.commands[2])
+      assert.are_equal("sleep", qpu.commands[3])
+      assert.are_equal("sleep", qpu.commands[4])
+      assert.are_equal("sleep", qpu.commands[5])
+    end)
+
+    -- ボードが次のようになっているとき、
+    -- H を左に 1 マス動かす (o)
+    --
+    --   [  H]
+    --    T T T T T
+    it("左に 1 マス動かす", function()
+      board:put(3, 12, h_gate())
+      board:put(2, 13, t_gate())
+      board:put(3, 13, t_gate())
+      board:put(4, 13, t_gate())
+      board:put(5, 13, t_gate())
+      board:put(6, 13, t_gate())
+      cursor.x = 2
+      cursor.y = 12
+
+      qpu:update(board)
+
+      assert.are_equal(5, #qpu.commands)
+      assert.are_equal("o", qpu.commands[1])
+      assert.are_equal("sleep", qpu.commands[2])
+      assert.are_equal("sleep", qpu.commands[3])
+      assert.are_equal("sleep", qpu.commands[4])
+      assert.are_equal("sleep", qpu.commands[5])
+    end)
+
+    -- ボードが次のようになっているとき、
+    -- H を左に 1 マス動かす (o)
+    --
+    --   [  H]
+    --  H T T T T T
+    it("左に 1 マス動かす", function()
+      board:put(3, 12, h_gate())
+      board:put(1, 13, h_gate())
+      board:put(2, 13, t_gate())
+      board:put(3, 13, t_gate())
+      board:put(4, 13, t_gate())
+      board:put(5, 13, t_gate())
+      board:put(6, 13, t_gate())
+      cursor.x = 2
+      cursor.y = 12
+
+      qpu:update(board)
+
+      assert.are_equal(5, #qpu.commands)
+      assert.are_equal("o", qpu.commands[1])
+      assert.are_equal("sleep", qpu.commands[2])
+      assert.are_equal("sleep", qpu.commands[3])
+      assert.are_equal("sleep", qpu.commands[4])
+      assert.are_equal("sleep", qpu.commands[5])
+    end)
+
+    -- ボードが次のようになっているとき、
+    -- H を左に 1 マス動かす (o)
+    --
+    --  H g g g g g
+    -- [  H]
+    it("左に 1 マス動かしてマッチ", function()
+      board:put(1, 12, h_gate())
+      board:put(2, 12, garbage_gate(5, 1))
+      board:put(2, 13, h_gate())
+      cursor.x = 1
+      cursor.y = 13
+
+      qpu:update(board)
+
+      assert.are_equal(5, #qpu.commands)
+      assert.are_equal("o", qpu.commands[1])
+      assert.are_equal("sleep", qpu.commands[2])
+      assert.are_equal("sleep", qpu.commands[3])
+      assert.are_equal("sleep", qpu.commands[4])
+      assert.are_equal("sleep", qpu.commands[5])
     end)
   end)
 end)
