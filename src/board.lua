@@ -5,7 +5,7 @@ require("helpers")
 
 local reduction_rules = require("reduction_rules")
 
-function create_board(_offset_x)
+function create_board(_offset_x, _gauge_position)
   local board = setmetatable({
     cols = 6,
     rows = 17,
@@ -31,6 +31,7 @@ function create_board(_offset_x)
       waiting_garbage_gates = {}
       topped_out_frame_count = 0
       topped_out_delay_frame_count = 600 -- 60 * 10sec
+      gauge_position = _gauge_position or "left"
       garbage_gates = {}
       reducible_gates = { {}, {}, {}, {}, {}, {} }
 
@@ -601,8 +602,8 @@ function create_board(_offset_x)
       local topped_out_frame_count_left = topped_out_delay_frame_count - topped_out_frame_count
       local gauge_length = topped_out_frame_count_left / topped_out_delay_frame_count * 128
       if _is_topped_out(_ENV) then
-        line(offset_x - 4, 128 - gauge_length,
-          offset_x - 4, 128, 8)
+        local gauge_x = gauge_position == "left" and offset_x - 4 or offset_x + 48 + 3
+        line(gauge_x, 128 - gauge_length, gauge_x, 128, 8)
       end
 
       if countdown then
