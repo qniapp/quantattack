@@ -55,88 +55,46 @@ function create_qpu(cursor, sleep)
             end
 
             if each:is_single_gate() then
-              -- 注目しているゲート each_x, each_y を左に動かす場合。
-              -- 左側に余裕が必要なので、1 < each_x の範囲で考える。
               if 1 < each_x and each_y < board.rows then
-                --    each
-                --     |
-                --     v
-                --   ? X
-                --   _ ■
-                local left_gate = board.gates[each_x - 1][each_y]
-                if board:is_gate_empty(each_x - 1, each_y + 1) and -- 左下が空
-                    left_gate:is_idle() and
-                    (board:is_gate_empty(each_x - 1, each_y) or left_gate:is_single_gate()) then
-                  move_and_swap(_ENV, each_x - 1, each_y)
-                  return
-                end
-              end
-
-              -- 注目しているゲート each_x, each_y を右に動かす場合。
-              -- 右側に余裕が必要なので、each_x < board.cols の範囲で考える。
-              if each_x < board.cols and each_y < board.rows then
-                --  each
-                --   |
-                --   v
-                --   X ?
-                --   ■ _
-                local right_gate = board.gates[each_x + 1][each_y]
-                if board:is_gate_empty(each_x + 1, each_y + 1) and -- 右下が空
-                    right_gate:is_idle() and
-                    (board:is_gate_empty(each_x + 1, each_y) or right_gate:is_single_gate()) then
-                  move_and_swap(_ENV, each_x, each_y)
-                  return
-                end
-              end
-
-              -- 注目しているゲート each_x, each_y を左に動かす場合。
-              -- 左側に余裕が必要なので、1 < each_x の範囲で考える。
-              if 1 < each_x and each_y < board.rows then
-                --    each
-                --     |
-                --     v
-                --   ? X
-                --   X ■
-                local left_gate = board.gates[each_x - 1][each_y]
-                local gate_bottom_left = board.gates[each_x - 1][each_y + 1]
-                if gate_bottom_left:is_idle() and gate_bottom_left.type == each.type and
-                    left_gate:is_idle() and
-                    (board:is_gate_empty(each_x - 1, each_y) or left_gate:is_single_gate()) then
-                  move_and_swap(_ENV, each_x - 1, each_y)
-                  return
-                end
-              end
-
-              -- 注目しているゲート each_x, each_y を右に動かす場合。
-              -- 右側に余裕が必要なので、each_x < board.cols の範囲で考える。
-              if each_x < board.cols and each_y < board.rows then
-                --  each
-                --   |
-                --   v
-                --   X ?
-                --   ■ X
-                local right_gate = board.gates[each_x + 1][each_y]
-                local gate_bottom_right = board.gates[each_x + 1][each_y + 1]
-                if gate_bottom_right:is_idle() and gate_bottom_right.type == each.type and
-                    right_gate:is_idle() and
-                    (board:is_gate_empty(each_x + 1, each_y) or right_gate:is_single_gate()) then
-                  move_and_swap(_ENV, each_x, each_y)
-                  return
-                end
-              end
-
-              if 1 < each_x and each_y < board.rows then
-                -- ゲートを連続して左に移動すると落とせる場合、
-                -- そのゲートを左に動かす。
+                -- ? X <-- each
+                -- _ ■
                 --
-                --     each
-                --      |
-                --      v
-                --      X
+                -- または
+                --
+                -- ? X <-- each
+                -- X ■
+                if _is_swappable(_ENV, board, each_x - 1, each_y) and
+                    (
+                    board:is_gate_empty(each_x - 1, each_y + 1) or
+                        _is_match(_ENV, each, board.gates[each_x - 1][each_y + 1])) then
+                  move_and_swap(_ENV, each_x - 1, each_y)
+                  return
+                end
+              end
+
+              if each_x < board.cols and each_y < board.rows then
+                -- each --> X ?
+                --          ■ _
+                --
+                -- または
+                --
+                -- each --> X ?
+                --          ■ X
+                if _is_swappable(_ENV, board, each_x + 1, each_y) and
+                    (
+                    board:is_gate_empty(each_x + 1, each_y + 1) or
+                        _is_match(_ENV, each, board.gates[each_x + 1][each_y + 1])) then
+                  move_and_swap(_ENV, each_x, each_y)
+                  return
+                end
+              end
+
+              -- TODO: 下のルールと一緒にする
+              if 1 < each_x and each_y < board.rows then
+                --      X <-- each
                 --  _ ■ ■
                 local fallable = false
 
-                -- 最初に穴までどれほど離れているか調べる
                 for i = each_x - 1, 1, -1 do
                   if not board:is_gate_empty(i, each_y) then
                     break
@@ -154,23 +112,15 @@ function create_qpu(cursor, sleep)
               end
 
               if 1 < each_x and each_y < board.rows then
-                -- ゲートを連続して左に移動するとマッチできる場合、
-                -- そのゲートを左に動かす。
-                --
-                --     each
-                --      |
-                --      v
-                --      X
+                --      X <-- each
                 --  X ■ ■
                 local fallable = false
 
-                -- 最初に穴までどれほど離れているか調べる
                 for i = each_x - 1, 1, -1 do
-                  local bottom_left_gate = board.gates[i][each_y + 1]
                   if not board:is_gate_empty(i, each_y) then
                     break
                   end
-                  if bottom_left_gate.type == each.type and bottom_left_gate:is_idle() then
+                  if _is_match(_ENV, each, board.gates[i][each_y + 1]) then
                     fallable = true
                     break
                   end
@@ -183,17 +133,10 @@ function create_qpu(cursor, sleep)
               end
 
               if each_x < board.cols and each_y < board.rows then
-                -- ゲートを連続して右に移動すると落とせる場合、
-                -- そのゲートを右に動かす。
-                --
-                -- each
-                --  |
-                --  v
-                --  X
+                --  X <-- each
                 --  ■ ■ _
                 local fallable = false
 
-                -- 最初に穴があるか調べる
                 for i = each_x + 1, board.cols do
                   if not board:is_gate_empty(i, each_y) then
                     break
@@ -211,31 +154,21 @@ function create_qpu(cursor, sleep)
               end
 
               if 1 < each_x and each_y < board.rows then
-                -- ゲートを連続して左に移動すると左下の同じゲートとマッチできる場合、
-                -- 左に動かす。
-                --
-                --     each
-                --      |
-                --      v
-                --  ? ? X
+                --  ? ? X <-- each
                 --  X ■ ■
-                local fallable = false
+                local matchable = false
 
-                -- 最初にマッチするゲートまで移動可能か調べる
                 for i = each_x - 1, 1, -1 do
-                  local gate_i = board.gates[i][each_y]
-                  if not (gate_i:is_idle() and (board:is_gate_empty(i, each_y) or gate_i:is_single_gate())) then
+                  if not _is_swappable(_ENV, board, i, each_y) then
                     break
                   end
-
-                  local bottom_left_gate = board.gates[i][each_y + 1]
-                  if bottom_left_gate.type == each.type and bottom_left_gate:is_idle() then
-                    fallable = true
+                  if _is_match(_ENV, each, board.gates[i][each_y + 1]) then
+                    matchable = true
                     break
                   end
                 end
 
-                if fallable then
+                if matchable then
                   move_and_swap(_ENV, each_x - 1, each_y, true)
                   return
                 end
@@ -245,12 +178,8 @@ function create_qpu(cursor, sleep)
                 --   H ■ ■ ■ ■
                 --   ? H <-- each
                 do
-                  local left_gate = board.gates[each_x - 1][each_y]
-                  local top_left_gate = board.gates[each_x - 1][each_y - 1]
-
-                  if top_left_gate:is_idle() and top_left_gate.type == each.type and -- 左上が同じゲートでマッチ可能
-                    left_gate:is_idle() and
-                    (board:is_gate_empty(each_x - 1, each_y) or left_gate:is_single_gate()) then
+                  if _is_match(_ENV, each, board.gates[each_x - 1][each_y - 1]) and
+                      _is_swappable(_ENV, board, each_x - 1, each_y) then
                     move_and_swap(_ENV, each_x - 1, each_y)
                     return
                   end
@@ -261,15 +190,11 @@ function create_qpu(cursor, sleep)
                 do
                   local matchable = false
 
-                  -- マッチするゲートまで移動可能か調べる
                   for i = each_x - 1, 1, -1 do
-                    local gate_i = board.gates[i][each_y - 1]
-                    if not (gate_i:is_idle() and (board:is_gate_empty(i, each_y) or gate_i:is_single_gate())) then
+                    if not _is_swappable(_ENV, board, i, each_y - 1) then
                       break
                     end
-
-                    local top_left_gate = board.gates[i][each_y - 1]
-                    if top_left_gate.type == each.type and top_left_gate:is_idle() then
+                    if _is_match(_ENV, each, board.gates[i][each_y - 1]) then
                       matchable = true
                       break
                     end
@@ -357,7 +282,18 @@ function create_qpu(cursor, sleep)
       for i = 1, count do
         add(commands, "sleep")
       end
-    end
+    end,
+
+    _is_match = function(_ENV, gate, other_gate)
+      return other_gate.type == gate.type and other_gate:is_idle()
+    end,
+
+    _is_swappable = function(_ENV, board, gate_x, gate_y)
+      local gate = board.gates[gate_x][gate_y]
+
+      return gate:is_idle() and
+          (board:is_gate_empty(gate_x, gate_y) or gate:is_single_gate())
+    end,
   }, { __index = _ENV })
 
   qpu:init()
