@@ -881,7 +881,17 @@ function create_board(_offset_x)
 
       for y = 1, row_next_gates do
         for x = 1, cols do
-          str = str .. gates[x][y]:_tostring() .. " "
+          local gate = gates[x][y]
+
+          if gate:is_i() then
+            if is_part_of_garbage(_ENV, x, y) then
+              str = str .. "g " .. " "
+            else
+              str = str .. gates[x][y]:_tostring() .. " "
+            end
+          else
+            str = str .. gates[x][y]:_tostring() .. " "
+          end
         end
         str = str .. "\n"
       end

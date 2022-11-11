@@ -101,8 +101,6 @@ function game:update()
 
     if board:is_game_over() then
       board:update()
-      each:update(board)
-      player_cursor:update()
     else
       each:update(board)
 
@@ -135,8 +133,6 @@ function game:update()
       if not countdown then
         self:_auto_raise(each)
       end
-
-      each.tick = each.tick + 1
     end
   end
 
@@ -186,14 +182,16 @@ end
 
 -- 可能な場合ゲートを自動的にせりあげる
 function game:_auto_raise(player)
-  if player.tick < self.auto_raise_frame_count or
-      player.board:is_busy() then
+  if player.board:is_busy() then
     return
   end
 
-  player.tick = 0
+  player.tick = player.tick + 1
 
-  self:_raise(player)
+  if player.tick > self.auto_raise_frame_count then
+    self:_raise(player)
+    player.tick = 0
+  end
 end
 
 return game
