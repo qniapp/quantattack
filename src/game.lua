@@ -5,9 +5,10 @@ require("engine/debug/dump")
 
 local game = new_class()
 
-require("particle")
-require("bubble")
 require("attack_cube")
+require("bubble")
+require("helpers")
+require("particle")
 
 local all_players, state, countdown
 
@@ -159,11 +160,8 @@ function game:render() -- override
   render_bubbles()
   render_attack_cubes()
 
-  color(7)
-  cursor(1, 1)
-  print(stat(1))
-  cursor(1, 8)
-  print(stat(7))
+  print_outlined(stat(1), 1, 1, 7)
+  print_outlined(stat(7), 1, 8, 7)
 end
 
 -- ゲートをせりあげる

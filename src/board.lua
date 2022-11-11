@@ -5,14 +5,6 @@ require("helpers")
 
 local reduction_rules = require("reduction_rules")
 
-function print_outlined(str, x, y, color) -- 21 tokens
-  print(str, x - 1, y, 0)
-  print(str, x + 1, y)
-  print(str, x, y - 1)
-  print(str, x, y + 1)
-  print(str, x, y, color)
-end
-
 function create_board(_offset_x)
   local board = setmetatable({
     cols = 6,
@@ -582,15 +574,6 @@ function create_board(_offset_x)
             spr(85, scr_x, scr_y)
           end
         end
-      end
-
-      -- 上からはみ出した部分のマスクを描画
-      rectfill(offset_x, 0, offset_x + 48, offset_y - 1, 0)
-
-      -- 枠線の描画
-      for i, color in pairs({ 1, 13, 2, 13 }) do
-        f = i < 4 and rect or draw_rounded_box
-        f(offset_x - 2 - i, offset_y - i, offset_x + 48 + i, 128, color)
       end
 
       if countdown then
