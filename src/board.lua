@@ -313,34 +313,37 @@ function create_board(_offset_x, _gauge_position)
     -------------------------------------------------------------------------------
 
     top_gate_y = function(_ENV)
-      for y = 1, rows do
-        for x = 1, cols do
-          if not is_gate_empty(_ENV, x, y) then
-            local gate = gates[x][y]
+      if changed or not top_gate_y_cache then
+        for y = 1, rows do
+          for x = 1, cols do
+            if not is_gate_empty(_ENV, x, y) then
+              local gate = gates[x][y]
 
-            if is_part_of_garbage(_ENV, x, y) then
-              gate = _garbage_head_gate(_ENV, x, y)
-            elseif is_part_of_cnot(_ENV, x, y) then
-              gate = _cnot_head_gate(_ENV, x, y)
-            elseif is_part_of_swap(_ENV, x, y) then
-              gate = _swap_head_gate(_ENV, x, y)
-            end
+              if is_part_of_garbage(_ENV, x, y) then
+                gate = _garbage_head_gate(_ENV, x, y)
+              elseif is_part_of_cnot(_ENV, x, y) then
+                gate = _cnot_head_gate(_ENV, x, y)
+              elseif is_part_of_swap(_ENV, x, y) then
+                gate = _swap_head_gate(_ENV, x, y)
+              end
 
-            -- ひとつ下の段にひとつでもゲートがあれば
-            -- 落下中でもゲートが積み上がっている
-            --
-            -- FIXME: おじゃまゲートを積んで落とすと誤判定になるので、
-            -- バラして落とすようにする
-            for i = 1, cols do
-              if not is_gate_empty(_ENV, i, gate.y + 1) then
-                return y
+              -- ひとつ下の段にひとつでもゲートがあれば
+              -- 落下中でもゲートが積み上がっている
+              for i = 1, cols do
+                if not is_gate_empty(_ENV, i, gate.y + 1) then
+                  top_gate_y_cache = y
+                  return top_gate_y_cache
+                end
               end
             end
           end
         end
-      end
 
-      return rows
+        top_gate_y_cache = rows
+        return top_gate_y_cache
+      else
+        return top_gate_y_cache
+      end
     end,
 
     is_busy = function(_ENV)
@@ -442,11 +445,14 @@ function create_board(_offset_x, _gauge_position)
           end
 
           for i = x, x + each.span - 1 do
-            if not is_gate_empty(_ENV, i, 1) then
+            -- おじゃまゲートをバラして落とす
+            -- (詰まれた状態で落とすと top_gate_y が正しい値を返さないので)
+            if not is_gate_empty(_ENV, i, 1) or not is_gate_empty(_ENV, i, 2) then
               goto next_garbage_gate
             end
           end
 
+          -- すでに落としていたら、次のフレームまで待つ
           del(waiting_garbage_gates, each)
           put(_ENV, x, 1, each)
           each:fall()
@@ -602,9 +608,14 @@ function create_board(_offset_x, _gauge_position)
       local topped_out_frame_count_left = topped_out_delay_frame_count - topped_out_frame_count
       local gauge_length = topped_out_frame_count_left / topped_out_delay_frame_count * 128
       if _is_topped_out(_ENV) then
-        local gauge_x = gauge_position == "left" and offset_x - 4 or offset_x + 48 + 3
+        local gauge_x = gauge_position == "left" and offset_x - 6 or offset_x + 48 + 5
         line(gauge_x, 128 - gauge_length, gauge_x, 128, 8)
       end
+
+      -- ゲームオーバーの線
+      line(offset_x - 2, 41,
+        offset_x + 48 + 1, 41,
+        _is_topped_out(_ENV) and 8 or 1)
 
       if countdown then
         local countdown_sprite_x = { 112, 96, 80 }
