@@ -609,7 +609,7 @@ function create_board(_offset_x, _gauge_position)
       local gauge_length = topped_out_frame_count_left / topped_out_delay_frame_count * 128
       if _is_topped_out(_ENV) then
         local gauge_x = gauge_position == "left" and offset_x - 6 or offset_x + 48 + 5
-        line(gauge_x, 128 - gauge_length, gauge_x, 128, 8)
+        line(gauge_x, 128 - gauge_length, gauge_x, 128, 12)
       end
 
       -- ゲームオーバーの線
