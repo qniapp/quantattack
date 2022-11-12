@@ -619,13 +619,12 @@ function create_board(_offset_x, _gauge_position)
         end
       end
 
-      -- 体力ゲージの描画
+      -- 残り時間ゲージの描画
       local topped_out_frame_count_left = topped_out_delay_frame_count - topped_out_frame_count
-      local gauge_length = topped_out_frame_count_left / topped_out_delay_frame_count * 128
-      if _is_topped_out(_ENV) then
-        local gauge_x = gauge_position == "left" and offset_x - 6 or offset_x + 48 + 5
-        line(gauge_x, 128 - gauge_length, gauge_x, 128, 12)
-      end
+      local gauge_length = topped_out_frame_count_left / topped_out_delay_frame_count * 107
+      local gauge_x = gauge_position == "left" and offset_x - 9 or offset_x + 48 + 5
+      rectfill(gauge_x, 11 + 107 - gauge_length, gauge_x + 3, 118, _is_topped_out(_ENV) and 8 or 1)
+      draw_rounded_box(gauge_x - 1, 10, gauge_x + 4, 118, _is_topped_out(_ENV) and 7 or 5) -- ゲージの枠
 
       -- ゲームオーバーの線
       line(offset_x - 2, 41,
