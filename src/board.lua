@@ -621,14 +621,14 @@ function create_board(_offset_x, _gauge_position)
 
       -- 残り時間ゲージの描画
       local topped_out_frame_count_left = topped_out_delay_frame_count - topped_out_frame_count
-      local gauge_length = topped_out_frame_count_left / topped_out_delay_frame_count * 107
+      local gauge_length = topped_out_frame_count_left / topped_out_delay_frame_count * 77
       local gauge_x = gauge_position == "left" and offset_x - 9 or offset_x + 48 + 5
-      rectfill(gauge_x, 11 + 107 - gauge_length, gauge_x + 3, 118, _is_topped_out(_ENV) and 8 or 1)
-      draw_rounded_box(gauge_x - 1, 10, gauge_x + 4, 118, _is_topped_out(_ENV) and 7 or 5) -- ゲージの枠
+      rectfill(gauge_x, 41 + 77 - gauge_length, gauge_x + 3, 118, _is_topped_out(_ENV) and 8 or 1)
+      draw_rounded_box(gauge_x - 1, 40, gauge_x + 4, 118, _is_topped_out(_ENV) and 7 or 5) -- ゲージの枠
 
       -- ゲームオーバーの線
-      line(offset_x - 2, 41,
-        offset_x + 48 + 1, 41,
+      line(offset_x - 2, 40,
+        offset_x + 48 + 1, 40,
         _is_topped_out(_ENV) and 8 or 1)
 
       if countdown then
@@ -649,7 +649,7 @@ function create_board(_offset_x, _gauge_position)
     end,
 
     _is_topped_out = function(_ENV)
-      return top_gate_y(_ENV) < 8
+      return screen_y(_ENV, top_gate_y(_ENV)) <= 40
     end,
 
     _update_game = function(_ENV, game, player, other_board)
