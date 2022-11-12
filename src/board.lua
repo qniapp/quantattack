@@ -5,7 +5,7 @@ require("helpers")
 
 local reduction_rules = require("reduction_rules")
 
-function create_board(_offset_x, _gauge_position)
+function create_board(_offset_x)
   local board = setmetatable({
     cols = 6,
     rows = 17,
@@ -31,7 +31,6 @@ function create_board(_offset_x, _gauge_position)
       waiting_garbage_gates = {}
       topped_out_frame_count = 0
       topped_out_delay_frame_count = 600 -- 60 * 10sec
-      gauge_position = _gauge_position or "left"
       garbage_gates = {}
       reducible_gates = { {}, {}, {}, {}, {}, {} }
 
@@ -136,7 +135,11 @@ function create_board(_offset_x, _gauge_position)
         local chain_id
         local is_matching = function(g)
           chain_id = g.chain_id
-          return g:is_match() and g.type ~= "!"
+          if g.type == "!" then
+            return g:is_match() and gate.color == g.color
+          else
+            return g:is_match()
+          end
         end
 
         if x > 1 then
@@ -177,7 +180,9 @@ function create_board(_offset_x, _gauge_position)
         ::match::
         for i = 0, garbage_span - 1 do
           for j = 0, garbage_height - 1 do
-            put(_ENV, x + i, y - j, garbage_match_gate())
+            gmg = garbage_match_gate()
+            gmg.color = gate.color
+            put(_ENV, x + i, y - j, gmg)
 
             local new_gate
             if j == 0 then
@@ -185,7 +190,7 @@ function create_board(_offset_x, _gauge_position)
               new_gate = _random_single_gate(_ENV)
             elseif j == 1 and i == 0 then
               -- 二行目の先頭にはおじゃまゲート
-              new_gate = garbage_gate(garbage_span, garbage_height - 1)
+              new_gate = garbage_gate(garbage_span, garbage_height - 1, gate.color)
             else
               new_gate = i_gate()
             end
@@ -439,7 +444,8 @@ function create_board(_offset_x, _gauge_position)
         end
       end
 
-      local garbage = garbage_gate(span, _height)
+      local colors = { 2, 3, 4 }
+      local garbage = garbage_gate(span, _height, colors[flr(rnd(#colors)) + 1])
       garbage.wait_time = 120
       add(waiting_garbage_gates, garbage)
     end,

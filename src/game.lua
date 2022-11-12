@@ -40,8 +40,7 @@ function game.chain_callback(chain_count, x, y, player, board, other_board)
 
       -- 対戦相手がいる時、おじゃまゲートを送る
       if other_board then
-        -- TODO: おじゃまゲートの高さ上限を決める
-        other_board:send_garbage(6, chain_count - 1)
+        other_board:send_garbage(6, chain_count - 1 < 6 and chain_count - 1 or 5)
       end
     end
 

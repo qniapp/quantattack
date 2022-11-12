@@ -8,7 +8,7 @@ local qpu_vs_qpu = derived_class(gamestate)
 local game_class = require("game")
 local game = game_class()
 
-local qpu1_board = create_board(3, "right")
+local qpu1_board = create_board(3)
 qpu1_board.attack_cube_target = { 78 + 24, 0 }
 
 local qpu2_board = create_board(78)
