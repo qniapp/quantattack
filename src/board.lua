@@ -313,7 +313,14 @@ function create_board(_offset_x, _gauge_position)
     -------------------------------------------------------------------------------
 
     top_gate_y = function(_ENV)
-      if changed or not top_gate_y_cache then
+      -- top_gate_y が変化するのは、
+      --   * ゲートが top_gate_y_cache より上に着地 (_tick_landed = 1) した時
+      --   * top_gate_y_cache のゲートが消えたとき
+      --   * ゲートがせり上がったとき (insert_gates_at_bottom)
+      --
+      -- いずれかのフラグが立っていれば top_gate_y_changed として
+      -- 再計算する
+      if top_gate_y_changed or not top_gate_y_cache then
         for y = 1, rows do
           for x = 1, cols do
             if not is_gate_empty(_ENV, x, y) then
@@ -332,6 +339,7 @@ function create_board(_offset_x, _gauge_position)
               for i = 1, cols do
                 if not is_gate_empty(_ENV, i, gate.y + 1) then
                   top_gate_y_cache = y
+                  top_gate_y_changed = false
                   return top_gate_y_cache
                 end
               end
@@ -340,6 +348,7 @@ function create_board(_offset_x, _gauge_position)
         end
 
         top_gate_y_cache = rows
+        top_gate_y_changed = false
         return top_gate_y_cache
       else
         return top_gate_y_cache
@@ -388,6 +397,11 @@ function create_board(_offset_x, _gauge_position)
 
       gate.x = x
       gate.y = y
+
+      -- ゲートが消えた (i を置いた) 場合
+      if top_gate_y_cache and y == top_gate_y_cache and gate:is_i() then
+        top_gate_y_changed = true
+      end
 
       -- おじゃまゲートを別のゲートと置き換える場合
       -- おじゃまゲートキャッシュから消す
@@ -452,7 +466,6 @@ function create_board(_offset_x, _gauge_position)
             end
           end
 
-          -- すでに落としていたら、次のフレームまで待つ
           del(waiting_garbage_gates, each)
           put(_ENV, x, 1, each)
           each:fall()
@@ -496,6 +509,8 @@ function create_board(_offset_x, _gauge_position)
           until #reduce(_ENV, x, rows, true).to == 0
         end
       end
+
+      top_gate_y_changed = true
     end,
 
     -------------------------------------------------------------------------------
@@ -873,16 +888,20 @@ function create_board(_offset_x, _gauge_position)
 
     -- ボード内にあるいずれかのゲートが更新されたので、
     -- changed フラグを立て各種キャッシュもクリア
-    observable_update = function(_ENV, observable)
-      local x, y = observable.x, observable.y
+    observable_update = function(_ENV, gate)
+      local x, y = gate.x, gate.y
 
-      if observable:is_reducible() then
-        reducible_gates[x][y] = observable
+      if gate:is_reducible() then
+        reducible_gates[x][y] = gate
       else
         reducible_gates[x][y] = nil
       end
 
       changed = true
+      if gate._tick_landed and gate._tick_landed == 1 and gate.y < top_gate_y_cache then
+        top_gate_y_changed = true
+      end
+
       reduce_cache = {}
       is_gate_empty_cache = {}
       is_gate_fallable_cache = {}
