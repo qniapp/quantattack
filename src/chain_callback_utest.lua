@@ -23,15 +23,15 @@ describe('chain', function()
     -- [X H]        H X
     --  H X  -----> H X ----->     ----->   Y
     --  Y Y         Y Y        Y Y        Y Y
-    board:put(2, 10, y_gate())
-    board:put(1, 11, x_gate())
-    board:put(2, 11, h_gate())
-    board:put(1, 12, h_gate())
-    board:put(2, 12, x_gate())
-    board:put(1, 13, y_gate())
-    board:put(2, 13, y_gate())
+    board:put(2, 14, y_gate())
+    board:put(1, 15, x_gate())
+    board:put(2, 15, h_gate())
+    board:put(1, 16, h_gate())
+    board:put(2, 16, x_gate())
+    board:put(1, 17, y_gate())
+    board:put(2, 17, y_gate())
 
-    board:swap(1, 11)
+    board:swap(1, 15)
 
     local chain_callback = assert.spy(game.chain_callback)
 
@@ -42,6 +42,6 @@ describe('chain', function()
     end
 
     chain_callback.was_called(1)
-    chain_callback.was_called_with(2, 2, 12, match._, match._, match._)
+    chain_callback.was_called_with(2, 2, 16, match._, match._, match._)
   end)
 end)

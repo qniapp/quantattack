@@ -12,7 +12,7 @@ describe('player_cursor', function()
   describe('constructor', function()
     it('should be placed at x = 3, y = 6 by default', function()
       assert.are_equal(3, player_cursor.x)
-      assert.are_equal(6, player_cursor.y)
+      assert.are_equal(11, player_cursor.y)
     end)
   end)
 
@@ -21,7 +21,7 @@ describe('player_cursor', function()
       player_cursor:move_left()
 
       assert.are_equal(2, player_cursor.x)
-      assert.are_equal(6, player_cursor.y)
+      assert.are_equal(11, player_cursor.y)
     end)
 
     it("should not move any further to the left when reaching the left edge", function()
@@ -31,7 +31,7 @@ describe('player_cursor', function()
       player_cursor:move_left()
 
       assert.are_equal(1, player_cursor.x)
-      assert.are_equal(6, player_cursor.y)
+      assert.are_equal(11, player_cursor.y)
     end)
   end)
 
@@ -40,7 +40,7 @@ describe('player_cursor', function()
       player_cursor:move_right()
 
       assert.are_equal(4, player_cursor.x)
-      assert.are_equal(6, player_cursor.y)
+      assert.are_equal(11, player_cursor.y)
     end)
 
     it("should not move any further to the right when reaching the right edge", function()
@@ -50,7 +50,7 @@ describe('player_cursor', function()
       player_cursor:move_right()
 
       assert.are_equal(5, player_cursor.x)
-      assert.are_equal(6, player_cursor.y)
+      assert.are_equal(11, player_cursor.y)
     end)
   end)
 
@@ -59,10 +59,15 @@ describe('player_cursor', function()
       player_cursor:move_up()
 
       assert.are_equal(3, player_cursor.x)
-      assert.are_equal(5, player_cursor.y)
+      assert.are_equal(10, player_cursor.y)
     end)
 
     it("should not move any upper when reaching the top edge", function()
+      player_cursor:move_up() -- y = 10
+      player_cursor:move_up() -- y = 9
+      player_cursor:move_up() -- y = 8
+      player_cursor:move_up() -- y = 7
+      player_cursor:move_up() -- y = 6
       player_cursor:move_up() -- y = 5
       player_cursor:move_up() -- y = 4
       player_cursor:move_up() -- y = 3
@@ -80,7 +85,7 @@ describe('player_cursor', function()
       player_cursor:move_down()
 
       assert.are_equal(3, player_cursor.x)
-      assert.are_equal(7, player_cursor.y)
+      assert.are_equal(12, player_cursor.y)
     end)
 
     it("should not move any further down when reaching the bottom", function()
@@ -91,11 +96,15 @@ describe('player_cursor', function()
       player_cursor:move_down() -- y = 11
       player_cursor:move_down() -- y = 12
       player_cursor:move_down() -- y = 13
+      player_cursor:move_down() -- y = 14
+      player_cursor:move_down() -- y = 15
+      player_cursor:move_down() -- y = 16
+      player_cursor:move_down() -- y = 17
 
       player_cursor:move_down()
 
       assert.are_equal(3, player_cursor.x)
-      assert.are_equal(13, player_cursor.y)
+      assert.are_equal(17, player_cursor.y)
     end)
   end)
 

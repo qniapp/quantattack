@@ -5,9 +5,10 @@ require("engine/debug/dump")
 
 local game = new_class()
 
-require("particle")
-require("bubble")
 require("attack_cube")
+require("bubble")
+require("helpers")
+require("particle")
 
 local all_players, state, countdown
 
@@ -39,8 +40,7 @@ function game.chain_callback(chain_count, x, y, player, board, other_board)
 
       -- 対戦相手がいる時、おじゃまゲートを送る
       if other_board then
-        -- TODO: おじゃまゲートの高さ上限を決める
-        other_board:send_garbage(6, chain_count - 1)
+        other_board:send_garbage(6, chain_count - 1 < 6 and chain_count - 1 or 5)
       end
     end
 
@@ -159,11 +159,8 @@ function game:render() -- override
   render_bubbles()
   render_attack_cubes()
 
-  color(7)
-  cursor(1, 1)
-  print(stat(1))
-  cursor(1, 8)
-  print(stat(7))
+  print_outlined(stat(1), 1, 1, 7)
+  print_outlined(stat(7), 1, 8, 7)
 end
 
 -- ゲートをせりあげる

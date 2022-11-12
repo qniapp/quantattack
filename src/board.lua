@@ -5,24 +5,16 @@ require("helpers")
 
 local reduction_rules = require("reduction_rules")
 
-function print_outlined(str, x, y, color) -- 21 tokens
-  print(str, x - 1, y, 0)
-  print(str, x + 1, y)
-  print(str, x, y - 1)
-  print(str, x, y + 1)
-  print(str, x, y, color)
-end
-
 function create_board(_offset_x)
   local board = setmetatable({
     cols = 6,
-    rows = 13,
-    row_next_gates = 14, -- rows + 1
+    rows = 17,
+    row_next_gates = 18, -- rows + 1
     gates = {},
     width = 48, -- 6 * tile_size
-    height = 96, -- 12 * tile_size
+    height = 128,
     offset_x = _offset_x or 11,
-    offset_y = 32, -- screen_height - 12 * tile_size (128 - 96)
+    offset_y = 0,
     changed = false,
     bounce_speed = 0,
     bounce_screen_dy = 0,
@@ -38,6 +30,7 @@ function create_board(_offset_x)
       win, lose = false, false
       waiting_garbage_gates = {}
       topped_out_frame_count = 0
+      topped_out_delay_frame_count = 600 -- 60 * 10sec
       garbage_gates = {}
       reducible_gates = { {}, {}, {}, {}, {}, {} }
 
@@ -53,10 +46,10 @@ function create_board(_offset_x)
     initialize_with_random_gates = function(_ENV)
       init(_ENV)
 
-      for y = row_next_gates, 6, -1 do
+      for y = row_next_gates, 10, -1 do
         for x = 1, cols do
           if y >= rows - 2 or
-              (y < rows - 2 and rnd(1) > (y - 11) * -0.1 and (not is_gate_empty(_ENV, x, y + 1))) then
+              (y < rows - 2 and rnd(1) > (y - 15) * -0.1 and (not is_gate_empty(_ENV, x, y + 1))) then
             repeat
               put(_ENV, x, y, _random_single_gate(_ENV))
             until #reduce(_ENV, x, y, true).to == 0
@@ -142,7 +135,11 @@ function create_board(_offset_x)
         local chain_id
         local is_matching = function(g)
           chain_id = g.chain_id
-          return g:is_match() and g.type ~= "!"
+          if g.type == "!" then
+            return g:is_match() and gate.color == g.color
+          else
+            return g:is_match()
+          end
         end
 
         if x > 1 then
@@ -183,7 +180,9 @@ function create_board(_offset_x)
         ::match::
         for i = 0, garbage_span - 1 do
           for j = 0, garbage_height - 1 do
-            put(_ENV, x + i, y - j, garbage_match_gate())
+            gmg = garbage_match_gate()
+            gmg.color = gate.color
+            put(_ENV, x + i, y - j, gmg)
 
             local new_gate
             if j == 0 then
@@ -191,7 +190,7 @@ function create_board(_offset_x)
               new_gate = _random_single_gate(_ENV)
             elseif j == 1 and i == 0 then
               -- 二行目の先頭にはおじゃまゲート
-              new_gate = garbage_gate(garbage_span, garbage_height - 1)
+              new_gate = garbage_gate(garbage_span, garbage_height - 1, gate.color)
             else
               new_gate = i_gate()
             end
@@ -319,21 +318,53 @@ function create_board(_offset_x)
     -------------------------------------------------------------------------------
 
     top_gate_y = function(_ENV)
-      for y = 1, rows do
-        for x = 1, cols do
-          if not is_gate_empty(_ENV, x, y) then
-            return y
+      -- top_gate_y が変化するのは、
+      --   * ゲートが top_gate_y_cache より上に着地 (_tick_landed = 1) した時
+      --   * top_gate_y_cache のゲートが消えたとき
+      --   * ゲートがせり上がったとき (insert_gates_at_bottom)
+      --
+      -- いずれかのフラグが立っていれば top_gate_y_changed として
+      -- 再計算する
+      if top_gate_y_changed or not top_gate_y_cache then
+        for y = 1, rows do
+          for x = 1, cols do
+            if not is_gate_empty(_ENV, x, y) then
+              local gate = gates[x][y]
+
+              if is_part_of_garbage(_ENV, x, y) then
+                gate = _garbage_head_gate(_ENV, x, y)
+              elseif is_part_of_cnot(_ENV, x, y) then
+                gate = _cnot_head_gate(_ENV, x, y)
+              elseif is_part_of_swap(_ENV, x, y) then
+                gate = _swap_head_gate(_ENV, x, y)
+              end
+
+              -- ひとつ下の段にひとつでもゲートがあれば
+              -- 落下中でもゲートが積み上がっている
+              for i = 1, cols do
+                if not is_gate_empty(_ENV, i, gate.y + 1) then
+                  top_gate_y_cache = y
+                  top_gate_y_changed = false
+                  return top_gate_y_cache
+                end
+              end
+            end
           end
         end
-      end
 
-      return rows
+        top_gate_y_cache = rows
+        top_gate_y_changed = false
+        return top_gate_y_cache
+      else
+        return top_gate_y_cache
+      end
     end,
 
     is_busy = function(_ENV)
       for x = 1, cols do
         for y = 1, row_next_gates do
-          if not gates[x][y]:is_idle() then
+          local gate = gates[x][y]
+          if not (gate:is_idle() or gate:is_swapping()) then
             return true
           end
         end
@@ -372,6 +403,11 @@ function create_board(_offset_x)
       gate.x = x
       gate.y = y
 
+      -- ゲートが消えた (i を置いた) 場合
+      if top_gate_y_cache and y == top_gate_y_cache and gate:is_i() then
+        top_gate_y_changed = true
+      end
+
       -- おじゃまゲートを別のゲートと置き換える場合
       -- おじゃまゲートキャッシュから消す
       if gates[x] and gates[x][y] and gates[x][y]:is_garbage() then
@@ -408,7 +444,8 @@ function create_board(_offset_x)
         end
       end
 
-      local garbage = garbage_gate(span, _height)
+      local colors = { 2, 3, 4 }
+      local garbage = garbage_gate(span, _height, colors[flr(rnd(#colors)) + 1])
       garbage.wait_time = 120
       add(waiting_garbage_gates, garbage)
     end,
@@ -428,7 +465,9 @@ function create_board(_offset_x)
           end
 
           for i = x, x + each.span - 1 do
-            if not is_gate_empty(_ENV, i, 1) then
+            -- おじゃまゲートをバラして落とす
+            -- (詰まれた状態で落とすと top_gate_y が正しい値を返さないので)
+            if not is_gate_empty(_ENV, i, 1) or not is_gate_empty(_ENV, i, 2) then
               goto next_garbage_gate
             end
           end
@@ -476,6 +515,8 @@ function create_board(_offset_x)
           until #reduce(_ENV, x, rows, true).to == 0
         end
       end
+
+      top_gate_y_changed = true
     end,
 
     -------------------------------------------------------------------------------
@@ -584,51 +625,52 @@ function create_board(_offset_x)
         end
       end
 
-      -- 上からはみ出した部分のマスクを描画
-      rectfill(offset_x, 0, offset_x + 48, offset_y - 1, 0)
-
-      -- 枠線の描画
-      for i, color in pairs({ 1, 13, 2, 13 }) do
-        f = i < 4 and rect or draw_rounded_box
-        f(offset_x - 2 - i, offset_y - i, offset_x + 48 + i, 128, color)
+      -- 残り時間ゲージの描画
+      if _is_topped_out(_ENV) then
+        local topped_out_frame_count_left = topped_out_delay_frame_count - topped_out_frame_count
+        local gauge_width = 41
+        local time_left_width = topped_out_frame_count_left / topped_out_delay_frame_count * gauge_width
+        -- おじゃまゲートと混じらないように、黒い背景を入れる
+        draw_rounded_box(offset_x + 1, 23, offset_x + 45, 29, 0, 0)
+        rectfill(offset_x + 3 + (gauge_width - time_left_width), 25, offset_x + 44, 27, 8) -- ゲージの値
+        draw_rounded_box(offset_x + 2, 24, offset_x + 44, 28, 7) -- ゲージの枠
       end
+
+      -- ゲームオーバーの線
+      line(offset_x - 2, 40,
+        offset_x + 48 + 1, 40,
+        _is_topped_out(_ENV) and 8 or 1)
 
       if countdown then
         local countdown_sprite_x = { 112, 96, 80 }
         sspr(countdown_sprite_x[countdown], 32,
           16, 16,
-          offset_x + 16 + (countdown == 1 and 4 or 0), offset_y + 16)
+          offset_x + 16 + (countdown == 1 and 4 or 0), offset_y + 56)
       end
 
       -- WIN! または LOSE を描画
       if is_game_over(_ENV) then
-        sspr(win and 0 or 32, 80, 32, 16, offset_x + width / 2 - 16, offset_y + 16)
+        sspr(win and 0 or 32, 80, 32, 16, offset_x + width / 2 - 16, offset_y + 56)
       end
 
       if push_any_key then
-        print_outlined("push any key!", offset_x - 1, offset_y + 80, 8)
+        print_outlined("push any key!", offset_x - 1, offset_y + 100, 8)
       end
     end,
 
     _is_topped_out = function(_ENV)
-      for x = 1, cols do
-        if not is_gate_empty(_ENV, x, 1) and
-            not gate_or_its_head_gate(_ENV, x, 1):is_falling() then
-          return true
-        end
-      end
-
-      return false
+      return screen_y(_ENV, top_gate_y(_ENV)) <= 40
     end,
 
     _update_game = function(_ENV, game, player, other_board)
-      if _is_topped_out(_ENV) and not is_busy(_ENV) then
-        topped_out_frame_count = topped_out_frame_count + 1
+      if _is_topped_out(_ENV) then
+        if not is_busy(_ENV) then
+          topped_out_frame_count = topped_out_frame_count + 1
 
-        -- TODO: 120 はあとで要調整
-        if topped_out_frame_count > 120 then
-          lose = true
-          state = "over"
+          if topped_out_frame_count >= topped_out_delay_frame_count then
+            lose = true
+            state = "over"
+          end
         end
       else
         topped_out_frame_count = 0
@@ -855,16 +897,20 @@ function create_board(_offset_x)
 
     -- ボード内にあるいずれかのゲートが更新されたので、
     -- changed フラグを立て各種キャッシュもクリア
-    observable_update = function(_ENV, observable)
-      local x, y = observable.x, observable.y
+    observable_update = function(_ENV, gate)
+      local x, y = gate.x, gate.y
 
-      if observable:is_reducible() then
-        reducible_gates[x][y] = observable
+      if gate:is_reducible() then
+        reducible_gates[x][y] = gate
       else
         reducible_gates[x][y] = nil
       end
 
       changed = true
+      if gate._tick_landed and gate._tick_landed == 1 and gate.y < top_gate_y_cache then
+        top_gate_y_changed = true
+      end
+
       reduce_cache = {}
       is_gate_empty_cache = {}
       is_gate_fallable_cache = {}

@@ -8,3 +8,11 @@ function draw_rounded_box(x0, y0, x1, y1, border_color, fill_color)
     rectfill(x0 + 1, y0 + 1, x1 - 1, y1 - 1, fill_color)
   end
 end
+
+function print_outlined(str, x, y, color) -- 21 tokens
+  print(str, x - 1, y, 0)
+  print(str, x + 1, y)
+  print(str, x, y - 1)
+  print(str, x, y + 1)
+  print(str, x, y, color)
+end
