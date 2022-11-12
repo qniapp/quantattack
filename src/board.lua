@@ -5,42 +5,61 @@ require("helpers")
 
 local reduction_rules = require("reduction_rules")
 
-function create_board(_offset_x)
+function create_board(__offset_x)
   local board = setmetatable({
-    cols = 6,
-    rows = 17,
-    row_next_gates = 18, -- rows + 1
-    gates = {},
-    width = 48, -- 6 * tile_size
-    height = 128,
-    offset_x = _offset_x or 11,
-    offset_y = 0,
-    changed = false,
-    bounce_speed = 0,
-    bounce_screen_dy = 0,
-    chain_count = {},
-    reduce_cache = {},
-    is_gate_empty_cache = {},
-    is_gate_fallable_cache = {},
-    _gate_or_its_head_gate_cache = {},
+    _offset_x = __offset_x,
 
     init = function(_ENV)
-      state = "play"
-      raised_dots = 0
-      win, lose = false, false
-      waiting_garbage_gates = {}
-      topped_out_frame_count = 0
-      topped_out_delay_frame_count = 600 -- 60 * 10sec
-      garbage_gates = {}
-      reducible_gates = { {}, {}, {}, {}, {}, {} }
+      -- サイズ関係
+      cols = 6
+      rows = 17
+      row_next_gates = rows + 1
 
-      -- fill the board with I gates
+      -- 画面上のサイズと位置
+      width = cols * tile_size
+      height = (rows - 1) * tile_size
+      offset_x = _offset_x or 11
+      offset_y = 0
+      raised_dots = 0
+
+      -- board の状態
+      state = "play"
+      win, lose = false, false
+      _changed = false
+
+      -- 各種ゲートの取得
+      gates = {}
+      reducible_gates = {}
+      _garbage_gates = {}
+
       for x = 1, cols do
         gates[x] = {}
+        reducible_gates[x] = {}
         for y = 1, row_next_gates do
           put(_ENV, x, y, i_gate())
         end
       end
+
+      -- 連鎖 ID と連鎖数
+      _chain_count = {}
+
+      -- おじゃまゲートの管理
+      -- TODO: _garbage_gate_pool に入っているおじゃまゲートの表示
+      _garbage_gate_pool = {}
+
+      -- ゲートが上からはみ出ているかの判定用
+      _topped_out_frame_count = 0
+      _topped_out_delay_frame_count = 600 -- 60 * 10sec
+
+      -- 各種キャッシュ
+      _reduce_cache = {}
+      _is_gate_empty_cache = {}
+      _is_gate_fallable_cache = {}
+      _gate_or_its_head_gate_cache = {}
+
+      -- バウンスエフェクト用
+      _bounce_speed = 0
+      _bounce_screen_dy = 0
     end,
 
     initialize_with_random_gates = function(_ENV)
@@ -61,7 +80,7 @@ function create_board(_offset_x)
     reduce_gates = function(_ENV, game, player, other_board)
       -- 同時消しで変化したゲートの数
       -- 同じフレーム内で一度に消えたゲートを数えるため、
-      -- 連鎖数のカウント (chain_count) のようにフレームをまたいで数える必要はなく、
+      -- 連鎖数のカウント (_chain_count) のようにフレームをまたいで数える必要はなく、
       -- 一度の reduce_gates() 呼び出し内での数をカウントする。
       local combo_count = nil
 
@@ -76,8 +95,8 @@ function create_board(_offset_x)
               game.reduce_callback(reduction.score, player)
             end
 
-            if chain_count[chain_id] == nil then
-              chain_count[chain_id] = 0
+            if _chain_count[chain_id] == nil then
+              _chain_count[chain_id] = 0
             end
 
             if combo_count then
@@ -88,11 +107,11 @@ function create_board(_offset_x)
               combo_count = #reduction.to
             end
 
-            chain_count[chain_id] = chain_count[chain_id] + 1
+            _chain_count[chain_id] = _chain_count[chain_id] + 1
 
             -- 連鎖
-            if chain_count[chain_id] > 1 and game then
-              game.chain_callback(chain_count[chain_id], x, y, player, _ENV, other_board)
+            if _chain_count[chain_id] > 1 and game then
+              game.chain_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
             end
 
             for index, r in pairs(reduction.to) do
@@ -130,7 +149,7 @@ function create_board(_offset_x)
       end
 
       -- おじゃまゲートのマッチ
-      for _, gate in pairs(garbage_gates) do
+      for _, gate in pairs(_garbage_gates) do
         local x, y, garbage_span, garbage_height = gate.x, gate.y, gate.span, gate.height
         local chain_id
         local is_matching = function(g)
@@ -208,7 +227,7 @@ function create_board(_offset_x)
       if include_next_gates then
         return _reduce_nocache(_ENV, x, y, true)
       else
-        return _memoize(_ENV, _reduce_nocache, reduce_cache, x, y)
+        return _memoize(_ENV, _reduce_nocache, _reduce_cache, x, y)
       end
     end,
 
@@ -303,7 +322,7 @@ function create_board(_offset_x)
     -- ボード上の Y 座標を画面上の Y 座標に変換
     -- 一行目は表示しないことに注意
     screen_y = function(_ENV, y)
-      return offset_y + (y - 2) * 8 - raised_dots + bounce_screen_dy
+      return offset_y + (y - 2) * 8 - raised_dots + _bounce_screen_dy
     end,
 
     _random_single_gate = function(_ENV)
@@ -411,13 +430,13 @@ function create_board(_offset_x)
       -- おじゃまゲートを別のゲートと置き換える場合
       -- おじゃまゲートキャッシュから消す
       if gates[x] and gates[x][y] and gates[x][y]:is_garbage() then
-        del(garbage_gates, gates[x][y])
+        del(_garbage_gates, gates[x][y])
       end
 
       -- 新たにおじゃまゲートを置く場合
       -- おじゃまゲートキャッシュに追加する
       if gate:is_garbage() then
-        add(garbage_gates, gate)
+        add(_garbage_gates, gate)
       end
 
       gates[x][y] = gate
@@ -429,14 +448,15 @@ function create_board(_offset_x)
       put(_ENV, x, y, i_gate())
     end,
 
-    send_garbage = function(_ENV, span, _height)
+    send_garbage = function(_ENV, chain_id, span, _height)
       -- もしキューの中に幅 6 のおじゃまゲートが存在し、
       -- 新たに幅 6 のおじゃまゲートを作ろうとする場合、
       -- 古いおじゃまゲートをキューから削除して、
       -- 新しいおじゃまゲートをキューに追加
 
+      -- TODO: 同じ chain_id のおじゃまゲートをまとめる
       if span == 6 then
-        for _, each in pairs(waiting_garbage_gates) do
+        for _, each in pairs(_garbage_gate_pool) do
           if each.span == 6 and each.height == _height - 1 then
             each.height = _height
             return
@@ -447,11 +467,11 @@ function create_board(_offset_x)
       local colors = { 2, 3, 4 }
       local garbage = garbage_gate(span, _height, colors[flr(rnd(#colors)) + 1])
       garbage.wait_time = 120
-      add(waiting_garbage_gates, garbage)
+      add(_garbage_gate_pool, garbage)
     end,
 
-    update_waiting_garbage_gates = function(_ENV)
-      for _, each in pairs(waiting_garbage_gates) do
+    update__garbage_gate_pool = function(_ENV)
+      for _, each in pairs(_garbage_gate_pool) do
         if each.wait_time > 0 then
           each.wait_time = each.wait_time - 1
         end
@@ -472,7 +492,7 @@ function create_board(_offset_x)
             end
           end
 
-          del(waiting_garbage_gates, each)
+          del(_garbage_gate_pool, each)
           put(_ENV, x, 1, each)
           each:fall()
         end
@@ -574,7 +594,7 @@ function create_board(_offset_x)
         state = "over"
       end
 
-      update_waiting_garbage_gates(_ENV)
+      update__garbage_gate_pool(_ENV)
       _update_bounce(_ENV)
 
       if state == "play" then
@@ -627,9 +647,9 @@ function create_board(_offset_x)
 
       -- 残り時間ゲージの描画
       if _is_topped_out(_ENV) then
-        local topped_out_frame_count_left = topped_out_delay_frame_count - topped_out_frame_count
+        local _topped_out_frame_count_left = _topped_out_delay_frame_count - _topped_out_frame_count
         local gauge_width = 41
-        local time_left_width = topped_out_frame_count_left / topped_out_delay_frame_count * gauge_width
+        local time_left_width = _topped_out_frame_count_left / _topped_out_delay_frame_count * gauge_width
         -- おじゃまゲートと混じらないように、黒い背景を入れる
         draw_rounded_box(offset_x + 1, 23, offset_x + 45, 29, 0, 0)
         rectfill(offset_x + 3 + (gauge_width - time_left_width), 25, offset_x + 44, 27, 8) -- ゲージの値
@@ -665,20 +685,20 @@ function create_board(_offset_x)
     _update_game = function(_ENV, game, player, other_board)
       if _is_topped_out(_ENV) then
         if not is_busy(_ENV) then
-          topped_out_frame_count = topped_out_frame_count + 1
+          _topped_out_frame_count = _topped_out_frame_count + 1
 
-          if topped_out_frame_count >= topped_out_delay_frame_count then
+          if _topped_out_frame_count >= _topped_out_delay_frame_count then
             lose = true
             state = "over"
           end
         end
       else
-        topped_out_frame_count = 0
+        _topped_out_frame_count = 0
       end
 
-      if changed then
+      if _changed then
         reduce_gates(_ENV, game, player, other_board)
-        changed = false
+        _changed = false
       end
 
       -- 落下と更新処理をすべてのゲートに対して行う。
@@ -707,9 +727,9 @@ function create_board(_offset_x)
         end
       end
 
-      for chain_id, _ in pairs(chain_count) do
+      for chain_id, _ in pairs(_chain_count) do
         -- 連鎖可能フラグ (chain_id) の立ったゲートが 1 つもなかった場合、
-        -- chain_count をリセット
+        -- _chain_count をリセット
         for x = 1, cols do
           for y = 1, rows do
             if gates[x][y].chain_id == chain_id then
@@ -717,7 +737,7 @@ function create_board(_offset_x)
             end
           end
         end
-        chain_count[chain_id] = nil
+        _chain_count[chain_id] = nil
 
         ::next_chain_id::
       end
@@ -729,17 +749,17 @@ function create_board(_offset_x)
 
     -- bounce エフェクトを開始
     bounce = function(_ENV)
-      bounce_screen_dy = 0 -- bounce による Y 方向のずれ
-      bounce_speed = -4 -- Y 方向の速度
+      _bounce_screen_dy = 0 -- bounce による Y 方向のずれ
+      _bounce_speed = -4 -- Y 方向の速度
     end,
 
     _update_bounce = function(_ENV)
-      if bounce_speed ~= 0 then
-        bounce_speed = bounce_speed + 0.9
-        bounce_screen_dy = bounce_screen_dy + bounce_speed
+      if _bounce_speed ~= 0 then
+        _bounce_speed = _bounce_speed + 0.9
+        _bounce_screen_dy = _bounce_screen_dy + _bounce_speed
 
-        if bounce_screen_dy > 0 then
-          bounce_screen_dy, bounce_speed = 0, -bounce_speed
+        if _bounce_screen_dy > 0 then
+          _bounce_screen_dy, _bounce_speed = 0, -_bounce_speed
         end
       end
     end,
@@ -751,7 +771,7 @@ function create_board(_offset_x)
     -- x, y が空かどうかを返す
     -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
     is_gate_empty = function(_ENV, x, y)
-      return _memoize(_ENV, _is_gate_empty_nocache, is_gate_empty_cache, x, y)
+      return _memoize(_ENV, _is_gate_empty_nocache, _is_gate_empty_cache, x, y)
     end,
 
     _is_gate_empty_nocache = function(_ENV, x, y)
@@ -779,7 +799,7 @@ function create_board(_offset_x)
     -- おじゃまゲート先頭のゲートを返す
     -- 一部でない場合は nil を返す
     _garbage_head_gate = function(_ENV, x, y)
-      for _, each in pairs(garbage_gates) do
+      for _, each in pairs(_garbage_gates) do
         local garbage_x, garbage_y = each.x, each.y
         if garbage_x <= x and x <= garbage_x + each.span - 1 and -- 幅に x が含まれる
             y <= garbage_y and y >= garbage_y - each.height + 1 then -- 高さに y が含まれる
@@ -838,7 +858,7 @@ function create_board(_offset_x)
 
     -- ゲート x, y が x, y + 1 に落とせるかどうかを返す (メモ化)。
     is_gate_fallable = function(_ENV, x, y)
-      return _memoize(_ENV, _is_gate_fallable_nocache, is_gate_fallable_cache, x, y)
+      return _memoize(_ENV, _is_gate_fallable_nocache, _is_gate_fallable_cache, x, y)
     end,
 
     -- ゲート x, y が x, y + 1 に落とせるかどうかを返す。
@@ -870,7 +890,7 @@ function create_board(_offset_x)
     end,
 
     -- ボード内にあるいずれかのゲートが更新された場合に呼ばれる。
-    -- changed フラグを立て各種キャッシュも更新・クリアする。
+    -- _changed フラグを立て各種キャッシュも更新・クリアする。
     gate_update = function(_ENV, gate)
       local x, y = gate.x, gate.y
 
@@ -880,14 +900,14 @@ function create_board(_offset_x)
         reducible_gates[x][y] = nil
       end
 
-      changed = true
+      _changed = true
       if gate._tick_landed and gate._tick_landed == 1 and gate.y < top_gate_y_cache then
         top_gate_y_changed = true
       end
 
-      reduce_cache = {}
-      is_gate_empty_cache = {}
-      is_gate_fallable_cache = {}
+      _reduce_cache = {}
+      _is_gate_empty_cache = {}
+      _is_gate_fallable_cache = {}
       _gate_or_its_head_gate_cache = {}
     end,
 

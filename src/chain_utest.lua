@@ -47,7 +47,7 @@ describe('連鎖 (chain)', function()
     assert.is_nil(board:gate_at(1, 16).chain_id)
   end)
 
-  it("ゲートがマッチすると、board.chain_count が 1 になる", function()
+  it("ゲートがマッチすると、board._chain_count が 1 になる", function()
     -- H
     -- H
     board:put(1, 15, h_gate())
@@ -55,7 +55,7 @@ describe('連鎖 (chain)', function()
 
     board:update()
 
-    assert.are_equal(1, board.chain_count["1,15"])
+    assert.are_equal(1, board._chain_count["1,15"])
   end)
 
   it("2 連鎖", function()
@@ -72,7 +72,7 @@ describe('連鎖 (chain)', function()
       board:update()
     end
 
-    assert.are_equal(2, board.chain_count["1,15"])
+    assert.are_equal(2, board._chain_count["1,15"])
   end)
 
   it("2 連鎖 (ほかのゲートに変化したものとさらにマッチ)", function()
@@ -87,7 +87,7 @@ describe('連鎖 (chain)', function()
       board:update()
     end
 
-    assert.are_equal(2, board.chain_count["1,16"])
+    assert.are_equal(2, board._chain_count["1,16"])
   end)
 
   it("3 連鎖 (ほかのゲートに変化したものとさらにマッチ)", function()
@@ -104,7 +104,7 @@ describe('連鎖 (chain)', function()
       board:update()
     end
 
-    assert.are_equal(3, board.chain_count["1,16"])
+    assert.are_equal(3, board._chain_count["1,16"])
   end)
 
   -- G G G      X Y Z
@@ -169,7 +169,7 @@ describe('連鎖 (chain)', function()
     assert.is_true(board.gates[2][17]:is_match())
 
     -- 全部で 2 連鎖
-    assert.are_equal(2, board.chain_count["1,16"])
+    assert.are_equal(2, board._chain_count["1,16"])
   end)
 
   it("chaina_id を持つゲートが接地すると chain_id が消える", function()
