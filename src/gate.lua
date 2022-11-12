@@ -151,7 +151,7 @@ function create_gate(_type, _span, _height)
     -- おじゃまゲートの先頭 (左下) である場合 true を返す
     --
     -- 注: ゲートがおじゃまゲートの一部であるかどうかを判定するには、
-    -- board:is_part_of_garbage(x, y) を使う
+    -- board:_is_part_of_garbage(x, y) を使う
     is_garbage = function(_ENV)
       return type == "g"
     end,
@@ -403,7 +403,7 @@ function create_gate(_type, _span, _height)
 
     change_state = function(_ENV, new_state)
       _state = new_state
-      board:observable_update(_ENV)
+      board:gate_update(_ENV)
     end,
 
     -------------------------------------------------------------------------------
@@ -499,7 +499,8 @@ function garbage_gate(_span, _height, _color)
 
   garbage.render = function(_ENV)
     local x0, y0, x1, y1, bg_color = board:screen_x(x), board:screen_y(y - height + 1) + _fall_screen_dy,
-        board:screen_x(x + span) - 2, board:screen_y(y + 1) - 2 + _fall_screen_dy, _state ~= "over" and garbage.color or 5
+        board:screen_x(x + span) - 2, board:screen_y(y + 1) - 2 + _fall_screen_dy,
+        _state ~= "over" and garbage.color or 5
     draw_rounded_box(x0, y0 + 1, x1, y1 + 1, 1, 1) -- 影
     draw_rounded_box(x0, y0, x1, y1, bg_color, bg_color) -- 本体
     draw_rounded_box(x0 + 1, y0 + 1, x1 - 1, y1 - 1, _state ~= "over" and garbage.inner_border_color or 1) -- 内側の線

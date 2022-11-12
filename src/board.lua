@@ -22,7 +22,7 @@ function create_board(_offset_x)
     reduce_cache = {},
     is_gate_empty_cache = {},
     is_gate_fallable_cache = {},
-    gate_or_its_head_gate_cache = {},
+    _gate_or_its_head_gate_cache = {},
 
     init = function(_ENV)
       state = "play"
@@ -208,7 +208,7 @@ function create_board(_offset_x)
       if include_next_gates then
         return _reduce_nocache(_ENV, x, y, true)
       else
-        return memoize(_ENV, _reduce_nocache, reduce_cache, x, y)
+        return _memoize(_ENV, _reduce_nocache, reduce_cache, x, y)
       end
     end,
 
@@ -331,11 +331,11 @@ function create_board(_offset_x)
             if not is_gate_empty(_ENV, x, y) then
               local gate = gates[x][y]
 
-              if is_part_of_garbage(_ENV, x, y) then
+              if _is_part_of_garbage(_ENV, x, y) then
                 gate = _garbage_head_gate(_ENV, x, y)
-              elseif is_part_of_cnot(_ENV, x, y) then
+              elseif _is_part_of_cnot(_ENV, x, y) then
                 gate = _cnot_head_gate(_ENV, x, y)
-              elseif is_part_of_swap(_ENV, x, y) then
+              elseif _is_part_of_swap(_ENV, x, y) then
                 gate = _swap_head_gate(_ENV, x, y)
               end
 
@@ -422,7 +422,7 @@ function create_board(_offset_x)
 
       gates[x][y] = gate
       gate:attach(_ENV)
-      observable_update(_ENV, gate)
+      gate_update(_ENV, gate)
     end,
 
     remove_gate = function(_ENV, x, y)
@@ -535,7 +535,7 @@ function create_board(_offset_x)
       local left_gate = gates[x_left][y]
       local right_gate = gates[x_right][y]
 
-      if is_part_of_garbage(_ENV, x_left, y) or is_part_of_garbage(_ENV, x_right, y) or
+      if _is_part_of_garbage(_ENV, x_left, y) or _is_part_of_garbage(_ENV, x_right, y) or
           not (left_gate:is_idle() and right_gate:is_idle()) then
         return false
       end
@@ -751,17 +751,28 @@ function create_board(_offset_x)
     -- x, y が空かどうかを返す
     -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
     is_gate_empty = function(_ENV, x, y)
-      return memoize(_ENV, _is_gate_empty_nocache, is_gate_empty_cache, x, y)
+      return _memoize(_ENV, _is_gate_empty_nocache, is_gate_empty_cache, x, y)
     end,
 
     _is_gate_empty_nocache = function(_ENV, x, y)
       return gates[x][y]:is_empty() and
-          not (is_part_of_garbage(_ENV, x, y) or is_part_of_cnot(_ENV, x, y) or is_part_of_swap(_ENV, x, y))
+          not (_is_part_of_garbage(_ENV, x, y) or _is_part_of_cnot(_ENV, x, y) or _is_part_of_swap(_ENV, x, y))
     end,
 
     -- x, y がおじゃまゲートの一部であるかどうかを返す
-    is_part_of_garbage = function(_ENV, x, y)
+    _is_part_of_garbage = function(_ENV, x, y)
       return _garbage_head_gate(_ENV, x, y) ~= nil
+    end,
+
+    _gate_or_its_head_gate = function(_ENV, x, y)
+      return _memoize(_ENV, _gate_or_its_head_gate_nocache, _gate_or_its_head_gate_cache, x, y)
+    end,
+
+    _gate_or_its_head_gate_nocache = function(_ENV, x, y)
+      return _garbage_head_gate(_ENV, x, y) or
+          _cnot_head_gate(_ENV, x, y) or
+          _swap_head_gate(_ENV, x, y) or
+          gates[x][y]
     end,
 
     -- x, y がおじゃまゲートの一部であった場合、
@@ -780,7 +791,7 @@ function create_board(_offset_x)
     end,
 
     -- x, y が CNOT の一部であるかどうかを返す
-    is_part_of_cnot = function(_ENV, x, y)
+    _is_part_of_cnot = function(_ENV, x, y)
       return _cnot_head_gate(_ENV, x, y) ~= nil
     end,
 
@@ -801,7 +812,7 @@ function create_board(_offset_x)
     end,
 
     -- x, y が SWAP ペアの一部であるかどうかを返す
-    is_part_of_swap = function(_ENV, x, y)
+    _is_part_of_swap = function(_ENV, x, y)
       return _swap_head_gate(_ENV, x, y) ~= nil
     end,
 
@@ -825,21 +836,9 @@ function create_board(_offset_x)
     -- ゲートの状態
     -------------------------------------------------------------------------------
 
-    -- TODO: プライベート化して、別の場所に移動
-    gate_or_its_head_gate = function(_ENV, x, y)
-      return memoize(_ENV, _gate_or_its_head_gate_nocache, gate_or_its_head_gate_cache, x, y)
-    end,
-
-    _gate_or_its_head_gate_nocache = function(_ENV, x, y)
-      return _garbage_head_gate(_ENV, x, y) or
-          _cnot_head_gate(_ENV, x, y) or
-          _swap_head_gate(_ENV, x, y) or
-          gates[x][y]
-    end,
-
-    -- ゲート x, y が x, y + 1 に落とせるかどうかを返す。
+    -- ゲート x, y が x, y + 1 に落とせるかどうかを返す (メモ化)。
     is_gate_fallable = function(_ENV, x, y)
-      return memoize(_ENV, _is_gate_fallable_nocache, is_gate_fallable_cache, x, y)
+      return _memoize(_ENV, _is_gate_fallable_nocache, is_gate_fallable_cache, x, y)
     end,
 
     -- ゲート x, y が x, y + 1 に落とせるかどうかを返す。
@@ -853,17 +852,16 @@ function create_board(_offset_x)
         return false
       end
 
-      -- CNOT, SWAP の場合
-      -- おじゃまゲートの場合
-      -- シングルゲートの場合
-
+      -- 単一ゲートまたはおじゃまゲートの場合
       local start_x, end_x = x, x + gate.span - 1
+
+      -- CNOT または SWAP の場合
       if gate.other_x then
         start_x, end_x = min(x, gate.other_x), max(x, gate.other_x)
       end
 
       for tmp_x = start_x, end_x do
-        if not (is_gate_empty(_ENV, tmp_x, y + 1) or gate_or_its_head_gate(_ENV, tmp_x, y + 1):is_falling()) then
+        if not (is_gate_empty(_ENV, tmp_x, y + 1) or _gate_or_its_head_gate(_ENV, tmp_x, y + 1):is_falling()) then
           return false
         end
       end
@@ -871,33 +869,9 @@ function create_board(_offset_x)
       return true
     end,
 
-    -------------------------------------------------------------------------------
-    -- memoization
-    -------------------------------------------------------------------------------
-
-    -- 引数 x, y を取る関数 func をメモ化した関数を返す
-    memoize = function(_ENV, f, cache, x, y)
-      if cache[x] == nil then
-        cache[x] = {}
-      end
-
-      local result = cache[x][y]
-
-      if result == nil then
-        result = f(_ENV, x, y)
-        cache[x][y] = result
-      end
-
-      return result
-    end,
-
-    -------------------------------------------------------------------------------
-    -- observer pattern
-    -------------------------------------------------------------------------------
-
-    -- ボード内にあるいずれかのゲートが更新されたので、
-    -- changed フラグを立て各種キャッシュもクリア
-    observable_update = function(_ENV, gate)
+    -- ボード内にあるいずれかのゲートが更新された場合に呼ばれる。
+    -- changed フラグを立て各種キャッシュも更新・クリアする。
+    gate_update = function(_ENV, gate)
       local x, y = gate.x, gate.y
 
       if gate:is_reducible() then
@@ -914,7 +888,27 @@ function create_board(_offset_x)
       reduce_cache = {}
       is_gate_empty_cache = {}
       is_gate_fallable_cache = {}
-      gate_or_its_head_gate_cache = {}
+      _gate_or_its_head_gate_cache = {}
+    end,
+
+    -------------------------------------------------------------------------------
+    -- memoization
+    -------------------------------------------------------------------------------
+
+    -- 引数 x, y を取る関数 func をメモ化した関数を返す
+    _memoize = function(_ENV, f, cache, x, y)
+      if cache[x] == nil then
+        cache[x] = {}
+      end
+
+      local result = cache[x][y]
+
+      if result == nil then
+        result = f(_ENV, x, y)
+        cache[x][y] = result
+      end
+
+      return result
     end,
 
     -------------------------------------------------------------------------------
@@ -930,7 +924,7 @@ function create_board(_offset_x)
           local gate = gates[x][y]
 
           if gate:is_i() then
-            if is_part_of_garbage(_ENV, x, y) then
+            if _is_part_of_garbage(_ENV, x, y) then
               str = str .. "g " .. " "
             else
               str = str .. gates[x][y]:_tostring() .. " "
