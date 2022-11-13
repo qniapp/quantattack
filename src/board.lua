@@ -449,25 +449,23 @@ function create_board(__offset_x)
     end,
 
     send_garbage = function(_ENV, chain_id, span, _height)
-      -- もしキューの中に幅 6 のおじゃまゲートが存在し、
-      -- 新たに幅 6 のおじゃまゲートを作ろうとする場合、
-      -- 古いおじゃまゲートをキューから削除して、
-      -- 新しいおじゃまゲートをキューに追加
-
-      -- TODO: 同じ chain_id のおじゃまゲートをまとめる
+      -- 同じ chain_id のおじゃまゲートをまとめる
       if span == 6 then
         for _, each in pairs(_garbage_gate_pool) do
-          if each.span == 6 and each.height == _height - 1 then
-            each.height = _height
-            return
+          if each.chain_id == chain_id and each.span == 6 then
+            if each.height <= _height then
+              -- 同じ chain_id でより低いおじゃまゲートがすでにプールに入っている場合、消す
+              del(_garbage_gate_pool, each)
+            else
+              -- 同じ chain_id でより高いおじゃまゲートがすでにプールに入っている場合、何もしない
+              return
+            end
           end
         end
       end
 
       local colors = { 2, 3, 4 }
-      local garbage = garbage_gate(span, _height, colors[flr(rnd(#colors)) + 1])
-      garbage.wait_time = 120
-      add(_garbage_gate_pool, garbage)
+      add(_garbage_gate_pool, { chain_id = chain_id, span = span, height = _height, color = colors[flr(rnd(#colors)) + 1], wait_time = 120 })
     end,
 
     update__garbage_gate_pool = function(_ENV)
@@ -493,8 +491,10 @@ function create_board(__offset_x)
           end
 
           del(_garbage_gate_pool, each)
-          put(_ENV, x, 1, each)
-          each:fall()
+
+          local new_garbage = garbage_gate(each.span, each.height, each.color)
+          put(_ENV, x, 1, new_garbage)
+          new_garbage:fall()
         end
 
         ::next_garbage_gate::

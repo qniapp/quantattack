@@ -22,7 +22,7 @@ function game.combo_callback(combo_count, x, y, player, board, other_board)
 
     -- 対戦相手がいる時、おじゃまゲートを送る
     if other_board then
-      other_board:send_garbage(combo_count > 6 and 6 or combo_count - 1, 1)
+      other_board:send_garbage(nil, combo_count > 6 and 6 or combo_count - 1, 1)
     end
   end
 
@@ -34,7 +34,7 @@ end
 function game.chain_callback(chain_id, chain_count, x, y, player, board, other_board)
   local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
-  if chain_count > 1 then
+  if chain_count > 2 then
     local attack_cube_callback = function()
       player.score = player.score + (chain_bonus[chain_count] or 180)
 
@@ -47,6 +47,8 @@ function game.chain_callback(chain_id, chain_count, x, y, player, board, other_b
     create_bubble("chain", chain_count, board:screen_x(x), board:screen_y(y))
     create_attack_cube(board:screen_x(x), board:screen_y(y), attack_cube_callback,
       unpack(board.attack_cube_target))
+  else
+    player.score = player.score + (chain_bonus[chain_count])
   end
 end
 

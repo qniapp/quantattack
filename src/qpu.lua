@@ -31,6 +31,11 @@ function create_qpu(cursor, sleep)
         del(commands, next_command)
         _ENV[next_command] = true
       else
+        if board:top_gate_y() > 12 then
+          add_raise_command(_ENV)
+          return
+        end
+
         -- コマンドが空な場合
         -- board の上から (y が小さい順に) ゲートを見ていって、
         -- 次のコマンドを決める。
@@ -249,6 +254,11 @@ function create_qpu(cursor, sleep)
       -- これをしないと「左に連続して移動して落とす」などの
       -- 操作がうまく行かない。
       add_sleep_command(_ENV, 4)
+    end,
+
+    add_raise_command = function(_ENV)
+      add(commands, "x")
+      add_sleep_command(_ENV, 3)
     end,
 
     add_sleep_command = function(_ENV, count)
