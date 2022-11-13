@@ -423,7 +423,7 @@ function create_board(__offset_x)
       gate.y = y
 
       -- ゲートが消えた (i を置いた) 場合
-      if top_gate_y_cache and y == top_gate_y_cache and gate:is_i() then
+      if top_gate_y_cache and gate:is_i() then
         top_gate_y_changed = true
       end
 
