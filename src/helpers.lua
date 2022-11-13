@@ -1,3 +1,5 @@
+tile_size = 8
+
 function draw_rounded_box(x0, y0, x1, y1, border_color, fill_color)
   line(x0 + 1, y0, x1 - 1, y0, border_color)
   line(x1, y0 + 1, x1, y1 - 1, border_color)
