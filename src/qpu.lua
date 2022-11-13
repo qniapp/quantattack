@@ -160,7 +160,7 @@ function create_qpu(cursor, sleep)
                 local matchable = false
 
                 for i = each_x - 1, 1, -1 do
-                  if not _is_swappable(_ENV, board, i, each_y - 1) then
+                  if not _is_swappable(_ENV, board, i, each_y) then
                     break
                   end
                   if _is_match(_ENV, each, board.gates[i][each_y - 1]) then
