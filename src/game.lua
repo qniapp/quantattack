@@ -125,7 +125,7 @@ function game:update()
       if each.o and not countdown and board:swap(player_cursor.x, player_cursor.y) then
         sfx(2)
       end
-      if each.x and not countdown and board:top_gate_y() > 2 then
+      if each.x and not countdown and board.top_gate_y > 2 then
         self:_raise(each)
       end
 

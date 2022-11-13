@@ -25,6 +25,7 @@ function create_board(__offset_x)
       -- board の状態
       state = "play"
       win, lose = false, false
+      top_gate_y = row_next_gates
       _changed = false
 
       -- 各種ゲートの取得
@@ -336,49 +337,6 @@ function create_board(__offset_x)
     -- board の状態
     -------------------------------------------------------------------------------
 
-    top_gate_y = function(_ENV)
-      -- top_gate_y が変化するのは、
-      --   * ゲートが top_gate_y_cache より上に着地 (_tick_landed = 1) した時
-      --   * top_gate_y_cache のゲートが消えたとき
-      --   * ゲートがせり上がったとき (insert_gates_at_bottom)
-      --
-      -- いずれかのフラグが立っていれば top_gate_y_changed として
-      -- 再計算する
-      if top_gate_y_changed or not top_gate_y_cache then
-        for y = 1, rows do
-          for x = 1, cols do
-            if not is_gate_empty(_ENV, x, y) then
-              local gate = gates[x][y]
-
-              if _is_part_of_garbage(_ENV, x, y) then
-                gate = _garbage_head_gate(_ENV, x, y)
-              elseif _is_part_of_cnot(_ENV, x, y) then
-                gate = _cnot_head_gate(_ENV, x, y)
-              elseif _is_part_of_swap(_ENV, x, y) then
-                gate = _swap_head_gate(_ENV, x, y)
-              end
-
-              -- ひとつ下の段にひとつでもゲートがあれば
-              -- 落下中でもゲートが積み上がっている
-              for i = 1, cols do
-                if not is_gate_empty(_ENV, i, gate.y + 1) then
-                  top_gate_y_cache = y
-                  top_gate_y_changed = false
-                  return top_gate_y_cache
-                end
-              end
-            end
-          end
-        end
-
-        top_gate_y_cache = rows
-        top_gate_y_changed = false
-        return top_gate_y_cache
-      else
-        return top_gate_y_cache
-      end
-    end,
-
     is_busy = function(_ENV)
       for x = 1, cols do
         for y = 1, row_next_gates do
@@ -422,11 +380,6 @@ function create_board(__offset_x)
       gate.x = x
       gate.y = y
 
-      -- ゲートが消えた (i を置いた) 場合
-      if top_gate_y_cache and gate:is_i() then
-        top_gate_y_changed = true
-      end
-
       -- おじゃまゲートを別のゲートと置き換える場合
       -- おじゃまゲートキャッシュから消す
       if gates[x] and gates[x][y] and gates[x][y]:is_garbage() then
@@ -468,7 +421,7 @@ function create_board(__offset_x)
       add(_garbage_gate_pool, { chain_id = chain_id, span = span, height = _height, color = colors[flr(rnd(#colors)) + 1], wait_time = 120 })
     end,
 
-    update__garbage_gate_pool = function(_ENV)
+    _update_garbage_gate_pool = function(_ENV)
       for _, each in pairs(_garbage_gate_pool) do
         if each.wait_time > 0 then
           each.wait_time = each.wait_time - 1
@@ -484,7 +437,6 @@ function create_board(__offset_x)
 
           for i = x, x + each.span - 1 do
             -- おじゃまゲートをバラして落とす
-            -- (詰まれた状態で落とすと top_gate_y が正しい値を返さないので)
             if not is_gate_empty(_ENV, i, 1) or not is_gate_empty(_ENV, i, 2) then
               goto next_garbage_gate
             end
@@ -535,8 +487,6 @@ function create_board(__offset_x)
           until #reduce(_ENV, x, rows, true).to == 0
         end
       end
-
-      top_gate_y_changed = true
     end,
 
     -------------------------------------------------------------------------------
@@ -594,7 +544,7 @@ function create_board(__offset_x)
         state = "over"
       end
 
-      update__garbage_gate_pool(_ENV)
+      _update_garbage_gate_pool(_ENV)
       _update_bounce(_ENV)
 
       if state == "play" then
@@ -679,7 +629,7 @@ function create_board(__offset_x)
     end,
 
     _is_topped_out = function(_ENV)
-      return screen_y(_ENV, top_gate_y(_ENV)) <= 40
+      return screen_y(_ENV, top_gate_y) <= 40
     end,
 
     _update_game = function(_ENV, game, player, other_board)
@@ -702,9 +652,12 @@ function create_board(__offset_x)
       end
 
       -- 落下と更新処理をすべてのゲートに対して行う。
+      -- あわせて top_gate_y も更新
       --
       -- swap などのペアとなるゲートを正しく落とすために、
       -- 一番下の行から上に向かって順に処理
+      top_gate_y = row_next_gates
+
       for y = row_next_gates, 1, -1 do
         for x = 1, cols do
           local gate = gates[x][y]
@@ -719,6 +672,17 @@ function create_board(__offset_x)
               end
             else
               gate:fall()
+            end
+          end
+
+          -- ここで top_gate_y を更新
+          if not gate:is_i() then
+            if gate:is_garbage() then
+              if not gate._garbage_first_drop and top_gate_y > y - gate.height + 1 then
+                top_gate_y = y - gate.height + 1
+              end
+            elseif top_gate_y > y then
+              top_gate_y = y
             end
           end
 
@@ -901,10 +865,6 @@ function create_board(__offset_x)
       end
 
       _changed = true
-      if gate._tick_landed and gate._tick_landed == 1 and gate.y < top_gate_y_cache then
-        top_gate_y_changed = true
-      end
-
       _reduce_cache = {}
       _is_gate_empty_cache = {}
       _is_gate_fallable_cache = {}

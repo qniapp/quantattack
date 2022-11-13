@@ -34,7 +34,7 @@ describe('qpu', function()
     before_each(function()
       board = create_board()
       cursor = create_player_cursor(board)
-      qpu = create_qpu(cursor, false)
+      qpu = create_qpu(cursor, false, false)
     end)
 
     -- ボードが次のようになっているとき、

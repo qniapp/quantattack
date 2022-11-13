@@ -3,16 +3,20 @@
 -- 新しい QPU プレーヤーを返す
 --
 -- TODO: ユニットテスト
-function create_qpu(cursor, sleep)
+function create_qpu(cursor, sleep, raise)
   local qpu = setmetatable({
     cursor = cursor,
     _sleep = sleep,
+    _raise = raise,
 
     init = function(_ENV)
       steps, score = 0, 0
       commands = {} -- 入力したコマンドの列
       if sleep == nil then
         _sleep = true
+      end
+      if raise == nil then
+        _raise = true
       end
     end,
 
@@ -31,7 +35,7 @@ function create_qpu(cursor, sleep)
         del(commands, next_command)
         _ENV[next_command] = true
       else
-        if board:top_gate_y() > 12 then
+        if _raise and board.top_gate_y > 12 then
           add_raise_command(_ENV)
           return
         end
