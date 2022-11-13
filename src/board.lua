@@ -32,6 +32,7 @@ function create_board(__offset_x)
       gates = {}
       reducible_gates = {}
       _garbage_gates = {}
+      contains_garbage_match_gate = false
 
       for x = 1, cols do
         gates[x] = {}
@@ -657,10 +658,15 @@ function create_board(__offset_x)
       -- swap などのペアとなるゲートを正しく落とすために、
       -- 一番下の行から上に向かって順に処理
       top_gate_y = row_next_gates
+      contains_garbage_match_gate = false
 
       for y = row_next_gates, 1, -1 do
         for x = 1, cols do
           local gate = gates[x][y]
+
+          if gate.type == "!" then
+            contains_garbage_match_gate = true
+          end
 
           -- 落下できるゲートを落とす
           if not gate:is_falling() and is_gate_fallable(_ENV, x, y) then

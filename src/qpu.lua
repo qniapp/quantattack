@@ -63,19 +63,24 @@ function create_qpu(cursor, sleep, raise)
               goto next_gate
             end
 
+            -- おじゃまゲートが分解中 (board.contans_garbage_match_gate == true)
+            -- はゲートを積極的には消さず、ゲートを平らにならすだけ。
+            -- 分解中のおじゃまゲートがなくなったら、ゲートを消すものを含めたすべのルールを有効にする。
             if each:is_single_gate() then
               if 1 < each_x and each_y < board.rows then
                 -- ? X <-- each
                 -- _ ■
-                --
-                -- または
-                --
+                if _is_swappable(_ENV, board, each_x - 1, each_y) and
+                    board:is_gate_empty(each_x - 1, each_y + 1) then
+                  move_and_swap(_ENV, each_x - 1, each_y)
+                  return
+                end
+
                 -- ? X <-- each
                 -- X ■
-                if _is_swappable(_ENV, board, each_x - 1, each_y) and
-                    (
-                    board:is_gate_empty(each_x - 1, each_y + 1) or
-                        _is_match(_ENV, each, board.gates[each_x - 1][each_y + 1])) then
+                if not board.contains_garbage_match_gate and
+                    _is_swappable(_ENV, board, each_x - 1, each_y) and
+                    _is_match(_ENV, each, board.gates[each_x - 1][each_y + 1]) then
                   move_and_swap(_ENV, each_x - 1, each_y)
                   return
                 end
@@ -84,15 +89,17 @@ function create_qpu(cursor, sleep, raise)
               if each_x < board.cols and each_y < board.rows then
                 -- each --> X ?
                 --          ■ _
-                --
-                -- または
-                --
+                if _is_swappable(_ENV, board, each_x + 1, each_y) and
+                    board:is_gate_empty(each_x + 1, each_y + 1) then
+                  move_and_swap(_ENV, each_x, each_y)
+                  return
+                end
+
                 -- each --> X ?
                 --          ■ X
-                if _is_swappable(_ENV, board, each_x + 1, each_y) and
-                    (
-                    board:is_gate_empty(each_x + 1, each_y + 1) or
-                        _is_match(_ENV, each, board.gates[each_x + 1][each_y + 1])) then
+                if not board.contains_garbage_match_gate and
+                    _is_swappable(_ENV, board, each_x + 1, each_y) and
+                    _is_match(_ENV, each, board.gates[each_x + 1][each_y + 1]) then
                   move_and_swap(_ENV, each_x, each_y)
                   return
                 end
@@ -101,9 +108,26 @@ function create_qpu(cursor, sleep, raise)
               if 1 < each_x and each_y < board.rows then
                 -- ? ? X <-- each
                 -- _ ■ ■
-                --
-                -- または
-                --
+                local moveable = false
+
+                for i = each_x - 1, 1, -1 do
+                  if not _is_swappable(_ENV, board, i, each_y) then
+                    break
+                  end
+                  if board:is_gate_empty(i, each_y + 1) then
+                    moveable = true
+                    break
+                  end
+                end
+
+                if moveable then
+                  move_and_swap(_ENV, each_x - 1, each_y, true)
+                  return
+                end
+              end
+
+              if not board.contains_garbage_match_gate and
+                  1 < each_x and each_y < board.rows then
                 -- ? ? X <-- each
                 -- X ■ ■
                 local moveable = false
@@ -150,7 +174,8 @@ function create_qpu(cursor, sleep, raise)
                 end
               end
 
-              if 1 < each_x and 1 < each_y then
+              if not board.contains_garbage_match_gate and
+                  1 < each_x and 1 < each_y then
                 --   H ■ ■ ■ ■
                 --   ? H <-- each
                 if _is_match(_ENV, each, board.gates[each_x - 1][each_y - 1]) and
@@ -179,7 +204,8 @@ function create_qpu(cursor, sleep, raise)
                 end
               end
 
-              if each_x < board.cols and 1 < each_y then
+              if not board.contains_garbage_match_gate and
+                  each_x < board.cols and 1 < each_y then
                 --    ■ ■ ■ ■ H
                 -- each --> H ?
                 if _is_match(_ENV, each, board.gates[each_x + 1][each_y - 1]) and
@@ -195,7 +221,7 @@ function create_qpu(cursor, sleep, raise)
             --   [X-]--C
             --   [C-]--X
             if (each:is_cnot_x() or each:is_control()) and each_x + 1 < each.other_x then
-              move_and_swap(_ENV, each_x, each_y)
+              move_and_swap(_ENV, each_x, each_y, true)
               return
             end
 
@@ -204,7 +230,7 @@ function create_qpu(cursor, sleep, raise)
             --   C-X --> X-C
             --   X-C --> X-C
             if each:is_control() and each.other_x == each_x + 1 then
-              move_and_swap(_ENV, each_x, each_y)
+              move_and_swap(_ENV, each_x, each_y, true)
               return
             end
 
@@ -213,7 +239,20 @@ function create_qpu(cursor, sleep, raise)
             --   X-[C ]
             if each_x < board.cols and
                 each:is_control() and each.other_x < each_x and board:is_gate_empty(each_x + 1, each_y) then
-              move_and_swap(_ENV, each_x, each_y)
+              move_and_swap(_ENV, each_x, each_y, true)
+              return
+            end
+
+            -- 4. 下の X-C を左にずらす
+            --
+            --  X-C  ■
+            -- [  X]-C
+            if each_x > 1 and each_y > 1 and
+                board:is_gate_empty(each_x - 1, each_y) and each:is_cnot_x() and each.other_x == each_x + 1 and
+                board:reducible_gate_at(each_x, each_y - 1):is_control() and
+                board:reducible_gate_at(each_x, each_y - 1).other_x == each_x - 1 then
+              move_and_swap(_ENV, each_x - 1, each_y, true)
+              move_and_swap(_ENV, each_x, each_y, true)
               return
             end
 
