@@ -61,7 +61,7 @@ end
 function solo:render() -- override
   game:render()
 
-  -- solo 独自の処理
+  -- SOLO モード独自の処理
 
   -- スコア表示
   color(7)

@@ -76,6 +76,8 @@ function game:update()
     local countdown_number = flr(countdown / 60 + 1)
 
     if countdown > 0 then
+      game_start_time = t()
+
       if countdown_number < 4 then
         for _, each in pairs(all_players) do
           each.board.countdown = countdown_number

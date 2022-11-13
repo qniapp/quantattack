@@ -18,3 +18,7 @@ function print_outlined(str, x, y, color) -- 21 tokens
   print(str, x, y + 1)
   print(str, x, y, color)
 end
+
+function maybe_fill_zero_less_than_10(num)
+  return (num < 10) and "0" .. num or num
+end
