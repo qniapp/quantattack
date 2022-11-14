@@ -52,6 +52,10 @@ function game.chain_callback(chain_id, chain_count, x, y, player, board, other_b
   end
 end
 
+function game:is_game_over()
+  return self.game_over_time ~= nil
+end
+
 function game:_init()
   self.auto_raise_frame_count = 30
 end
@@ -59,6 +63,7 @@ end
 function game:init()
   all_players = {}
   countdown = 240
+  self.start_time = t()
 end
 
 function game:add_player(player, player_cursor, board, other_board)
@@ -76,7 +81,7 @@ function game:update()
     local countdown_number = flr(countdown / 60 + 1)
 
     if countdown > 0 then
-      game_start_time = t()
+      self.start_time = t()
 
       if countdown_number < 4 then
         for _, each in pairs(all_players) do
@@ -98,7 +103,7 @@ function game:update()
     end
   end
 
-  for _, each in pairs(all_players) do
+  for index, each in pairs(all_players) do
     local player_cursor = each.player_cursor
     local board = each.board
     local other_board = each.other_board
@@ -143,6 +148,31 @@ function game:update()
   update_particles()
   update_bubbles()
   update_attack_cubes()
+
+  if not self:is_game_over() then
+    -- ゲーム中だけ elapsed_time を更新
+    game.elapsed_time = t() - self.start_time
+
+    -- プレーヤーが 2 人であれば、勝ったほうの board に win = true をセット
+    if #all_players == 1 then
+      if all_players[1].board:is_game_over() then
+        self.game_over_time = t()
+      end
+    else
+      local board1, board2 = all_players[1].board, all_players[2].board
+
+      if board1:is_game_over() or board2:is_game_over() then
+        self.game_over_time = t()
+
+        if board1.lose then
+          board2.win = true
+        end
+        if board2.lose then
+          board1.win = true
+        end
+      end
+    end
+  end
 end
 
 function game:render() -- override
@@ -193,6 +223,17 @@ function game:_auto_raise(player)
     self:_raise(player)
     player.tick = 0
   end
+end
+
+-- ゲーム経過時間を文字列で返す (e.g., "01:23")
+function game:elapsed_time_string()
+  return length2_number_string_0filled(flr(self.elapsed_time / 60)) ..
+      ":" ..
+      length2_number_string_0filled(flr(self.elapsed_time) % 60)
+end
+
+function length2_number_string_0filled(num)
+  return (num < 10) and "0" .. num or num
 end
 
 return game

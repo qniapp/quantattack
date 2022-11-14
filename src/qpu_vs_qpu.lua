@@ -23,8 +23,6 @@ local qpu2 = create_qpu(qpu2_cursor)
 qpu_vs_qpu.type = ':qpu_vs_qpu'
 
 function qpu_vs_qpu:on_enter()
-  game_start_time = t()
-
   qpu1:init()
   qpu1_board:initialize_with_random_gates()
   qpu1_cursor:init()
@@ -39,33 +37,16 @@ function qpu_vs_qpu:on_enter()
 end
 
 function qpu_vs_qpu:update()
-  if qpu1_board:is_game_over() or qpu2_board:is_game_over() then
-    if qpu1_board.lose then
-      qpu2_board.win = true
-    end
-    if qpu2_board.lose then
-      qpu1_board.win = true
-    end
-
-    if not game_over_time then
-      game_over_time = t()
-    else
-      if t() - game_over_time > 2 then
-        qpu1_board.push_any_key = true
-        qpu2_board.push_any_key = true
-        if btn(4) or btn(5) then -- x または z でタイトルへ戻る
-          load('qitaev_title')
-        end
-      end
-    end
-  end
-
   game:update()
 
-  -- QPU vs QPU モード独自の update
-
-  if not game_over_time then -- ゲームオーバー後は経過時間を更新しない
-    elapsed_time = t() - game_start_time
+  if game:is_game_over() then
+    if t() - game.game_over_time > 2 then
+      qpu1_board.push_any_key = true
+      qpu2_board.push_any_key = true
+      if btnp(4) or btnp(5) then -- x または z でタイトルへ戻る
+        load('qitaev_title')
+      end
+    end
   end
 end
 
@@ -73,17 +54,12 @@ end
 function qpu_vs_qpu:render()
   game:render()
 
-  -- QPU vs QPU モード独自の描画
-
   -- 経過時間の表示
-
   cursor(57, 106)
   print("time")
 
   cursor(55, 114)
-  print(maybe_fill_zero_less_than_10(flr(elapsed_time / 60)) .. -- min
-    ":" ..
-    maybe_fill_zero_less_than_10(flr(elapsed_time) % 60)) -- sec
+  print(game:elapsed_time_string())
 end
 
 return qpu_vs_qpu

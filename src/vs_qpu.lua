@@ -31,27 +31,16 @@ function vs_qpu:on_enter()
 end
 
 function vs_qpu:update()
-  if board:is_game_over() or qpu_board:is_game_over() then
-    if board.lose then
-      qpu_board.win = true
-    end
-    if qpu_board.lose then
-      board.win = true
-    end
+  game:update()
 
-    if not game_over_time then
-      game_over_time = time()
-    else
-      if time() - game_over_time > 2 then
-        board.push_any_key = true
-        if btn(4) or btn(5) then -- x または z でタイトルへ戻る
-          load('qitaev_title')
-        end
+  if game:is_game_over() then
+    if t() - game.game_over_time > 2 then
+      board.push_any_key = true
+      if btnp(4) or btnp(5) then -- x または z でタイトルへ戻る
+        load('qitaev_title')
       end
     end
   end
-
-  game:update()
 end
 
 function vs_qpu:render() -- override

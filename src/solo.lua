@@ -44,15 +44,11 @@ function solo:update()
     last_steps = player.steps
   end
 
-  if board:is_game_over() then
-    if not game_over_time then
-      game_over_time = time()
-    else
-      if time() - game_over_time > 2 then
-        board.push_any_key = true
-        if btn(4) or btn(5) then -- x または z でタイトルへ戻る
-          load('qitaev_title')
-        end
+  if game:is_game_over() then
+    if t() - game.game_over_time > 2 then
+      board.push_any_key = true
+      if btnp(4) or btnp(5) then -- x または z でタイトルへ戻る
+        load('qitaev_title')
       end
     end
   end
@@ -61,21 +57,14 @@ end
 function solo:render() -- override
   game:render()
 
-  -- SOLO モード独自の処理
-
   -- スコア表示
   color(7)
-  cursor(board.offset_x * 2 + board.width, board.offset_y)
-  print("score " .. player.score .. (player.score == 0 and "" or "0"))
-
-  -- skip 2 lines and draw score
-  cursor(board.offset_x * 2 + board.width, board.offset_y + 12)
+  cursor(board.offset_x * 2 + board.width, 16)
   print(player.steps .. " steps")
 
-  -- ゲームオーバー
-  if board:is_game_over() then
-    board.lose = true
-  end
+  -- skip 2 lines and draw score
+  cursor(board.offset_x * 2 + board.width, 24)
+  print("score " .. player.score .. (player.score == 0 and "" or "0"))
 end
 
 return solo
