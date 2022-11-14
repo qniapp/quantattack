@@ -612,13 +612,6 @@ function create_board(__offset_x)
         offset_x + 48 + 1, 40,
         _is_topped_out(_ENV) and 8 or 1)
 
-      if countdown then
-        local countdown_sprite_x = { 112, 96, 80 }
-        sspr(countdown_sprite_x[countdown], 32,
-          16, 16,
-          offset_x + 16 + (countdown == 1 and 4 or 0), offset_y + 56)
-      end
-
       -- WIN! または LOSE を描画
       if is_game_over(_ENV) then
         sspr(win and 0 or 32, 80, 32, 16, offset_x + width / 2 - 16, offset_y + 56)

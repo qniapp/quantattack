@@ -187,6 +187,14 @@ function game:render() -- override
     if not board:is_game_over() then
       player_cursor:render()
     end
+
+    -- カウントダウンの数字はカーソルの上に表示
+    if board.countdown then
+      local countdown_sprite_x = { 112, 96, 80 }
+      sspr(countdown_sprite_x[board.countdown], 32,
+           16, 16,
+           16 + (board.countdown == 1 and 4 or 0), board.offset_y + 56)
+    end
   end
 
   render_particles()
