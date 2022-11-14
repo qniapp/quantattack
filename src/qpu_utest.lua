@@ -85,15 +85,15 @@ describe('qpu', function()
     -- ボードが次のようになっているとき、
     -- T を左に動かしてマッチ (left, o)
     --
-    --   [T  ]
-    --  T X Y
+    --         [T  ]
+    --  _ _ _ T X Y
     it("左に動かしてマッチ", function()
-      board:put(2, 12, t_gate())
-      board:put(1, 13, t_gate())
-      board:put(2, 13, x_gate())
-      board:put(3, 13, y_gate())
-      cursor.x = 2
-      cursor.y = 12
+      board:put(5, 16, t_gate())
+      board:put(4, 17, t_gate())
+      board:put(5, 17, x_gate())
+      board:put(6, 17, y_gate())
+      cursor.x = 5
+      cursor.y = 16
 
       qpu:update(board)
 
@@ -110,15 +110,18 @@ describe('qpu', function()
     -- T を左に動かしてマッチ (left, o)
     --
     --  H[T  ]
-    --  T X Y
+    --  T X Y Y Y Y
     it("左に動かしてマッチ (他のゲートとの入れ替えあり)", function()
-      board:put(1, 12, h_gate())
-      board:put(2, 12, t_gate())
-      board:put(1, 13, t_gate())
-      board:put(2, 13, x_gate())
-      board:put(3, 13, y_gate())
+      board:put(1, 16, h_gate())
+      board:put(2, 16, t_gate())
+      board:put(1, 17, t_gate())
+      board:put(2, 17, x_gate())
+      board:put(3, 17, y_gate())
+      board:put(4, 17, y_gate())
+      board:put(5, 17, y_gate())
+      board:put(6, 17, y_gate())
       cursor.x = 2
-      cursor.y = 12
+      cursor.y = 16
 
       qpu:update(board)
 
@@ -157,16 +160,21 @@ describe('qpu', function()
     -- ボードが次のようになっているとき、
     -- T を右に動かしてマッチ (o)
     --
-    --   [T H]
-    --  X Y T
+    --         [T H]
+    --  _ _ _ X Y T
     it("右に動かしてマッチ (入れ替えあり)", function()
-      board:put(2, 12, t_gate())
-      board:put(3, 12, h_gate())
-      board:put(1, 13, x_gate())
-      board:put(2, 13, y_gate())
-      board:put(3, 13, t_gate())
-      cursor.x = 2
-      cursor.y = 12
+      board:put(5, 16, t_gate())
+      board:put(6, 17, h_gate())
+      board:put(1, 17, x_gate())
+      board:put(2, 17, x_gate())
+      board:put(3, 17, x_gate())
+      board:put(4, 17, x_gate())
+      board:put(5, 17, y_gate())
+      board:put(6, 17, t_gate())
+      cursor.x = 5
+      cursor.y = 16
+
+      printh(board:_tostring())
 
       qpu:update(board)
 
@@ -209,15 +217,15 @@ describe('qpu', function()
     --   [  H]
     --  H T T T T T
     it("左に 1 マス動かす", function()
-      board:put(3, 12, h_gate())
-      board:put(1, 13, h_gate())
-      board:put(2, 13, t_gate())
-      board:put(3, 13, t_gate())
-      board:put(4, 13, t_gate())
-      board:put(5, 13, t_gate())
-      board:put(6, 13, t_gate())
+      board:put(3, 16, h_gate())
+      board:put(1, 17, h_gate())
+      board:put(2, 17, t_gate())
+      board:put(3, 17, t_gate())
+      board:put(4, 17, t_gate())
+      board:put(5, 17, t_gate())
+      board:put(6, 17, t_gate())
       cursor.x = 2
-      cursor.y = 12
+      cursor.y = 16
 
       qpu:update(board)
 

@@ -1,8 +1,6 @@
 ---@diagnostic disable: lowercase-global, global-in-nil-env
 
 -- 新しい QPU プレーヤーを返す
---
--- TODO: ユニットテスト
 function create_qpu(cursor, sleep, raise)
   local qpu = setmetatable({
     cursor = cursor,
@@ -48,170 +46,119 @@ function create_qpu(cursor, sleep, raise)
         -- 連鎖は上を消したほうが起こりやすいので、
         -- 上から順にゲートを見ていく。
 
-        -- TODO: board.reducible_gates を y, x の順にループできるようにする。
-        -- つまり、
-        --
-        --   for y, row in pairs(reducible_gates) do
-        --     for x, each in pairs(row) do
-        --
-        -- のように書けるようにすることで、
-        -- each の nil チェックを不要にする
-        for each_y = 1, board.rows do
+        -- 最初に落とせるやつは落とす
+        for each_y = 7, board.rows - 1 do
+          for each_x = 1, board.cols do
+            -- TODO: board.reducible_gates を y, x の順にループできるようにする。
+            -- つまり、
+            --
+            --   for y, row in pairs(reducible_gates) do
+            --     for x, each in pairs(row) do
+            --
+            -- のように書けるようにすることで、
+            -- each の nil チェックを不要にする
+
+            local each = board.reducible_gates[each_x][each_y]
+            if not each or not each:is_single_gate() then
+              goto next_droppable_gate
+            end
+
+            -- ? X <-- each
+            -- _ ■
+            if _is_swappable(_ENV, board, each_x - 1, each_y) and
+                board:is_gate_empty(each_x - 1, each_y + 1) then
+              move_and_swap(_ENV, each_x - 1, each_y, true)
+              return
+            end
+
+            -- each --> X ?
+            --          ■ _
+            if _is_swappable(_ENV, board, each_x + 1, each_y) and
+                board:is_gate_empty(each_x + 1, each_y + 1) then
+              move_and_swap(_ENV, each_x, each_y, true)
+              return
+            end
+
+            -- ? ? X <-- each
+            -- _ ■ ■
+            for i = each_x - 1, 1, -1 do
+              if not _is_swappable(_ENV, board, i, each_y) then
+                break
+              end
+              if board:is_gate_empty(i, each_y + 1) then
+                move_and_swap(_ENV, each_x - 1, each_y, true)
+                return
+              end
+            end
+
+            -- each --> X
+            --          ■ ■ _
+            for i = each_x + 1, board.cols do
+              if not board:is_gate_empty(i, each_y) then
+                break
+              end
+              if board:is_gate_empty(i, each_y + 1) then
+                move_and_swap(_ENV, each_x, each_y, true)
+                return
+              end
+            end
+
+            ::next_droppable_gate::
+          end
+        end
+
+        for each_y = 7, board.rows do
           for each_x = 1, board.cols do
             local each = board.reducible_gates[each_x][each_y]
             if not each then
               goto next_gate
             end
 
-            -- おじゃまゲートが分解中 (board.contans_garbage_match_gate == true)
-            -- はゲートを積極的には消さず、ゲートを平らにならすだけ。
-            -- 分解中のおじゃまゲートがなくなったら、ゲートを消すものを含めたすべのルールを有効にする。
             if each:is_single_gate() then
-              if 1 < each_x and each_y < board.rows then
-                -- ? X <-- each
-                -- _ ■
-                if _is_swappable(_ENV, board, each_x - 1, each_y) and
-                    board:is_gate_empty(each_x - 1, each_y + 1) then
-                  move_and_swap(_ENV, each_x - 1, each_y)
-                  return
-                end
-
-                -- ? X <-- each
-                -- X ■
-                if not board.contains_garbage_match_gate and
-                    _is_swappable(_ENV, board, each_x - 1, each_y) and
-                    _is_match(_ENV, each, board.gates[each_x - 1][each_y + 1]) then
-                  move_and_swap(_ENV, each_x - 1, each_y)
-                  return
-                end
-              end
-
-              if each_x < board.cols and each_y < board.rows then
-                -- each --> X ?
-                --          ■ _
-                if _is_swappable(_ENV, board, each_x + 1, each_y) and
-                    board:is_gate_empty(each_x + 1, each_y + 1) then
-                  move_and_swap(_ENV, each_x, each_y)
-                  return
-                end
-
-                -- each --> X ?
-                --          ■ X
-                if not board.contains_garbage_match_gate and
-                    _is_swappable(_ENV, board, each_x + 1, each_y) and
-                    _is_match(_ENV, each, board.gates[each_x + 1][each_y + 1]) then
-                  move_and_swap(_ENV, each_x, each_y)
-                  return
-                end
-              end
-
-              if 1 < each_x and each_y < board.rows then
-                -- ? ? X <-- each
-                -- _ ■ ■
-                local moveable = false
-
-                for i = each_x - 1, 1, -1 do
-                  if not _is_swappable(_ENV, board, i, each_y) then
-                    break
+              -- ゲートを落とすかマッチさせるかして下に落とせる場合
+              if each_y < board.rows then
+                -- おじゃまゲートが分解中 (board.contains_garbage_match_gate == true)
+                -- はゲートを積極的には消さず、ゲートを平らにならすだけ。
+                if not board.contains_garbage_match_gate then
+                  -- ? X <-- each
+                  -- X ■
+                  if _is_swappable(_ENV, board, each_x - 1, each_y) and
+                      _is_match(_ENV, each, board.gates[each_x - 1][each_y + 1]) then
+                    move_and_swap(_ENV, each_x - 1, each_y)
+                    return
                   end
-                  if board:is_gate_empty(i, each_y + 1) then
-                    moveable = true
-                    break
+
+                  -- each --> X ?
+                  --          ■ X
+                  if _is_swappable(_ENV, board, each_x + 1, each_y) and
+                      _is_match(_ENV, each, board.gates[each_x + 1][each_y + 1]) then
+                    move_and_swap(_ENV, each_x, each_y)
+                    return
                   end
-                end
 
-                if moveable then
-                  move_and_swap(_ENV, each_x - 1, each_y, true)
-                  return
-                end
-              end
-
-              if not board.contains_garbage_match_gate and
-                  1 < each_x and each_y < board.rows then
-                -- ? ? X <-- each
-                -- X ■ ■
-                local moveable = false
-
-                for i = each_x - 1, 1, -1 do
-                  if not _is_swappable(_ENV, board, i, each_y) then
-                    break
+                  -- ? ? X <-- each
+                  -- X ■ ■
+                  for i = each_x - 1, 1, -1 do
+                    if not _is_swappable(_ENV, board, i, each_y) then
+                      break
+                    end
+                    if board:is_gate_empty(i, each_y + 1) or _is_match(_ENV, each, board.gates[i][each_y + 1]) then
+                      move_and_swap(_ENV, each_x - 1, each_y, true)
+                      return
+                    end
                   end
-                  if board:is_gate_empty(i, each_y + 1) or _is_match(_ENV, each, board.gates[i][each_y + 1]) then
-                    moveable = true
-                    break
+
+                  -- each --> X
+                  --          ■ ■ X
+                  for i = each_x + 1, board.cols do
+                    if not board:is_gate_empty(i, each_y) then
+                      break
+                    end
+                    if _is_match(_ENV, each, board.gates[i][each_y + 1]) then
+                      move_and_swap(_ENV, each_x, each_y, true)
+                      return
+                    end
                   end
-                end
-
-                if moveable then
-                  move_and_swap(_ENV, each_x - 1, each_y, true)
-                  return
-                end
-              end
-
-              if each_x < board.cols and each_y < board.rows then
-                -- each --> X
-                --          ■ ■ _
-                --
-                -- または
-                --
-                -- each --> X
-                --          ■ ■ X
-                local moveable = false
-
-                for i = each_x + 1, board.cols do
-                  if not board:is_gate_empty(i, each_y) then
-                    break
-                  end
-                  if board:is_gate_empty(i, each_y + 1) or _is_match(_ENV, each, board.gates[i][each_y + 1]) then
-                    moveable = true
-                    break
-                  end
-                end
-
-                if moveable then
-                  move_and_swap(_ENV, each_x, each_y, true)
-                  return
-                end
-              end
-
-              if not board.contains_garbage_match_gate and
-                  1 < each_x and 1 < each_y then
-                --   H ■ ■ ■ ■
-                --   ? H <-- each
-                if _is_match(_ENV, each, board.gates[each_x - 1][each_y - 1]) and
-                    _is_swappable(_ENV, board, each_x - 1, each_y) then
-                  move_and_swap(_ENV, each_x - 1, each_y)
-                  return
-                end
-
-                --  X ■ ■
-                --  ? ? X <-- each
-                local matchable = false
-
-                for i = each_x - 1, 1, -1 do
-                  if not _is_swappable(_ENV, board, i, each_y) then
-                    break
-                  end
-                  if _is_match(_ENV, each, board.gates[i][each_y - 1]) then
-                    matchable = true
-                    break
-                  end
-                end
-
-                if matchable then
-                  move_and_swap(_ENV, each_x - 1, each_y, true)
-                  return
-                end
-              end
-
-              if not board.contains_garbage_match_gate and
-                  each_x < board.cols and 1 < each_y then
-                --    ■ ■ ■ ■ H
-                -- each --> H ?
-                if _is_match(_ENV, each, board.gates[each_x + 1][each_y - 1]) and
-                    _is_swappable(_ENV, board, each_x + 1, each_y) then
-                  move_and_swap(_ENV, each_x, each_y)
-                  return
                 end
               end
             end
@@ -253,7 +200,6 @@ function create_qpu(cursor, sleep, raise)
                 board:reducible_gate_at(each_x, each_y - 1).other_x == each_x - 1 then
               move_and_swap(_ENV, each_x - 1, each_y, true)
               move_and_swap(_ENV, each_x, each_y, true)
-              return
             end
 
             ::next_gate::
@@ -315,6 +261,10 @@ function create_qpu(cursor, sleep, raise)
     end,
 
     _is_swappable = function(_ENV, board, gate_x, gate_y)
+      if gate_x < 1 or board.cols < gate_x then
+        return false
+      end
+
       local gate = board.gates[gate_x][gate_y]
 
       return gate:is_idle() and
