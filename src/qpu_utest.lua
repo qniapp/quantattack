@@ -83,6 +83,27 @@ describe('qpu', function()
     end)
 
     -- ボードが次のようになっているとき、
+    -- T を右に落とす (o)
+    --
+    -- [T  ]
+    --  X
+    it("左壁ぎわのゲートを右に落とす", function()
+      board:put(1, 16, t_gate())
+      board:put(1, 17, x_gate())
+      cursor.x = 1
+      cursor.y = 16
+
+      qpu:update(board)
+
+      assert.are_equal(5, #qpu.commands)
+      assert.are_equal("o", qpu.commands[1])
+      assert.are_equal("sleep", qpu.commands[2])
+      assert.are_equal("sleep", qpu.commands[3])
+      assert.are_equal("sleep", qpu.commands[4])
+      assert.are_equal("sleep", qpu.commands[5])
+    end)
+
+    -- ボードが次のようになっているとき、
     -- T を左に動かしてマッチ (left, o)
     --
     --         [T  ]
@@ -140,12 +161,12 @@ describe('qpu', function()
     --   [T  ]
     --  X Y T
     it("右に動かしてマッチ", function()
-      board:put(2, 12, t_gate())
-      board:put(1, 13, x_gate())
-      board:put(2, 13, y_gate())
-      board:put(3, 13, t_gate())
+      board:put(2, 16, t_gate())
+      board:put(1, 17, x_gate())
+      board:put(2, 17, y_gate())
+      board:put(3, 17, t_gate())
       cursor.x = 2
-      cursor.y = 12
+      cursor.y = 16
 
       qpu:update(board)
 
@@ -174,8 +195,6 @@ describe('qpu', function()
       cursor.x = 5
       cursor.y = 16
 
-      printh(board:_tostring())
-
       qpu:update(board)
 
       assert.are_equal(5, #qpu.commands)
@@ -192,14 +211,14 @@ describe('qpu', function()
     --   [  H]
     --    T T T T T
     it("左に 1 マス動かす", function()
-      board:put(3, 12, h_gate())
-      board:put(2, 13, t_gate())
-      board:put(3, 13, t_gate())
-      board:put(4, 13, t_gate())
-      board:put(5, 13, t_gate())
-      board:put(6, 13, t_gate())
+      board:put(3, 16, h_gate())
+      board:put(2, 17, t_gate())
+      board:put(3, 17, t_gate())
+      board:put(4, 17, t_gate())
+      board:put(5, 17, t_gate())
+      board:put(6, 17, t_gate())
       cursor.x = 2
-      cursor.y = 12
+      cursor.y = 16
 
       qpu:update(board)
 
@@ -248,6 +267,61 @@ describe('qpu', function()
       board:put(2, 13, h_gate())
       cursor.x = 1
       cursor.y = 13
+
+      qpu:update(board)
+
+      assert.are_equal(5, #qpu.commands)
+      assert.are_equal("o", qpu.commands[1])
+      assert.are_equal("sleep", qpu.commands[2])
+      assert.are_equal("sleep", qpu.commands[3])
+      assert.are_equal("sleep", qpu.commands[4])
+      assert.are_equal("sleep", qpu.commands[5])
+    end)
+
+    -- [X-]-C
+    it("CNOT を X 側から縮める", function()
+      board:put(1, 17, cnot_x_gate(3))
+      board:put(3, 17, control_gate(1))
+      cursor.x = 1
+      cursor.y = 17
+
+      qpu:update(board)
+
+      assert.are_equal(5, #qpu.commands)
+      assert.are_equal("o", qpu.commands[1])
+      assert.are_equal("sleep", qpu.commands[2])
+      assert.are_equal("sleep", qpu.commands[3])
+      assert.are_equal("sleep", qpu.commands[4])
+      assert.are_equal("sleep", qpu.commands[5])
+    end)
+
+    -- [C-]-X
+    it("CNOT を C 側から縮める", function()
+      board:put(1, 17, control_gate(3))
+      board:put(3, 17, cnot_x_gate(1))
+      cursor.x = 1
+      cursor.y = 17
+
+      qpu:update(board)
+
+      assert.are_equal(5, #qpu.commands)
+      assert.are_equal("o", qpu.commands[1])
+      assert.are_equal("sleep", qpu.commands[2])
+      assert.are_equal("sleep", qpu.commands[3])
+      assert.are_equal("sleep", qpu.commands[4])
+      assert.are_equal("sleep", qpu.commands[5])
+    end)
+
+    -- [  X]-C
+    --  X-C  ■
+    it("ずれた CNOT を消す", function()
+      board:put(5, 16, cnot_x_gate(6))
+      board:put(6, 16, control_gate(5))
+      board:put(4, 17, cnot_x_gate(5))
+      board:put(5, 17, control_gate(4))
+      board:put(6, 17, t_gate())
+      cursor.x = 4
+      cursor.y = 16
 
       qpu:update(board)
 
