@@ -24,21 +24,19 @@ function create_board(__offset_x)
       -- 各種キャッシュ
       _reduce_cache, _is_gate_empty_cache, _is_gate_fallable_cache, _gate_or_its_head_gate_cache = {}, {}, {}, {}
 
+      _chain_count, pending_garbage_gates, _topped_out_frame_count, _topped_out_delay_frame_count, _bounce_speed,
+          _bounce_screen_dy =
+      {}, {}, 0, 600, 0, 0
+
       -- 各種ゲートの取得
-      gates, reducible_gates, _garbage_gates = {}, {}, {}
-      contains_garbage_match_gate = false
+      gates, reducible_gates, _garbage_gates, contains_garbage_match_gate = {}, {}, {}, false
 
       for x = 1, cols do
-        gates[x] = {}
-        reducible_gates[x] = {}
+        gates[x], reducible_gates[x] = {}, {}
         for y = 1, row_next_gates do
           put(_ENV, x, y, i_gate())
         end
       end
-
-      _chain_count, pending_garbage_gates, _topped_out_frame_count, _topped_out_delay_frame_count, _bounce_speed,
-          _bounce_screen_dy =
-      {}, {}, 0, 600, 0, 0
     end,
 
     initialize_with_random_gates = function(_ENV)
@@ -842,13 +840,17 @@ function create_board(__offset_x)
 
       _changed = true
 
+      if gate:is_reducible() then
+        _reduce_cache = {}
+      end
+
       if not (gate:is_swapping() or gate:is_match()) then
         for i = 1, y do
           _is_gate_fallable_cache[i] = {}
         end
       end
 
-      _reduce_cache, _is_gate_empty_cache, _gate_or_its_head_gate_cache = {}, {}, {}
+      _is_gate_empty_cache, _gate_or_its_head_gate_cache = {}, {}
     end,
 
     -------------------------------------------------------------------------------
