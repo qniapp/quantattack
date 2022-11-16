@@ -39,7 +39,7 @@ function solo:update()
       if game.auto_raise_frame_count > 10 then
         game.auto_raise_frame_count = game.auto_raise_frame_count - 1
       end
-      board:send_garbage(6, player.steps / 10 < 11 and player.steps / 10 or 10)
+      board:send_garbage(nil, 6, player.steps / 10 < 11 and player.steps / 10 or 10)
     end
     last_steps = player.steps
   end
