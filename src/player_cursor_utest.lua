@@ -62,21 +62,16 @@ describe('player_cursor', function()
       assert.are_equal(10, player_cursor.y)
     end)
 
-    it("should not move any upper when reaching the top edge", function()
+    it("should not move any upper when reaching the dead line", function()
       player_cursor:move_up() -- y = 10
       player_cursor:move_up() -- y = 9
       player_cursor:move_up() -- y = 8
       player_cursor:move_up() -- y = 7
-      player_cursor:move_up() -- y = 6
-      player_cursor:move_up() -- y = 5
-      player_cursor:move_up() -- y = 4
-      player_cursor:move_up() -- y = 3
-      player_cursor:move_up() -- y = 2
 
       player_cursor:move_up()
 
       assert.are_equal(3, player_cursor.x)
-      assert.are_equal(2, player_cursor.y)
+      assert.are_equal(7, player_cursor.y)
     end)
   end)
 

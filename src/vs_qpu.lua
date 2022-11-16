@@ -9,8 +9,9 @@ local vs_qpu = derived_class(gamestate)
 local game_class = require("game")
 local game = game_class()
 
-local board, qpu_board = create_board(2), create_board(79)
-board.attack_cube_target, qpu_board.attack_cube_target = { 79 + 24, 0 }, { 2 + 24, 0, "left" }
+local board, qpu_board = create_board(3), create_board(78)
+board.gate_offset_target, qpu_board.gate_offset_target = { 3 + 24, 0 }, { 78 + 24, 0, "left" }
+board.attack_cube_target, qpu_board.attack_cube_target = { 78 + 24, 0 }, { 3 + 24, 0, "left" }
 local player_cursor, qpu_cursor = create_player_cursor(board), create_player_cursor(qpu_board)
 local player, qpu = create_player(), create_qpu(qpu_cursor, qpu_board)
 

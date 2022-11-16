@@ -46,8 +46,8 @@ function create_board(__offset_x)
       _chain_count = {}
 
       -- おじゃまゲートの管理
-      -- TODO: _garbage_gate_pool に入っているおじゃまゲートの表示
-      _garbage_gate_pool = {}
+      -- TODO: pending_garbage_gates に入っているおじゃまゲートの表示
+      pending_garbage_gates = {}
 
       -- ゲートが上からはみ出ているかの判定用
       _topped_out_frame_count = 0
@@ -113,7 +113,17 @@ function create_board(__offset_x)
 
             -- 連鎖
             if _chain_count[chain_id] > 1 and game then
-              game.chain_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
+              if #pending_garbage_gates > 1 then
+                local offset_height_left = game.gate_offset_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
+
+                -- 相殺しても残っていれば、相手に攻撃
+                if offset_height_left > 0 then
+                  game.chain_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
+                end
+              else
+                -- そうでなければ、相手に攻撃
+                game.chain_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
+              end
             end
 
             for index, r in pairs(reduction.to) do
@@ -405,11 +415,11 @@ function create_board(__offset_x)
     send_garbage = function(_ENV, chain_id, span, _height)
       -- 同じ chain_id のおじゃまゲートをまとめる
       if span == 6 then
-        for _, each in pairs(_garbage_gate_pool) do
+        for _, each in pairs(pending_garbage_gates) do
           if each.chain_id == chain_id and each.span == 6 then
             if each.height <= _height then
               -- 同じ chain_id でより低いおじゃまゲートがすでにプールに入っている場合、消す
-              del(_garbage_gate_pool, each)
+              del(pending_garbage_gates, each)
             else
               -- 同じ chain_id でより高いおじゃまゲートがすでにプールに入っている場合、何もしない
               return
@@ -419,11 +429,12 @@ function create_board(__offset_x)
       end
 
       local colors = { 2, 3, 4 }
-      add(_garbage_gate_pool, { chain_id = chain_id, span = span, height = _height, color = colors[flr(rnd(#colors)) + 1], wait_time = 120 })
+      add(pending_garbage_gates,
+        { chain_id = chain_id, span = span, height = _height, color = colors[flr(rnd(#colors)) + 1], wait_time = 120 })
     end,
 
-    _update_garbage_gate_pool = function(_ENV)
-      for _, each in pairs(_garbage_gate_pool) do
+    _updatepending_garbage_gates = function(_ENV)
+      for _, each in pairs(pending_garbage_gates) do
         if each.wait_time > 0 then
           each.wait_time = each.wait_time - 1
         end
@@ -443,7 +454,7 @@ function create_board(__offset_x)
             end
           end
 
-          del(_garbage_gate_pool, each)
+          del(pending_garbage_gates, each)
 
           local new_garbage = garbage_gate(each.span, each.height, each.color)
           put(_ENV, x, 1, new_garbage)
@@ -545,7 +556,7 @@ function create_board(__offset_x)
         state = "over"
       end
 
-      _update_garbage_gate_pool(_ENV)
+      _updatepending_garbage_gates(_ENV)
       _update_bounce(_ENV)
 
       if state == "play" then

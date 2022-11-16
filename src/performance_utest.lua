@@ -18,11 +18,13 @@ describe('パフォーマンス', function()
 
     qpu1:init()
     qpu1_board:initialize_with_random_gates()
+    qpu1_board.gate_offset_target = { 48, 15 }
     qpu1_board.attack_cube_target = { 78, 15 }
     qpu1_cursor:init()
 
     qpu2:init()
     qpu2_board:initialize_with_random_gates()
+    qpu2_board.gate_offset_target = { 78, 15, "left" }
     qpu2_board.attack_cube_target = { 48, 15, "left" }
     qpu2_cursor:init()
 

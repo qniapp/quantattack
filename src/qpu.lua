@@ -176,6 +176,10 @@ function create_qpu(cursor, board)
       local find_left, find_right = true, true
 
       for dx = 1, board.cols - 1 do
+        if not (find_left or find_right) then
+          return false
+        end
+
         if find_left then
           if _is_swappable(board, gate_x - dx, gate_y) then
             if f(board, gate_x - dx, other_row_gate_y, gate) then

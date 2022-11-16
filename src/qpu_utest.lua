@@ -3,7 +3,7 @@ require("board")
 require("player_cursor")
 require("qpu")
 
-describe('qpu #solo', function()
+describe('qpu', function()
   describe('create_qpu', function()
     it("creates a qpu with steps = 0, score = 0", function()
       local qpu = create_qpu()
