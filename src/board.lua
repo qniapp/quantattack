@@ -21,6 +21,9 @@ function create_board(__offset_x)
       -- board の状態
       state, win, lose, top_gate_y, _changed = "play", false, false, row_next_gates, false
 
+      -- 各種キャッシュ
+      _reduce_cache, _is_gate_empty_cache, _is_gate_fallable_cache, _gate_or_its_head_gate_cache = {}, {}, {}, {}
+
       -- 各種ゲートの取得
       gates, reducible_gates, _garbage_gates = {}, {}, {}
       contains_garbage_match_gate = false
@@ -33,21 +36,9 @@ function create_board(__offset_x)
         end
       end
 
-      -- 連鎖 ID と連鎖数
-      _chain_count = {}
-
-      -- おじゃまゲートの管理
-      -- TODO: pending_garbage_gates に入っているおじゃまゲートの表示
-      pending_garbage_gates = {}
-
-      -- ゲートが上からはみ出ているかの判定用
-      _topped_out_frame_count, _topped_out_delay_frame_count = 0, 600
-
-      -- 各種キャッシュ
-      _reduce_cache, _is_gate_empty_cache, _is_gate_fallable_cache, _gate_or_its_head_gate_cache = {}, {}, {}, {}
-
-      -- バウンスエフェクト用
-      _bounce_speed, _bounce_screen_dy = 0, 0
+      _chain_count, pending_garbage_gates, _topped_out_frame_count, _topped_out_delay_frame_count, _bounce_speed,
+          _bounce_screen_dy =
+      {}, {}, 0, 600, 0, 0
     end,
 
     initialize_with_random_gates = function(_ENV)
@@ -66,15 +57,12 @@ function create_board(__offset_x)
     end,
 
     reduce_gates = function(_ENV, game, player, other_board)
-      -- 同時消しで変化したゲートの数
-      local combo_count = nil
-
-      -- 同じフレームで chain_id を持つ連鎖が発生したかどうか
-      local chain_id_incremented = {}
+      local chain_id_incremented, combo_count = {}
 
       for x, col in pairs(reducible_gates) do
         for y, each in pairs(col) do
           local reduction = reduce(_ENV, x, y)
+
           -- コンボ (同時消し) とチェイン (連鎖) の処理
           if #reduction.to > 0 then
             local chain_id = reduction.chain_id
@@ -105,7 +93,8 @@ function create_board(__offset_x)
             -- 連鎖
             if _chain_count[chain_id] > 1 and game then
               if #pending_garbage_gates > 1 then
-                local offset_height_left = game.gate_offset_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
+                local offset_height_left = game.gate_offset_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV
+                  , other_board)
 
                 -- 相殺しても残っていれば、相手に攻撃
                 if offset_height_left > 0 then
@@ -118,9 +107,7 @@ function create_board(__offset_x)
             end
 
             for index, r in pairs(reduction.to) do
-              local dx = r.dx and reduction.dx or 0
-              local dy = r.dy or 0
-              local new_gate = create_gate(r.gate_type)
+              local dx, dy, new_gate = r.dx and reduction.dx or 0, r.dy or 0, create_gate(r.gate_type)
 
               if new_gate.type == "swap" or new_gate.type == "cnot_x" or new_gate.type == "control" then
                 if r.dx then
@@ -146,15 +133,12 @@ function create_board(__offset_x)
               ::next_reduction::
             end
           end
-
-          ::next_gate::
         end
       end
 
       -- おじゃまゲートのマッチ
       for _, gate in pairs(_garbage_gates) do
-        local x, y, garbage_span, garbage_height = gate.x, gate.y, gate.span, gate.height
-        local chain_id
+        local x, y, garbage_span, garbage_height, chain_id = gate.x, gate.y, gate.span, gate.height
         local is_matching = function(g)
           chain_id = g.chain_id
           if g.type == "!" then
@@ -235,10 +219,9 @@ function create_board(__offset_x)
     end,
 
     _reduce_nocache = function(_ENV, x, y, include_next_gates)
-      local reduction = { to = {}, score = 0 }
-      local gate = gates[x][y]
-
+      local reduction, gate = { to = {}, score = 0 }, gates[x][y]
       local rules = reduction_rules[gate.type]
+
       if not rules then return reduction end
 
       for _, rule in pairs(rules) do
@@ -826,25 +809,19 @@ function create_board(__offset_x)
 
     -- ゲート x, y が x, y + 1 に落とせるかどうかを返す。
     _is_gate_fallable_nocache = function(_ENV, x, y)
-      if y >= rows then
-        return false
-      end
-
       local gate = gates[x][y]
-      if not gate:is_fallable() then
+
+      if y >= rows or not gate:is_fallable() then
         return false
       end
 
-      -- 単一ゲートまたはおじゃまゲートの場合
       local start_x, end_x = x, x + gate.span - 1
-
-      -- CNOT または SWAP の場合
       if gate.other_x then
         start_x, end_x = min(x, gate.other_x), max(x, gate.other_x)
       end
 
-      for tmp_x = start_x, end_x do
-        if not (is_gate_empty(_ENV, tmp_x, y + 1) or _gate_or_its_head_gate(_ENV, tmp_x, y + 1):is_falling()) then
+      for i = start_x, end_x do
+        if not (is_gate_empty(_ENV, i, y + 1) or _gate_or_its_head_gate(_ENV, i, y + 1):is_falling()) then
           return false
         end
       end
@@ -854,7 +831,7 @@ function create_board(__offset_x)
 
     -- ボード内にあるいずれかのゲートが更新された場合に呼ばれる。
     -- _changed フラグを立て各種キャッシュも更新・クリアする。
-    gate_update = function(_ENV, gate)
+    gate_update = function(_ENV, gate, old_state)
       local x, y = gate.x, gate.y
 
       if gate:is_reducible() then
@@ -864,7 +841,14 @@ function create_board(__offset_x)
       end
 
       _changed = true
-      _reduce_cache, _is_gate_empty_cache, _is_gate_fallable_cache, _gate_or_its_head_gate_cache = {}, {}, {}, {}
+
+      if not (gate:is_swapping() or gate:is_match()) then
+        for i = 1, y do
+          _is_gate_fallable_cache[i] = {}
+        end
+      end
+
+      _reduce_cache, _is_gate_empty_cache, _gate_or_its_head_gate_cache = {}, {}, {}
     end,
 
     -------------------------------------------------------------------------------
@@ -873,15 +857,15 @@ function create_board(__offset_x)
 
     -- 引数 x, y を取る関数 func をメモ化した関数を返す
     _memoize = function(_ENV, f, cache, x, y)
-      if cache[x] == nil then
-        cache[x] = {}
+      if cache[y] == nil then
+        cache[y] = {}
       end
 
-      local result = cache[x][y]
+      local result = cache[y][x]
 
       if result == nil then
         result = f(_ENV, x, y)
-        cache[x][y] = result
+        cache[y][x] = result
       end
 
       return result
