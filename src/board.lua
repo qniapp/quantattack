@@ -11,27 +11,18 @@ function create_board(__offset_x)
 
     init = function(_ENV)
       -- サイズ関係
-      cols = 6
-      rows = 17
+      cols, rows = 6, 17
       row_next_gates = rows + 1
 
       -- 画面上のサイズと位置
-      width = cols * tile_size
-      height = (rows - 1) * tile_size
-      offset_x = _offset_x or 11
-      offset_y = 0
-      raised_dots = 0
+      width, height = cols * tile_size, (rows - 1) * tile_size
+      offset_x, offset_y, raised_dots = _offset_x or 11, 0, 0
 
       -- board の状態
-      state = "play"
-      win, lose = false, false
-      top_gate_y = row_next_gates
-      _changed = false
+      state, win, lose, top_gate_y, _changed = "play", false, false, row_next_gates, false
 
       -- 各種ゲートの取得
-      gates = {}
-      reducible_gates = {}
-      _garbage_gates = {}
+      gates, reducible_gates, _garbage_gates = {}, {}, {}
       contains_garbage_match_gate = false
 
       for x = 1, cols do
@@ -50,18 +41,13 @@ function create_board(__offset_x)
       pending_garbage_gates = {}
 
       -- ゲートが上からはみ出ているかの判定用
-      _topped_out_frame_count = 0
-      _topped_out_delay_frame_count = 600 -- 60 * 10sec
+      _topped_out_frame_count, _topped_out_delay_frame_count = 0, 600
 
       -- 各種キャッシュ
-      _reduce_cache = {}
-      _is_gate_empty_cache = {}
-      _is_gate_fallable_cache = {}
-      _gate_or_its_head_gate_cache = {}
+      _reduce_cache, _is_gate_empty_cache, _is_gate_fallable_cache, _gate_or_its_head_gate_cache = {}, {}, {}, {}
 
       -- バウンスエフェクト用
-      _bounce_speed = 0
-      _bounce_screen_dy = 0
+      _bounce_speed, _bounce_screen_dy = 0, 0
     end,
 
     initialize_with_random_gates = function(_ENV)
@@ -81,10 +67,10 @@ function create_board(__offset_x)
 
     reduce_gates = function(_ENV, game, player, other_board)
       -- 同時消しで変化したゲートの数
-      -- 同じフレーム内で一度に消えたゲートを数えるため、
-      -- 連鎖数のカウント (_chain_count) のようにフレームをまたいで数える必要はなく、
-      -- 一度の reduce_gates() 呼び出し内での数をカウントする。
       local combo_count = nil
+
+      -- 同じフレームで chain_id を持つ連鎖が発生したかどうか
+      local chain_id_incremented = {}
 
       for x, col in pairs(reducible_gates) do
         for y, each in pairs(col) do
@@ -109,7 +95,12 @@ function create_board(__offset_x)
               combo_count = #reduction.to
             end
 
-            _chain_count[chain_id] = _chain_count[chain_id] + 1
+            -- 同じフレームで同じ chain_id を持つ連鎖が発生した場合、
+            -- 連鎖数をインクリメントしない
+            if not chain_id_incremented[chain_id] then
+              _chain_count[chain_id] = _chain_count[chain_id] + 1
+              chain_id_incremented[chain_id] = true
+            end
 
             -- 連鎖
             if _chain_count[chain_id] > 1 and game then
@@ -388,8 +379,7 @@ function create_board(__offset_x)
       assert(1 <= x and x <= cols, x)
       assert(1 <= y and y <= row_next_gates, y)
 
-      gate.x = x
-      gate.y = y
+      gate.x, gate.y = x, y
 
       -- おじゃまゲートを別のゲートと置き換える場合
       -- おじゃまゲートキャッシュから消す
@@ -480,8 +470,8 @@ function create_board(__offset_x)
       p = p > max_cnot_probability and max_cnot_probability or p
 
       if rnd(1) < p then
-        local control_x
-        local cnot_x_x
+        local control_x, cnot_x_x
+
         repeat
           control_x = flr(rnd(cols)) + 1
           cnot_x_x = flr(rnd(cols)) + 1
@@ -723,8 +713,7 @@ function create_board(__offset_x)
 
     -- bounce エフェクトを開始
     bounce = function(_ENV)
-      _bounce_screen_dy = 0 -- bounce による Y 方向のずれ
-      _bounce_speed = -4 -- Y 方向の速度
+      _bounce_screen_dy, _bounce_speed = 0, -4
     end,
 
     _update_bounce = function(_ENV)
@@ -875,10 +864,7 @@ function create_board(__offset_x)
       end
 
       _changed = true
-      _reduce_cache = {}
-      _is_gate_empty_cache = {}
-      _is_gate_fallable_cache = {}
-      _gate_or_its_head_gate_cache = {}
+      _reduce_cache, _is_gate_empty_cache, _is_gate_fallable_cache, _gate_or_its_head_gate_cache = {}, {}, {}, {}
     end,
 
     -------------------------------------------------------------------------------
