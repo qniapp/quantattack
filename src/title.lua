@@ -1,4 +1,4 @@
-local gamestate = require("engine/application/gamestate")
+local gamestate = require("gamestate")
 local menu_item = require("menu_item")
 local text_menu_class = require("text_menu")
 

@@ -1,4 +1,6 @@
 ---@diagnostic disable: lowercase-global
+
+-- TODO: 色を番号にし、以下の require をなくす
 require("engine/render/color")
 
 all_particles = {}

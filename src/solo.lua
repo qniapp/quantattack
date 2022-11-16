@@ -12,7 +12,7 @@ local player_cursor = create_player_cursor(board)
 local game_class = require("game")
 local game = game_class()
 
-local gamestate = require("engine/application/gamestate")
+local gamestate = require("gamestate")
 local solo = derived_class(gamestate)
 
 solo.type = ':solo'

@@ -1,4 +1,4 @@
-require("engine/core/class")
+require("class")
 --#if log
 require("engine/debug/dump")
 --#endif
@@ -59,7 +59,7 @@ function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, o
     end
 
     create_attack_cube(board:screen_x(x), board:screen_y(y), attack_cube_callback,
-                       unpack(board.gate_offset_target))
+      unpack(board.gate_offset_target))
   end
 
   return offset_height
@@ -224,8 +224,8 @@ function game:render() -- override
     if board.countdown then
       local countdown_sprite_x = { 112, 96, 80 }
       sspr(countdown_sprite_x[board.countdown], 32,
-           16, 16,
-           16 + (board.countdown == 1 and 4 or 0), board.offset_y + 56)
+        16, 16,
+        16 + (board.countdown == 1 and 4 or 0), board.offset_y + 56)
     end
   end
 

@@ -3,7 +3,7 @@ require("player")
 require("player_cursor")
 require("qpu")
 
-local gamestate = require("engine/application/gamestate")
+local gamestate = require("gamestate")
 local vs_qpu = derived_class(gamestate)
 
 local game_class = require("game")
