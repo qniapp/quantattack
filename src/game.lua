@@ -31,9 +31,39 @@ function game.combo_callback(combo_count, x, y, player, board, other_board)
     unpack(board.attack_cube_target))
 end
 
-function game.chain_callback(chain_id, chain_count, x, y, player, board, other_board)
-  local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
+local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
+function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, other_board)
+  local offset_height = chain_count
+
+  if offset_height > 2 then
+    local attack_cube_callback = function()
+      player.score = player.score + (chain_bonus[chain_count] or 180)
+
+      for _, each in pairs(board.pending_garbage_gates) do
+        if each.span == 6 then
+          if each.height > offset_height then
+            each.height = each.height - offset_height
+            break
+          else
+            offset_height = offset_height - each.height
+            del(board.pending_garbage_gates, each)
+          end
+        else
+          offset_height = offset_height - 1
+          del(board.pending_garbage_gates, each)
+        end
+      end
+    end
+
+    create_attack_cube(board:screen_x(x), board:screen_y(y), attack_cube_callback,
+                       unpack(board.gate_offset_target))
+  end
+
+  return offset_height
+end
+
+function game.chain_callback(chain_id, chain_count, x, y, player, board, other_board)
   if chain_count > 2 then
     local attack_cube_callback = function()
       player.score = player.score + (chain_bonus[chain_count] or 180)
