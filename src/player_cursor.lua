@@ -5,9 +5,7 @@ function create_player_cursor(board)
     _board = board,
 
     init = function(_ENV)
-      x = 3
-      y = 11
-      _tick = 0
+      x, y, _tick = 3, 11, 0
     end,
 
     move_left = function(_ENV)

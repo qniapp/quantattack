@@ -29,10 +29,7 @@ function create_qpu(cursor, board)
     board = board,
 
     init = function(_ENV)
-      steps, score = 0, 0
-      commands = {}
-      sleep = true
-      raise = true
+      steps, score, commands, sleep, raise = 0, 0, {}, true, true
     end,
 
     update = function(_ENV)

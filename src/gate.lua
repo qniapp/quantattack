@@ -165,33 +165,26 @@ function create_gate(_type, _span, _height)
     -------------------------------------------------------------------------------
 
     swap_with_right = function(_ENV)
-      _tick_swap = 0
-      chain_id = nil
+      _tick_swap, chain_id = 0
 
       change_state(_ENV, "swapping_with_right")
     end,
 
     swap_with_left = function(_ENV)
-      _tick_swap = 0
-      chain_id = nil
+      _tick_swap, chain_id = 0
 
       change_state(_ENV, "swapping_with_left")
     end,
 
     replace_with = function(_ENV, other, match_index, garbage_span, garbage_height, _chain_id)
-      new_gate = other
-      _match_index = match_index or 0
-      _garbage_span = garbage_span
-      _garbage_height = garbage_height
-      _tick_match = 1
-      chain_id = _chain_id
-      other.chain_id = _chain_id
+      new_gate, _match_index, _garbage_span, _garbage_height, _tick_match, chain_id, other.chain_id =
+      other, match_index or 0, garbage_span, garbage_height, 1, _chain_id, _chain_id
 
       change_state(_ENV, "match")
     end,
 
     fall = function(_ENV)
-      assert(is_fallable(_ENV))
+      assert(is_fallable(_ENV), "gate " .. type .. "(" .. x .. ", " .. y .. ")")
 
       if is_falling(_ENV) then
         return
@@ -207,9 +200,6 @@ function create_gate(_type, _span, _height)
     -------------------------------------------------------------------------------
 
     update = function(_ENV)
-      assert(x)
-      assert(y)
-
       if is_idle(_ENV) then
         if chain_id and board.gates[x][y + 1].chain_id == nil then
           chain_id = nil
@@ -402,8 +392,9 @@ function create_gate(_type, _span, _height)
     end,
 
     change_state = function(_ENV, new_state)
+      local old_state = _state
       _state = new_state
-      board:gate_update(_ENV)
+      board:gate_update(_ENV, old_state)
     end,
 
     -------------------------------------------------------------------------------
