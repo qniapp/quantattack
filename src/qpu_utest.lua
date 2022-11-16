@@ -3,7 +3,7 @@ require("board")
 require("player_cursor")
 require("qpu")
 
-describe('qpu', function()
+describe('qpu #solo', function()
   describe('create_qpu', function()
     it("creates a qpu with steps = 0, score = 0", function()
       local qpu = create_qpu()
@@ -34,7 +34,9 @@ describe('qpu', function()
     before_each(function()
       board = create_board()
       cursor = create_player_cursor(board)
-      qpu = create_qpu(cursor, false, false)
+      qpu = create_qpu(cursor, board)
+      qpu.sleep = false
+      qpu.raise = false
     end)
 
     -- ボードが次のようになっているとき、
@@ -49,7 +51,7 @@ describe('qpu', function()
       cursor.x = 2
       cursor.y = 12
 
-      qpu:update(board)
+      qpu:update()
 
       assert.are_equal(6, #qpu.commands)
       assert.are_equal("left", qpu.commands[1])
@@ -66,13 +68,13 @@ describe('qpu', function()
     --   [T  ]
     --  X Y
     it("右に落とす", function()
-      board:put(2, 12, t_gate())
-      board:put(1, 13, x_gate())
-      board:put(2, 13, y_gate())
+      board:put(2, 16, t_gate())
+      board:put(1, 17, x_gate())
+      board:put(2, 17, y_gate())
       cursor.x = 2
-      cursor.y = 12
+      cursor.y = 16
 
-      qpu:update(board)
+      qpu:update()
 
       assert.are_equal(5, #qpu.commands)
       assert.are_equal("o", qpu.commands[1])
@@ -93,7 +95,7 @@ describe('qpu', function()
       cursor.x = 1
       cursor.y = 16
 
-      qpu:update(board)
+      qpu:update()
 
       assert.are_equal(5, #qpu.commands)
       assert.are_equal("o", qpu.commands[1])
@@ -116,7 +118,7 @@ describe('qpu', function()
       cursor.x = 5
       cursor.y = 16
 
-      qpu:update(board)
+      qpu:update()
 
       assert.are_equal(6, #qpu.commands)
       assert.are_equal("left", qpu.commands[1])
@@ -144,7 +146,7 @@ describe('qpu', function()
       cursor.x = 2
       cursor.y = 16
 
-      qpu:update(board)
+      qpu:update()
 
       assert.are_equal(6, #qpu.commands)
       assert.are_equal("left", qpu.commands[1])
@@ -168,7 +170,7 @@ describe('qpu', function()
       cursor.x = 2
       cursor.y = 16
 
-      qpu:update(board)
+      qpu:update()
 
       assert.are_equal(5, #qpu.commands)
       assert.are_equal("o", qpu.commands[1])
@@ -195,7 +197,7 @@ describe('qpu', function()
       cursor.x = 5
       cursor.y = 16
 
-      qpu:update(board)
+      qpu:update()
 
       assert.are_equal(5, #qpu.commands)
       assert.are_equal("o", qpu.commands[1])
@@ -220,7 +222,7 @@ describe('qpu', function()
       cursor.x = 2
       cursor.y = 16
 
-      qpu:update(board)
+      qpu:update()
 
       assert.are_equal(5, #qpu.commands)
       assert.are_equal("o", qpu.commands[1])
@@ -246,7 +248,7 @@ describe('qpu', function()
       cursor.x = 2
       cursor.y = 16
 
-      qpu:update(board)
+      qpu:update()
 
       assert.are_equal(5, #qpu.commands)
       assert.are_equal("o", qpu.commands[1])
@@ -268,7 +270,7 @@ describe('qpu', function()
       cursor.x = 1
       cursor.y = 13
 
-      qpu:update(board)
+      qpu:update()
 
       assert.are_equal(5, #qpu.commands)
       assert.are_equal("o", qpu.commands[1])
@@ -285,7 +287,7 @@ describe('qpu', function()
       cursor.x = 1
       cursor.y = 17
 
-      qpu:update(board)
+      qpu:update()
 
       assert.are_equal(5, #qpu.commands)
       assert.are_equal("o", qpu.commands[1])
@@ -302,7 +304,7 @@ describe('qpu', function()
       cursor.x = 1
       cursor.y = 17
 
-      qpu:update(board)
+      qpu:update()
 
       assert.are_equal(5, #qpu.commands)
       assert.are_equal("o", qpu.commands[1])
@@ -323,7 +325,7 @@ describe('qpu', function()
       cursor.x = 4
       cursor.y = 16
 
-      qpu:update(board)
+      qpu:update()
 
       assert.are_equal(5, #qpu.commands)
       assert.are_equal("o", qpu.commands[1])

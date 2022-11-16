@@ -17,8 +17,8 @@ qpu2_board.attack_cube_target = { 3 + 24, 0, "left" }
 local qpu1_cursor = create_player_cursor(qpu1_board)
 local qpu2_cursor = create_player_cursor(qpu2_board)
 
-local qpu1 = create_qpu(qpu1_cursor)
-local qpu2 = create_qpu(qpu2_cursor)
+local qpu1 = create_qpu(qpu1_cursor, qpu1_board)
+local qpu2 = create_qpu(qpu2_cursor, qpu2_board)
 
 qpu_vs_qpu.type = ':qpu_vs_qpu'
 

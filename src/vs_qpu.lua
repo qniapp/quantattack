@@ -12,7 +12,7 @@ local game = game_class()
 local board, qpu_board = create_board(2), create_board(79)
 board.attack_cube_target, qpu_board.attack_cube_target = { 79 + 24, 0 }, { 2 + 24, 0, "left" }
 local player_cursor, qpu_cursor = create_player_cursor(board), create_player_cursor(qpu_board)
-local player, qpu = create_player(), create_qpu(qpu_cursor)
+local player, qpu = create_player(), create_qpu(qpu_cursor, qpu_board)
 
 vs_qpu.type = ':vs_qpu'
 
