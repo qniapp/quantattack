@@ -43,14 +43,6 @@ function gate_class()
       return false
     end,
 
-    is_fallable = function()
-      return false
-    end,
-
-    is_reducible = function()
-      return false
-    end,
-
     is_single_gate = function()
       return false
     end,
@@ -63,8 +55,16 @@ function gate_class()
       return _state == "idle"
     end,
 
+    is_fallable = function()
+      return false
+    end,
+
     is_falling = function(_ENV)
       return _state == "falling"
+    end,
+
+    is_reducible = function(_ENV)
+      return is_idle(_ENV)
     end,
 
     -- マッチ状態である場合 true を返す

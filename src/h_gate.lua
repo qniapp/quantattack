@@ -5,19 +5,14 @@ require("gate_class")
 function h_gate()
   local h = setmetatable({
     type = "h",
-    span = 1, -- TODO: gate_class でデフォルト 1 にしとく
 
     is_single_gate = function()
       return true
     end,
 
+    -- gate_class に移動
     is_fallable = function(_ENV)
       return not (is_swapping(_ENV) or is_freeze(_ENV))
-    end,
-
-    -- TODO: gate_class でコレにしておいて、i と ! では false を返す関数でオーバーライド
-    is_reducible = function(_ENV)
-      return is_idle(_ENV)
     end,
 
     -------------------------------------------------------------------------------
@@ -25,16 +20,16 @@ function h_gate()
     -------------------------------------------------------------------------------
 
     _update_swap = function(_ENV)
-      -- TODO: そもそもちゃんと 4 フレームで終わってるか確認
       if _tick_swap < gate_swap_animation_frame_count then
         _tick_swap = _tick_swap + 1
       else
+        -- FIXME: 以下の処理はそもそも board 側でやるのが正しい
+
         -- SWAP 完了
         local new_x = x + 1
         local orig_x = x
         local right_gate = board.gates[new_x][y]
 
-        -- FIXME: この処理はそもそも board 側でやるのが正しい
         board:put(new_x, y, _ENV)
         board:put(orig_x, y, right_gate)
 
