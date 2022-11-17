@@ -1,8 +1,9 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
 require("gate")
-require("i_gate")
+require("h_gate")
 require("helpers")
+require("i_gate")
 
 local reduction_rules = require("reduction_rules")
 
@@ -106,7 +107,17 @@ function create_board(__offset_x)
             end
 
             for index, r in pairs(reduction.to) do
-              local dx, dy, new_gate = r.dx and reduction.dx or 0, r.dy or 0, create_gate(r.gate_type)
+              -- i_gate() や h_gate() 用の create_gate(type) がないので、
+              -- とりあえず場合分けしとく
+              -- local dx, dy, new_gate = r.dx and reduction.dx or 0, r.dy or 0, create_gate(r.gate_type)
+              local dx, dy, new_gate = r.dx and reduction.dx or 0, r.dy or 0
+              if r.gate_type == "i" then
+                new_gate = i_gate()
+              elseif r.gate_type == "h" then
+                new_gate = h_gate()
+              else
+                new_gate = create_gate(r.gate_type)
+              end
 
               if new_gate.type == "swap" or new_gate.type == "cnot_x" or new_gate.type == "control" then
                 if r.dx then

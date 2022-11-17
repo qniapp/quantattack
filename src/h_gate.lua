@@ -1,15 +1,23 @@
----@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
+---@diagnostic disable: global-in-nil-env
 
 require("gate_class")
 
-function i_gate()
-  local i = setmetatable({
-    is_i = function()
+function h_gate()
+  local h = setmetatable({
+    type = "h",
+    span = 1, -- TODO: gate_class でデフォルト 1 にしとく
+
+    is_single_gate = function()
       return true
     end,
 
-    is_empty = function(_ENV)
-      return not is_swapping(_ENV)
+    is_fallable = function(_ENV)
+      return not (is_swapping(_ENV) or is_freeze(_ENV))
+    end,
+
+    -- TODO: gate_class でコレにしておいて、i と ! では false を返す関数でオーバーライド
+    is_reducible = function(_ENV)
+      return is_idle(_ENV)
     end,
 
     -------------------------------------------------------------------------------
@@ -32,10 +40,10 @@ function i_gate()
 
         if other_x == nil and right_gate.other_x == nil then -- 1.
           -- NOP
-
-          -- FIXME: is_i() は常に成り立つので、次の elseif をなくす
         elseif not is_i(_ENV) and right_gate:is_i() then -- 2.
           board.gates[other_x][y].other_x = new_x
+
+          -- FIXME: is_i() は常に成り立たないので、次の elseif をなくす
         elseif is_i(_ENV) and not right_gate:is_i() then -- 3.
           board.gates[right_gate.other_x][y].other_x = orig_x
         elseif other_x and right_gate.other_x then -- 4.
@@ -49,16 +57,29 @@ function i_gate()
       end
     end,
 
+    -- TODO: gate_class に移動
+    fall = function(_ENV)
+      assert(is_fallable(_ENV), "gate " .. type .. "(" .. x .. ", " .. y .. ")")
+
+      if is_falling(_ENV) then
+        return
+      end
+
+      _fall_screen_dy = 0
+
+      change_state(_ENV, "falling")
+    end,
+
     -------------------------------------------------------------------------------
     -- debug
     -------------------------------------------------------------------------------
 
     --#if debug
     _tostring = function(_ENV)
-      return '_' .. statestr[_state]
+      return 'h' .. statestr[_state]
     end
     --#endif
   }, { __index = gate_class() }):_init()
 
-  return i
+  return h
 end

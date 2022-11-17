@@ -1,5 +1,6 @@
 require("engine/test/bustedhelper")
 require("board")
+require("h_gate")
 require("player_cursor")
 require("qpu")
 

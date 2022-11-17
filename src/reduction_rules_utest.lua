@@ -1,6 +1,7 @@
 require("engine/test/bustedhelper")
 require("board")
 require("gate")
+require("h_gate")
 
 describe('ゲートの簡約ルール', function()
   local board

@@ -13,11 +13,16 @@ function gate_class()
 
     _init = function(_ENV)
       _state = "idle"
+      return _ENV
     end,
 
     -------------------------------------------------------------------------------
     -- ゲートの種類
     -------------------------------------------------------------------------------
+
+    is_i = function()
+      return false
+    end,
 
     is_control = function()
       return false
@@ -65,6 +70,11 @@ function gate_class()
       return _state == "match"
     end,
 
+    -- おじゃまユニタリがゲートに変化した後の硬直中
+    is_freeze = function(_ENV)
+      return _state == "freeze"
+    end,
+
     is_swapping = function(_ENV)
       return _is_swapping_with_right(_ENV) or _is_swapping_with_left(_ENV)
     end,
@@ -75,6 +85,10 @@ function gate_class()
 
     _is_swapping_with_right = function(_ENV)
       return _state == "swapping_with_right"
+    end,
+
+    is_empty = function(_ENV)
+      return false
     end,
 
     -------------------------------------------------------------------------------
@@ -93,6 +107,14 @@ function gate_class()
       change_state(_ENV, "swapping_with_left")
     end,
 
+    -- FIXME: 引数の整理 (なんで garbage_span や garbage_height があるんだっけ?)
+    replace_with = function(_ENV, other, match_index, garbage_span, garbage_height, _chain_id)
+      new_gate, _match_index, _garbage_span, _garbage_height, _tick_match, chain_id, other.chain_id =
+      other, match_index or 0, garbage_span, garbage_height, 1, _chain_id, _chain_id
+
+      change_state(_ENV, "match")
+    end,
+
     -------------------------------------------------------------------------------
     -- update and render
     -------------------------------------------------------------------------------
@@ -102,11 +124,77 @@ function gate_class()
         _update_idle(_ENV)
       elseif is_swapping(_ENV) then
         _update_swap(_ENV)
+      elseif is_falling(_ENV) then
+        _update_falling(_ENV)
+      elseif is_match(_ENV) then
+        _update_match(_ENV)
       end
     end,
 
     _update_idle = function()
       -- NOP
+    end,
+
+    -- FIXME: board 側でやる
+    _update_falling = function(_ENV)
+      -- 一個下が空いていない場合、落下を終了
+      if not board:is_gate_fallable(x, y) then
+        -- おじゃまユニタリの最初の落下
+        if _garbage_first_drop then
+          board:bounce()
+          sfx(1)
+          _garbage_first_drop = false
+        else
+          sfx(4)
+        end
+
+        _fall_screen_dy = 0
+        _tick_landed = 1
+
+        change_state(_ENV, "idle")
+
+        if other_x and x < other_x then
+          local other_gate = board.gates[other_x][y]
+          other_gate._tick_landed = 1
+          other_gate._fall_screen_dy = 0
+
+          other_gate:change_state("idle")
+        end
+      else
+        _fall_screen_dy = _fall_screen_dy + gate_fall_speed
+
+        local new_y = y
+
+        if _fall_screen_dy >= 8 then
+          new_y = new_y + 1
+        end
+
+        if new_y == y then
+          -- 同じ場所にとどまっている場合、何もしない
+        elseif board:is_gate_fallable(x, y) then
+          local orig_y = y
+
+          -- 一個下が空いている場合、そこに移動する
+          board:remove_gate(x, y)
+          board:put(x, new_y, _ENV)
+          _fall_screen_dy = _fall_screen_dy - 8
+
+          if other_x and x < other_x then
+            local other_gate = board.gates[other_x][orig_y]
+            board:remove_gate(other_x, orig_y)
+            board:put(other_x, new_y, other_gate)
+            other_gate._fall_screen_dy = _fall_screen_dy
+          end
+        end
+      end
+    end,
+
+    _update_match = function(_ENV)
+      if _tick_match <= gate_match_animation_frame_count + _match_index * gate_match_delay_per_gate then
+        _tick_match = _tick_match + 1
+      else
+        board:put(x, y, new_gate)
+      end
     end,
 
     render = function()
