@@ -12,6 +12,10 @@ function i_gate()
       return not is_swapping(_ENV)
     end,
 
+    is_fallable = function()
+      return false
+    end,
+
     is_reducible = function()
       return false
     end,

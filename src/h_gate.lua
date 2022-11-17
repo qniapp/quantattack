@@ -10,11 +10,6 @@ function h_gate()
       return true
     end,
 
-    -- gate_class に移動
-    is_fallable = function(_ENV)
-      return not (is_swapping(_ENV) or is_freeze(_ENV))
-    end,
-
     -------------------------------------------------------------------------------
     -- update and render
     -------------------------------------------------------------------------------
@@ -70,6 +65,7 @@ function h_gate()
     -------------------------------------------------------------------------------
 
     --#if debug
+    -- TODO: 'h' の部分を type にして、gate_class に移動
     _tostring = function(_ENV)
       return 'h' .. statestr[_state]
     end

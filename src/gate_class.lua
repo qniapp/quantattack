@@ -59,6 +59,10 @@ function gate_class()
       return false
     end,
 
+    is_fallable = function(_ENV)
+      return not (is_swapping(_ENV) or is_freeze(_ENV))
+    end,
+
     is_falling = function(_ENV)
       return _state == "falling"
     end,
