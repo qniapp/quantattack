@@ -113,6 +113,18 @@ function gate_class()
       change_state(_ENV, "swapping_with_left")
     end,
 
+    fall = function(_ENV)
+      assert(is_fallable(_ENV), "gate " .. type .. "(" .. x .. ", " .. y .. ")")
+
+      if is_falling(_ENV) then
+        return
+      end
+
+      _fall_screen_dy = 0
+
+      change_state(_ENV, "falling")
+    end,
+
     -- FIXME: 引数の整理 (なんで garbage_span や garbage_height があるんだっけ?)
     replace_with = function(_ENV, other, match_index, garbage_span, garbage_height, _chain_id)
       new_gate, _match_index, _garbage_span, _garbage_height, _tick_match, chain_id, other.chain_id =

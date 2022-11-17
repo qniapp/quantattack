@@ -47,19 +47,6 @@ function h_gate()
       end
     end,
 
-    -- TODO: gate_class に移動
-    fall = function(_ENV)
-      assert(is_fallable(_ENV), "gate " .. type .. "(" .. x .. ", " .. y .. ")")
-
-      if is_falling(_ENV) then
-        return
-      end
-
-      _fall_screen_dy = 0
-
-      change_state(_ENV, "falling")
-    end,
-
     -------------------------------------------------------------------------------
     -- debug
     -------------------------------------------------------------------------------
