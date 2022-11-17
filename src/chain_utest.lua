@@ -110,7 +110,7 @@ describe('連鎖 (chain)', function()
   -- G G G      X Y Z
   -- H     --->       --->
   -- H Y          Y        X   Z
-  it("おじゃまゲート 2 連鎖", function()
+  it("おじゃまゲート 2 連鎖 #solo", function()
     board:put(1, 15, garbage_gate(3, 1))
     board:put(1, 16, h_gate())
     board:put(1, 17, h_gate())

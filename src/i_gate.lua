@@ -4,6 +4,8 @@ require("gate_class")
 
 function i_gate()
   local i = setmetatable({
+    type_string = "_",
+
     is_i = function()
       return true
     end,
@@ -55,17 +57,7 @@ function i_gate()
         change_state(_ENV, "idle")
         right_gate:change_state("idle")
       end
-    end,
-
-    -------------------------------------------------------------------------------
-    -- debug
-    -------------------------------------------------------------------------------
-
-    --#if debug
-    _tostring = function(_ENV)
-      return '_' .. statestr[_state]
     end
-    --#endif
   }, { __index = gate_class() }):_init()
 
   return i

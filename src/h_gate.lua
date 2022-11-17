@@ -45,18 +45,7 @@ function h_gate()
         change_state(_ENV, "idle")
         right_gate:change_state("idle")
       end
-    end,
-
-    -------------------------------------------------------------------------------
-    -- debug
-    -------------------------------------------------------------------------------
-
-    --#if debug
-    -- TODO: 'h' の部分を type にして、gate_class に移動
-    _tostring = function(_ENV)
-      return 'h' .. statestr[_state]
     end
-    --#endif
   }, { __index = gate_class() }):_init()
 
   return h

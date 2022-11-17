@@ -55,10 +55,6 @@ function gate_class()
       return _state == "idle"
     end,
 
-    is_fallable = function()
-      return false
-    end,
-
     is_fallable = function(_ENV)
       return not (is_swapping(_ENV) or is_freeze(_ENV))
     end,
@@ -232,6 +228,16 @@ function gate_class()
       _state = new_state
       board:gate_update(_ENV, old_state)
     end,
+
+    -------------------------------------------------------------------------------
+    -- debug
+    -------------------------------------------------------------------------------
+
+    --#if debug
+    _tostring = function(_ENV)
+      return (type_string or type) .. statestr[_state]
+    end
+    --#endif
   }, { __index = _ENV })
 
   gate_base:_init()
