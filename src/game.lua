@@ -233,8 +233,8 @@ function game:render() -- override
   render_bubbles()
   render_attack_cubes()
 
-  print_outlined(stat(1), 1, 1, 7)
-  print_outlined(stat(7), 1, 8, 7)
+  print_outlined(stat(1), 1, 112, 7)
+  print_outlined(stat(7), 1, 120, 7)
 end
 
 -- ゲートをせりあげる

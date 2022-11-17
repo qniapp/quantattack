@@ -55,7 +55,7 @@ function create_board(__offset_x)
     end,
 
     reduce_gates = function(_ENV, game, player, other_board)
-      local chain_id_incremented, combo_count = {}
+      local chain_id_callbacked, combo_count = {}
 
       for x, col in pairs(reducible_gates) do
         for y, each in pairs(col) do
@@ -83,13 +83,12 @@ function create_board(__offset_x)
 
             -- 同じフレームで同じ chain_id を持つ連鎖が発生した場合、
             -- 連鎖数をインクリメントしない
-            if not chain_id_incremented[chain_id] then
+            if not chain_id_callbacked[chain_id] then
               _chain_count[chain_id] = _chain_count[chain_id] + 1
-              chain_id_incremented[chain_id] = true
             end
 
             -- 連鎖
-            if _chain_count[chain_id] > 1 and game then
+            if not chain_id_callbacked[chain_id] and _chain_count[chain_id] > 1 and game then
               if #pending_garbage_gates > 1 then
                 local offset_height_left = game.gate_offset_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV
                   , other_board)
@@ -102,6 +101,7 @@ function create_board(__offset_x)
                 -- そうでなければ、相手に攻撃
                 game.chain_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
               end
+              chain_id_callbacked[chain_id] = true
             end
 
             for index, r in pairs(reduction.to) do
@@ -400,39 +400,49 @@ function create_board(__offset_x)
       end
 
       local colors = { 2, 3, 4 }
-      add(pending_garbage_gates,
-        { chain_id = chain_id, span = span, height = _height, color = colors[flr(rnd(#colors)) + 1], wait_time = 120 })
+      local new_garbage_gate = garbage_gate(span, _height, colors[flr(rnd(#colors)) + 1])
+      new_garbage_gate.chain_id = chain_id
+      new_garbage_gate.wait_time = 60
+      new_garbage_gate.dx = 0
+      new_garbage_gate.dy = 0
+      add(pending_garbage_gates, new_garbage_gate)
     end,
 
-    _updatepending_garbage_gates = function(_ENV)
-      for _, each in pairs(pending_garbage_gates) do
-        if each.wait_time > 0 then
-          each.wait_time = each.wait_time - 1
-        end
+    _update_pending_garbage_gates = function(_ENV)
+      local first_garbage_gate = pending_garbage_gates[1]
 
-        if each.wait_time == 0 then
+      if first_garbage_gate then
+        if first_garbage_gate.tick_fall then
+          if first_garbage_gate.tick_fall == 0 then
+            del(pending_garbage_gates, first_garbage_gate)
+            put(_ENV, first_garbage_gate.x, 1, first_garbage_gate)
+            first_garbage_gate:fall()
+          else
+            first_garbage_gate.dx = flr(rnd(3)) - 1
+            first_garbage_gate.dy = flr(rnd(3)) - 1
+            first_garbage_gate.tick_fall = first_garbage_gate.tick_fall - 1
+          end
+        elseif first_garbage_gate.wait_time == 0 then
+          -- 落とす時の x 座標を決める
           local x
-          if each.span == 6 then
+          if first_garbage_gate.span == 6 then
             x = 1
           else
-            x = flr(rnd(cols - each.span + 1)) + 1
+            x = flr(rnd(cols - first_garbage_gate.span + 1)) + 1
           end
 
-          for i = x, x + each.span - 1 do
-            -- おじゃまゲートをバラして落とす
+          for i = x, x + first_garbage_gate.span - 1 do
             if not is_gate_empty(_ENV, i, 1) or not is_gate_empty(_ENV, i, 2) then
-              goto next_garbage_gate
+              return
             end
           end
 
-          del(pending_garbage_gates, each)
-
-          local new_garbage = garbage_gate(each.span, each.height, each.color)
-          put(_ENV, x, 1, new_garbage)
-          new_garbage:fall()
+          -- 落とせることが確定
+          first_garbage_gate.x = x
+          first_garbage_gate.tick_fall = 30
+        else
+          first_garbage_gate.wait_time = first_garbage_gate.wait_time - 1
         end
-
-        ::next_garbage_gate::
       end
     end,
 
@@ -527,7 +537,7 @@ function create_board(__offset_x)
         state = "over"
       end
 
-      _updatepending_garbage_gates(_ENV)
+      _update_pending_garbage_gates(_ENV)
       _update_bounce(_ENV)
 
       if state == "play" then
@@ -593,6 +603,28 @@ function create_board(__offset_x)
       line(offset_x - 2, 40,
         offset_x + 48 + 1, 40,
         _is_topped_out(_ENV) and 8 or 1)
+
+      -- 待機中のおじゃまゲート
+      for i, garbage in pairs(pending_garbage_gates) do
+        local x0 = offset_x + 1 + (i - 1) * 9 + garbage.dx
+        local y0 = offset_y + garbage.dy
+
+        if garbage.tick_fall then
+          pal(7, garbage.inner_border_color)
+          pal(6, garbage.inner_border_color)
+        end
+
+        if garbage.span < 6 then
+          sspr(96, 48, 13, 11, x0, y0)
+        else
+          sspr(80, 48, 13, 11, x0, y0)
+          cursor(x0 + 5, y0 + 4)
+          color(8)
+          print(garbage.height)
+        end
+
+        pal()
+      end
 
       -- WIN! または LOSE を描画
       if is_game_over(_ENV) then
