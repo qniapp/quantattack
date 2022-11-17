@@ -54,6 +54,12 @@ describe('i_gate', function()
     end)
   end)
 
+  describe("is_reducible #solo", function()
+    it("should return false", function()
+      assert.is_false(i:is_reducible())
+    end)
+  end)
+
   describe("stringify", function()
     it("should return '_ '", function()
       assert.are.equals("_ ", stringify(i))
