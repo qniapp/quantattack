@@ -16,7 +16,6 @@ function i_gate()
       return not is_swapping(_ENV)
     end,
 
-    -- TODO: i_gate:fall() でエラーが出ることのテスト
     is_fallable = function()
       return false
     end,

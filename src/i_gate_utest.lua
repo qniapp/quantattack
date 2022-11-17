@@ -54,9 +54,15 @@ describe('i_gate', function()
     end)
   end)
 
-  describe("is_reducible #solo", function()
+  describe("is_reducible", function()
     it("should return false", function()
       assert.is_false(i:is_reducible())
+    end)
+  end)
+
+  describe("fall", function()
+    it("should raise", function()
+      assert.error(function() i:fall() end)
     end)
   end)
 

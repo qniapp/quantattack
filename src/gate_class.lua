@@ -112,6 +112,7 @@ function gate_class()
     fall = function(_ENV)
       assert(is_fallable(_ENV), "gate " .. type .. "(" .. x .. ", " .. y .. ")")
 
+      -- ???: すでに落ちてるやつは fall() を呼ばれるべきではない?
       if is_falling(_ENV) then
         return
       end
