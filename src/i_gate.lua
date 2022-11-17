@@ -1,23 +1,90 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
+
 function gate_class()
   local gate_base = setmetatable({
+    gate_swap_animation_frame_count = 4,
+
     _init = function(_ENV)
       _state = "idle"
     end,
-  }, { __index = _ENV })
 
-  gate_base:_init()
+    -------------------------------------------------------------------------------
+    -- ゲートの種類
+    -------------------------------------------------------------------------------
 
-  return gate_base
-end
+    is_control = function()
+      return false
+    end,
 
-function i_gate()
-  local i = setmetatable({
-    gate_swap_animation_frame_count = 4,
+    is_cnot_x = function()
+      return false
+    end,
 
-    -- TODO: gate ベースクラスから継承して、ここには何も書かなくていいようにする
-    _init = function(_ENV)
-      _state = "idle"
+    is_swap = function()
+      return false
+    end,
+
+    -- おじゃまゲートの先頭 (おじゃまゲート全体の左下) である場合 true を返す
+    -- TODO: is_garbage_head() に名前を変更
+    is_garbage = function()
+      return false
+    end,
+
+    is_fallable = function()
+      return false
+    end,
+
+    is_reducible = function()
+      return false
+    end,
+
+    is_single_gate = function()
+      return false
+    end,
+
+    -------------------------------------------------------------------------------
+    -- ゲートの状態
+    -------------------------------------------------------------------------------
+
+    is_idle = function(_ENV)
+      return _state == "idle"
+    end,
+
+    is_falling = function(_ENV)
+      return _state == "falling"
+    end,
+
+    -- マッチ状態である場合 true を返す
+    is_match = function(_ENV)
+      return _state == "match"
+    end,
+
+    is_swapping = function(_ENV)
+      return _is_swapping_with_right(_ENV) or _is_swapping_with_left(_ENV)
+    end,
+
+    _is_swapping_with_left = function(_ENV)
+      return _state == "swapping_with_left"
+    end,
+
+    _is_swapping_with_right = function(_ENV)
+      return _state == "swapping_with_right"
+    end,
+
+    -------------------------------------------------------------------------------
+    -- ゲート操作
+    -------------------------------------------------------------------------------
+
+    swap_with_right = function(_ENV)
+      _tick_swap, chain_id = 0
+
+      change_state(_ENV, "swapping_with_right")
+    end,
+
+    swap_with_left = function(_ENV)
+      _tick_swap, chain_id = 0
+
+      change_state(_ENV, "swapping_with_left")
     end,
 
     -------------------------------------------------------------------------------
@@ -32,12 +99,49 @@ function i_gate()
       end
     end,
 
-    -- TODO: gate ベースクラスから継承して、ここには何も書かなくていいようにする
-    _update_idle = function(_ENV)
+    _update_idle = function()
+      -- NOP
     end,
 
+    render = function()
+      -- NOP
+    end,
+
+    -------------------------------------------------------------------------------
+    -- 未整理
+    -------------------------------------------------------------------------------
+
+    attach = function(_ENV, _board)
+      board = _board
+    end,
+
+    change_state = function(_ENV, new_state)
+      local old_state = _state
+      _state = new_state
+      board:gate_update(_ENV, old_state)
+    end,
+  }, { __index = _ENV })
+
+  gate_base:_init()
+
+  return gate_base
+end
+
+function i_gate()
+  local i = setmetatable({
+    is_i = function()
+      return true
+    end,
+
+    is_empty = function(_ENV)
+      return not is_swapping(_ENV)
+    end,
+
+    -------------------------------------------------------------------------------
+    -- update and render
+    -------------------------------------------------------------------------------
+
     _update_swap = function(_ENV)
-      -- TODO: update_swap() とする
       -- TODO: そもそもちゃんと 4 フレームで終わってるか確認
       if _tick_swap < gate_swap_animation_frame_count then
         _tick_swap = _tick_swap + 1
@@ -68,135 +172,6 @@ function i_gate()
       end
     end,
 
-    -- TODO: gate ベースクラスから継承して、ここには何も書かなくていいようにする
-    render = function(_ENV)
-      -- NOP
-    end,
-
-    -------------------------------------------------------------------------------
-    -- ゲートの種類
-    -------------------------------------------------------------------------------
-
-    -- おじゃまゲートの先頭 (おじゃまゲート全体の左下) である場合 true を返す
-    -- TODO: gate ベースクラスから継承して、デフォルト false を返すようにする
-    -- TODO: is_garbage_head() に名前を変更
-    -- TODO: 引数の _ENV いらない
-    is_garbage = function(_ENV)
-      return false
-    end,
-
-    -- TODO: 引数の _ENV いらない
-    is_i = function(_ENV)
-      return true
-    end,
-
-    -- TODO: gate ベースクラスから継承、デフォルト false
-    -- TODO: 引数の _ENV いらない
-    is_control = function(_ENV)
-      return false
-    end,
-
-    -- TODO: gate ベースクラスから継承、デフォルト false
-    -- TODO: 引数の _ENV いらない
-    is_cnot_x = function(_ENV)
-      return false
-    end,
-
-    -- TODO: gate ベースクラスから継承、デフォルト false
-    -- TODO: 引数の _ENV いらない
-    is_swap = function(_ENV)
-      return false
-    end,
-
-    -- TODO: gate ベースクラスから継承、デフォルト false
-    -- TODO: 引数の _ENV いらない
-    is_single_gate = function(_ENV)
-      return false
-    end,
-
-    -- TODO: gate ベースクラスから継承して、デフォルト false を返すようにする
-    -- TODO: 引数の _ENV いらない
-    is_reducible = function(_ENV)
-      return false
-    end,
-
-    -- TODO: gate ベースクラスから継承して、デフォルト false を返すようにする
-    -- TODO: 引数の _ENV いらない
-    is_fallable = function(_ENV)
-      return false
-    end,
-
-    -------------------------------------------------------------------------------
-    -- ゲートの状態
-    -------------------------------------------------------------------------------
-
-    -- TODO: gate ベースクラスから継承
-    is_idle = function(_ENV)
-      return _state == "idle"
-    end,
-
-    is_empty = function(_ENV)
-      return not is_swapping(_ENV)
-    end,
-
-    -- TODO: gate ベースクラスから継承
-    -- ???: そのそも I ゲートは falling 状態にならないから、デフォルト false でよい?
-    is_falling = function(_ENV)
-      return _state == "falling"
-    end,
-
-    -- マッチ状態である場合 true を返す
-    -- TODO: gate ベースクラスから継承
-    is_match = function(_ENV)
-      return _state == "match"
-    end,
-
-    -- TODO: gate ベースクラスから継承
-    is_swapping = function(_ENV)
-      return _is_swapping_with_right(_ENV) or _is_swapping_with_left(_ENV)
-    end,
-
-    -- TODO: gate ベースクラスから継承
-    _is_swapping_with_left = function(_ENV)
-      return _state == "swapping_with_left"
-    end,
-
-    -- TODO: gate ベースクラスから継承
-    _is_swapping_with_right = function(_ENV)
-      return _state == "swapping_with_right"
-    end,
-
-    -------------------------------------------------------------------------------
-    -- ゲート操作
-    -------------------------------------------------------------------------------
-
-    swap_with_right = function(_ENV)
-      _tick_swap, chain_id = 0
-
-      change_state(_ENV, "swapping_with_right")
-    end,
-
-    swap_with_left = function(_ENV)
-      _tick_swap, chain_id = 0
-
-      change_state(_ENV, "swapping_with_left")
-    end,
-
-    -------------------------------------------------------------------------------
-    -- 未整理
-    -------------------------------------------------------------------------------
-
-    -- TODO: gate ベースクラスから継承する
-    attach = function(_ENV, _board)
-      board = _board
-    end,
-
-    change_state = function(_ENV, new_state)
-      local old_state = _state
-      _state = new_state
-      board:gate_update(_ENV, old_state)
-    end,
-
     -------------------------------------------------------------------------------
     -- debug
     -------------------------------------------------------------------------------
@@ -212,8 +187,9 @@ function i_gate()
 
       return '_' .. statestr[_state]
     end
+
     --#endif
-  }, { __index = _ENV })
+  }, { __index = gate_class() })
 
   i:_init()
 
