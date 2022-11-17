@@ -3,6 +3,13 @@
 function gate_class()
   local gate_base = setmetatable({
     gate_swap_animation_frame_count = 4,
+    --#if debug
+    statestr = {
+      idle = " ",
+      swapping_with_left = "<",
+      swapping_with_right = ">",
+    },
+    --#endif
 
     _init = function(_ENV)
       _state = "idle"
@@ -178,16 +185,8 @@ function i_gate()
 
     --#if debug
     _tostring = function(_ENV)
-      local statestr =
-      {
-        idle = " ",
-        swapping_with_left = "<",
-        swapping_with_right = ">",
-      }
-
       return '_' .. statestr[_state]
     end
-
     --#endif
   }, { __index = gate_class() })
 
