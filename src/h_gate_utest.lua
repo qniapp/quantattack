@@ -17,6 +17,12 @@ describe('h_gate', function()
       end)
     end)
 
+    describe("is_single_gate #solo", function()
+      it("should return true", function()
+        assert.is_true(h:is_single_gate())
+      end)
+    end)
+
     describe("is_garbage", function()
       it("should return false", function()
         assert.is_false(h:is_garbage())
