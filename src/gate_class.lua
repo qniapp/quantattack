@@ -2,7 +2,9 @@
 
 function gate_class()
   local gate_base = setmetatable({
+    span = 1,
     gate_swap_animation_frame_count = 4,
+
     --#if debug
     statestr = {
       idle = " ",
