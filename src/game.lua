@@ -43,12 +43,14 @@ function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, o
       if other_board then
         for _, each in pairs(board.pending_garbage_gates) do
           if each.span == 6 then
-            if each.height > offset_height then
-              each.height = each.height - offset_height
-              break
-            else
-              offset_height = offset_height - each.height
-              del(board.pending_garbage_gates, each)
+            if not each.tick_fall then
+              if each.height > offset_height then
+                each.height = each.height - offset_height
+                break
+              else
+                offset_height = offset_height - each.height
+                del(board.pending_garbage_gates, each)
+              end
             end
           else
             offset_height = offset_height - 1
@@ -225,7 +227,7 @@ function game:render() -- override
       local countdown_sprite_x = { 112, 96, 80 }
       sspr(countdown_sprite_x[board.countdown], 32,
         16, 16,
-        16 + (board.countdown == 1 and 4 or 0), board.offset_y + 56)
+        board.offset_x + 16 + (board.countdown == 1 and 4 or 0), board.offset_y + 56)
     end
   end
 
