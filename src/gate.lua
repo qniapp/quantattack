@@ -222,7 +222,7 @@ function create_gate(_type, _span, _height)
           local new_x = x + 1
           local right_gate = board.gates[new_x][y]
 
-          assert(_is_swapping_with_right(_ENV), _state)
+          assert(_is_swapping_with_right(_ENV), "_state = " .. _state)
           assert(right_gate:_is_swapping_with_left(), right_gate._state)
 
           if not right_gate:is_i() then
@@ -427,10 +427,6 @@ end
 -------------------------------------------------------------------------------
 -- helpers
 -------------------------------------------------------------------------------
-
-function i_gate()
-  return create_gate('i')
-end
 
 function h_gate()
   return create_gate('h')

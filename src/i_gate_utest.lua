@@ -1,5 +1,5 @@
 require("engine/test/bustedhelper")
-require("gate")
+require("i_gate")
 
 describe('i_gate', function()
   local i

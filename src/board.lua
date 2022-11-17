@@ -1,6 +1,7 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
 require("gate")
+require("i_gate")
 require("helpers")
 
 local reduction_rules = require("reduction_rules")
