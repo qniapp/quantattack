@@ -1,4 +1,16 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
+function gate_class()
+  local gate_base = setmetatable({
+    _init = function(_ENV)
+      _state = "idle"
+    end,
+  }, { __index = _ENV })
+
+  gate_base:_init()
+
+  return gate_base
+end
+
 function i_gate()
   local i = setmetatable({
     gate_swap_animation_frame_count = 4,
