@@ -810,13 +810,13 @@ function create_board(__offset_x)
       for tmp_x = 1, x - 1 do
         local gate = gates[tmp_x][y]
 
-        if (gate:is_cnot_x() or gate:is_control()) and x < gate.other_x then
+        if (gate:is_cnot_x() or gate.type == "control") and x < gate.other_x then
           return gate
         end
       end
 
       local gate = gates[x][y]
-      return (gate:is_cnot_x() or gate:is_control()) and gate or nil
+      return (gate:is_cnot_x() or gate.type == "control") and gate or nil
     end,
 
     -- x, y が SWAP ペアの一部であるかどうかを返す

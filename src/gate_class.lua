@@ -24,10 +24,6 @@ function gate_class()
 
     -- TODO: たいして短くならないので、このメソッドを消す
     -- そもそも、子クラスの情報が親 (gate_class) に入ってるのがおかしい
-    is_control = function()
-      return false
-    end,
-
     is_cnot_x = function()
       return false
     end,

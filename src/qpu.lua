@@ -119,7 +119,7 @@ function create_qpu(cursor, board)
         --
         --   [X-]--C
         --   [C-]--X
-        if (each:is_cnot_x() or each:is_control()) and each_x + 1 < each.other_x then
+        if (each:is_cnot_x() or each.type == "control") and each_x + 1 < each.other_x then
           move_and_swap(_ENV, each_x, each_y, true)
           return true
         end
@@ -128,7 +128,7 @@ function create_qpu(cursor, board)
         --
         --   C-X --> X-C
         --   X-C --> X-C
-        if each:is_control() and each.other_x == each_x + 1 then
+        if each.type == "control" and each.other_x == each_x + 1 then
           move_and_swap(_ENV, each_x, each_y, true)
           return true
         end
@@ -137,7 +137,7 @@ function create_qpu(cursor, board)
         --
         --   X-[C ]
         if each_x < board.cols and
-            each:is_control() and each.other_x < each_x and _is_empty(board, each_x + 1, each_y) then
+            each.type == "control" and each.other_x < each_x and _is_empty(board, each_x + 1, each_y) then
           move_and_swap(_ENV, each_x, each_y, true)
           return true
         end
@@ -148,7 +148,7 @@ function create_qpu(cursor, board)
         --  X-C  ■
         if each_x > 1 and each_y < board.rows and
             _is_empty(board, each_x - 1, each_y) and each:is_cnot_x() and each.other_x == each_x + 1 and
-            board:reducible_gate_at(each_x, each_y + 1):is_control() and
+            board:reducible_gate_at(each_x, each_y + 1).type == "control" and
             board:reducible_gate_at(each_x, each_y + 1).other_x == each_x - 1 then
           move_and_swap(_ENV, each_x - 1, each_y, true)
           return true
@@ -160,7 +160,7 @@ function create_qpu(cursor, board)
         -- [  X]-C
         if each_x > 1 and each_y > 1 and
             _is_empty(board, each_x - 1, each_y) and each:is_cnot_x() and each.other_x == each_x + 1 and
-            board:reducible_gate_at(each_x, each_y - 1):is_control() and
+            board:reducible_gate_at(each_x, each_y - 1).type == "control" and
             board:reducible_gate_at(each_x, each_y - 1).other_x == each_x - 1 then
           move_and_swap(_ENV, each_x - 1, each_y, true)
           return true
