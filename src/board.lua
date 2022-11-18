@@ -874,6 +874,39 @@ function create_board(__offset_x)
     gate_update = function(_ENV, gate, old_state)
       local x, y = gate.x, gate.y
 
+      if old_state == "swapping_with_right" and gate:is_idle() then
+        local new_x = x + 1
+        local right_gate = gates[new_x][y]
+
+        assert(right_gate:_is_swapping_with_left(), right_gate._state)
+
+        if right_gate.type ~= "i" then
+          create_particle_set(screen_x(_ENV, x) - 2, screen_y(_ENV, y) + 3,
+            "1,yellow,yellow,5,left|1,yellow,yellow,5,left|0,yellow,yellow,5,left|0,yellow,yellow,5,left")
+        end
+        if type ~= "i" then
+          create_particle_set(screen_x(_ENV, new_x) + 10, screen_y(_ENV, y) + 3,
+            "1,yellow,yellow,5,right|1,yellow,yellow,5,right|0,yellow,yellow,5,right|0,yellow,yellow,5,right")
+        end
+
+        local right_gate_other_x = right_gate.other_x
+
+        if gate.other_x then
+          gates[gate.other_x][y].other_x = new_x
+        end
+
+        if right_gate_other_x then
+          gates[right_gate_other_x][y].other_x = x
+        end
+
+        put(_ENV, new_x, y, gate)
+        put(_ENV, x, y, right_gate)
+
+        right_gate:change_state("idle")
+
+        return
+      end
+
       if gate:is_reducible() then
         reducible_gates[x][y] = gate
       else

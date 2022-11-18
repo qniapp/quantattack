@@ -213,59 +213,12 @@ function gate_class(_type)
       end
     end,
 
-    -- FIXME: board 側でやる
     _update_swap = function(_ENV)
       if _tick_swap < gate_swap_animation_frame_count then
         _tick_swap = _tick_swap + 1
       else
-        -- SWAP 完了
-        local new_x = x + 1
-        local right_gate = board.gates[new_x][y]
-
-        assert(_is_swapping_with_right(_ENV), "_state = " .. _state)
-        assert(right_gate:_is_swapping_with_left(), right_gate._state)
-
-        if right_gate.type ~= "i" then
-          create_particle_set(board:screen_x(x) - 2, board:screen_y(y) + 3,
-            "1,yellow,yellow,5,left|1,yellow,yellow,5,left|0,yellow,yellow,5,left|0,yellow,yellow,5,left")
-        end
-        if type ~= "i" then
-          create_particle_set(board:screen_x(new_x) + 10, board:screen_y(y) + 3,
-            "1,yellow,yellow,5,right|1,yellow,yellow,5,right|0,yellow,yellow,5,right|0,yellow,yellow,5,right")
-        end
-
-        -- A を SWAP や CNOT の一部とすると、
-        --
-        -- 1.   [BC]
-        -- 2. --[A_], [A-]--
-        -- 3. --[-A], [_A]--
-        -- 4.   [AA]
-        --
-        -- の 4 パターンで左側だけ考える
-
-        -- 次の board:put で x の値が変化するので、
-        -- もともとの x の値をバックアップしていく
-        local orig_x = x
-
-        board:put(new_x, y, _ENV)
-        board:put(orig_x, y, right_gate)
-
-        if other_x == nil and right_gate.other_x == nil then -- 1.
-          -- NOP
-        elseif type ~= "i" and right_gate.type == "i" then -- 2.
-          board.gates[other_x][y].other_x = new_x
-        elseif type == "i" and right_gate.type ~= "i" then -- 3.
-          board.gates[right_gate.other_x][y].other_x = orig_x
-        elseif other_x and right_gate.other_x then -- 4.
-          other_x, right_gate.other_x = orig_x, new_x
-        else
-          assert(false, "we should not reach here")
-        end
-
-        chain_id, right_gate.chain_id = nil, nil
-
+        chain_id = nil
         change_state(_ENV, "idle")
-        right_gate:change_state("idle")
       end
     end,
 
