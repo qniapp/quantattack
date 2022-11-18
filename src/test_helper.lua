@@ -13,3 +13,7 @@ end
 function x_gate()
   return gate_class("x")
 end
+
+function y_gate()
+  return gate_class("y")
+end

@@ -8,7 +8,6 @@ require("i_gate")
 require("s_gate")
 require("swap_gate")
 require("t_gate")
-require("y_gate")
 require("z_gate")
 require("gate_class")
 
