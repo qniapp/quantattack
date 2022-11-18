@@ -6,6 +6,12 @@ function wait_swap_to_finish(board)
   end
 end
 
+function i_gate()
+  local i = gate_class("i")
+  i.type_string = "_"
+  return i
+end
+
 function h_gate()
   return gate_class("h")
 end

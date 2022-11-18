@@ -1,7 +1,6 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
 require("garbage_gate")
-require("i_gate")
 require("gate_class")
 
 require("helpers")
@@ -37,7 +36,7 @@ function create_board(__offset_x)
       for x = 1, cols do
         gates[x], reducible_gates[x] = {}, {}
         for y = 1, row_next_gates do
-          put(_ENV, x, y, i_gate())
+          put(_ENV, x, y, gate_class("i"))
         end
       end
     end,
@@ -108,36 +107,7 @@ function create_board(__offset_x)
             end
 
             for index, r in pairs(reduction.to) do
-              -- i_gate() や h_gate() 用の create_gate(type) がないので、
-              -- とりあえず場合分けしとく
-              --
-              -- もともとはこうなってた
-              -- local dx, dy, new_gate = r.dx and reduction.dx or 0, r.dy or 0, create_gate(r.gate_type)
-              --
-              local dx, dy, new_gate = r.dx and reduction.dx or 0, r.dy or 0
-              if r.gate_type == "i" then
-                new_gate = i_gate()
-              elseif r.gate_type == "h" then
-                new_gate = gate_class("h")
-              elseif r.gate_type == "x" then
-                new_gate = gate_class("x")
-              elseif r.gate_type == "y" then
-                new_gate = gate_class("y")
-              elseif r.gate_type == "z" then
-                new_gate = gate_class("z")
-              elseif r.gate_type == "s" then
-                new_gate = gate_class("s")
-              elseif r.gate_type == "t" then
-                new_gate = gate_class("t")
-              elseif r.gate_type == "control" then
-                new_gate = gate_class("control")
-              elseif r.gate_type == "cnot_x" then
-                new_gate = gate_class("cnot_x")
-              elseif r.gate_type == "swap" then
-                new_gate = gate_class("swap")
-              else
-                assert(false, "we should not reach here")
-              end
+              local dx, dy, new_gate = r.dx and reduction.dx or 0, r.dy or 0, gate_class(r.gate_type)
 
               if new_gate.type == "swap" or new_gate.type == "cnot_x" or new_gate.type == "control" then
                 if r.dx then
@@ -228,7 +198,7 @@ function create_board(__offset_x)
               -- 二行目の先頭にはおじゃまゲート
               new_gate = garbage_gate(garbage_span, garbage_height - 1, gate.color)
             else
-              new_gate = i_gate()
+              new_gate = gate_class("i")
             end
 
             gates[x + i][y - j]:replace_with(new_gate, i + j * garbage_span, garbage_span, garbage_height,
@@ -385,7 +355,7 @@ function create_board(__offset_x)
     end,
 
     reducible_gate_at = function(_ENV, x, y)
-      return reducible_gates[x][y] or i_gate()
+      return reducible_gates[x][y] or gate_class("i")
     end,
 
     put = function(_ENV, x, y, gate)
@@ -412,7 +382,7 @@ function create_board(__offset_x)
     end,
 
     remove_gate = function(_ENV, x, y)
-      put(_ENV, x, y, i_gate())
+      put(_ENV, x, y, gate_class("i"))
     end,
 
     send_garbage = function(_ENV, chain_id, span, _height)

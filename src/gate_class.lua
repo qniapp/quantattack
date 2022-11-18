@@ -39,7 +39,7 @@ function gate_class(_type)
     end,
 
     is_fallable = function(_ENV)
-      return not (type == "!" or is_swapping(_ENV) or is_freeze(_ENV))
+      return not (type == "i" or type == "!" or is_swapping(_ENV) or is_freeze(_ENV))
     end,
 
     is_falling = function(_ENV)
@@ -47,7 +47,7 @@ function gate_class(_type)
     end,
 
     is_reducible = function(_ENV)
-      return type ~= "!" and is_idle(_ENV)
+      return type ~= "i" and type ~= "!" and is_idle(_ENV)
     end,
 
     -- マッチ状態である場合 true を返す
@@ -73,7 +73,7 @@ function gate_class(_type)
     end,
 
     is_empty = function(_ENV)
-      return false
+      return type == "i" and not is_swapping(_ENV)
     end,
 
     -- HACK: ゲートの種類は決まっているので、子クラスで is_single_gate() を実装するのではなく、
