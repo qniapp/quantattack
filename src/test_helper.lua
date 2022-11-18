@@ -41,3 +41,10 @@ function cnot_x_gate(other_x)
   cnot_x.other_x = other_x
   return cnot_x
 end
+
+function swap_gate(other_x)
+  local swap = gate_class('swap')
+  swap.other_x = other_x
+  swap.type_string = "S"
+  return swap
+end
