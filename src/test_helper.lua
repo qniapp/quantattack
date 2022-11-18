@@ -21,3 +21,7 @@ end
 function z_gate()
   return gate_class("z")
 end
+
+function s_gate()
+  return gate_class("s")
+end

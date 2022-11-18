@@ -5,7 +5,6 @@ require("control_gate")
 require("garbage_gate")
 require("garbage_match_gate")
 require("i_gate")
-require("s_gate")
 require("swap_gate")
 require("t_gate")
 require("gate_class")
@@ -126,13 +125,13 @@ function create_board(__offset_x)
               elseif r.gate_type == "h" then
                 new_gate = gate_class("h")
               elseif r.gate_type == "x" then
-                new_gate = x_gate()
+                new_gate = gate_class("x")
               elseif r.gate_type == "y" then
-                new_gate = y_gate()
+                new_gate = gate_class("y")
               elseif r.gate_type == "z" then
-                new_gate = z_gate()
+                new_gate = gate_class("z")
               elseif r.gate_type == "s" then
-                new_gate = s_gate()
+                new_gate = gate_class("s")
               elseif r.gate_type == "t" then
                 new_gate = t_gate()
               elseif r.gate_type == "control" then
