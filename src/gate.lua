@@ -89,7 +89,7 @@ function create_gate(_type, _span, _height)
 
     -- 他のゲートが通過 (ドロップ) できる場合 true を返す
     is_empty = function(_ENV)
-      return is_i(_ENV) and not is_swapping(_ENV)
+      return type == "i" and not is_swapping(_ENV)
     end,
 
     -- マッチ状態である場合 true を返す
@@ -104,7 +104,7 @@ function create_gate(_type, _span, _height)
 
     -- マッチできる場合 true を返す
     is_reducible = function(_ENV)
-      return not is_i(_ENV) and type ~= "!" and is_idle(_ENV)
+      return type ~= "i" and type ~= "!" and is_idle(_ENV)
     end,
 
     is_falling = function(_ENV)
@@ -125,7 +125,7 @@ function create_gate(_type, _span, _height)
 
     -- ゲートが下に落とせる状態にあるかどうかを返す
     is_fallable = function(_ENV)
-      return not (is_i(_ENV) or type == "!" or is_swapping(_ENV) or is_freeze(_ENV))
+      return not (type == "i" or type == "!" or is_swapping(_ENV) or is_freeze(_ENV))
     end,
 
     -------------------------------------------------------------------------------
@@ -225,11 +225,11 @@ function create_gate(_type, _span, _height)
           assert(_is_swapping_with_right(_ENV), "_state = " .. _state)
           assert(right_gate:_is_swapping_with_left(), right_gate._state)
 
-          if not right_gate:is_i() then
+          if right_gate.type ~= "i" then
             create_particle_set(board:screen_x(x) - 2, board:screen_y(y) + 3,
               "1,yellow,yellow,5,left|1,yellow,yellow,5,left|0,yellow,yellow,5,left|0,yellow,yellow,5,left")
           end
-          if not is_i(_ENV) then
+          if type ~= "i" then
             create_particle_set(board:screen_x(new_x) + 10, board:screen_y(y) + 3,
               "1,yellow,yellow,5,right|1,yellow,yellow,5,right|0,yellow,yellow,5,right|0,yellow,yellow,5,right")
           end
@@ -252,9 +252,9 @@ function create_gate(_type, _span, _height)
 
           if other_x == nil and right_gate.other_x == nil then -- 1.
             -- NOP
-          elseif not is_i(_ENV) and right_gate:is_i() then -- 2.
+          elseif type ~= "i" and right_gate.type == "i" then -- 2.
             board.gates[other_x][y].other_x = new_x
-          elseif is_i(_ENV) and not right_gate:is_i() then -- 3.
+          elseif type == "i" and right_gate.type ~= "i" then -- 3.
             board.gates[right_gate.other_x][y].other_x = orig_x
           elseif other_x and right_gate.other_x then -- 4.
             other_x, right_gate.other_x = orig_x, new_x
@@ -346,7 +346,7 @@ function create_gate(_type, _span, _height)
     end,
 
     render = function(_ENV)
-      if is_i(_ENV) then
+      if type == "i" then
         return
       end
 

@@ -132,7 +132,7 @@ function create_board(__offset_x)
               -- ゲートが消える、または変化するとき、その上にあるゲートすべてにフラグを付ける
               for chainable_y = y + dy - 1, 1, -1 do
                 local gate_to_fall = gates[x + dx][chainable_y]
-                if not gate_to_fall:is_i() then
+                if gate_to_fall.type ~= "i" then
                   if gate_to_fall:is_match() then
                     goto next_reduction
                   end
@@ -701,7 +701,7 @@ function create_board(__offset_x)
           end
 
           -- ここで top_gate_y を更新
-          if not gate:is_i() then
+          if gate.type ~= "i" then
             if gate:is_garbage() then
               if not gate._garbage_first_drop and top_gate_y > y - gate.height + 1 then
                 top_gate_y = y - gate.height + 1
@@ -929,7 +929,7 @@ function create_board(__offset_x)
         for x = 1, cols do
           local gate = gates[x][y]
 
-          if gate:is_i() then
+          if gate.type == "i" then
             if _is_part_of_garbage(_ENV, x, y) then
               str = str .. "g " .. " "
             else

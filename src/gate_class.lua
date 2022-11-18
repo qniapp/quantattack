@@ -22,10 +22,8 @@ function gate_class()
     -- ゲートの種類
     -------------------------------------------------------------------------------
 
-    is_i = function()
-      return false
-    end,
-
+    -- TODO: たいして短くならないので、このメソッドを消す
+    -- そもそも、子クラスの情報が親 (gate_class) に入ってるのがおかしい
     is_control = function()
       return false
     end,
@@ -143,6 +141,8 @@ function gate_class()
         _update_falling(_ENV)
       elseif is_match(_ENV) then
         _update_match(_ENV)
+      elseif is_freeze(_ENV) then
+        _update_freeze(_ENV)
       end
     end,
 
@@ -166,9 +166,9 @@ function gate_class()
 
         if other_x == nil and right_gate.other_x == nil then -- 1.
           -- NOP
-        elseif not is_i(_ENV) and right_gate:is_i() then -- 2.
+        elseif type ~= "i" and right_gate.type == "i" then -- 2.
           board.gates[other_x][y].other_x = new_x
-        elseif is_i(_ENV) and not right_gate:is_i() then -- 3.
+        elseif type == "i" and right_gate.type ~= "i" then -- 3.
           board.gates[right_gate.other_x][y].other_x = orig_x
         elseif other_x and right_gate.other_x then -- 4.
           other_x, right_gate.other_x = orig_x, new_x
@@ -240,6 +240,14 @@ function gate_class()
         _tick_match = _tick_match + 1
       else
         board:put(x, y, new_gate)
+      end
+    end,
+
+    _update_freeze = function(_ENV)
+      if _tick_freeze < _freeze_frame_count then
+        _tick_freeze = _tick_freeze + 1
+      else
+        change_state(_ENV, "idle")
       end
     end,
 

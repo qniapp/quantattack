@@ -12,7 +12,7 @@ describe('swap_gate', function()
   describe("gate type", function()
     describe("is_i", function()
       it("should return false", function()
-        assert.is_false(swap:is_i())
+        assert.is_false(swap.type == "i")
       end)
     end)
 

@@ -4,13 +4,10 @@ require("gate_class")
 
 function i_gate()
   local i = setmetatable({
+    type = "i",
     --#if debug
     type_string = "_",
     --#endif
-
-    is_i = function()
-      return true
-    end,
 
     is_empty = function(_ENV)
       return not is_swapping(_ENV)

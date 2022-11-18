@@ -12,7 +12,7 @@ describe('x_gate', function()
   describe("gate type", function()
     describe(":is_i", function()
       it("should return false", function()
-        assert.is_false(x:is_i())
+        assert.is_false(x.type == "i")
       end)
     end)
 

@@ -9,12 +9,6 @@ describe('i_gate', function()
   end)
 
   describe("gate type", function()
-    describe("is_i", function()
-      it("should return true", function()
-        assert.is_true(i:is_i())
-      end)
-    end)
-
     describe("is_garbage", function()
       it("should return false", function()
         assert.is_false(i:is_garbage())
