@@ -1,9 +1,11 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
 require("gate")
+
 require("h_gate")
 require("helpers")
 require("i_gate")
+require("s_gate")
 require("x_gate")
 require("y_gate")
 require("z_gate")
@@ -124,6 +126,8 @@ function create_board(__offset_x)
                 new_gate = y_gate()
               elseif r.gate_type == "z" then
                 new_gate = z_gate()
+              elseif r.gate_type == "s" then
+                new_gate = s_gate()
               else
                 new_gate = create_gate(r.gate_type)
               end

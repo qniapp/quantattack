@@ -428,10 +428,6 @@ end
 -- helpers
 -------------------------------------------------------------------------------
 
-function s_gate()
-  return create_gate('s')
-end
-
 function t_gate()
   return create_gate('t')
 end
