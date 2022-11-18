@@ -9,3 +9,7 @@ end
 function h_gate()
   return gate_class("h")
 end
+
+function x_gate()
+  return gate_class("x")
+end
