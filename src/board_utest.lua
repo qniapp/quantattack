@@ -1,7 +1,7 @@
 require("engine/test/bustedhelper")
 require("engine/debug/dump")
+require("test_helper")
 require("board")
-require("gate")
 
 describe('board', function()
   local board

@@ -1,6 +1,5 @@
 require("engine/test/bustedhelper")
 require("board")
-require("gate")
 
 describe('おじゃまゲート', function()
   describe("インスタンス生成", function()

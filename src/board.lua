@@ -4,7 +4,6 @@ require("cnot_x_gate")
 require("control_gate")
 require("garbage_gate")
 require("garbage_match_gate")
-require("h_gate")
 require("i_gate")
 require("s_gate")
 require("swap_gate")
@@ -12,6 +11,7 @@ require("t_gate")
 require("x_gate")
 require("y_gate")
 require("z_gate")
+require("gate_class")
 
 require("helpers")
 
@@ -127,7 +127,7 @@ function create_board(__offset_x)
               if r.gate_type == "i" then
                 new_gate = i_gate()
               elseif r.gate_type == "h" then
-                new_gate = h_gate()
+                new_gate = gate_class("h")
               elseif r.gate_type == "x" then
                 new_gate = x_gate()
               elseif r.gate_type == "y" then
@@ -351,10 +351,10 @@ function create_board(__offset_x)
     end,
 
     _random_single_gate = function(_ENV)
-      local single_gate_types = { h_gate, x_gate, y_gate, z_gate, s_gate, t_gate }
+      local single_gate_types = split('hxyzst', '')
       local gate_type = single_gate_types[flr(rnd(#single_gate_types)) + 1]
 
-      return gate_type()
+      return gate_class(gate_type)
     end,
 
     -------------------------------------------------------------------------------

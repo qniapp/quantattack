@@ -1,6 +1,6 @@
 require("engine/test/bustedhelper")
+require("test_helper")
 require("board")
-require("gate")
 
 describe('gate', function()
   describe('render', function()
