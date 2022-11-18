@@ -68,6 +68,12 @@ function gate_class()
       return false
     end,
 
+    -- HACK: ゲートの種類は決まっているので、子クラスで is_single_gate() を実装するのではなく、
+    -- こちらでまとめて判定
+    is_single_gate = function(_ENV)
+      return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
+    end,
+
     -------------------------------------------------------------------------------
     -- ゲート操作
     -------------------------------------------------------------------------------
