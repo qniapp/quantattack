@@ -10,6 +10,8 @@ function gate_class()
       idle = " ",
       swapping_with_left = "<",
       swapping_with_right = ">",
+      match = "*",
+      freeze = "f",
     },
     --#endif
 
@@ -225,6 +227,12 @@ function gate_class()
         _tick_match = _tick_match + 1
       else
         board:put(x, y, new_gate)
+
+        if _garbage_span then
+          new_gate._tick_freeze = 0
+          new_gate._freeze_frame_count = (_garbage_span * _garbage_height - _match_index) * gate_match_delay_per_gate
+          new_gate:change_state("freeze")
+        end
       end
     end,
 

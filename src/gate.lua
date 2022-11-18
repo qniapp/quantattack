@@ -455,7 +455,3 @@ function garbage_gate(_span, _height, _color)
 
   return garbage
 end
-
-function garbage_match_gate()
-  return create_gate('!')
-end

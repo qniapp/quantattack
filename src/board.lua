@@ -4,6 +4,7 @@ require("gate")
 
 require("cnot_x_gate")
 require("control_gate")
+require("garbage_match_gate")
 require("h_gate")
 require("i_gate")
 require("s_gate")
@@ -145,7 +146,7 @@ function create_board(__offset_x)
               elseif r.gate_type == "swap" then
                 new_gate = swap_gate()
               else
-                new_gate = create_gate(r.gate_type)
+                assert(false, "we should not reach here")
               end
 
               if new_gate.type == "swap" or new_gate.type == "cnot_x" or new_gate.type == "control" then
