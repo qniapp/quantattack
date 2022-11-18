@@ -19,6 +19,18 @@ say:set("assertion.is_i.positive", "Expected %s \nto be an I gate")
 say:set("assertion.is_i.negative", "Expected %s \n not to be an I gate")
 assert:register("assertion", "is_i", is_i, "assertion.is_i.positive", "assertion.is_i.negative")
 
+local function is_h(_state, arguments)
+  if not type(arguments[1]) == "table" or #arguments ~= 1 then
+    return false
+  end
+
+  return arguments[1].type == "h"
+end
+
+say:set("assertion.is_h.positive", "Expected %s \nto be an H gate")
+say:set("assertion.is_h.negative", "Expected %s \n not to be an H gate")
+assert:register("assertion", "is_h", is_h, "assertion.is_h.positive", "assertion.is_h.negative")
+
 local function is_x(_state, arguments)
   if not type(arguments[1]) == "table" or #arguments ~= 1 then
     return false
@@ -75,8 +87,8 @@ local function is_control(_state, arguments)
   return arguments[1].type == "control"
 end
 
-say:set("assertion.is_control.positive", "Expected %s \nto be a SWAP gate")
-say:set("assertion.is_control.negative", "Expected %s \n not to be a SWAP gate")
+say:set("assertion.is_control.positive", "Expected %s \nto be a CONTROL gate")
+say:set("assertion.is_control.negative", "Expected %s \n not to be a CONTROL gate")
 assert:register("assertion", "is_control", is_control, "assertion.is_control.positive", "assertion.is_control.negative")
 
 local function is_cnot_x(_state, arguments)
@@ -87,8 +99,8 @@ local function is_cnot_x(_state, arguments)
   return arguments[1].type == "cnot_x"
 end
 
-say:set("assertion.is_cnot_x.positive", "Expected %s \nto be a SWAP gate")
-say:set("assertion.is_cnot_x.negative", "Expected %s \n not to be a SWAP gate")
+say:set("assertion.is_cnot_x.positive", "Expected %s \nto be a X (CNOT) gate")
+say:set("assertion.is_cnot_x.negative", "Expected %s \n not to be a X (CNOT) gate")
 assert:register("assertion", "is_cnot_x", is_cnot_x, "assertion.is_cnot_x.positive", "assertion.is_cnot_x.negative")
 
 local function is_swap(_state, arguments)
@@ -909,11 +921,11 @@ describe('ゲートの簡約ルール #solo', function()
     board:reduce_gates()
 
     assert.is_i(board:gate_at(1, 9).new_gate)
-    assert.are_equal("h", board:gate_at(1, 10).type)
+    assert.is_h(board:gate_at(1, 10))
     assert.is_i(board:gate_at(3, 10).new_gate)
     assert.is_cnot_x(board:gate_at(1, 11))
     assert.is_control(board:gate_at(3, 11))
-    assert.are_equal("h", board:gate_at(1, 12).type)
+    assert.is_h(board:gate_at(1, 12))
     assert.is_i(board:gate_at(3, 12).new_gate)
   end)
 
@@ -934,11 +946,11 @@ describe('ゲートの簡約ルール #solo', function()
     board:reduce_gates()
 
     assert.is_i(board:gate_at(1, 8).new_gate)
-    assert.are_equal("h", board:gate_at(1, 9).type)
+    assert.is_h(board:gate_at(1, 9))
     assert.is_i(board:gate_at(3, 9).new_gate)
     assert.is_cnot_x(board:gate_at(1, 10))
     assert.is_control(board:gate_at(3, 10))
-    assert.are_equal("h", board:gate_at(1, 11).type)
+    assert.is_h(board:gate_at(1, 11))
     assert.is_i(board:gate_at(1, 12).new_gate)
   end)
 
@@ -955,11 +967,11 @@ describe('ゲートの簡約ルール #solo', function()
 
     board:reduce_gates()
 
-    assert.are_equal("h", board:gate_at(1, 10).type)
+    assert.is_h(board:gate_at(1, 10))
     assert.is_i(board:gate_at(3, 10).new_gate)
     assert.is_cnot_x(board:gate_at(1, 11))
     assert.is_control(board:gate_at(3, 11))
-    assert.are_equal("h", board:gate_at(1, 12).type)
+    assert.is_h(board:gate_at(1, 12))
     assert.is_i(board:gate_at(3, 12).new_gate)
   end)
 
@@ -979,10 +991,10 @@ describe('ゲートの簡約ルール #solo', function()
     board:reduce_gates()
 
     assert.is_i(board:gate_at(1, 8).new_gate)
-    assert.are_equal("h", board:gate_at(1, 9).type)
+    assert.is_h(board:gate_at(1, 9))
     assert.is_cnot_x(board:gate_at(1, 10))
     assert.is_control(board:gate_at(3, 10))
-    assert.are_equal("h", board:gate_at(1, 11).type)
+    assert.is_h(board:gate_at(1, 11))
     assert.is_i(board:gate_at(1, 12).new_gate)
   end)
 
