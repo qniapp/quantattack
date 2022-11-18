@@ -277,7 +277,7 @@ function gate_class(_type)
       end
     end,
 
-    render = function(_ENV)
+    render = function(_ENV, screen_x, screen_y)
       if type == "i" then
         return
       end
@@ -294,7 +294,7 @@ function gate_class(_type)
         palt(0, false)
       end
 
-      spr(_sprite(_ENV), board:screen_x(x) + swap_screen_dx, board:screen_y(y) + _fall_screen_dy)
+      spr(_sprite(_ENV), screen_x + swap_screen_dx, screen_y + _fall_screen_dy)
 
       palt()
     end,

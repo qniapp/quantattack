@@ -587,7 +587,7 @@ function create_board(__offset_x)
               gate:is_match() and 13 or (lose and 5 or 10))
           end
 
-          gate:render()
+          gate:render(scr_x, scr_y)
 
           -- 一番下のマスクを描画
           if y == row_next_gates then
