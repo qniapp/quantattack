@@ -18,7 +18,7 @@ describe('swap_gate', function()
 
     describe("is_garbage", function()
       it("should return false", function()
-        assert.is_false(swap:is_garbage())
+        assert.is_false(swap.type == "g")
       end)
     end)
   end)

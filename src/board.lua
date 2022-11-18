@@ -376,13 +376,13 @@ function create_board(__offset_x)
 
       -- おじゃまゲートを別のゲートと置き換える場合
       -- おじゃまゲートキャッシュから消す
-      if gates[x] and gates[x][y] and gates[x][y]:is_garbage() then
+      if gates[x] and gates[x][y] and gates[x][y].type == "g" then
         del(_garbage_gates, gates[x][y])
       end
 
       -- 新たにおじゃまゲートを置く場合
       -- おじゃまゲートキャッシュに追加する
-      if gate:is_garbage() then
+      if gate.type == "g" then
         add(_garbage_gates, gate)
       end
 
@@ -702,7 +702,7 @@ function create_board(__offset_x)
 
           -- ここで top_gate_y を更新
           if gate.type ~= "i" then
-            if gate:is_garbage() then
+            if gate.type == "g" then
               if not gate._garbage_first_drop and top_gate_y > y - gate.height + 1 then
                 top_gate_y = y - gate.height + 1
               end

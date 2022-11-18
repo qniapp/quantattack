@@ -21,7 +21,7 @@ describe('おじゃまゲート', function()
     it("おじゃまゲートであるかどうかの判定", function()
       local garbage = garbage_gate(1)
 
-      assert.is_true(garbage:is_garbage())
+      assert.is_true(garbage.type == "g")
     end)
 
     it("指定した座標がおじゃまゲートに含まれるかどうかを判定", function()

@@ -19,7 +19,7 @@ describe('h_gate', function()
 
     describe("is_garbage", function()
       it("should return false", function()
-        assert.is_false(h:is_garbage())
+        assert.is_false(h.type == "g")
       end)
     end)
   end)
