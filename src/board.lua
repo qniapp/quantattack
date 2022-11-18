@@ -6,6 +6,7 @@ require("helpers")
 require("i_gate")
 require("x_gate")
 require("y_gate")
+require("z_gate")
 
 local reduction_rules = require("reduction_rules")
 
@@ -121,6 +122,8 @@ function create_board(__offset_x)
                 new_gate = x_gate()
               elseif r.gate_type == "y" then
                 new_gate = y_gate()
+              elseif r.gate_type == "z" then
+                new_gate = z_gate()
               else
                 new_gate = create_gate(r.gate_type)
               end

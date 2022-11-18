@@ -428,10 +428,6 @@ end
 -- helpers
 -------------------------------------------------------------------------------
 
-function z_gate()
-  return create_gate('z')
-end
-
 function s_gate()
   return create_gate('s')
 end
