@@ -1,7 +1,8 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
-function gate_class()
+function gate_class(_type)
   local gate_base = setmetatable({
+    type = _type,
     span = 1,
     height = 1,
     gate_match_animation_frame_count = 45,

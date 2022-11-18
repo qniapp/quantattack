@@ -4,7 +4,6 @@ require("gate_class")
 
 function garbage_gate(_span, _height, _color)
   local garbage = setmetatable({
-    type = "g",
     span = _span,
     height = _height,
     color = _color,
@@ -18,7 +17,7 @@ function garbage_gate(_span, _height, _color)
        draw_rounded_box(x0, y0, x1, y1, bg_color, bg_color) -- 本体
        draw_rounded_box(x0 + 1, y0 + 1, x1 - 1, y1 - 1, _state ~= "over" and inner_border_color or 1) -- 内側の線
     end
-  }, { __index = gate_class() }):_init()
+  }, { __index = gate_class("g") }):_init()
 
   if _color == 2 then
     garbage.inner_border_color = 14

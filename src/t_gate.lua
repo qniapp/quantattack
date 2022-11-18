@@ -4,8 +4,7 @@ require("gate_class")
 
 function t_gate()
   local t = setmetatable({
-    type = "t",
-  }, { __index = gate_class() }):_init()
+  }, { __index = gate_class("t") }):_init()
 
   return t
 end

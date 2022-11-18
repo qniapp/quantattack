@@ -4,7 +4,6 @@ require("gate_class")
 
 function i_gate()
   local i = setmetatable({
-    type = "i",
     --#if debug
     type_string = "_",
     --#endif
@@ -20,7 +19,7 @@ function i_gate()
     is_reducible = function()
       return false
     end
-  }, { __index = gate_class() }):_init()
+  }, { __index = gate_class("i") }):_init()
 
   return i
 end
