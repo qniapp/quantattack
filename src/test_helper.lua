@@ -25,3 +25,7 @@ end
 function s_gate()
   return gate_class("s")
 end
+
+function t_gate()
+  return gate_class("t")
+end
