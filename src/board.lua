@@ -1,7 +1,6 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
 require("garbage_gate")
-require("garbage_match_gate")
 require("i_gate")
 require("gate_class")
 
@@ -217,7 +216,7 @@ function create_board(__offset_x)
         ::match::
         for i = 0, garbage_span - 1 do
           for j = 0, garbage_height - 1 do
-            gmg = garbage_match_gate()
+            gmg = gate_class("!")
             gmg.color = gate.color
             put(_ENV, x + i, y - j, gmg)
 

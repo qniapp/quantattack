@@ -48,3 +48,7 @@ function swap_gate(other_x)
   swap.type_string = "S"
   return swap
 end
+
+function garbage_match_gate()
+  return gate_class("!")
+end
