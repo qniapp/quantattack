@@ -907,6 +907,14 @@ function create_board(__offset_x)
         return
       end
 
+      if old_state == "match" and gate:is_idle() then
+        put(_ENV, x, y, gate.new_gate)
+        create_particle_set(screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3,
+          "3,white,dark_gray,20|3,white,dark_gray,20|2,white,dark_gray,20|2,dark_purple,dark_gray,20|2,light_gray,dark_gray,20|1,white,dark_gray,20|1,white,dark_gray,20|1,light_gray,dark_gray,20|1,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
+
+        return
+      end
+
       if gate:is_reducible() then
         reducible_gates[x][y] = gate
       else

@@ -138,8 +138,6 @@ function gate_class(_type)
       return type == "i" and not is_swapping(_ENV)
     end,
 
-    -- HACK: ゲートの種類は決まっているので、子クラスで is_single_gate() を実装するのではなく、
-    -- こちらでまとめて判定
     is_single_gate = function(_ENV)
       return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
     end,
@@ -187,38 +185,45 @@ function gate_class(_type)
 
     update = function(_ENV)
       if is_idle(_ENV) then
-        _update_idle(_ENV)
+        if chain_id and board.gates[x][y + 1].chain_id == nil then
+          chain_id = nil
+        end
+
+        if _tick_landed then
+          _tick_landed = _tick_landed + 1
+
+          if _tick_landed == 13 then
+            _tick_landed = nil
+          end
+        end
       elseif is_swapping(_ENV) then
-        _update_swap(_ENV)
+        if _tick_swap < gate_swap_animation_frame_count then
+          _tick_swap = _tick_swap + 1
+        else
+          chain_id = nil
+          change_state(_ENV, "idle")
+        end
       elseif is_falling(_ENV) then
         _update_falling(_ENV)
       elseif is_match(_ENV) then
-        _update_match(_ENV)
-      elseif is_freeze(_ENV) then
-        _update_freeze(_ENV)
-      end
-    end,
+        if _tick_match <= gate_match_animation_frame_count + _match_index * gate_match_delay_per_gate then
+          _tick_match = _tick_match + 1
+        else
+          sfx(3, -1, (_match_index % 6 - 1) * 4, 4)
+          change_state(_ENV, "idle")
 
-    _update_idle = function(_ENV)
-      if chain_id and board.gates[x][y + 1].chain_id == nil then
-        chain_id = nil
-      end
-
-      if _tick_landed then
-        _tick_landed = _tick_landed + 1
-
-        if _tick_landed == 13 then
-          _tick_landed = nil
+          if _garbage_span then
+            new_gate._tick_freeze = 0
+            new_gate._freeze_frame_count = (_garbage_span * _garbage_height - _match_index) * gate_match_delay_per_gate
+            new_gate:change_state("freeze")
+          end
         end
-      end
-    end,
-
-    _update_swap = function(_ENV)
-      if _tick_swap < gate_swap_animation_frame_count then
-        _tick_swap = _tick_swap + 1
-      else
-        chain_id = nil
-        change_state(_ENV, "idle")
+      elseif is_freeze(_ENV) then
+        if _tick_freeze < _freeze_frame_count then
+          _tick_freeze = _tick_freeze + 1
+        else
+          change_state(_ENV, "idle")
+        end
       end
     end,
 
@@ -273,32 +278,6 @@ function gate_class(_type)
             other_gate._fall_screen_dy = _fall_screen_dy
           end
         end
-      end
-    end,
-
-    _update_match = function(_ENV)
-      if _tick_match <= gate_match_animation_frame_count + _match_index * gate_match_delay_per_gate then
-        _tick_match = _tick_match + 1
-      else
-        board:put(x, y, new_gate)
-
-        sfx(3, -1, (_match_index % 6 - 1) * 4, 4)
-        create_particle_set(board:screen_x(x) + 3, board:screen_y(y) + 3,
-          "3,white,dark_gray,20|3,white,dark_gray,20|2,white,dark_gray,20|2,dark_purple,dark_gray,20|2,light_gray,dark_gray,20|1,white,dark_gray,20|1,white,dark_gray,20|1,light_gray,dark_gray,20|1,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
-
-        if _garbage_span then
-          new_gate._tick_freeze = 0
-          new_gate._freeze_frame_count = (_garbage_span * _garbage_height - _match_index) * gate_match_delay_per_gate
-          new_gate:change_state("freeze")
-        end
-      end
-    end,
-
-    _update_freeze = function(_ENV)
-      if _tick_freeze < _freeze_frame_count then
-        _tick_freeze = _tick_freeze + 1
-      else
-        change_state(_ENV, "idle")
       end
     end,
 
