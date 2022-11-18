@@ -2,6 +2,7 @@
 
 require("gate")
 
+require("cnot_x_gate")
 require("control_gate")
 require("h_gate")
 require("i_gate")
@@ -138,6 +139,8 @@ function create_board(__offset_x)
                 new_gate = t_gate()
               elseif r.gate_type == "control" then
                 new_gate = control_gate()
+              elseif r.gate_type == "cnot_x" then
+                new_gate = cnot_x_gate()
               else
                 new_gate = create_gate(r.gate_type)
               end
