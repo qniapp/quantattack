@@ -707,6 +707,10 @@ function create_board(__offset_x)
             end
           end
 
+          if gate:is_idle() and gate.chain_id and gates[x][y + 1].chain_id == nil then
+            gate.chain_id = nil
+          end
+
           -- ゲートを更新
           gate:update()
         end

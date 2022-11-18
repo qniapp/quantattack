@@ -185,10 +185,6 @@ function gate_class(_type)
 
     update = function(_ENV)
       if is_idle(_ENV) then
-        if chain_id and board.gates[x][y + 1].chain_id == nil then
-          chain_id = nil
-        end
-
         if _tick_landed then
           _tick_landed = _tick_landed + 1
 
