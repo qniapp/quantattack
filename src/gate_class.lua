@@ -1,5 +1,7 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
+require("particle")
+
 gate_match_animation_frame_count = 45
 gate_match_delay_per_gate = 8
 gate_swap_animation_frame_count = 4
@@ -205,18 +207,49 @@ function gate_class(_type)
       if chain_id and board.gates[x][y + 1].chain_id == nil then
         chain_id = nil
       end
+
+      if _tick_landed then
+        _tick_landed = _tick_landed + 1
+
+        if _tick_landed == 13 then
+          _tick_landed = nil
+        end
+      end
     end,
 
+    -- FIXME: board 側でやる
     _update_swap = function(_ENV)
       if _tick_swap < gate_swap_animation_frame_count then
         _tick_swap = _tick_swap + 1
       else
-        -- FIXME: 以下の処理はそもそも board 側でやるのが正しい
-
         -- SWAP 完了
         local new_x = x + 1
-        local orig_x = x
         local right_gate = board.gates[new_x][y]
+
+        assert(_is_swapping_with_right(_ENV), "_state = " .. _state)
+        assert(right_gate:_is_swapping_with_left(), right_gate._state)
+
+        if right_gate.type ~= "i" then
+          create_particle_set(board:screen_x(x) - 2, board:screen_y(y) + 3,
+                              "1,yellow,yellow,5,left|1,yellow,yellow,5,left|0,yellow,yellow,5,left|0,yellow,yellow,5,left")
+        end
+        if type ~= "i" then
+          create_particle_set(board:screen_x(new_x) + 10, board:screen_y(y) + 3,
+                              "1,yellow,yellow,5,right|1,yellow,yellow,5,right|0,yellow,yellow,5,right|0,yellow,yellow,5,right")
+        end
+
+        -- A を SWAP や CNOT の一部とすると、
+        --
+        -- 1.   [BC]
+        -- 2. --[A_], [A-]--
+        -- 3. --[-A], [_A]--
+        -- 4.   [AA]
+        --
+        -- の 4 パターンで左側だけ考える
+
+        -- 次の board:put で x の値が変化するので、
+        -- もともとの x の値をバックアップしていく
+        local orig_x = x
 
         board:put(new_x, y, _ENV)
         board:put(orig_x, y, right_gate)
@@ -232,6 +265,8 @@ function gate_class(_type)
         else
           assert(false, "we should not reach here")
         end
+
+        chain_id, right_gate.chain_id = nil, nil
 
         change_state(_ENV, "idle")
         right_gate:change_state("idle")
@@ -297,6 +332,10 @@ function gate_class(_type)
         _tick_match = _tick_match + 1
       else
         board:put(x, y, new_gate)
+
+        sfx(3, -1, (_match_index % 6 - 1) * 4, 4)
+        create_particle_set(board:screen_x(x) + 3, board:screen_y(y) + 3,
+                            "3,white,dark_gray,20|3,white,dark_gray,20|2,white,dark_gray,20|2,dark_purple,dark_gray,20|2,light_gray,dark_gray,20|1,white,dark_gray,20|1,white,dark_gray,20|1,light_gray,dark_gray,20|1,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
 
         if _garbage_span then
           new_gate._tick_freeze = 0

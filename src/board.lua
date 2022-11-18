@@ -142,7 +142,7 @@ function create_board(__offset_x)
         local is_matching = function(g)
           chain_id = g.chain_id
           if g.type == "!" then
-            return g:is_match() and gate.color == g.color
+            return g:is_match() and gate._color == g.color
           else
             return g:is_match()
           end
@@ -187,7 +187,7 @@ function create_board(__offset_x)
         for i = 0, garbage_span - 1 do
           for j = 0, garbage_height - 1 do
             gmg = gate_class("!")
-            gmg.color = gate.color
+            gmg.color = gate._color
             put(_ENV, x + i, y - j, gmg)
 
             local new_gate
@@ -196,7 +196,7 @@ function create_board(__offset_x)
               new_gate = _random_single_gate(_ENV)
             elseif j == 1 and i == 0 then
               -- 二行目の先頭にはおじゃまゲート
-              new_gate = garbage_gate(garbage_span, garbage_height - 1, gate.color)
+              new_gate = garbage_gate(garbage_span, garbage_height - 1, gate._color)
             else
               new_gate = gate_class("i")
             end
