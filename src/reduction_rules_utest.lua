@@ -115,7 +115,7 @@ say:set("assertion.is_swap.positive", "Expected %s \nto be a SWAP gate")
 say:set("assertion.is_swap.negative", "Expected %s \n not to be a SWAP gate")
 assert:register("assertion", "is_swap", is_swap, "assertion.is_swap.positive", "assertion.is_swap.negative")
 
-describe('ゲートの簡約ルール #solo', function()
+describe('ゲートの簡約ルール', function()
   local board
 
   before_each(function()

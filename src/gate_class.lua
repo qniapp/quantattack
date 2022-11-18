@@ -123,8 +123,10 @@ function gate_class()
       end
     end,
 
-    _update_idle = function()
-      -- NOP
+    _update_idle = function(_ENV)
+      if chain_id and board.gates[x][y + 1].chain_id == nil then
+        chain_id = nil
+      end
     end,
 
     _update_swap = function(_ENV)
