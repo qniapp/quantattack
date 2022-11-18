@@ -10,7 +10,7 @@ describe('gate', function()
 
       board:put(1, 1, gate)
 
-      assert.has_no.errors(function() gate:render(board) end)
+      assert.has_no.errors(function() gate:render(board:screen_x(1), board:screen_y(1)) end)
     end)
   end)
 

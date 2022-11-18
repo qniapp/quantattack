@@ -147,13 +147,13 @@ function gate_class(_type)
     -------------------------------------------------------------------------------
 
     swap_with_right = function(_ENV)
-      _tick_swap, chain_id = 0
+      chain_id = nil
 
       change_state(_ENV, "swapping_with_right")
     end,
 
     swap_with_left = function(_ENV)
-      _tick_swap, chain_id = 0
+      chain_id = nil
 
       change_state(_ENV, "swapping_with_left")
     end,
@@ -282,12 +282,9 @@ function gate_class(_type)
         return
       end
 
-      local swap_screen_dx = 0
-      local diff = (_tick_swap or 0) * (8 / gate_swap_animation_frame_count)
-      if _is_swapping_with_right(_ENV) then
-        swap_screen_dx = diff
-      elseif _is_swapping_with_left(_ENV) then
-        swap_screen_dx = -diff
+      local swap_screen_dx = (_tick_swap or 0) * (8 / gate_swap_animation_frame_count)
+      if _is_swapping_with_left(_ENV) then
+        swap_screen_dx = -swap_screen_dx
       end
 
       if type == "!" then
@@ -299,6 +296,7 @@ function gate_class(_type)
       palt()
     end,
 
+    -- TODO: render に統合
     _sprite = function(_ENV)
       local sprite_set = sprites[type]
 
@@ -323,6 +321,8 @@ function gate_class(_type)
     end,
 
     change_state = function(_ENV, new_state)
+      _tick_swap = 0
+
       local old_state = _state
       _state = new_state
       board:gate_update(_ENV, old_state)
