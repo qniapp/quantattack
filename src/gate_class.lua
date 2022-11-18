@@ -287,29 +287,26 @@ function gate_class(_type)
         swap_screen_dx = -swap_screen_dx
       end
 
+      local sprite_set, sprite = sprites[type]
+
+      if is_idle(_ENV) and _tick_landed then
+        sprite = sprite_set.landed[_tick_landed]
+      elseif is_match(_ENV) then
+        local sequence = sprite_set.match
+        sprite = _tick_match <= gate_match_delay_per_gate and sequence[_tick_match] or sequence[#sequence]
+      elseif _state == "over" then
+        sprite = sprite_set.over
+      else
+        sprite = sprite_set.default
+      end
+
       if type == "!" then
         palt(0, false)
       end
 
-      spr(_sprite(_ENV), screen_x + swap_screen_dx, screen_y + _fall_screen_dy)
+      spr(sprite, screen_x + swap_screen_dx, screen_y + _fall_screen_dy)
 
       palt()
-    end,
-
-    -- TODO: render に統合
-    _sprite = function(_ENV)
-      local sprite_set = sprites[type]
-
-      if is_idle(_ENV) and _tick_landed then
-        return sprite_set.landed[_tick_landed]
-      elseif is_match(_ENV) then
-        local sequence = sprite_set.match
-        return _tick_match <= gate_match_delay_per_gate and sequence[_tick_match] or sequence[#sequence]
-      elseif _state == "over" then
-        return sprite_set.over
-      else
-        return sprite_set.default
-      end
     end,
 
     -------------------------------------------------------------------------------
