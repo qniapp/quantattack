@@ -2,14 +2,16 @@
 
 require("gate")
 
+require("control_gate")
 require("h_gate")
-require("helpers")
 require("i_gate")
 require("s_gate")
 require("t_gate")
 require("x_gate")
 require("y_gate")
 require("z_gate")
+
+require("helpers")
 
 local reduction_rules = require("reduction_rules")
 
@@ -115,7 +117,10 @@ function create_board(__offset_x)
             for index, r in pairs(reduction.to) do
               -- i_gate() や h_gate() 用の create_gate(type) がないので、
               -- とりあえず場合分けしとく
+              --
+              -- もともとはこうなってた
               -- local dx, dy, new_gate = r.dx and reduction.dx or 0, r.dy or 0, create_gate(r.gate_type)
+              --
               local dx, dy, new_gate = r.dx and reduction.dx or 0, r.dy or 0
               if r.gate_type == "i" then
                 new_gate = i_gate()
@@ -131,6 +136,8 @@ function create_board(__offset_x)
                 new_gate = s_gate()
               elseif r.gate_type == "t" then
                 new_gate = t_gate()
+              elseif r.gate_type == "control" then
+                new_gate = control_gate()
               else
                 new_gate = create_gate(r.gate_type)
               end

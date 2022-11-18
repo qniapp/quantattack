@@ -428,12 +428,6 @@ end
 -- helpers
 -------------------------------------------------------------------------------
 
-function control_gate(other_x)
-  local control = create_gate('control')
-  control.other_x = other_x
-  return control
-end
-
 function cnot_x_gate(other_x)
   local cnot_x = create_gate('cnot_x')
   cnot_x.other_x = other_x
