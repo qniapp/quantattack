@@ -4,6 +4,7 @@ require("gate")
 
 require("cnot_x_gate")
 require("control_gate")
+require("garbage_gate")
 require("garbage_match_gate")
 require("h_gate")
 require("i_gate")
