@@ -428,18 +428,6 @@ end
 -- helpers
 -------------------------------------------------------------------------------
 
-function cnot_x_gate(other_x)
-  local cnot_x = create_gate('cnot_x')
-  cnot_x.other_x = other_x
-  return cnot_x
-end
-
-function swap_gate(other_x)
-  local swap = create_gate('swap')
-  swap.other_x = other_x
-  return swap
-end
-
 function garbage_gate(_span, _height, _color)
   assert(_span)
 
