@@ -1,7 +1,5 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
-require("cnot_x_gate")
-require("control_gate")
 require("garbage_gate")
 require("garbage_match_gate")
 require("i_gate")
@@ -134,9 +132,9 @@ function create_board(__offset_x)
               elseif r.gate_type == "t" then
                 new_gate = gate_class("t")
               elseif r.gate_type == "control" then
-                new_gate = control_gate()
+                new_gate = gate_class("control")
               elseif r.gate_type == "cnot_x" then
-                new_gate = cnot_x_gate()
+                new_gate = gate_class("cnot_x")
               elseif r.gate_type == "swap" then
                 new_gate = swap_gate()
               else
@@ -504,8 +502,14 @@ function create_board(__offset_x)
           cnot_x_x = flr(rnd(cols)) + 1
         until control_x ~= cnot_x_x
 
-        put(_ENV, control_x, row_next_gates, control_gate(cnot_x_x))
-        put(_ENV, cnot_x_x, row_next_gates, cnot_x_gate(control_x))
+        local control_gate = gate_class("control")
+        control_gate.other_x = cnot_x_x
+
+        local cnot_x_gate = gate_class("cnot_x")
+        cnot_x_gate.other_x = control_x
+
+        put(_ENV, control_x, row_next_gates, control_gate)
+        put(_ENV, cnot_x_x, row_next_gates, cnot_x_gate)
       end
 
       -- 最下段の空いている部分に新しいゲートを置く

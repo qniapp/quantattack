@@ -29,3 +29,15 @@ end
 function t_gate()
   return gate_class("t")
 end
+
+function control_gate(other_x)
+  local control = gate_class('control')
+  control.other_x = other_x
+  return control
+end
+
+function cnot_x_gate(other_x)
+  local cnot_x = gate_class('cnot_x')
+  cnot_x.other_x = other_x
+  return cnot_x
+end
