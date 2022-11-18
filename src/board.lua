@@ -764,7 +764,9 @@ function create_board(__offset_x)
 
     _is_gate_empty_nocache = function(_ENV, x, y)
       return gates[x][y]:is_empty() and
-          not (_is_part_of_garbage(_ENV, x, y) or _is_part_of_cnot(_ENV, x, y) or _is_part_of_swap(_ENV, x, y))
+          not (_is_part_of_garbage(_ENV, x, y) or
+              _is_part_of_cnot(_ENV, x, y) or
+              _is_part_of_swap(_ENV, x, y))
     end,
 
     -- x, y がおじゃまゲートの一部であるかどうかを返す
@@ -831,13 +833,13 @@ function create_board(__offset_x)
       for tmp_x = 1, x - 1 do
         local gate = gates[tmp_x][y]
 
-        if gate:is_swap() and x < gate.other_x then
+        if gate.type == "swap" and x < gate.other_x then
           return gate
         end
       end
 
       local gate = gates[x][y]
-      return gate:is_swap() and gate or nil
+      return gate.type == "swap" and gate or nil
     end,
 
     -------------------------------------------------------------------------------

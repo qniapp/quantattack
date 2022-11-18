@@ -24,9 +24,6 @@ function gate_class()
 
     -- TODO: たいして短くならないので、このメソッドを消す
     -- そもそも、子クラスの情報が親 (gate_class) に入ってるのがおかしい
-    is_swap = function()
-      return false
-    end,
 
     -- おじゃまゲートの先頭 (おじゃまゲート全体の左下) である場合 true を返す
     is_garbage = function()
