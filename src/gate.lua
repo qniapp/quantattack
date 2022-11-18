@@ -428,10 +428,6 @@ end
 -- helpers
 -------------------------------------------------------------------------------
 
-function t_gate()
-  return create_gate('t')
-end
-
 function control_gate(other_x)
   local control = create_gate('control')
   control.other_x = other_x

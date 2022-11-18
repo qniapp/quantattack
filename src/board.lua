@@ -6,6 +6,7 @@ require("h_gate")
 require("helpers")
 require("i_gate")
 require("s_gate")
+require("t_gate")
 require("x_gate")
 require("y_gate")
 require("z_gate")
@@ -128,6 +129,8 @@ function create_board(__offset_x)
                 new_gate = z_gate()
               elseif r.gate_type == "s" then
                 new_gate = s_gate()
+              elseif r.gate_type == "t" then
+                new_gate = t_gate()
               else
                 new_gate = create_gate(r.gate_type)
               end
