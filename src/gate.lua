@@ -83,10 +83,12 @@ local sprites = {
 --- @param height? integer height of the gate
 --- @return Gate
 function gate(type, span, height)
+  --#if assert
   assert(type == "i" or type == "h" or type == "x" or type == "y" or type == "z" or
     type == "s" or type == "t" or type == "control" or type == "cnot_x" or type == "swap" or
     type == "g" or type == "!",
     "invalid type: " .. type)
+  --#endif
 
   local gate_base = setmetatable({
     type = type,
@@ -193,7 +195,9 @@ function gate(type, span, height)
 
     --- @param _ENV Gate
     fall = function(_ENV)
+      --#if assert
       assert(is_fallable(_ENV), "gate " .. type .. "(" .. x .. ", " .. y .. ")")
+      --#endif
 
       -- ???: すでに落ちてるやつは fall() を呼ばれるべきではない?
       if is_falling(_ENV) then
@@ -327,6 +331,7 @@ function gate(type, span, height)
 
   gate_base:_init()
 
+  --#if assert
   assert(0 < gate_base.span, "span must be greater than 0")
   assert(gate_base.span < 7, "span must be less than 7")
   assert(type == "g" or
@@ -342,6 +347,7 @@ function gate(type, span, height)
         type == "control" or type == "cnot_x" or type == "swap" or type == "!") and
         gate_base.height == 1),
     "invalid height: " .. gate_base.height)
+  --#endif
 
   return gate_base
 end

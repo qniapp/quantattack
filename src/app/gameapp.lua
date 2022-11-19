@@ -18,7 +18,9 @@ function gameapp:start()
     state.app = self
     flow:add_gamestate(state)
   end
+  --#if assert
   assert(self.initial_gamestate ~= nil, "gameapp:start: gameapp.initial_gamestate is not set")
+  --#endif
   flow:query_gamestate_type(self.initial_gamestate)
 
   self:on_post_start()

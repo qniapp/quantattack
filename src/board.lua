@@ -344,12 +344,16 @@ function create_board(__offset_x)
     -------------------------------------------------------------------------------
 
     gate_at = function(_ENV, x, y)
+      --#if assert
       assert(1 <= x and x <= cols, "x = " .. x)
       assert(1 <= y and y <= row_next_gates, "y = " .. y)
+      --#endif
 
       local gate = gates[x][y]
 
+      --#if assert
       assert(gate)
+      --#endif
 
       return gate
     end,
@@ -359,8 +363,10 @@ function create_board(__offset_x)
     end,
 
     put = function(_ENV, x, y, gate)
+      --#if assert
       assert(1 <= x and x <= cols, x)
       assert(1 <= y and y <= row_next_gates, y)
+      --#endif
 
       gate.x, gate.y = x, y
 
@@ -498,9 +504,11 @@ function create_board(__offset_x)
     swap = function(_ENV, x_left, y)
       local x_right = x_left + 1
 
+      --#if assert
       assert(1 <= x_left and x_left <= cols - 1)
       assert(2 <= x_right and x_right <= cols)
       assert(1 <= y and y <= rows)
+      --#endif
 
       local left_gate = gates[x_left][y]
       local right_gate = gates[x_right][y]
@@ -932,7 +940,9 @@ function create_board(__offset_x)
         local new_x = x + 1
         local right_gate = gates[new_x][y]
 
+        --#if assert
         assert(right_gate:_is_swapping_with_left(), right_gate._state)
+        --#endif
 
         if right_gate.type ~= "i" then
           create_particle_set(screen_x(_ENV, x) - 2, screen_y(_ENV, y) + 3,
