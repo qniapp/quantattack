@@ -137,7 +137,7 @@ describe('board', function()
       local h = h_gate()
 
       board:put(1, 16, h)
-      board:put(2, 16, garbage_gate(2))
+      board:put(2, 16, garbage_gate(3))
       h._state = "match"
 
       board:reduce_gates()
@@ -149,8 +149,8 @@ describe('board', function()
       , function()
       local h = h_gate()
 
-      board:put(3, 16, h)
-      board:put(1, 16, garbage_gate(2))
+      board:put(4, 16, h)
+      board:put(1, 16, garbage_gate(3))
       h._state = "match"
 
       board:reduce_gates()
@@ -163,7 +163,7 @@ describe('board', function()
       local h = h_gate()
 
       board:put(1, 15, h)
-      board:put(1, 16, garbage_gate(2))
+      board:put(1, 16, garbage_gate(3))
       h._state = "match"
 
       board:reduce_gates()
@@ -175,7 +175,7 @@ describe('board', function()
       , function()
       local h = h_gate()
 
-      board:put(1, 15, garbage_gate(2))
+      board:put(1, 15, garbage_gate(3))
       board:put(1, 16, h)
       h._state = "match"
 

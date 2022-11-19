@@ -2,8 +2,13 @@
 
 require("gate_class")
 
+--- @param span integer span of the gate
+--- @param height integer height of the gate
+--- @param clr 2 | 3 | 4 color of the gate
+--- @return table garbage_gate garbage gate
 function garbage_gate(span, height, clr)
   local _color = clr or 2
+  assert(span > 2, "span must be greater than 2")
   assert(_color == 2 or _color == 3 or _color == 4, "invalid color: " .. _color)
 
   local garbage = setmetatable({
@@ -11,6 +16,9 @@ function garbage_gate(span, height, clr)
     first_drop = true,
     inner_border_color = 14,
 
+    --- @param _ENV table
+    --- @param screen_x integer x position of the gate
+    --- @param screen_y integer y position of the gate
     render = function(_ENV, screen_x, screen_y)
       local y0, x1, y1, body_color = screen_y + (1 - height) * 8 + _fall_screen_dy,
           screen_x + span * 8 - 2, screen_y + 6 + _fall_screen_dy,

@@ -1,7 +1,7 @@
 require("engine/test/bustedhelper")
 require("board")
 
-describe('おじゃまゲート #solo', function()
+describe('おじゃまゲート', function()
   describe("インスタンス生成", function()
     it("幅 (span) をセットできる", function()
       local garbage = garbage_gate(3)
@@ -34,7 +34,7 @@ describe('おじゃまゲート #solo', function()
 
   describe("判定", function()
     it("おじゃまゲートであるかどうかの判定", function()
-      local garbage = garbage_gate(1)
+      local garbage = garbage_gate(3)
 
       assert.is_true(garbage.type == "g")
     end)
@@ -96,7 +96,7 @@ describe('おじゃまゲート #solo', function()
     local garbage
 
     before_each(function()
-      garbage = garbage_gate(1)
+      garbage = garbage_gate(3)
     end)
 
     describe("is_idle", function()
