@@ -76,6 +76,8 @@ local sprites = {
 --- @field height integer height of the gate
 --- @field render function
 --- @field replace_with function
+--- @field new_gate Gate
+--- @field change_state function
 
 
 --- @param type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "!" gate type
@@ -209,10 +211,16 @@ function gate(type, span, height)
       change_state(_ENV, "falling")
     end,
 
-    -- FIXME: 引数の整理 (なんで garbage_span や garbage_height があるんだっけ?)
-    replace_with = function(_ENV, other, match_index, garbage_span, garbage_height, _chain_id)
-      new_gate, _match_index, _garbage_span, _garbage_height, _tick_match, chain_id, other.chain_id =
-      other, match_index or 0, garbage_span, garbage_height, 1, _chain_id, _chain_id
+    -- FIXME: _chain_id を 3 つめの引数に修正
+    --- @param _ENV Gate
+    --- @param other Gate
+    --- @param match_index integer
+    --- @param _chain_id string
+    --- @param garbage_span? integer
+    --- @param garbage_height? integer
+    replace_with = function(_ENV, other, match_index, _chain_id, garbage_span, garbage_height)
+      new_gate, _match_index, _tick_match, chain_id, other.chain_id, _garbage_span, _garbage_height =
+      other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height
 
       change_state(_ENV, "match")
     end,

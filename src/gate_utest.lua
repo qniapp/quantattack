@@ -175,6 +175,8 @@ describe('gate', function()
     local other_gate = x_gate()
     board:put(1, 1, gate)
 
-    assert.has_no.errors(function() gate:replace_with(other_gate) end)
+    gate:replace_with(other_gate)
+
+    assert.are_equal(other_gate, gate.new_gate)
   end)
 end)
