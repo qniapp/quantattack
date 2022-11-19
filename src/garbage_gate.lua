@@ -1,6 +1,6 @@
 ---@diagnostic disable: global-in-nil-env
 
-require("gate_class")
+require("gate")
 
 garbage_gate_colors = { 2, 3, 4 }
 

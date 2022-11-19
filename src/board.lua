@@ -1,7 +1,7 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
 require("garbage_gate")
-require("gate_class")
+require("gate")
 
 require("helpers")
 
