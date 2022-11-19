@@ -22,7 +22,7 @@ describe('garbage_gate', function()
     end)
   end)
 
-  describe('width', function()
+  describe('span', function()
     it("幅はデフォルトで 6", function()
       local garbage = garbage_gate(2)
 

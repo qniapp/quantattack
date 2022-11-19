@@ -133,7 +133,7 @@ describe('board', function()
   end)
 
   describe('おじゃまゲート', function()
-    it('おじゃまゲートの左に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
+    it('おじゃまゲートの左に隣接するゲートがマッチした時、おじゃまゲートが分解される'
       , function()
       local h = h_gate()
 

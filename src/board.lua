@@ -312,7 +312,7 @@ function create_board(__offset_x)
     end,
 
     _random_single_gate = function(_ENV)
-      local single_gate_types = split('hxyzst', '')
+      local single_gate_types = split('h,x,y,z,s,t')
       local gate_type = single_gate_types[flr(rnd(#single_gate_types)) + 1]
 
       return gate(gate_type)

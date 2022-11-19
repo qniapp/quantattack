@@ -13,7 +13,7 @@ garbage_gate_colors = { 2, 3, 4 }
 --- @param clr? 2 | 3 | 4 color of the gate
 --- @param span? 3 | 4 | 5 | 6 span of the gate
 --- @param height? integer height of the gate
---- @return table GarbageGate garbage gate
+--- @return GarbageGate
 function garbage_gate(clr, span, height)
   local _color = clr or 2
   assert(_color == 2 or _color == 3 or _color == 4, "invalid color: " .. _color)
