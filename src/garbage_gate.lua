@@ -10,8 +10,8 @@ function garbage_gate(_span, _height, __color)
     _garbage_first_drop = true,
 
     render = function(_ENV)
-      local x0, y0, x1, y1 = board:screen_x(x), board:screen_y(y - height + 1) + _fall_screen_dy,
-          board:screen_x(x + span) - 2, board:screen_y(y + 1) - 2 + _fall_screen_dy
+      local x0, y0, x1, y1 = observer:screen_x(x), observer:screen_y(y - height + 1) + _fall_screen_dy,
+          observer:screen_x(x + span) - 2, observer:screen_y(y + 1) - 2 + _fall_screen_dy
       local bg_color = _state ~= "over" and _color or 5
 
       draw_rounded_box(x0, y0 + 1, x1, y1 + 1, 1, 1) -- 影

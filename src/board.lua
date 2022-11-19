@@ -378,7 +378,7 @@ function create_board(__offset_x)
 
       gates[x][y] = gate
       gate:attach(_ENV)
-      gate_update(_ENV, gate)
+      observable_update(_ENV, gate)
     end,
 
     remove_gate = function(_ENV, x, y)
@@ -711,6 +711,58 @@ function create_board(__offset_x)
             gate.chain_id = nil
           end
 
+          if gate:is_falling() then
+            if not is_gate_fallable(_ENV, x, y) then
+              -- おじゃまユニタリの最初の落下
+              if gate._garbage_first_drop then
+                bounce(_ENV)
+                sfx(1)
+                gate._garbage_first_drop = false
+              else
+                sfx(4)
+              end
+
+              gate._fall_screen_dy = 0
+              gate._tick_landed = 1
+
+              gate:change_state("idle")
+
+              if gate.other_x and x < gate.other_x then
+                local other_gate = gates[gate.other_x][y]
+                other_gate._tick_landed = 1
+                other_gate._fall_screen_dy = 0
+
+                other_gate:change_state("idle")
+              end
+            else
+              gate._fall_screen_dy = gate._fall_screen_dy + gate_fall_speed
+
+              local new_y = y
+
+              if gate._fall_screen_dy >= 8 then
+                new_y = new_y + 1
+              end
+
+              if new_y == y then
+                -- 同じ場所にとどまっている場合、何もしない
+              elseif is_gate_fallable(_ENV, x, y) then
+                local orig_y = y
+
+                -- 一個下が空いている場合、そこに移動する
+                remove_gate(_ENV, x, y)
+                put(_ENV, x, new_y, gate)
+                gate._fall_screen_dy = gate._fall_screen_dy - 8
+
+                if gate.other_x and x < gate.other_x then
+                  local other_gate = gates[gate.other_x][orig_y]
+                  remove_gate(_ENV, gate.other_x, orig_y)
+                  put(_ENV, gate.other_x, new_y, other_gate)
+                  other_gate._fall_screen_dy = gate._fall_screen_dy
+                end
+              end
+            end
+          end
+
           -- ゲートを更新
           gate:update()
         end
@@ -875,7 +927,7 @@ function create_board(__offset_x)
 
     -- ボード内にあるいずれかのゲートが更新された場合に呼ばれる。
     -- _changed フラグを立て各種キャッシュも更新・クリアする。
-    gate_update = function(_ENV, gate, old_state)
+    observable_update = function(_ENV, gate, old_state)
       local x, y = gate.x, gate.y
 
       if old_state == "swapping_with_right" and gate:is_idle() then

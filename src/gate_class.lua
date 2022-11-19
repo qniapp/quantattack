@@ -200,7 +200,7 @@ function gate_class(_type)
           change_state(_ENV, "idle")
         end
       elseif is_falling(_ENV) then
-        _update_falling(_ENV)
+        -- _update_falling(_ENV)
       elseif is_match(_ENV) then
         if _tick_match <= gate_match_animation_frame_count + _match_index * gate_match_delay_per_gate then
           _tick_match = _tick_match + 1
@@ -219,60 +219,6 @@ function gate_class(_type)
           _tick_freeze = _tick_freeze + 1
         else
           change_state(_ENV, "idle")
-        end
-      end
-    end,
-
-    -- FIXME: board 側でやる
-    _update_falling = function(_ENV)
-      -- 一個下が空いていない場合、落下を終了
-      if not board:is_gate_fallable(x, y) then
-        -- おじゃまユニタリの最初の落下
-        if _garbage_first_drop then
-          board:bounce()
-          sfx(1)
-          _garbage_first_drop = false
-        else
-          sfx(4)
-        end
-
-        _fall_screen_dy = 0
-        _tick_landed = 1
-
-        change_state(_ENV, "idle")
-
-        if other_x and x < other_x then
-          local other_gate = board.gates[other_x][y]
-          other_gate._tick_landed = 1
-          other_gate._fall_screen_dy = 0
-
-          other_gate:change_state("idle")
-        end
-      else
-        _fall_screen_dy = _fall_screen_dy + gate_fall_speed
-
-        local new_y = y
-
-        if _fall_screen_dy >= 8 then
-          new_y = new_y + 1
-        end
-
-        if new_y == y then
-          -- 同じ場所にとどまっている場合、何もしない
-        elseif board:is_gate_fallable(x, y) then
-          local orig_y = y
-
-          -- 一個下が空いている場合、そこに移動する
-          board:remove_gate(x, y)
-          board:put(x, new_y, _ENV)
-          _fall_screen_dy = _fall_screen_dy - 8
-
-          if other_x and x < other_x then
-            local other_gate = board.gates[other_x][orig_y]
-            board:remove_gate(other_x, orig_y)
-            board:put(other_x, new_y, other_gate)
-            other_gate._fall_screen_dy = _fall_screen_dy
-          end
         end
       end
     end,
@@ -310,11 +256,11 @@ function gate_class(_type)
     end,
 
     -------------------------------------------------------------------------------
-    -- 変更を board へ通知 (オブザーバパターン)
+    -- observer pattern
     -------------------------------------------------------------------------------
 
-    attach = function(_ENV, _board)
-      board = _board
+    attach = function(_ENV, _observer)
+      observer = _observer
     end,
 
     change_state = function(_ENV, new_state)
@@ -322,7 +268,7 @@ function gate_class(_type)
 
       local old_state = _state
       _state = new_state
-      board:gate_update(_ENV, old_state)
+      observer:observable_update(_ENV, old_state)
     end,
 
     -------------------------------------------------------------------------------
