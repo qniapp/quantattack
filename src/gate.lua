@@ -23,6 +23,7 @@ local sprites = {
 
 for key, each in pairs(sprites) do
   local default, landed, match, over = unpack(split(each, "|"))
+  ---@diagnostic disable-next-line: assign-type-mismatch
   sprites[key] = {
     default = default,
     landed = split(landed),
@@ -87,7 +88,7 @@ function gate(type, span, height)
 
     --- @param _ENV Gate
     is_fallable = function(_ENV)
-      return not (type == "i" or type == "!" or is_swapping(_ENV) or is_freeze(_ENV))
+      return not (type == "i" or type == "!" or is_swapping(_ENV) or is_freeze(_ENV) or is_falling(_ENV))
     end,
 
     --- @param _ENV Gate
@@ -163,17 +164,11 @@ function gate(type, span, height)
       assert(is_fallable(_ENV), "gate " .. type .. "(" .. x .. ", " .. y .. ")")
       --#endif
 
-      -- ???: すでに落ちてるやつは fall() を呼ばれるべきではない?
-      if is_falling(_ENV) then
-        return
-      end
-
       _fall_screen_dy = 0
 
       change_state(_ENV, "falling")
     end,
 
-    -- FIXME: _chain_id を 3 つめの引数に修正
     --- @param _ENV Gate
     --- @param other Gate
     --- @param match_index integer
