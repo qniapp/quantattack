@@ -70,11 +70,14 @@ local sprites = {
   },
 }
 
-function gate_class(_type, _span, _height)
+--- @param type string gate type
+--- @param span integer span of the gate
+--- @param height? integer height of the gate
+function gate_class(type, span, height)
   local gate_base = setmetatable({
-    type = _type,
-    span = _span or 1,
-    height = _height or 1,
+    type = type,
+    span = span or 1,
+    height = height or 1,
 
     --#if debug
     statestr = {
@@ -86,6 +89,7 @@ function gate_class(_type, _span, _height)
     },
     --#endif
 
+    --- @param _ENV table
     _init = function(_ENV)
       _state = "idle"
       _fall_screen_dy = 0
@@ -283,6 +287,8 @@ function gate_class(_type, _span, _height)
   }, { __index = _ENV })
 
   gate_base:_init()
+
+  assert(gate_base.height > 0, "height must be greater than 0")
 
   return gate_base
 end

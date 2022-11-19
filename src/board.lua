@@ -196,7 +196,7 @@ function create_board(__offset_x)
               new_gate = _random_single_gate(_ENV)
             elseif j == 1 and i == 0 then
               -- 二行目の先頭にはおじゃまゲート
-              new_gate = garbage_gate(garbage_span, garbage_height - 1, gate.color)
+              new_gate = garbage_gate(gate.color, garbage_span, garbage_height - 1)
             else
               new_gate = gate_class("i")
             end
@@ -401,8 +401,7 @@ function create_board(__offset_x)
         end
       end
 
-      local colors = { 2, 3, 4 }
-      local new_garbage_gate = garbage_gate(span, _height, colors[flr(rnd(#colors)) + 1])
+      local new_garbage_gate = garbage_gate(garbage_gate_colors[flr(rnd(#garbage_gate_colors)) + 1], span, _height)
       new_garbage_gate.chain_id = chain_id
       new_garbage_gate.wait_time = 60
       new_garbage_gate.dx = 0

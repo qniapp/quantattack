@@ -1,5 +1,6 @@
 require("engine/test/bustedhelper")
 require("engine/debug/dump")
+require("engine/render/color")
 require("test_helper")
 require("board")
 
@@ -80,7 +81,7 @@ describe('board', function()
 
     it('おじゃまユニタリが左側にある場合、入れ替えできない', function()
       -- !!!x__
-      board:put(1, 16, garbage_gate(3))
+      board:put(1, 16, garbage_gate(colors.dark_purple, 3))
       board:put(4, 16, x_gate())
 
       assert.is_false(board:swap(3, 16))
@@ -89,7 +90,7 @@ describe('board', function()
     it('おじゃまユニタリが右側にある場合、入れ替えできない', function()
       -- __x!!!
       board:put(3, 16, x_gate())
-      board:put(4, 16, garbage_gate(3))
+      board:put(4, 16, garbage_gate(colors.dark_purple, 3))
 
       assert.is_false(board:swap(3, 16))
     end)
@@ -137,7 +138,7 @@ describe('board', function()
       local h = h_gate()
 
       board:put(1, 16, h)
-      board:put(2, 16, garbage_gate(3))
+      board:put(2, 16, garbage_gate(colors.dark_purple, 3))
       h._state = "match"
 
       board:reduce_gates()
@@ -150,7 +151,7 @@ describe('board', function()
       local h = h_gate()
 
       board:put(4, 16, h)
-      board:put(1, 16, garbage_gate(3))
+      board:put(1, 16, garbage_gate(colors.dark_purple, 3))
       h._state = "match"
 
       board:reduce_gates()
@@ -163,7 +164,7 @@ describe('board', function()
       local h = h_gate()
 
       board:put(1, 15, h)
-      board:put(1, 16, garbage_gate(3))
+      board:put(1, 16, garbage_gate(colors.dark_purple, 3))
       h._state = "match"
 
       board:reduce_gates()
@@ -175,7 +176,7 @@ describe('board', function()
       , function()
       local h = h_gate()
 
-      board:put(1, 15, garbage_gate(3))
+      board:put(1, 15, garbage_gate(colors.dark_purple, 3))
       board:put(1, 16, h)
       h._state = "match"
 
@@ -339,7 +340,7 @@ describe('board', function()
 
   describe('is_gate_empty', function()
     it('おじゃまユニタリの領域は空ではない', function()
-      board:put(2, 15, garbage_gate(4))
+      board:put(2, 15, garbage_gate(colors.dark_purple, 4))
 
       assert.is_true(board:is_gate_empty(1, 15))
       assert.is_false(board:is_gate_empty(2, 15))
