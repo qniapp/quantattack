@@ -951,11 +951,11 @@ function create_board(__offset_x)
 
         if right_gate.type ~= "i" then
           create_particle_set(screen_x(_ENV, x) - 2, screen_y(_ENV, y) + 3,
-            "1,yellow,yellow,5,left|1,yellow,yellow,5,left|0,yellow,yellow,5,left|0,yellow,yellow,5,left")
+            "1,1,10,10,-1,-0.8,0.05,0.05,3|1,1,10,10,-1,0,0.05,0,5|1,1,10,10,-1,0.8,0.05,-0.05,3")
         end
         if type ~= "i" then
           create_particle_set(screen_x(_ENV, new_x) + 10, screen_y(_ENV, y) + 3,
-            "1,yellow,yellow,5,right|1,yellow,yellow,5,right|0,yellow,yellow,5,right|0,yellow,yellow,5,right")
+            "1,1,10,10,1,-0.8,-0.05,0.05,3|1,1,10,10,1,0,-0.05,0,5|1,1,10,10,1,0.8,-0.05,-0.05,3")
         end
 
         local right_gate_other_x = right_gate.other_x
@@ -979,8 +979,7 @@ function create_board(__offset_x)
       if old_state == "match" and gate:is_idle() then
         put(_ENV, x, y, gate.new_gate)
         create_particle_set(screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3,
-          "3,white,dark_gray,20|3,white,dark_gray,20|2,white,dark_gray,20|2,dark_purple,dark_gray,20|2,light_gray,dark_gray,20|1,white,dark_gray,20|1,white,dark_gray,20|1,light_gray,dark_gray,20|1,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
-
+          "2,1,7,5,-1,-1,0.05,0.05,16|2,1,7,5,1,-1,-0.05,0.05,16|2,1,7,5,-1,1,0.05,0.05,16|2,1,7,5,1,1,-0.05,-0.05,16")
         return
       end
 
