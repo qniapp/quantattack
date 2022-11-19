@@ -1,7 +1,7 @@
 require("engine/test/bustedhelper")
 require("board")
 
-describe('おじゃまゲート', function()
+describe('おじゃまゲート #solo', function()
   describe("インスタンス生成", function()
     it("幅 (span) をセットできる", function()
       local garbage = garbage_gate(3)
@@ -13,6 +13,18 @@ describe('おじゃまゲート', function()
       local garbage = garbage_gate(3, 4)
 
       assert.are_equal(4, garbage.height)
+    end)
+
+    it("色 (_color) をセットできる", function()
+      local garbage = garbage_gate(3, 4, 5)
+
+      assert.are_equal(5, garbage.color)
+    end)
+
+    it("色に応じて inner_border_color をセットする", function()
+      assert.are_equal(14, garbage_gate(3, 4, 2).inner_border_color)
+      assert.are_equal(11, garbage_gate(3, 4, 3).inner_border_color)
+      assert.are_equal(9, garbage_gate(3, 4, 4).inner_border_color)
     end)
   end)
 

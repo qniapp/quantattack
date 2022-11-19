@@ -70,11 +70,11 @@ local sprites = {
   },
 }
 
-function gate_class(_type)
+function gate_class(_type, _span, _height)
   local gate_base = setmetatable({
     type = _type,
-    span = 1,
-    height = 1,
+    span = _span or 1,
+    height = _height or 1,
 
     --#if debug
     statestr = {
