@@ -100,48 +100,61 @@ function gate(type, span, height)
     -- ゲートの種類と状態
     -------------------------------------------------------------------------------
 
+    --- @param _ENV table
     is_idle = function(_ENV)
       return _state == "idle"
     end,
 
+    --- @param _ENV table
     is_fallable = function(_ENV)
       return not (type == "i" or type == "!" or is_swapping(_ENV) or is_freeze(_ENV))
     end,
 
+    --- @param _ENV table
     is_falling = function(_ENV)
       return _state == "falling"
     end,
 
+    --- @param _ENV table
     is_reducible = function(_ENV)
       return type ~= "i" and type ~= "!" and is_idle(_ENV)
     end,
 
     -- マッチ状態である場合 true を返す
+    --- @param _ENV table
     is_match = function(_ENV)
       return _state == "match"
     end,
 
     -- おじゃまユニタリがゲートに変化した後の硬直中
+    --- @param _ENV table
     is_freeze = function(_ENV)
       return _state == "freeze"
     end,
 
+    --- @param _ENV table
     is_swapping = function(_ENV)
       return _is_swapping_with_right(_ENV) or _is_swapping_with_left(_ENV)
     end,
 
+    --- @private
+    --- @param _ENV table
     _is_swapping_with_left = function(_ENV)
       return _state == "swapping_with_left"
     end,
 
+    --- @private
+    --- @param _ENV table
     _is_swapping_with_right = function(_ENV)
       return _state == "swapping_with_right"
     end,
 
+    --- @param _ENV table
     is_empty = function(_ENV)
       return type == "i" and not is_swapping(_ENV)
     end,
 
+    --- @param _ENV table
     is_single_gate = function(_ENV)
       return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
     end,
@@ -150,18 +163,21 @@ function gate(type, span, height)
     -- ゲート操作
     -------------------------------------------------------------------------------
 
+    --- @param _ENV table
     swap_with_right = function(_ENV)
       chain_id = nil
 
       change_state(_ENV, "swapping_with_right")
     end,
 
+    --- @param _ENV table
     swap_with_left = function(_ENV)
       chain_id = nil
 
       change_state(_ENV, "swapping_with_left")
     end,
 
+    --- @param _ENV table
     fall = function(_ENV)
       assert(is_fallable(_ENV), "gate " .. type .. "(" .. x .. ", " .. y .. ")")
 
@@ -187,6 +203,7 @@ function gate(type, span, height)
     -- update and render
     -------------------------------------------------------------------------------
 
+    --- @param _ENV table
     update = function(_ENV)
       if is_idle(_ENV) then
         if _tick_landed then
@@ -227,6 +244,9 @@ function gate(type, span, height)
       end
     end,
 
+    --- @param _ENV table
+    --- @param screen_x integer x position of the screen
+    --- @param screen_y integer y position of the screen
     render = function(_ENV, screen_x, screen_y)
       if type == "i" then
         return
@@ -263,10 +283,14 @@ function gate(type, span, height)
     -- observer pattern
     -------------------------------------------------------------------------------
 
+    --- @param _ENV table
+    --- @param _observer table
     attach = function(_ENV, _observer)
       observer = _observer
     end,
 
+    --- @param _ENV table
+    --- @param new_state string
     change_state = function(_ENV, new_state)
       _tick_swap = 0
 

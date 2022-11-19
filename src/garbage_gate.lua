@@ -4,10 +4,16 @@ require("gate")
 
 garbage_gate_colors = { 2, 3, 4 }
 
+--- @class GarbageGate
+--- @field color number color of the gate
+--- @field inner_border_color number color of the inner border
+--- @field span number span of the gate
+--- @field height number height of the gate
+
 --- @param clr? 2 | 3 | 4 color of the gate
 --- @param span? 3 | 4 | 5 | 6 span of the gate
 --- @param height? integer height of the gate
---- @return table garbage_gate garbage gate
+--- @return table GarbageGate garbage gate
 function garbage_gate(clr, span, height)
   local _color = clr or 2
   assert(_color == 2 or _color == 3 or _color == 4, "invalid color: " .. _color)
@@ -21,7 +27,7 @@ function garbage_gate(clr, span, height)
     first_drop = true,
     inner_border_color = 14,
 
-    --- @param _ENV table
+    --- @param _ENV GarbageGate
     --- @param screen_x integer x position of the gate
     --- @param screen_y integer y position of the gate
     render = function(_ENV, screen_x, screen_y)
