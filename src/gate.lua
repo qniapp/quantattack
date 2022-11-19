@@ -73,7 +73,7 @@ local sprites = {
 --- @param type string gate type
 --- @param span integer span of the gate
 --- @param height? integer height of the gate
-function gate_class(type, span, height)
+function gate(type, span, height)
   local gate_base = setmetatable({
     type = type,
     span = span or 1,

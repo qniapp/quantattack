@@ -36,7 +36,7 @@ function create_board(__offset_x)
       for x = 1, cols do
         gates[x], reducible_gates[x] = {}, {}
         for y = 1, row_next_gates do
-          put(_ENV, x, y, gate_class("i"))
+          put(_ENV, x, y, gate("i"))
         end
       end
     end,
@@ -107,7 +107,7 @@ function create_board(__offset_x)
             end
 
             for index, r in pairs(reduction.to) do
-              local dx, dy, new_gate = r.dx and reduction.dx or 0, r.dy or 0, gate_class(r.gate_type)
+              local dx, dy, new_gate = r.dx and reduction.dx or 0, r.dy or 0, gate(r.gate_type)
 
               if new_gate.type == "swap" or new_gate.type == "cnot_x" or new_gate.type == "control" then
                 if r.dx then
@@ -137,12 +137,12 @@ function create_board(__offset_x)
       end
 
       -- おじゃまゲートのマッチ
-      for _, gate in pairs(_garbage_gates) do
-        local x, y, garbage_span, garbage_height, chain_id = gate.x, gate.y, gate.span, gate.height
+      for _, each in pairs(_garbage_gates) do
+        local x, y, garbage_span, garbage_height, chain_id = each.x, each.y, each.span, each.height
         local is_matching = function(g)
           chain_id = g.chain_id
           if g.type == "!" then
-            return g:is_match() and gate.color == g.color
+            return g:is_match() and each.color == g.color
           else
             return g:is_match()
           end
@@ -186,8 +186,8 @@ function create_board(__offset_x)
         ::match::
         for i = 0, garbage_span - 1 do
           for j = 0, garbage_height - 1 do
-            gmg = gate_class("!")
-            gmg.color = gate.color
+            gmg = gate("!")
+            gmg.color = each.color
             put(_ENV, x + i, y - j, gmg)
 
             local new_gate
@@ -196,9 +196,9 @@ function create_board(__offset_x)
               new_gate = _random_single_gate(_ENV)
             elseif j == 1 and i == 0 then
               -- 二行目の先頭にはおじゃまゲート
-              new_gate = garbage_gate(gate.color, garbage_span, garbage_height - 1)
+              new_gate = garbage_gate(each.color, garbage_span, garbage_height - 1)
             else
-              new_gate = gate_class("i")
+              new_gate = gate("i")
             end
 
             gates[x + i][y - j]:replace_with(new_gate, i + j * garbage_span, garbage_span, garbage_height,
@@ -315,7 +315,7 @@ function create_board(__offset_x)
       local single_gate_types = split('hxyzst', '')
       local gate_type = single_gate_types[flr(rnd(#single_gate_types)) + 1]
 
-      return gate_class(gate_type)
+      return gate(gate_type)
     end,
 
     -------------------------------------------------------------------------------
@@ -355,7 +355,7 @@ function create_board(__offset_x)
     end,
 
     reducible_gate_at = function(_ENV, x, y)
-      return reducible_gates[x][y] or gate_class("i")
+      return reducible_gates[x][y] or gate("i")
     end,
 
     put = function(_ENV, x, y, gate)
@@ -382,7 +382,7 @@ function create_board(__offset_x)
     end,
 
     remove_gate = function(_ENV, x, y)
-      put(_ENV, x, y, gate_class("i"))
+      put(_ENV, x, y, gate("i"))
     end,
 
     send_garbage = function(_ENV, chain_id, span, _height)
@@ -469,10 +469,10 @@ function create_board(__offset_x)
           cnot_x_x = flr(rnd(cols)) + 1
         until control_x ~= cnot_x_x
 
-        local control_gate = gate_class("control")
+        local control_gate = gate("control")
         control_gate.other_x = cnot_x_x
 
-        local cnot_x_gate = gate_class("cnot_x")
+        local cnot_x_gate = gate("cnot_x")
         cnot_x_gate.other_x = control_x
 
         put(_ENV, control_x, row_next_gates, control_gate)
