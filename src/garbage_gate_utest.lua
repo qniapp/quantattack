@@ -16,15 +16,19 @@ describe('おじゃまゲート #solo', function()
     end)
 
     it("色 (_color) をセットできる", function()
-      local garbage = garbage_gate(3, 4, 5)
+      local garbage = garbage_gate(3, 4, 2)
 
-      assert.are_equal(5, garbage.color)
+      assert.are_equal(2, garbage.color)
     end)
 
     it("色に応じて inner_border_color をセットする", function()
       assert.are_equal(14, garbage_gate(3, 4, 2).inner_border_color)
       assert.are_equal(11, garbage_gate(3, 4, 3).inner_border_color)
       assert.are_equal(9, garbage_gate(3, 4, 4).inner_border_color)
+    end)
+
+    it("色が正しくない場合エラー", function()
+      assert.error(function() garbage_gate(3, 4, 5) end)
     end)
   end)
 

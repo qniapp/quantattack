@@ -699,7 +699,7 @@ function create_board(__offset_x)
           -- ここで top_gate_y を更新
           if gate.type ~= "i" then
             if gate.type == "g" then
-              if not gate._garbage_first_drop and top_gate_y > y - gate.height + 1 then
+              if not gate.first_drop and top_gate_y > y - gate.height + 1 then
                 top_gate_y = y - gate.height + 1
               end
             elseif top_gate_y > y then
@@ -713,11 +713,10 @@ function create_board(__offset_x)
 
           if gate:is_falling() then
             if not is_gate_fallable(_ENV, x, y) then
-              -- おじゃまユニタリの最初の落下
-              if gate._garbage_first_drop then
+              if gate.type == "g" then
                 bounce(_ENV)
                 sfx(1)
-                gate._garbage_first_drop = false
+                gate.first_drop = false
               else
                 sfx(4)
               end
