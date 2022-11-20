@@ -1,6 +1,9 @@
+require("board")
+
 local gamestate = require("gamestate")
 local menu_item = require("menu_item")
 local text_menu_class = require("text_menu")
+local board = create_board(0, 16)
 
 -- main menu: gamestate for player navigating in main menu
 local title = derived_class(gamestate)
@@ -15,14 +18,25 @@ title._items = {
 
 local text_menu = text_menu_class(title._items)
 
+function title:on_enter()
+  board.show_top_line = false
+  board:put_random_gates()
+end
+
 function title:update()
   text_menu:update()
 end
 
 function title:render()
-  -- ロゴを表示
   cls()
+
+  board:render()
+
+  -- ロゴを表示
   spr(128, 29, 35, 9, 2)
+
+  -- メニューのウィンドウを表示
+  draw_rounded_box(32, 66, 95, 94, 7, 0)
 
   -- メニューを表示
   text_menu:draw(40, 72) -- 40 + 4 * character_height (= 6)

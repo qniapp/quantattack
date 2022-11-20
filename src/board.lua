@@ -8,13 +8,14 @@ require("helpers")
 
 local reduction_rules = require("reduction_rules")
 
-function create_board(__offset_x)
+function create_board(__offset_x, __cols)
   local board = setmetatable({
     _offset_x = __offset_x,
+    show_top_line = true,
 
-    init = function(_ENV)
+    init = function(_ENV, _cols)
       -- サイズ関係
-      cols, rows = 6, 17
+      cols, rows = _cols or 6, 17
       row_next_gates = rows + 1
 
       -- 画面上のサイズと位置
@@ -44,9 +45,7 @@ function create_board(__offset_x)
       end
     end,
 
-    initialize_with_random_gates = function(_ENV)
-      init(_ENV)
-
+    put_random_gates = function(_ENV)
       for y = row_next_gates, 10, -1 do
         for x = 1, cols do
           if y >= rows - 2 or
@@ -565,9 +564,12 @@ function create_board(__offset_x)
       end
 
       -- ゲームオーバーの線
+      if show_top_line then
       line(offset_x - 2, 40,
         offset_x + 48 + 1, 40,
         _is_topped_out(_ENV) and 8 or 1)
+
+      end
 
       -- 待機中のおじゃまゲート
       pending_garbage_gates:render(_ENV)
@@ -980,7 +982,7 @@ function create_board(__offset_x)
     --#endif
   }, { __index = _ENV })
 
-  board:init()
+  board:init(__cols)
 
   return board
 end

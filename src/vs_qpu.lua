@@ -19,11 +19,11 @@ vs_qpu.type = ':vs_qpu'
 
 function vs_qpu:on_enter()
   player:init()
-  board:initialize_with_random_gates()
+  board:put_random_gates()
   player_cursor:init()
 
   qpu:init()
-  qpu_board:initialize_with_random_gates()
+  qpu_board:put_random_gates()
   qpu_cursor:init()
 
   game:init()

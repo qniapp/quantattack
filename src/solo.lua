@@ -21,7 +21,7 @@ local last_steps = 0
 
 function solo:on_enter()
   player:init()
-  board:initialize_with_random_gates()
+  board:put_random_gates()
   player_cursor:init()
 
   game:init()

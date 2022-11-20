@@ -18,11 +18,11 @@ qpu_vs_qpu.type = ':qpu_vs_qpu'
 
 function qpu_vs_qpu:on_enter()
   qpu1:init()
-  qpu1_board:initialize_with_random_gates()
+  qpu1_board:put_random_gates()
   qpu1_cursor:init()
 
   qpu2:init()
-  qpu2_board:initialize_with_random_gates()
+  qpu2_board:put_random_gates()
   qpu2_cursor:init()
 
   game:init()
