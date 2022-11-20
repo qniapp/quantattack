@@ -657,7 +657,7 @@ function create_board(__offset_x)
     end,
 
     _is_topped_out = function(_ENV)
-      return screen_y(_ENV, top_gate_y) <= 40
+      return screen_y(_ENV, top_gate_y) - _bounce_screen_dy <= 40
     end,
 
     _update_game = function(_ENV, game, player, other_board)
