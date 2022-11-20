@@ -626,24 +626,26 @@ function create_board(__offset_x)
 
       -- 待機中のおじゃまゲート
       for i, garbage in pairs(pending_garbage_gates) do
-        local x0 = offset_x + 1 + (i - 1) * 9 + garbage.dx
-        local y0 = offset_y + garbage.dy
+        if i < 6 then
+          local x0 = offset_x + 1 + (i - 1) * 9 + garbage.dx
+          local y0 = offset_y + garbage.dy
 
-        if garbage.tick_fall then
-          pal(7, garbage.inner_border_color)
-          pal(6, garbage.inner_border_color)
+          if garbage.tick_fall then
+            pal(7, garbage.inner_border_color)
+            pal(6, garbage.inner_border_color)
+          end
+
+          if garbage.span < 6 then
+            sspr(96, 48, 13, 11, x0, y0)
+          else
+            sspr(80, 48, 13, 11, x0, y0)
+            cursor(x0 + 5, y0 + 4)
+            color(8)
+            print(garbage.height)
+          end
+
+          pal()
         end
-
-        if garbage.span < 6 then
-          sspr(96, 48, 13, 11, x0, y0)
-        else
-          sspr(80, 48, 13, 11, x0, y0)
-          cursor(x0 + 5, y0 + 4)
-          color(8)
-          print(garbage.height)
-        end
-
-        pal()
       end
 
       -- WIN! または LOSE を描画
