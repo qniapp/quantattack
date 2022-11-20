@@ -33,7 +33,7 @@ function title:render()
   board:render()
 
   -- ロゴを表示
-  spr(128, 29, 35, 9, 2)
+  sspr(0, 64, 128, 16, 0, 24)
 
   -- メニューのウィンドウを表示
   draw_rounded_box(32, 66, 95, 94, 7, 0)
