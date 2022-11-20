@@ -7,9 +7,7 @@ function wait_swap_to_finish(board)
 end
 
 function i_gate()
-  local i = gate("i")
-  i.type_string = "_"
-  return i
+  return gate("i")
 end
 
 function h_gate()
@@ -51,7 +49,6 @@ end
 function swap_gate(other_x)
   local swap = gate('swap')
   swap.other_x = other_x
-  swap.type_string = "S"
   return swap
 end
 

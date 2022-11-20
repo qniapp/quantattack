@@ -32,6 +32,24 @@ for key, each in pairs(sprites) do
   }
 end
 
+--#if debug
+local type_string = {
+  i = '_',
+  control = 'C',
+  cnot_x = 'X',
+  swap = 'S'
+}
+
+local state_string = {
+  idle = " ",
+  swapping_with_left = "<",
+  swapping_with_right = ">",
+  falling = "|",
+  match = "*",
+  freeze = "f",
+}
+--#endif
+
 
 --- @class Gate
 --- @field type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "!" gate type
@@ -59,16 +77,6 @@ function gate(type, span, height)
     type = type,
     span = span or 1,
     height = height or 1,
-
-    --#if debug
-    state_string = {
-      idle = " ",
-      swapping_with_left = "<",
-      swapping_with_right = ">",
-      match = "*",
-      freeze = "f",
-    },
-    --#endif
 
     --- @param _ENV Gate
     _init = function(_ENV)
@@ -293,7 +301,7 @@ function gate(type, span, height)
     --#if debug
     --- @param _ENV Gate
     _tostring = function(_ENV)
-      return (type_string or type) .. state_string[_state]
+      return (type_string[type] or type) .. state_string[_state]
     end
     --#endif
   }, { __index = _ENV })
