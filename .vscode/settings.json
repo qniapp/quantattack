@@ -91,7 +91,9 @@
     "game_start_time",
     "t",
     "elapsed_time",
-    "game_over_time"
+    "game_over_time",
+    "gate_class",
+    "garbage_gate_colors"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,

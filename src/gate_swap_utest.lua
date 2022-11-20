@@ -1,6 +1,6 @@
 require("engine/test/bustedhelper")
+require("test_helper")
 require("board")
-require("gate")
 
 describe('ゲートの入れ替え', function()
   local board

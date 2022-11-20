@@ -1,6 +1,6 @@
 require("engine/test/bustedhelper")
 require("engine/debug/dump")
-require("gate")
+require("test_helper")
 
 describe('swap_gate', function()
   local swap
@@ -12,13 +12,13 @@ describe('swap_gate', function()
   describe("gate type", function()
     describe("is_i", function()
       it("should return false", function()
-        assert.is_false(swap:is_i())
+        assert.is_false(swap.type == "i")
       end)
     end)
 
     describe("is_garbage", function()
       it("should return false", function()
-        assert.is_false(swap:is_garbage())
+        assert.is_false(swap.type == "g")
       end)
     end)
   end)

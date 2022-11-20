@@ -1,6 +1,7 @@
 require("engine/test/bustedhelper")
+require("engine/render/color")
+require("test_helper")
 require("board")
-require("gate")
 
 describe('ゲートの落下', function()
   local board
@@ -227,7 +228,7 @@ describe('ゲートの落下', function()
     local garbage
 
     before_each(function()
-      garbage = garbage_gate(2)
+      garbage = garbage_gate(colors.dark_purple, 3)
     end)
 
     it("状態が falling になる", function()

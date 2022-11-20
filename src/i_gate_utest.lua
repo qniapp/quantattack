@@ -1,5 +1,5 @@
 require("engine/test/bustedhelper")
-require("gate")
+require("test_helper")
 
 describe('i_gate', function()
   local i
@@ -9,15 +9,9 @@ describe('i_gate', function()
   end)
 
   describe("gate type", function()
-    describe("is_i", function()
-      it("should return true", function()
-        assert.is_true(i:is_i())
-      end)
-    end)
-
     describe("is_garbage", function()
       it("should return false", function()
-        assert.is_false(i:is_garbage())
+        assert.is_false(i.type == "g")
       end)
     end)
   end)
@@ -51,6 +45,18 @@ describe('i_gate', function()
   describe("is_empty", function()
     it("should return true", function()
       assert.is_true(i:is_empty())
+    end)
+  end)
+
+  describe("is_reducible", function()
+    it("should return false", function()
+      assert.is_false(i:is_reducible())
+    end)
+  end)
+
+  describe("fall", function()
+    it("should raise", function()
+      assert.error(function() i:fall() end)
     end)
   end)
 

@@ -1,6 +1,7 @@
 require("engine/test/bustedhelper")
+require("engine/render/color")
+require("test_helper")
 require("board")
-require("gate")
 
 describe('連鎖 (chain)', function()
   local board
@@ -41,10 +42,11 @@ describe('連鎖 (chain)', function()
     repeat
       board:update()
     until board:gate_at(1, 17).type == "x" and board:gate_at(1, 17):is_idle()
+
     board:update()
 
-    assert.is_nil(board:gate_at(1, 14).chain_id)
     assert.is_nil(board:gate_at(1, 16).chain_id)
+    assert.is_nil(board:gate_at(1, 17).chain_id)
   end)
 
   it("ゲートがマッチすると、board._chain_count が 1 になる", function()
@@ -111,7 +113,7 @@ describe('連鎖 (chain)', function()
   -- H     --->       --->
   -- H Y          Y        X   Z
   it("おじゃまゲート 2 連鎖", function()
-    board:put(1, 15, garbage_gate(3, 1))
+    board:put(1, 15, garbage_gate(colors.dark_purple, 3))
     board:put(1, 16, h_gate())
     board:put(1, 17, h_gate())
     board:put(2, 17, y_gate())
@@ -185,6 +187,6 @@ describe('連鎖 (chain)', function()
       board:update()
     end
 
-    assert.is_nil(board:gate_at(1, 16).chain_id)
+    assert.is_nil(board:gate_at(1, 17).chain_id)
   end)
 end)

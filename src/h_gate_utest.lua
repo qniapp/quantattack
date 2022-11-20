@@ -1,6 +1,6 @@
 require("engine/test/bustedhelper")
 require("engine/debug/dump")
-require("gate")
+require("test_helper")
 
 describe('h_gate', function()
   local h
@@ -10,15 +10,15 @@ describe('h_gate', function()
   end)
 
   describe("gate type", function()
-    describe("is_i", function()
-      it("should return false", function()
-        assert.is_false(h:is_i())
+    describe("is_single_gate", function()
+      it("should return true", function()
+        assert.is_true(h:is_single_gate())
       end)
     end)
 
     describe("is_garbage", function()
       it("should return false", function()
-        assert.is_false(h:is_garbage())
+        assert.is_false(h.type == "g")
       end)
     end)
   end)

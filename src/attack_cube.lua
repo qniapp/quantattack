@@ -9,7 +9,7 @@ function update_attack_cubes()
     if abs(_target_x - _x) < 5 then
       del(all_cubes, each)
       create_particle_set(_target_x, _target_y,
-        "5,green,dark_green,20|5,green,dark_green,20|4,green,dark_green,20|4,dark_purple,dark_gray,20|4,light_gray,dark_green,20|2,green,dark_green,20|2,green,dark_green,20|2,light_gray,dark_gray,20|2,light_gray,dark_gray,20|0,dark_purple,dark_gray,20")
+        "5,5,11,3,random,random,-0.03,-0.03,20|5,5,11,3,random,random,-0.03,-0.03,20|4,4,11,3,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,3,random,random,-0.03,-0.03,20|2,2,11,3,random,random,-0.03,-0.03,20|2,2,11,3,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
       each._callback()
     end
 

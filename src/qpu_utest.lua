@@ -1,4 +1,6 @@
 require("engine/test/bustedhelper")
+require("engine/render/color")
+require("test_helper")
 require("board")
 require("player_cursor")
 require("qpu")
@@ -265,7 +267,7 @@ describe('qpu', function()
     -- [  H]
     it("左に 1 マス動かしてマッチ", function()
       board:put(1, 12, h_gate())
-      board:put(2, 12, garbage_gate(5, 1))
+      board:put(2, 12, garbage_gate(colors.dark_purple, 5, 1))
       board:put(2, 13, h_gate())
       cursor.x = 1
       cursor.y = 13

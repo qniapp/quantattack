@@ -10,8 +10,8 @@ describe('particle', function()
 
   describe('create', function()
     it("creates a particle", function()
-      create_particle(1, 1, 1, "white", "dark_gray", 10)
-      create_particle(2, 2, 2, "red", "green", 20)
+      create_particle(1, 1, 1, 1, 7, 5, 1, 1, 1, 1, 10)
+      create_particle(2, 2, 2, 2, 8, 11, 1, 1, 1, 1, 20)
 
       assert.are_equal(2, #all_particles)
 
@@ -33,7 +33,7 @@ describe('particle', function()
 
   describe('update', function()
     it("updates all partciles", function()
-      create_particle(1, 1, 1, "white", "dark_gray", 20)
+      create_particle(1, 1, 1, 1, 7, 5, 1, 1, 1, 1, 20)
 
       assert.are_equal(1, #all_particles)
 
@@ -45,7 +45,7 @@ describe('particle', function()
 
   describe('render', function()
     it("renders all particles", function()
-      create_particle(1, 1, 1, "white", "dark_gray", 20)
+      create_particle(1, 1, 1, 1, 7, 5, 1, 1, 1, 1, 20)
 
       assert.has_no.errors(function()
         render_particles()
