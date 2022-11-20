@@ -88,7 +88,7 @@ function gate(type, span, height)
 
     --- @param _ENV Gate
     is_fallable = function(_ENV)
-      return not (type == "i" or type == "!" or is_swapping(_ENV) or is_freeze(_ENV) or is_falling(_ENV))
+      return not (type == "i" or type == "!" or is_swapping(_ENV) or is_freeze(_ENV))
     end,
 
     --- @param _ENV Gate
@@ -163,6 +163,10 @@ function gate(type, span, height)
       --#if assert
       assert(is_fallable(_ENV), "gate " .. type .. "(" .. x .. ", " .. y .. ")")
       --#endif
+
+      if is_falling(_ENV) then
+        return
+      end
 
       _fall_screen_dy = 0
 

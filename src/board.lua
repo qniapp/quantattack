@@ -918,7 +918,7 @@ function create_board(__offset_x)
     _is_gate_fallable_nocache = function(_ENV, x, y)
       local gate = gates[x][y]
 
-      if y >= rows or not (gate:is_fallable() or gate:is_falling()) then
+      if y >= rows or not gate:is_fallable() then
         return false
       end
 
