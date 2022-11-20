@@ -41,22 +41,7 @@ function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, o
       player.score = player.score + (chain_bonus[chain_count] or 180)
 
       if other_board then
-        for _, each in pairs(board.pending_garbage_gates) do
-          if each.span == 6 then
-            if not each.tick_fall then
-              if each.height > offset_height then
-                each.height = each.height - offset_height
-                break
-              else
-                offset_height = offset_height - each.height
-                del(board.pending_garbage_gates, each)
-              end
-            end
-          else
-            offset_height = offset_height - 1
-            del(board.pending_garbage_gates, each)
-          end
-        end
+        offset_height = board.pending_garbage_gates:offset(offset_height)
       end
     end
 
