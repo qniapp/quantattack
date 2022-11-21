@@ -565,9 +565,9 @@ function create_board(__offset_x, __cols)
 
       -- ゲームオーバーの線
       if show_top_line then
-      line(offset_x - 2, 40,
-        offset_x + 48 + 1, 40,
-        _is_topped_out(_ENV) and 8 or 1)
+        line(offset_x - 2, 40,
+          offset_x + 48 + 1, 40,
+          _is_topped_out(_ENV) and 8 or 1)
 
       end
 
@@ -576,7 +576,7 @@ function create_board(__offset_x, __cols)
 
       -- WIN! または LOSE を描画
       if is_game_over(_ENV) then
-        sspr(win and 0 or 32, 80, 32, 16, offset_x + width / 2 - 16, offset_y + 56)
+        sspr(win and 64 or 96, 48, 32, 16, offset_x + width / 2 - 16, offset_y + 56)
       end
 
       if push_any_key then

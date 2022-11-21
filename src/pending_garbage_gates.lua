@@ -103,9 +103,9 @@ function create_pending_garbage_gates()
           end
 
           if each.span < 6 then
-            sspr(96, 48, 13, 11, x0, y0)
+            sspr(16, 80, 13, 11, x0, y0)
           else
-            sspr(80, 48, 13, 11, x0, y0)
+            sspr(0, 80, 13, 11, x0, y0)
             cursor(x0 + 5, y0 + 4)
             color(8)
             print(each.height)
