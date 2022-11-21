@@ -41,20 +41,17 @@ function create_qpu(cursor, board)
         _ENV[next_command] = true
       else
         if raise and board.top_gate_y > 10 then
-          add_raise_command(_ENV)
+          add(commands, "x")
+          add_sleep_command(_ENV, 3)
         else
-          if not flatten_gates(_ENV) then
+          if not for_all_reducible_gates(_ENV, _flatten_gate) then
             if not board.contains_garbage_match_gate then
-              reduce_cnots(_ENV)
-              reduce_single_gates(_ENV)
+              for_all_reducible_gates(_ENV, _reduce_cnot)
+              for_all_reducible_gates(_ENV, _reduce_single_gate)
             end
           end
         end
       end
-    end,
-
-    flatten_gates = function(_ENV)
-      return for_all_reducible_gates(_ENV, _flatten_gate)
     end,
 
     _flatten_gate = function(_ENV, each, each_x, each_y)
@@ -63,10 +60,6 @@ function create_qpu(cursor, board)
           return true
         end
       end
-    end,
-
-    reduce_single_gates = function(_ENV)
-      return for_all_reducible_gates(_ENV, _reduce_single_gate)
     end,
 
     _reduce_single_gate = function(_ENV, each, each_x, each_y)
@@ -83,10 +76,6 @@ function create_qpu(cursor, board)
           end
         end
       end
-    end,
-
-    reduce_cnots = function(_ENV)
-      return for_all_reducible_gates(_ENV, _reduce_cnot)
     end,
 
     _reduce_cnot = function(_ENV, each, each_x, each_y)
@@ -226,11 +215,6 @@ function create_qpu(cursor, board)
       -- これをしないと「左に連続して移動して落とす」などの
       -- 操作がうまく行かない。
       add_sleep_command(_ENV, 4)
-    end,
-
-    add_raise_command = function(_ENV)
-      add(commands, "x")
-      add_sleep_command(_ENV, 3)
     end,
 
     add_sleep_command = function(_ENV, count)
