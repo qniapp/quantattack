@@ -24,8 +24,8 @@ describe('パフォーマンス', function()
 
     qpu2:init()
     qpu2_board:put_random_gates()
-    qpu2_board.gate_offset_target = { 78, 15, "left" }
-    qpu2_board.attack_cube_target = { 48, 15, "left" }
+    qpu2_board.gate_offset_target = { 78, 15 }
+    qpu2_board.attack_cube_target = { 48, 15 }
     qpu2_cursor:init()
 
     game:init()
