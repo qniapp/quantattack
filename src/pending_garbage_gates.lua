@@ -23,7 +23,7 @@ function create_pending_garbage_gates()
         end
       end
 
-      local new_garbage_gate = garbage_gate(garbage_gate_colors[flr(rnd(#garbage_gate_colors)) + 1], span, height)
+      local new_garbage_gate = garbage_gate(span, height)
       new_garbage_gate.chain_id = chain_id
       new_garbage_gate.wait_time = 60
       new_garbage_gate.dx = 0

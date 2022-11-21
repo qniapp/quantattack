@@ -94,7 +94,8 @@
     "game_over_time",
     "gate_class",
     "garbage_gate_colors",
-    "fillp"
+    "fillp",
+    "spy"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,

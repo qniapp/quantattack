@@ -3,11 +3,53 @@ require("board")
 require("garbage_gate")
 
 describe('garbage_gate', function()
-  describe('color', function()
-    it("色を指定", function()
-      local garbage = garbage_gate(2)
+  describe('span', function()
+    it("幅はデフォルトで 6", function()
+      local garbage = garbage_gate()
 
-      assert.are_equal(2, garbage.color)
+      assert.are_equal(6, garbage.span)
+    end)
+
+    it("幅 (span) を指定して生成", function()
+      local garbage = garbage_gate(3)
+
+      assert.are_equal(3, garbage.span)
+    end)
+
+    it("幅を 2 以下に指定するとエラー", function()
+      ---@diagnostic disable-next-line: param-type-mismatch
+      assert.error(function() garbage_gate(2) end)
+    end)
+
+    it("幅を 7 以上に指定するとエラー", function()
+      ---@diagnostic disable-next-line: param-type-mismatch
+      assert.error(function() garbage_gate(7) end)
+    end)
+  end)
+
+  describe('height', function()
+    it("高さはデフォルトで 1", function()
+      local garbage = garbage_gate(3)
+
+      assert.are_equal(1, garbage.height)
+    end)
+
+    it("高さ (height) を指定して生成", function()
+      local garbage = garbage_gate(3, 4)
+
+      assert.are_equal(4, garbage.height)
+    end)
+
+    it("高さを 1 未満に指定するとエラー", function()
+      assert.error(function() garbage_gate(3, 0) end)
+    end)
+  end)
+
+  describe('color', function()
+    it("色を指定して生成", function()
+      local garbage = garbage_gate(6, 1, 2)
+
+      assert.are_equal(2, garbage.body_color)
     end)
 
     it("色が正しくない場合エラー", function()
@@ -16,51 +58,23 @@ describe('garbage_gate', function()
     end)
 
     it("色に応じて inner_border_color をセットする", function()
-      assert.are_equal(14, garbage_gate(2).inner_border_color)
-      assert.are_equal(11, garbage_gate(3).inner_border_color)
-      assert.are_equal(9, garbage_gate(4).inner_border_color)
+      assert.are_equal(14, garbage_gate(6, 1, 2).inner_border_color)
+      assert.are_equal(11, garbage_gate(6, 1, 3).inner_border_color)
+      assert.are_equal(9, garbage_gate(6, 1, 4).inner_border_color)
     end)
   end)
 
-  describe('span', function()
-    it("幅はデフォルトで 6", function()
-      local garbage = garbage_gate(2)
+  describe('render', function()
+    it('おじゃまゲートの本体、影、内側の枠線を描画', function()
+      local garbage = garbage_gate(6, 1, 2)
+      spy.on(garbage, "_render_box")
 
-      assert.are_equal(6, garbage.span)
-    end)
+      garbage:render(50, 50)
 
-    it("幅 (span) を指定", function()
-      local garbage = garbage_gate(2, 3)
-
-      assert.are_equal(3, garbage.span)
-    end)
-
-    it("幅は 2 以下に指定できない", function()
-      ---@diagnostic disable-next-line: param-type-mismatch
-      assert.error(function() garbage_gate(2, 2) end)
-    end)
-
-    it("幅は 7 以上に指定できない", function()
-      ---@diagnostic disable-next-line: param-type-mismatch
-      assert.error(function() garbage_gate(2, 7) end)
-    end)
-  end)
-
-  describe('height', function()
-    it("高さはデフォルトで 1", function()
-      local garbage = garbage_gate(2, 3)
-
-      assert.are_equal(1, garbage.height)
-    end)
-
-    it("高さ (height) を指定", function()
-      local garbage = garbage_gate(2, 3, 4)
-
-      assert.are_equal(4, garbage.height)
-    end)
-
-    it("高さは 1 未満に指定できない", function()
-      assert.error(function() garbage_gate(2, 3, 0) end)
+      ---@diagnostic disable-next-line: undefined-field
+      assert.spy(garbage._render_box).was_called(3)
+      ---@diagnostic disable-next-line: undefined-field
+      assert.spy(garbage._render_box).was_called_with(51, 51, 95, 55, 14)
     end)
   end)
 end)
@@ -76,7 +90,7 @@ describe("board", function()
       -- 11 _ g g g _ _
       -- 12 _ g g g _ _
       -- 13 _ _ _ _ _ _
-      board:put(2, 12, garbage_gate(2, 3, 3))
+      board:put(2, 12, garbage_gate(3, 3))
 
       -- 9 行目
       assert.is_false(board:_is_part_of_garbage(1, 9))

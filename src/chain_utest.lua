@@ -113,7 +113,7 @@ describe('連鎖 (chain)', function()
   -- H     --->       --->
   -- H Y          Y        X   Z
   it("おじゃまゲート 2 連鎖", function()
-    board:put(1, 15, garbage_gate(colors.dark_purple, 3))
+    board:put(1, 15, garbage_gate(3))
     board:put(1, 16, h_gate())
     board:put(1, 17, h_gate())
     board:put(2, 17, y_gate())
