@@ -5,7 +5,7 @@ local app_class = require("app/title")
 local app = app_class()
 
 function _init()
-  app.initial_gamestate = ':title'
+  app.initial_gamestate = ':title_demo'
   app:start()
 end
 

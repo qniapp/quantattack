@@ -2,8 +2,6 @@
 
 # Build all game cartridges, including data cartridges and install them in PICO-8 carts folder.
 
-# Currently only supported on Linux.
-
 # Configuration: paths
 game_scripts_path="$(dirname "$0")"
 
