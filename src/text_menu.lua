@@ -60,7 +60,7 @@ function text_menu:draw(left, top)
       label = "  " .. label
     end
     api.print(label, left, y, 7)
-    y = y + 6 -- character_height = 6
+    y = y + 8
   end
 end
 
