@@ -1,5 +1,7 @@
 ---@diagnostic disable: discard-returns
 
+local flow = require("engine/application/flow")
+
 -- text menu: class representing a menu with labels and arrow-based navigation
 local text_menu = new_class()
 
@@ -22,8 +24,11 @@ function text_menu:update()
     self:select_previous()
   elseif btnp(3) then
     self:select_next()
-  elseif btnp(4) or btnp(5) then
+  elseif btnp(4) then -- z
     self:confirm_selection()
+  elseif btnp(5) then -- x
+    -- FIXME: ベタ書きをやめる
+    flow:query_gamestate_type(':title_demo')
   end
 end
 
