@@ -20,6 +20,7 @@ function app:_init()
   qpu_board:put_random_gates()
   qpu_cursor:init()
 
+  qpu_board.show_wires = false
   qpu_board.show_top_line = false
 
   demo_game:init()

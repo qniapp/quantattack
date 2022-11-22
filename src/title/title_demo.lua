@@ -26,15 +26,18 @@ function title_demo:update()
 end
 
 function title_demo:render()
+  cls()
+
+  -- ロゴを表示
+  -- attack bubble をロゴの上に表示するので、最初に描画
+  sspr(0, 64, 128, 16, 0, 24)
+
   demo_game:render()
 
   -- Z/X start を表示
   if tick_start < 30 then
-    print_outlined_bold("z/x start", 50, 100, 7)
+    print_outlined_bold("z/x start", 50, 50, 7)
   end
-
-  -- ロゴを表示
-  sspr(0, 64, 128, 16, 0, 24)
 end
 
 function print_outlined_bold(str, x, y, color)

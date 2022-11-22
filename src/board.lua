@@ -11,6 +11,7 @@ local reduction_rules = require("reduction_rules")
 function create_board(__offset_x, __cols)
   local board = setmetatable({
     _offset_x = __offset_x,
+    show_wires = true,
     show_top_line = true,
 
     init = function(_ENV, _cols)
@@ -518,12 +519,14 @@ function create_board(__offset_x, __cols)
     end,
 
     render = function(_ENV)
-      for x = 1, cols do
-        -- draw wires
-        local line_x = screen_x(_ENV, x) + 3
-        line(line_x, offset_y,
-          line_x, offset_y + height,
-          5)
+      if show_wires then
+        for x = 1, cols do
+          -- draw wires
+          local line_x = screen_x(_ENV, x) + 3
+          line(line_x, offset_y,
+            line_x, offset_y + height,
+            5)
+        end
       end
 
       -- ゲートの描画

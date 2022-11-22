@@ -13,21 +13,12 @@ function game.reduce_callback(score, player)
   -- NOP
 end
 
+local attack_cube_callback = function()
+  -- TODO sfx
+end
+
 function game.combo_callback(combo_count, x, y, player, board, other_board)
-  -- タイトルに攻撃玉をぶつける
-
-  -- local attack_cube_callback = function()
-  --   player.score = player.score + combo_count
-
-  --   -- 対戦相手がいる時、おじゃまゲートを送る
-  --   if other_board then
-  --     other_board:send_garbage(nil, combo_count > 6 and 6 or combo_count - 1, 1)
-  --   end
-  -- end
-
-  -- create_bubble("combo", combo_count, board:screen_x(x), board:screen_y(y))
-  -- create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback,
-  --   unpack(board.attack_cube_target))
+  create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback, 64, 40)
 end
 
 function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, other_board)
@@ -35,24 +26,7 @@ function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, o
 end
 
 function game.chain_callback(chain_id, chain_count, x, y, player, board, other_board)
-  -- タイトルに攻撃玉をぶつける
-
-  -- if chain_count > 2 then
-  --   local attack_cube_callback = function()
-  --     player.score = player.score + (chain_bonus[chain_count] or 180)
-
-  --     -- 対戦相手がいる時、おじゃまゲートを送る
-  --     if other_board then
-  --       other_board:send_garbage(chain_id, 6, chain_count - 1 < 6 and chain_count - 1 or 5)
-  --     end
-  --   end
-
-  --   create_bubble("chain", chain_count, board:screen_x(x), board:screen_y(y))
-  --   create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback,
-  --     unpack(board.attack_cube_target))
-  -- else
-  --   player.score = player.score + (chain_bonus[chain_count])
-  -- end
+  create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback, 64, 40)
 end
 
 function game:_init()
@@ -79,26 +53,26 @@ function game:update()
     each:update(board)
 
     if each.left then
-       sfx(0)
-       player_cursor:move_left()
+      sfx(0)
+      player_cursor:move_left()
     end
     if each.right then
-       sfx(0)
-       player_cursor:move_right()
+      sfx(0)
+      player_cursor:move_right()
     end
     if each.up then
-       sfx(0)
-       player_cursor:move_up()
+      sfx(0)
+      player_cursor:move_up()
     end
     if each.down then
-       sfx(0)
-       player_cursor:move_down()
+      sfx(0)
+      player_cursor:move_down()
     end
     if each.o and board:swap(player_cursor.x, player_cursor.y) then
-       sfx(2)
+      sfx(2)
     end
     if each.x and board.top_gate_y > 2 then
-       self:_raise(each)
+      self:_raise(each)
     end
 
     board:update(self, each)
@@ -111,8 +85,6 @@ function game:update()
 end
 
 function game:render() -- override
-  cls()
-
   for _, each in pairs(all_players) do
     each.board:render()
     each.player_cursor:render()

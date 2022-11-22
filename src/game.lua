@@ -195,8 +195,6 @@ function game:update()
 end
 
 function game:render() -- override
-  cls()
-
   for _, each in pairs(all_players) do
     local player_cursor = each.player_cursor
     local board = each.board
