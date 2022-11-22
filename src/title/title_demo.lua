@@ -1,7 +1,6 @@
 require("board")
 require("player_cursor")
 require("qpu")
-
 require("plasma")
 
 local flow = require("engine/application/flow")
@@ -39,7 +38,7 @@ function title_demo:render()
 
   -- Z/X start を表示
   if tick_start < 30 then
-    print_outlined_bold("z/x start", 50, 50, 7)
+    print_outlined_bold("z/x start", 50, 50, 1)
   end
 end
 

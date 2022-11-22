@@ -1,4 +1,5 @@
 require("board")
+require("plasma")
 
 local gamestate = require("gamestate")
 local menu_item = require("menu_item")
@@ -26,13 +27,17 @@ function title:update()
 end
 
 function title:render()
+  render_plasma()
+
   demo_game:render()
 
   -- ロゴを表示
   sspr(0, 64, 128, 16, 0, 24)
 
   -- メニューのウィンドウを表示
-  draw_rounded_box(32, 66, 95, 94, 7, 0)
+  draw_rounded_box(31, 65, 96, 99, 0, 0) -- ふちどり
+  draw_rounded_box(32, 66, 95, 98, 12, 12) -- 枠線
+  draw_rounded_box(34, 68, 93, 96, 1, 1) -- 本体
 
   -- メニューを表示
   text_menu:draw(40, 72) -- 40 + 4 * character_height (= 6)
