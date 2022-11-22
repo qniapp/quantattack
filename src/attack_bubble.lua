@@ -27,18 +27,15 @@ function render_attack_bubbles()
   foreach(all_bubbles, function(each)
     local _ENV = each
 
-    fillp(-9600.5)
-    circfill(_x, _y, 8 + 2 * sin(_angle), 0x0a)
-
     fillp(23130.5)
-    circfill(_x, _y, 8 + 2 * sin(1.5 * _angle), 0x0c)
+    circfill(_x, _y, 6 + 2 * sin(1.5 * _angle), 0x0c)
 
     fillp()
 
-    circfill(_x, _y, 5 + 2 * sin(2 * _angle), 12)
+    circfill(_x, _y, 4 + 2 * sin(2 * _angle), 12)
 
     --- 中心
-    circfill(_x, _y, 2 + sin(2.5 * _angle), 7)
+    circfill(_x, _y, 3 + sin(2.5 * _angle), 7)
   end)
 end
 
