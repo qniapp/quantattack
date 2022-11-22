@@ -19,6 +19,7 @@ function title_demo:update()
   tick_start = (tick_start + 1) % 60
 
   demo_game:update()
+  update_title_logo_bounce()
 
   if btnp(4) or btnp(5) then -- x または z でタイトルへ進む
     flow:query_gamestate_type(':title')
@@ -26,11 +27,9 @@ function title_demo:update()
 end
 
 function title_demo:render()
-  cls()
-
   -- ロゴを表示
   -- attack bubble をロゴの上に表示するので、最初に描画
-  sspr(0, 64, 128, 16, 0, 24)
+  sspr(0, 64, 128, 16, 0, 24 + title_logo_bounce_screen_dy)
 
   demo_game:render()
 
@@ -41,14 +40,14 @@ function title_demo:render()
 end
 
 function print_outlined_bold(str, x, y, color)
-  for _, dx in pairs({-2, -1, 0, 1, 2}) do
-    for _, dy in pairs({-2, -1, 0, 1, 2}) do
+  for _, dx in pairs({ -2, -1, 0, 1, 2 }) do
+    for _, dy in pairs({ -2, -1, 0, 1, 2 }) do
       print(str, x + dx, y + dy, 0)
     end
   end
 
-  for _, dx in pairs({-1, 0, 1}) do
-    for _, dy in pairs({-1, 0, 1}) do
+  for _, dx in pairs({ -1, 0, 1 }) do
+    for _, dy in pairs({ -1, 0, 1 }) do
       print(str, x + dx, y + dy, 12)
     end
   end

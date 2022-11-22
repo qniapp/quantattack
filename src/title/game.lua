@@ -13,12 +13,31 @@ function game.reduce_callback(score, player)
   -- NOP
 end
 
+title_logo_bounce_speed, title_logo_bounce_screen_dy = 0, 0
+
+-- タイトルロゴを跳ねさせる
+local function bounce_title_logo()
+  title_logo_bounce_screen_dy, title_logo_bounce_speed = 0, -5
+end
+
+function update_title_logo_bounce()
+  if title_logo_bounce_speed ~= 0 then
+    title_logo_bounce_speed = title_logo_bounce_speed + 0.9
+    title_logo_bounce_screen_dy = title_logo_bounce_screen_dy + title_logo_bounce_speed
+
+    if title_logo_bounce_screen_dy > 0 then
+      title_logo_bounce_screen_dy, title_logo_bounce_speed = 0, -title_logo_bounce_speed
+    end
+  end
+end
+
 local attack_cube_callback = function()
-  -- TODO sfx
+  bounce_title_logo()
+  sfx(1)
 end
 
 function game.combo_callback(combo_count, x, y, player, board, other_board)
-  create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback, 64, 40)
+  create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback, 64, 36)
 end
 
 function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, other_board)
@@ -26,7 +45,7 @@ function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, o
 end
 
 function game.chain_callback(chain_id, chain_count, x, y, player, board, other_board)
-  create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback, 64, 40)
+  create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback, 64, 36)
 end
 
 function game:_init()

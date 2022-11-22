@@ -26,8 +26,6 @@ function title:update()
 end
 
 function title:render()
-  cls()
-
   demo_game:render()
 
   -- ロゴを表示

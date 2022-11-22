@@ -46,8 +46,6 @@ end
 
 -- 画面の描画
 function qpu_vs_qpu:render()
-  cls()
-
   game:render()
 
   -- 経過時間の表示
