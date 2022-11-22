@@ -4,7 +4,7 @@ local gameapp = require("app/gameapp")
 local app = derived_class(gameapp)
 
 local title_demo = require("title/title_demo")
-local title = require("title/title")
+local title_menu = require("title/title_menu")
 
 local game_class = require("title/game")
 demo_game = game_class()
@@ -28,7 +28,7 @@ function app:_init()
 end
 
 function app.instantiate_gamestates()
-  return { title_demo(), title() }
+  return { title_demo(), title_menu() }
 end
 
 return app
