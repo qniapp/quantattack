@@ -2,6 +2,8 @@ require("board")
 require("player_cursor")
 require("qpu")
 
+require("plasma")
+
 local flow = require("engine/application/flow")
 local gamestate = require("gamestate")
 
@@ -27,6 +29,8 @@ function title_demo:update()
 end
 
 function title_demo:render()
+  render_plasma()
+
   -- ロゴを表示
   -- attack bubble をロゴの上に表示するので、最初に描画
   sspr(0, 64, 128, 16, 0, 24 + title_logo_bounce_screen_dy)
