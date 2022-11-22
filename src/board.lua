@@ -377,7 +377,7 @@ function create_board(__offset_x, __cols)
 
       gate.x, gate.y = x, y
 
-      -- おじゃまゲートを別のゲートと置き換える場合
+      -- おじゃまゲートを分解する時 (= garbage_match ゲートと置き換える時)、
       -- おじゃまゲートキャッシュから消す
       if gates[x] and gates[x][y] and gates[x][y].type == "g" then
         del(_garbage_gates, gates[x][y])

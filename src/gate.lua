@@ -260,7 +260,7 @@ function gate(type, span, height)
         local sequence = sprite_set.match
         sprite = _tick_match <= gate_match_delay_per_gate and sequence[_tick_match] or sequence[#sequence]
       elseif _state == "over" then
-        sprite = sprite_set.over
+        sprite = sprite_set.match[#sprite_set.match]
       else
         sprite = sprite_set.default
       end
@@ -269,9 +269,15 @@ function gate(type, span, height)
         palt(0, false)
       end
 
+      if _state == "over" then
+        pal(13, 5)
+        pal(7, 1)
+      end
+
       spr(sprite, screen_x + swap_screen_dx, screen_y + _fall_screen_dy)
 
       palt()
+      pal()
     end,
 
     -------------------------------------------------------------------------------
