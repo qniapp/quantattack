@@ -27,7 +27,6 @@ function gameapp:start()
 end
 
 function gameapp:update()
-  -- input:process_players_inputs()
   flow:update()
 
   self:on_update()

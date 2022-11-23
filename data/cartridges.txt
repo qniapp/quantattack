@@ -1,4 +1,5 @@
 title
+mission
 solo
 vs_qpu
 qpu_vs_qpu
