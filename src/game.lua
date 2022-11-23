@@ -1,7 +1,4 @@
 require("class")
---#if log
-require("engine/debug/dump")
---#endif
 
 local game = new_class()
 
@@ -9,6 +6,7 @@ require("attack_bubble")
 require("bubble")
 require("helpers")
 require("particle")
+require("ripple")
 
 local all_players, state, countdown
 
@@ -83,6 +81,7 @@ function game:init()
   all_players = {}
   countdown = 240
   self.start_time = t()
+  init_ripple()
 end
 
 function game:add_player(player, player_cursor, board, other_board)
@@ -95,6 +94,8 @@ function game:add_player(player, player_cursor, board, other_board)
 end
 
 function game:update()
+  update_ripple()
+
   if countdown then
     countdown = countdown - 1
     local countdown_number = flr(countdown / 60 + 1)
@@ -122,6 +123,9 @@ function game:update()
     end
   end
 
+  -- もしどちらかの board でおじゃまゲートを分解中だった場合 "slow" にする
+  ripple_speed = "normal"
+
   for index, each in pairs(all_players) do
     local player_cursor = each.player_cursor
     local board = each.board
@@ -129,6 +133,7 @@ function game:update()
 
     if board:is_game_over() then
       board:update()
+      ripple_speed = "normal"
     else
       each:update(board)
 
@@ -160,6 +165,10 @@ function game:update()
 
       if not countdown then
         self:_auto_raise(each)
+      end
+
+      if board.contains_garbage_match_gate then
+        ripple_speed = "slow"
       end
     end
   end
@@ -195,6 +204,8 @@ function game:update()
 end
 
 function game:render() -- override
+  render_ripple()
+
   for _, each in pairs(all_players) do
     local player_cursor = each.player_cursor
     local board = each.board
