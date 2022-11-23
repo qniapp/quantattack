@@ -1,5 +1,7 @@
 ---@diagnostic disable: discard-returns
 
+local flow = require("engine/application/flow")
+
 -- text menu: class representing a menu with labels and arrow-based navigation
 local text_menu = new_class()
 
@@ -14,16 +16,28 @@ function text_menu:_init(items)
 
   -- state
   self.selection_index = 1
+
+  self.cart_to_load = nil
 end
 
 -- handle navigation input
 function text_menu:update()
-  if btnp(2) then
-    self:select_previous()
-  elseif btnp(3) then
-    self:select_next()
-  elseif btnp(4) or btnp(5) then
-    self:confirm_selection()
+  if self.cart_to_load then
+    if stat(16) == -1 then
+      load(self.cart_to_load)
+    end
+  else
+    if btnp(2) then
+      self:select_previous()
+    elseif btnp(3) then
+      self:select_next()
+    elseif btnp(4) then -- z
+      sfx(7)
+      self:confirm_selection()
+    elseif btnp(5) then -- x
+      -- FIXME: ベタ書きをやめる
+      flow:query_gamestate_type(':title_demo')
+    end
   end
 end
 
@@ -41,7 +55,9 @@ function text_menu:confirm_selection()
   -- currently, text menu is only used to navigate to other gamestates,
   -- but later, it may support generic on_confirm callbacks
   -- flow:query_gamestate_type(self.items[self.selection_index].target_state)
-  load(self.items[self.selection_index].target_state)
+
+  self.cart_to_load = self.items[self.selection_index].target_state
+  -- load(self.items[self.selection_index].target_state)
 end
 
 function text_menu:draw(left, top)
@@ -55,7 +71,7 @@ function text_menu:draw(left, top)
       label = "  " .. label
     end
     api.print(label, left, y, 7)
-    y = y + 6 -- character_height = 6
+    y = y + 8
   end
 end
 

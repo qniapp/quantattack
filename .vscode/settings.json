@@ -95,7 +95,8 @@
     "gate_class",
     "garbage_gate_colors",
     "fillp",
-    "spy"
+    "spy",
+    "demo_game"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,
