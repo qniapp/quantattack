@@ -8,14 +8,8 @@ end
 
 function update_ripple()
   tick = tick + 1
-
-  if ripple_speed == "normal" then
-    t1 = t1 - 1 / 1500
-    t2 = t2 - 1 / 150
-  else
-    t1 = t1 - 1 / 3000
-    t2 = t2 - 1 / 300
-  end
+  t1 = t1 - 1 / (ripple_speed == "normal" and 1500 or 3000)
+  t2 = t2 - 1 / (ripple_speed == "normal" and 150 or 300)
 end
 
 function render_ripple()
