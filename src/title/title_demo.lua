@@ -23,6 +23,7 @@ function title_demo:update()
   update_title_logo_bounce()
 
   if btnp(4) or btnp(5) then -- x または z でタイトルへ進む
+    sfx(7)
     flow:query_gamestate_type(':title_menu')
   end
 end
