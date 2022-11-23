@@ -96,7 +96,13 @@
     "garbage_gate_colors",
     "fillp",
     "spy",
-    "demo_game"
+    "demo_game",
+    "init_ripple",
+    "update_ripple",
+    "render_ripple",
+    "atan2",
+    "sqrt",
+    "ripple_speed"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,
