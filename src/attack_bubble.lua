@@ -29,12 +29,9 @@ function render_attack_bubbles()
 
     fillp(23130.5)
     circfill(_x, _y, 6 + 2 * sin(1.5 * _angle), 0x0c)
-
     fillp()
 
     circfill(_x, _y, 4 + 2 * sin(2 * _angle), 12)
-
-    --- 中心
     circfill(_x, _y, 3 + sin(2.5 * _angle), 7)
   end)
 end
