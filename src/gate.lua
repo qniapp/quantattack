@@ -153,14 +153,14 @@ function gate(type, span, height)
 
     --- @param _ENV Gate
     swap_with_right = function(_ENV)
-      _tick_swap, chain_id = 0
+      chain_id = nil
 
       change_state(_ENV, "swapping_with_right")
     end,
 
     --- @param _ENV Gate
     swap_with_left = function(_ENV)
-      _tick_swap, chain_id = 0
+      chain_id = nil
 
       change_state(_ENV, "swapping_with_left")
     end,
@@ -242,41 +242,41 @@ function gate(type, span, height)
     --- @param screen_x integer x position of the screen
     --- @param screen_y integer y position of the screen
     render = function(_ENV, screen_x, screen_y)
-      if type ~= "i" then
-        local swap_screen_dx = (_tick_swap or 0) * (8 / gate_swap_animation_frame_count)
-        if _is_swapping_with_left(_ENV) then
-          swap_screen_dx = -swap_screen_dx
-        end
-
-        local sprite_set, sprite_id = sprites[type]
-
-        if is_idle(_ENV) and _tick_landed then
-          ---@diagnostic disable-next-line: undefined-field
-          sprite_id = sprite_set.landed[_tick_landed]
-        elseif is_match(_ENV) then
-          local sequence = sprite_set.match
-          sprite_id = _tick_match <= gate_match_delay_per_gate and sequence[_tick_match] or sequence[#sequence]
-        elseif _state == "over" then
-          sprite_id = sprite_set.match[#sprite_set.match]
-        else
-          ---@diagnostic disable-next-line: undefined-field
-          sprite_id = sprite_set.default
-        end
-
-        if type == "!" then
-          palt(0, false)
-        end
-
-        if _state == "over" then
-          pal(13, 9)
-          pal(7, 1)
-        end
-
-        spr(sprite_id, screen_x + swap_screen_dx, screen_y + _fall_screen_dy)
-
-        palt()
-        pal()
+      if type == "i" then
+        return
       end
+
+      local swap_screen_dx = (_tick_swap or 0) * (8 / gate_swap_animation_frame_count)
+      if _is_swapping_with_left(_ENV) then
+        swap_screen_dx = -swap_screen_dx
+      end
+
+      local sprite_set, sprite = sprites[type]
+
+      if is_idle(_ENV) and _tick_landed then
+        sprite = sprite_set.landed[_tick_landed]
+      elseif is_match(_ENV) then
+        local sequence = sprite_set.match
+        sprite = _tick_match <= gate_match_delay_per_gate and sequence[_tick_match] or sequence[#sequence]
+      elseif _state == "over" then
+        sprite = sprite_set.match[#sprite_set.match]
+      else
+        sprite = sprite_set.default
+      end
+
+      if type == "!" then
+        palt(0, false)
+      end
+
+      if _state == "over" then
+        pal(13, 9)
+        pal(7, 1)
+      end
+
+      spr(sprite, screen_x + swap_screen_dx, screen_y + _fall_screen_dy)
+
+      palt()
+      pal()
     end,
 
     -------------------------------------------------------------------------------
@@ -292,6 +292,8 @@ function gate(type, span, height)
     --- @param _ENV Gate
     --- @param new_state string
     change_state = function(_ENV, new_state)
+      _tick_swap = 0
+
       local old_state = _state
       _state = new_state
       observer:observable_update(_ENV, old_state)
@@ -307,7 +309,9 @@ function gate(type, span, height)
       return (type_string[type] or type) .. state_string[_state]
     end
     --#endif
-  }, { __index = _ENV }):_init()
+  }, { __index = _ENV })
+
+  gate_base:_init()
 
   --#if assert
   assert(0 < gate_base.span, "span must be greater than 0")
