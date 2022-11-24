@@ -27,7 +27,7 @@ function create_board(__offset_x, __cols)
       state, win, lose, top_gate_y, _changed = "play", false, false, row_next_gates, false
 
       -- 各種キャッシュ
-      _reduce_cache, _is_gate_empty_cache, _is_gate_fallable_cache, _gate_or_its_head_gate_cache = {}, {}, {}, {}
+      _reduce_cache, _is_gate_fallable_cache = {}, {}
 
       _chain_count, _topped_out_frame_count, _topped_out_delay_frame_count, _bounce_speed,
           _bounce_screen_dy =
@@ -761,10 +761,6 @@ function create_board(__offset_x, __cols)
     -- x, y が空かどうかを返す
     -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
     is_gate_empty = function(_ENV, x, y)
-      return _memoize(_ENV, _is_gate_empty_nocache, _is_gate_empty_cache, x, y)
-    end,
-
-    _is_gate_empty_nocache = function(_ENV, x, y)
       return gates[x][y]:is_empty() and
           not (_is_part_of_garbage(_ENV, x, y) or
               _is_part_of_cnot(_ENV, x, y) or
@@ -777,10 +773,6 @@ function create_board(__offset_x, __cols)
     end,
 
     _gate_or_its_head_gate = function(_ENV, x, y)
-      return _memoize(_ENV, _gate_or_its_head_gate_nocache, _gate_or_its_head_gate_cache, x, y)
-    end,
-
-    _gate_or_its_head_gate_nocache = function(_ENV, x, y)
       return _garbage_head_gate(_ENV, x, y) or
           _cnot_head_gate(_ENV, x, y) or
           _swap_head_gate(_ENV, x, y) or
@@ -939,8 +931,6 @@ function create_board(__offset_x, __cols)
           _is_gate_fallable_cache[i] = {}
         end
       end
-
-      _is_gate_empty_cache, _gate_or_its_head_gate_cache = {}, {}
     end,
 
     -------------------------------------------------------------------------------
