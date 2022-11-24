@@ -399,7 +399,8 @@ for first_gate, rules in pairs(reduction_rules) do
         }
       end),
       tonum(gate_count),
-      tonum(score)
+      tonum(score),
+      pattern -- original string
     }
   end
 end

@@ -82,6 +82,9 @@ function gate(type, span, height)
     _init = function(_ENV)
       _state = "idle"
       _fall_screen_dy = 0
+      if type ~= "i" then
+        default_sprite_id = sprites[type].default
+      end
       return _ENV
     end,
 
