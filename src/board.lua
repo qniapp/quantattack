@@ -517,7 +517,7 @@ function create_board(__offset_x, __cols)
               elseif tick_over == 20 then
                 gates[x][y] = gate("i")
                 create_particle_set(screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3,
-                                    "2,1,7,5,-1,-1,0.05,0.05,32|2,1,7,5,1,-1,-0.05,0.05,32|2,1,7,5,-1,1,0.05,0.05,32|2,1,7,5,1,1,-0.05,-0.05,32")
+                  "2,1,7,5,-1,-1,0.05,0.05,32|2,1,7,5,1,-1,-0.05,0.05,32|2,1,7,5,-1,1,0.05,0.05,32|2,1,7,5,1,1,-0.05,-0.05,32")
               end
             end
           end
@@ -588,7 +588,7 @@ function create_board(__offset_x, __cols)
 
       -- WIN! または LOSE を描画
       if is_game_over(_ENV) then
-        sspr(win and 64 or 96, 48, 32, 16, offset_x + width / 2 - 16, offset_y + 56)
+        sspr(win and 64 or 96, 48, 32, 16, offset_x + width / 2 - 16, offset_y + 36)
       end
 
       if push_any_key then
