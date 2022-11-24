@@ -215,7 +215,7 @@ function gate(type, span, height)
           change_state(_ENV, "idle")
         end
       elseif is_falling(_ENV) then
-        -- _update_falling(_ENV)
+        -- NOP
       elseif is_match(_ENV) then
         if _tick_match <= gate_match_animation_frame_count + _match_index * gate_match_delay_per_gate then
           _tick_match = _tick_match + 1
@@ -252,6 +252,7 @@ function gate(type, span, height)
       end
 
       local sprite_set, sprite = sprites[type]
+      local shake_dx, shake_dy = 0, 0
 
       if is_idle(_ENV) and _tick_landed then
         sprite = sprite_set.landed[_tick_landed]
@@ -259,6 +260,7 @@ function gate(type, span, height)
         local sequence = sprite_set.match
         sprite = _tick_match <= gate_match_delay_per_gate and sequence[_tick_match] or sequence[#sequence]
       elseif _state == "over" then
+        shake_dx, shake_dy = rnd(2) - 1, rnd(2) - 1
         sprite = sprite_set.match[#sprite_set.match]
       else
         sprite = sprite_set.default
@@ -273,7 +275,7 @@ function gate(type, span, height)
         pal(7, 1)
       end
 
-      spr(sprite, screen_x + swap_screen_dx, screen_y + _fall_screen_dy)
+      spr(sprite, screen_x + swap_screen_dx + shake_dx, screen_y + _fall_screen_dy + shake_dy)
 
       palt()
       pal()
