@@ -40,7 +40,7 @@ function garbage_gate(_span, _height, _color)
       local y0, x1, y1, _body_color = screen_y + (1 - height) * tile_size + _fall_screen_dy,
           screen_x + span * tile_size - 2,
           screen_y + 6 + _fall_screen_dy,
-          _state ~= "over" and body_color or 5
+          _state ~= "over" and body_color or 9
 
       _render_box(screen_x, y0 + 1, x1, y1 + 1, 1) -- 影
       _render_box(screen_x, y0, x1, y1, _body_color, _body_color) -- 本体

@@ -498,23 +498,32 @@ function create_board(__offset_x, __cols)
     -------------------------------------------------------------------------------
 
     update = function(_ENV, game, player, other_board)
-      if win then
-        state = "over"
-      end
-
       pending_garbage_gates:update(_ENV)
       _update_bounce(_ENV)
 
       if state == "play" then
-        _update_game(_ENV, game, player, other_board)
+        if win or lose then
+          state = "over"
+          tick_over = 0
+        else
+          _update_game(_ENV, game, player, other_board)
+        end
       elseif state == "over" then
         if lose then
           for x = 1, cols do
             for y = 1, row_next_gates do
-              gates[x][y]._state = "over"
+              if tick_over == 0 then
+                gates[x][y]._state = "over"
+              elseif tick_over == 20 then
+                gates[x][y] = gate("i")
+                create_particle_set(screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3,
+                                    "2,1,7,5,-1,-1,0.05,0.05,32|2,1,7,5,1,-1,-0.05,0.05,32|2,1,7,5,-1,1,0.05,0.05,32|2,1,7,5,1,1,-0.05,-0.05,32")
+              end
             end
           end
         end
+
+        tick_over = tick_over + 1
       end
     end,
 
@@ -598,7 +607,6 @@ function create_board(__offset_x, __cols)
 
           if _topped_out_frame_count >= _topped_out_delay_frame_count then
             lose = true
-            state = "over"
           end
         end
       else

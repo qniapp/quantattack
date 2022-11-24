@@ -270,7 +270,7 @@ function gate(type, span, height)
       end
 
       if _state == "over" then
-        pal(13, 5)
+        pal(13, 9)
         pal(7, 1)
       end
 
