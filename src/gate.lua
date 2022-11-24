@@ -80,8 +80,7 @@ function gate(type, span, height)
 
     --- @param _ENV Gate
     _init = function(_ENV)
-      _state = "idle"
-      _fall_screen_dy = 0
+      _state, _fall_screen_dy = "idle", 0
       return _ENV
     end,
 
