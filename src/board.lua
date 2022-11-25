@@ -190,7 +190,7 @@ function create_board(__offset_x, __cols)
         for i = 0, garbage_span - 1 do
           for j = 0, garbage_height - 1 do
             gmg = gate("!")
-            gmg.color = each.body_color
+            gmg.body_color = each.body_color
             put(_ENV, x + i, y - j, gmg)
 
             local new_gate

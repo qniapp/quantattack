@@ -268,6 +268,7 @@ function gate(type, span, height)
 
       if type == "!" then
         palt(0, false)
+        pal(13, body_color)
       end
 
       if _state == "over" then
