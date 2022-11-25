@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-./scripts/build_cartridge.sh src main_vs_qpu.lua src -o build/vs_qpu --data data.p8 -m 1
+./build_single_cartridge.sh vs_qpu
+./install_single_cartridge.sh vs_qpu debug

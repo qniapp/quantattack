@@ -522,7 +522,7 @@ function create_board(__offset_x, __cols)
               elseif tick_over == 20 then
                 gates[x][y] = gate("i")
                 create_particle_set(screen_x(_ENV, x), screen_y(_ENV, y),
-                                    "5,5,9,7,random,random,-0.03,-0.03,40|5,5,9,7,random,random,-0.03,-0.03,40|4,4,9,7,random,random,-0.03,-0.03,40|4,4,2,5,random,random,-0.03,-0.03,40|4,4,6,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|0,0,2,5,random,random,-0.03,-0.03,40")
+                  "5,5,9,7,random,random,-0.03,-0.03,40|5,5,9,7,random,random,-0.03,-0.03,40|4,4,9,7,random,random,-0.03,-0.03,40|4,4,2,5,random,random,-0.03,-0.03,40|4,4,6,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|0,0,2,5,random,random,-0.03,-0.03,40")
               end
             end
           end
@@ -597,7 +597,7 @@ function create_board(__offset_x, __cols)
       end
 
       if push_any_key then
-        print_outlined("push any key!", offset_x - 1, offset_y + 100, 8)
+        print_outlined("push any key!", offset_x - 1, offset_y + 100, 1)
       end
     end,
 

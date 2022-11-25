@@ -39,24 +39,8 @@ function title_demo:render()
 
   -- Z/X start を表示
   if tick_start < 30 then
-    print_outlined_bold("z/x start", 50, 50, 1)
+    print_outlined("z/x start", 50, 50, 1)
   end
-end
-
-function print_outlined_bold(str, x, y, color)
-  for _, dx in pairs({ -2, -1, 0, 1, 2 }) do
-    for _, dy in pairs({ -2, -1, 0, 1, 2 }) do
-      print(str, x + dx, y + dy, 0)
-    end
-  end
-
-  for _, dx in pairs({ -1, 0, 1 }) do
-    for _, dy in pairs({ -1, 0, 1 }) do
-      print(str, x + dx, y + dy, 12)
-    end
-  end
-
-  print(str, x, y, color)
 end
 
 return title_demo
