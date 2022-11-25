@@ -572,18 +572,18 @@ function create_board(__offset_x, __cols)
       -- 残り時間ゲージの描画
       if _is_topped_out(_ENV) then
         local _topped_out_frame_count_left = _topped_out_delay_frame_count - _topped_out_frame_count
-        local gauge_width = 41
-        local time_left_width = _topped_out_frame_count_left / _topped_out_delay_frame_count * gauge_width
-        -- おじゃまゲートと混じらないように、黒い背景を入れる
-        draw_rounded_box(offset_x + 1, 23, offset_x + 45, 29, 0, 0)
-        rectfill(offset_x + 3 + (gauge_width - time_left_width), 25, offset_x + 44, 27, 8) -- ゲージの値
-        draw_rounded_box(offset_x + 2, 24, offset_x + 44, 28, 7) -- ゲージの枠
+        local time_left_height = _topped_out_frame_count_left / _topped_out_delay_frame_count * 128
+        local gauge_x = offset_x < 64 and offset_x + 50 or offset_x - 3
+
+        if time_left_height > 0 then
+          line(gauge_x, 128 - time_left_height, gauge_x, 127, 8)
+        end
       end
 
       -- ゲームオーバーの線
       if show_top_line then
-        line(offset_x - 2, 40,
-          offset_x + 48 + 1, 40,
+        line(offset_x - 1, 40,
+          offset_x + 48, 40,
           _is_topped_out(_ENV) and 8 or 1)
 
       end
