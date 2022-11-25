@@ -505,11 +505,16 @@ function create_board(__offset_x, __cols)
         if win or lose then
           state = "over"
           tick_over = 0
+          sfx(8)
         else
           _update_game(_ENV, game, player, other_board)
         end
       elseif state == "over" then
         if lose then
+          if tick_over == 20 then
+            sfx(9)
+          end
+
           for x = 1, cols do
             for y = 1, row_next_gates do
               if tick_over == 0 then
@@ -517,9 +522,7 @@ function create_board(__offset_x, __cols)
               elseif tick_over == 20 then
                 gates[x][y] = gate("i")
                 create_particle_set(screen_x(_ENV, x), screen_y(_ENV, y),
-                                    "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
-                -- create_particle_set(screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3,
-                --   "2,1,7,5,-1,-1,0.05,0.05,32|2,1,7,5,1,-1,-0.05,0.05,32|2,1,7,5,-1,1,0.05,0.05,32|2,1,7,5,1,1,-0.05,-0.05,32")
+                                    "5,5,9,7,random,random,-0.03,-0.03,40|5,5,9,7,random,random,-0.03,-0.03,40|4,4,9,7,random,random,-0.03,-0.03,40|4,4,2,5,random,random,-0.03,-0.03,40|4,4,6,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|0,0,2,5,random,random,-0.03,-0.03,40")
               end
             end
           end
