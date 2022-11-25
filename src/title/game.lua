@@ -33,7 +33,7 @@ end
 
 local attack_cube_callback = function()
   bounce_title_logo()
-  sfx(1)
+  sfx(10)
 end
 
 function game.combo_callback(combo_count, x, y, player, board, other_board)

@@ -42,4 +42,5 @@ function create_attack_bubble(x, y, callback, target_x, target_y)
   _x, _y, _callback, _target_x, _target_y, _tick, _angle, _left = x, y, callback, target_x, target_y, 0, 0, x > 64
 
   add(all_bubbles, _ENV)
+  sfx(11)
 end

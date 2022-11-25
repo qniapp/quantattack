@@ -16,6 +16,8 @@ end
 
 function game.combo_callback(combo_count, x, y, player, board, other_board)
   local attack_cube_callback = function()
+    sfx(12)
+
     player.score = player.score + combo_count
 
     -- 対戦相手がいる時、おじゃまゲートを送る
@@ -36,6 +38,8 @@ function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, o
 
   if offset_height > 2 then
     local attack_cube_callback = function()
+      sfx(12)
+
       player.score = player.score + (chain_bonus[chain_count] or 180)
 
       if other_board then
@@ -53,6 +57,8 @@ end
 function game.chain_callback(chain_id, chain_count, x, y, player, board, other_board)
   if chain_count > 2 then
     local attack_cube_callback = function()
+      sfx(12)
+
       player.score = player.score + (chain_bonus[chain_count] or 180)
 
       -- 対戦相手がいる時、おじゃまゲートを送る
