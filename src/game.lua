@@ -235,8 +235,8 @@ function game:render() -- override
   render_bubbles()
   render_attack_bubbles()
 
-  print_outlined(stat(1), 101, 112, 7)
-  print_outlined(stat(7), 117, 120, 7)
+  -- print_outlined(stat(1), 101, 112, 7)
+  -- print_outlined(stat(7), 117, 120, 7)
 end
 
 -- ゲートをせりあげる

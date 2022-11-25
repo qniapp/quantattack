@@ -13,6 +13,7 @@ function create_board(__offset_x, __cols)
     _offset_x = __offset_x,
     show_wires = true,
     show_top_line = true,
+    top_line_start_x = 0,
 
     init = function(_ENV, _cols)
       -- サイズ関係
@@ -28,6 +29,9 @@ function create_board(__offset_x, __cols)
 
       -- 各種キャッシュ
       _reduce_cache, _is_gate_fallable_cache = {}, {}
+
+      -- ゲームオーバーの線
+      top_line_start_x = 0
 
       _chain_count, _topped_out_frame_count, _topped_out_delay_frame_count, _bounce_speed,
           _bounce_screen_dy =
@@ -500,6 +504,7 @@ function create_board(__offset_x, __cols)
     update = function(_ENV, game, player, other_board)
       pending_garbage_gates:update(_ENV)
       _update_bounce(_ENV)
+      top_line_start_x = (top_line_start_x + 4) % 96
 
       if state == "play" then
         if win or lose then
@@ -573,19 +578,26 @@ function create_board(__offset_x, __cols)
       if _is_topped_out(_ENV) then
         local _topped_out_frame_count_left = _topped_out_delay_frame_count - _topped_out_frame_count
         local time_left_height = _topped_out_frame_count_left / _topped_out_delay_frame_count * 128
-        local gauge_x = offset_x < 64 and offset_x + 50 or offset_x - 3
+        local gauge_x = offset_x < 64 and offset_x + 51 or offset_x - 5
 
         if time_left_height > 0 then
-          line(gauge_x, 128 - time_left_height, gauge_x, 127, 8)
+          rectfill(gauge_x, 128 - time_left_height, gauge_x + 1, 127, 8)
         end
       end
 
       -- ゲームオーバーの線
-      if show_top_line then
-        line(offset_x - 1, 40,
-          offset_x + 48, 40,
-          _is_topped_out(_ENV) and 8 or 1)
+      if show_top_line and not is_game_over(_ENV) then
+        if top_line_start_x < 73 then
+          line(max(offset_x - 1, offset_x + top_line_start_x - 25), 40,
+               min(offset_x + 48, offset_x + top_line_start_x + 5), 40,
+               _is_topped_out(_ENV) and 8 or 1)
+        end
 
+        -- if offset_x - 1 + (top_line_start_x - 24) < offset_x + 48 then
+        --   line(max(offset_x - 1, offset_x - 1 + top_line_start_x - 24), 40,
+        --     min(offset_x + 48, offset_x - 1 + top_line_start_x - 24 + 30), 40,
+        --     _is_topped_out(_ENV) and 8 or 1)
+        -- end
       end
 
       -- 待機中のおじゃまゲート

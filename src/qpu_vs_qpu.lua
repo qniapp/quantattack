@@ -48,6 +48,8 @@ end
 function qpu_vs_qpu:render()
   game:render()
 
+  color(7)
+
   -- 経過時間の表示
   cursor(57, 106)
   print("time")
