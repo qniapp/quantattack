@@ -103,11 +103,14 @@ function create_pending_garbage_gates()
           end
 
           if each.span < 6 then
-            sspr(16, 80, 13, 11, x0, y0)
+            draw_rounded_box(x0, y0 + 4, x0 + 12, y0 + 9, 7, 7)
+            draw_rounded_box(x0 + 1, y0 + 5, x0 + 11, y0 + 8, 0, 0)
           else
-            sspr(0, 80, 13, 11, x0, y0)
-            cursor(x0 + 5, y0 + 4)
-            color(8)
+            draw_rounded_box(x0, y0 + 1, x0 + 12, y0 + 9, 7, 7)
+            draw_rounded_box(x0 + 1, y0 + 2, x0 + 11, y0 + 8, 0, 0)
+
+            cursor(x0 + 5, y0 + 3)
+            color(6)
             print(each.height)
           end
 
