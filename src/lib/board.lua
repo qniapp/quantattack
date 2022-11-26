@@ -549,7 +549,7 @@ function create_board(__offset_x, __cols)
           gate:render(scr_x, scr_y)
 
           -- 一番下のマスクを描画
-          if y == row_next_gates then
+          if y == row_next_gates and not is_game_over(_ENV) then
             spr(85, scr_x, scr_y)
           end
         end
