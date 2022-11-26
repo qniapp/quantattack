@@ -221,13 +221,13 @@ function mission:render() -- override
   render_ripple()
 
   if current_task then
-    local pattern_box_x = board.offset_x + board.width + 15 + cos(t() / 1.5) * 2
+    local pattern_box_x = board.offset_x + board.width + 10 + cos(t() / 1.5) * 2
     local pattern_box_y = 16 + sin(t() / 2) * 4 + 0.5
 
-    draw_rounded_box(pattern_box_x - 5, pattern_box_y + 2, pattern_box_x + 50, pattern_box_y + 53, 7, 0)
+    draw_rounded_box(pattern_box_x, pattern_box_y, pattern_box_x + 55, pattern_box_y + 51, 7, 0)
 
-    print_outlined("match", pattern_box_x, pattern_box_y, 7)
-    print_outlined("the pattern!", pattern_box_x, pattern_box_y + 8, 7)
+    print_outlined("match", pattern_box_x + 5, pattern_box_y - 2, 7)
+    print_outlined("the pattern!", pattern_box_x + 5, pattern_box_y + 6, 7)
 
     render_current_task(pattern_box_x + 15, pattern_box_y + 22)
   end
