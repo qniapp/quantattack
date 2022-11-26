@@ -97,8 +97,10 @@ end
 
 function game.reduce_callback(score, x, y, player, pattern)
   if current_task and current_task[5] == pattern then
-    local attack_cube_callback = function()
+    local attack_cube_callback = function(target_x, target_y)
       sfx(12)
+      create_particle_set(target_x, target_y,
+        "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
       set_task()
     end
 

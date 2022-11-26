@@ -354,21 +354,6 @@ function create_board(__offset_x, __cols)
     -- board の操作
     -------------------------------------------------------------------------------
 
-    gate_at = function(_ENV, x, y)
-      --#if assert
-      assert(1 <= x and x <= cols, "x = " .. x)
-      assert(1 <= y and y <= row_next_gates, "y = " .. y)
-      --#endif
-
-      local gate = gates[x][y]
-
-      --#if assert
-      assert(gate)
-      --#endif
-
-      return gate
-    end,
-
     reducible_gate_at = function(_ENV, x, y)
       return reducible_gates[x][y] or gate("i")
     end,
@@ -424,8 +409,7 @@ function create_board(__offset_x, __cols)
         local control_x, cnot_x_x
 
         repeat
-          control_x = flr(rnd(cols)) + 1
-          cnot_x_x = flr(rnd(cols)) + 1
+          control_x, cnot_x_x = flr(rnd(cols)) + 1, flr(rnd(cols)) + 1
         until control_x ~= cnot_x_x
 
         local control_gate = gate("control")
@@ -463,8 +447,7 @@ function create_board(__offset_x, __cols)
       assert(1 <= y and y <= rows)
       --#endif
 
-      local left_gate = gates[x_left][y]
-      local right_gate = gates[x_right][y]
+      local left_gate, right_gate = gates[x_left][y], gates[x_right][y]
 
       if _is_part_of_garbage(_ENV, x_left, y) or _is_part_of_garbage(_ENV, x_right, y) or
           not (left_gate:is_idle() and right_gate:is_idle()) then
@@ -507,8 +490,7 @@ function create_board(__offset_x, __cols)
 
       if state == "play" then
         if win or lose then
-          state = "over"
-          tick_over = 0
+          state, tick_over = "over", 0
           sfx(8)
         else
           _update_game(_ENV, game, player, other_board)
@@ -575,8 +557,7 @@ function create_board(__offset_x, __cols)
 
       -- 残り時間ゲージの描画
       if _is_topped_out(_ENV) then
-        local _topped_out_frame_count_left = _topped_out_delay_frame_count - _topped_out_frame_count
-        local time_left_height = _topped_out_frame_count_left / _topped_out_delay_frame_count * 128
+        local time_left_height = (_topped_out_delay_frame_count - _topped_out_frame_count) / _topped_out_delay_frame_count * 128
         local gauge_x = offset_x < 64 and offset_x + 51 or offset_x - 5
 
         if time_left_height > 0 then

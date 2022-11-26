@@ -19,34 +19,34 @@ describe('board', function()
       local swapped = board:swap(1, 16)
 
       assert.is_true(swapped)
-      assert.are_equal("h", board:gate_at(1, 16).type)
-      assert.are_equal("x", board:gate_at(2, 16).type)
-      assert.is_true(board:gate_at(1, 16):is_swapping())
-      assert.is_true(board:gate_at(2, 16):is_swapping())
+      assert.are_equal("h", board.gates[1][16].type)
+      assert.are_equal("x", board.gates[2][16].type)
+      assert.is_true(board.gates[1][16]:is_swapping())
+      assert.is_true(board.gates[2][16]:is_swapping())
     end)
 
     it('should not swap gates if the left gate is in swap', function()
       board:put(2, 16, h_gate())
-      board:gate_at(2, 16):swap_with_left()
+      board.gates[2][16]:swap_with_left()
       board:put(3, 16, x_gate())
 
       local swapped = board:swap(2, 16)
 
       assert.is_false(swapped)
-      assert.are_equal("x", board:gate_at(3, 16).type)
-      assert.is_true(board:gate_at(3, 16):is_idle())
+      assert.are_equal("x", board.gates[3][16].type)
+      assert.is_true(board.gates[3][16]:is_idle())
     end)
 
     it('should not swap gates if the right gate is in swap', function()
       board:put(1, 16, h_gate())
       board:put(2, 16, x_gate())
-      board:gate_at(2, 16):swap_with_right()
+      board.gates[2][16]:swap_with_right()
 
       local swapped = board:swap(1, 16)
 
       assert.is_false(swapped)
-      assert.are_equal("h", board:gate_at(1, 16).type)
-      assert.is_true(board:gate_at(1, 16):is_idle())
+      assert.are_equal("h", board.gates[1][16].type)
+      assert.is_true(board.gates[1][16]:is_idle())
     end)
 
     -- S-I-S →(右 の S を I と入れ換え)→ S-S
@@ -61,7 +61,7 @@ describe('board', function()
       board:update()
       board:update()
 
-      assert.are_equal(2, board:gate_at(1, 16).other_x)
+      assert.are_equal(2, board.gates[1][16].other_x)
     end)
 
     it('SWAP 同士の入れ替え', function()
@@ -75,8 +75,8 @@ describe('board', function()
       board:update()
       board:update()
 
-      assert.are_equal(2, board:gate_at(1, 16).other_x)
-      assert.are_equal(1, board:gate_at(2, 16).other_x)
+      assert.are_equal(2, board.gates[1][16].other_x)
+      assert.are_equal(1, board.gates[2][16].other_x)
     end)
 
     it('おじゃまユニタリが左側にある場合、入れ替えできない', function()
@@ -143,7 +143,7 @@ describe('board', function()
 
       board:reduce_gates()
 
-      assert.are_equal('!', board:gate_at(2, 16).type)
+      assert.are_equal('!', board.gates[2][16].type)
     end)
 
     it('おじゃまゲートの右に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
@@ -156,7 +156,7 @@ describe('board', function()
 
       board:reduce_gates()
 
-      assert.are_equal('!', board:gate_at(1, 16).type)
+      assert.are_equal('!', board.gates[1][16].type)
     end)
 
     it('おじゃまゲートの上に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
@@ -169,7 +169,7 @@ describe('board', function()
 
       board:reduce_gates()
 
-      assert.are_equal('!', board:gate_at(1, 16).type)
+      assert.are_equal('!', board.gates[1][16].type)
     end)
 
     it('おじゃまゲートの下に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
@@ -182,7 +182,7 @@ describe('board', function()
 
       board:reduce_gates()
 
-      assert.are_equal('!', board:gate_at(1, 15).type)
+      assert.are_equal('!', board.gates[1][15].type)
     end)
   end)
 
@@ -215,8 +215,8 @@ describe('board', function()
         board:update()
       end
 
-      assert.are_equal("swap", board:gate_at(1, 8).type)
-      assert.are_equal("swap", board:gate_at(3, 8).type)
+      assert.are_equal("swap", board.gates[1][8].type)
+      assert.are_equal("swap", board.gates[3][8].type)
     end)
 
     --
@@ -249,8 +249,8 @@ describe('board', function()
         board:update()
       end
 
-      assert.are_equal("swap", board:gate_at(1, 8).type)
-      assert.are_equal("swap", board:gate_at(3, 8).type)
+      assert.are_equal("swap", board.gates[1][8].type)
+      assert.are_equal("swap", board.gates[3][8].type)
     end)
 
     it('CNOT 下のゲートを入れ替えて落としたときに消えない', function()
@@ -271,7 +271,7 @@ describe('board', function()
         board:update()
       end
 
-      assert.are_equal("s", board:gate_at(5, 17).type)
+      assert.are_equal("s", board.gates[5][17].type)
     end)
   end)
 

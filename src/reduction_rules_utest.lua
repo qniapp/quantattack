@@ -126,8 +126,8 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_i(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_i(board.gates[1][12].new_gate)
   end)
 
   it('should reduce XX', function()
@@ -136,8 +136,8 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_i(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_i(board.gates[1][12].new_gate)
   end)
 
   it('should reduce YY', function()
@@ -146,8 +146,8 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_i(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_i(board.gates[1][12].new_gate)
   end)
 
   it('should reduce ZZ', function()
@@ -156,8 +156,8 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_i(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_i(board.gates[1][12].new_gate)
   end)
 
   it('should reduce SS', function()
@@ -166,8 +166,8 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_z(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_z(board.gates[1][12].new_gate)
   end)
 
   it('should reduce TT', function()
@@ -176,8 +176,8 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_s(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_s(board.gates[1][12].new_gate)
   end)
 
   it('should reduce XZ', function()
@@ -186,8 +186,8 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_y(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_y(board.gates[1][12].new_gate)
   end)
 
   it('should reduce ZX', function()
@@ -196,8 +196,8 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_y(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_y(board.gates[1][12].new_gate)
   end)
 
   it('should reduce HXH', function()
@@ -207,9 +207,9 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_z(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_z(board.gates[1][12].new_gate)
   end)
 
   it('should reduce HZH', function()
@@ -219,9 +219,9 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_x(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_x(board.gates[1][12].new_gate)
   end)
 
   it('should reduce SZS', function()
@@ -231,9 +231,9 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_z(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_z(board.gates[1][12].new_gate)
   end)
 
   it('should reduce TST', function()
@@ -243,9 +243,9 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_z(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_z(board.gates[1][12].new_gate)
   end)
 
   it('should reduce TZST', function()
@@ -256,10 +256,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 9).new_gate)
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_i(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][9].new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_i(board.gates[1][12].new_gate)
   end)
 
   it('should reduce TSZT', function()
@@ -270,10 +270,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 9).new_gate)
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_i(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][9].new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_i(board.gates[1][12].new_gate)
   end)
 
   it('should reduce C-X x2', function()
@@ -284,10 +284,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_i(board:gate_at(3, 11).new_gate)
-    assert.is_i(board:gate_at(1, 12).new_gate)
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_i(board.gates[3][11].new_gate)
+    assert.is_i(board.gates[1][12].new_gate)
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   it('should reduce X-C x2', function()
@@ -298,10 +298,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_i(board:gate_at(3, 11).new_gate)
-    assert.is_i(board:gate_at(1, 12).new_gate)
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_i(board.gates[3][11].new_gate)
+    assert.is_i(board.gates[1][12].new_gate)
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   -- これは消えてはダメ
@@ -335,14 +335,14 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_i(board:gate_at(3, 11).new_gate)
-    assert.is_swap(board:gate_at(1, 12).new_gate)
-    assert.are_equal(3, board:gate_at(1, 12).new_gate.other_x)
-    assert.is_swap(board:gate_at(3, 12).new_gate)
-    assert.are_equal(1, board:gate_at(3, 12).new_gate.other_x)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_i(board.gates[3][11].new_gate)
+    assert.is_swap(board.gates[1][12].new_gate)
+    assert.are_equal(3, board.gates[1][12].new_gate.other_x)
+    assert.is_swap(board.gates[3][12].new_gate)
+    assert.are_equal(1, board.gates[3][12].new_gate.other_x)
   end)
 
   -- X-C          I I
@@ -358,14 +358,14 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_i(board:gate_at(3, 11).new_gate)
-    assert.is_swap(board:gate_at(1, 12).new_gate)
-    assert.are_equal(3, board:gate_at(1, 12).new_gate.other_x)
-    assert.is_swap(board:gate_at(3, 12).new_gate)
-    assert.are_equal(1, board:gate_at(3, 12).new_gate.other_x)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_i(board.gates[3][11].new_gate)
+    assert.is_swap(board.gates[1][12].new_gate)
+    assert.are_equal(3, board.gates[1][12].new_gate.other_x)
+    assert.is_swap(board.gates[3][12].new_gate)
+    assert.are_equal(1, board.gates[3][12].new_gate.other_x)
   end)
 
   it('should reduce HH C-X HH', function()
@@ -378,14 +378,14 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_cnot_x(board:gate_at(1, 11).new_gate)
-    assert.are_equal(3, board:gate_at(1, 11).new_gate.other_x)
-    assert.is_control(board:gate_at(3, 11).new_gate)
-    assert.are_equal(1, board:gate_at(3, 11).new_gate.other_x)
-    assert.is_i(board:gate_at(1, 12).new_gate)
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_cnot_x(board.gates[1][11].new_gate)
+    assert.are_equal(3, board.gates[1][11].new_gate.other_x)
+    assert.is_control(board.gates[3][11].new_gate)
+    assert.are_equal(1, board.gates[3][11].new_gate.other_x)
+    assert.is_i(board.gates[1][12].new_gate)
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   it('should reduce HH X-C HH', function()
@@ -398,14 +398,14 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_control(board:gate_at(1, 11).new_gate)
-    assert.are_equal(3, board:gate_at(1, 11).new_gate.other_x)
-    assert.is_cnot_x(board:gate_at(3, 11).new_gate)
-    assert.are_equal(1, board:gate_at(3, 11).new_gate.other_x)
-    assert.is_i(board:gate_at(1, 12).new_gate)
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_control(board.gates[1][11].new_gate)
+    assert.are_equal(3, board.gates[1][11].new_gate.other_x)
+    assert.is_cnot_x(board.gates[3][11].new_gate)
+    assert.are_equal(1, board.gates[3][11].new_gate.other_x)
+    assert.is_i(board.gates[1][12].new_gate)
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   it('should reduce XX C-X X', function()
@@ -417,11 +417,11 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_control(board:gate_at(1, 11))
-    assert.is_cnot_x(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_control(board.gates[1][11])
+    assert.is_cnot_x(board.gates[3][11])
+    assert.is_i(board.gates[1][12].new_gate)
   end)
 
   it('should reduce XX X-C X', function()
@@ -433,11 +433,11 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_cnot_x(board:gate_at(1, 11))
-    assert.is_control(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_cnot_x(board.gates[1][11])
+    assert.is_control(board.gates[3][11])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   it('should reduce ZZ C-X Z', function()
@@ -449,11 +449,11 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_control(board:gate_at(1, 11))
-    assert.is_cnot_x(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_control(board.gates[1][11])
+    assert.is_cnot_x(board.gates[3][11])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   it('should reduce ZZ X-C Z', function()
@@ -465,11 +465,11 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_cnot_x(board:gate_at(1, 11))
-    assert.is_control(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_cnot_x(board.gates[1][11])
+    assert.is_control(board.gates[3][11])
+    assert.is_i(board.gates[1][12].new_gate)
   end)
 
   it('should reduce X C-X X', function()
@@ -480,10 +480,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_control(board:gate_at(1, 11))
-    assert.is_cnot_x(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_control(board.gates[1][11])
+    assert.is_cnot_x(board.gates[3][11])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   it('should reduce X X-C X', function()
@@ -494,10 +494,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_cnot_x(board:gate_at(1, 11))
-    assert.is_control(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_cnot_x(board.gates[1][11])
+    assert.is_control(board.gates[3][11])
+    assert.is_i(board.gates[1][12].new_gate)
   end)
 
   it('should reduce Z C-X Z', function()
@@ -508,10 +508,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_control(board:gate_at(1, 11))
-    assert.is_cnot_x(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_control(board.gates[1][11])
+    assert.is_cnot_x(board.gates[3][11])
+    assert.is_i(board.gates[1][12].new_gate)
   end)
 
   it('should reduce Z X-C Z', function()
@@ -522,10 +522,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_cnot_x(board:gate_at(1, 11))
-    assert.is_control(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_cnot_x(board.gates[1][11])
+    assert.is_control(board.gates[3][11])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   it('should reduce S-S x2', function()
@@ -536,10 +536,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 11).new_gate)
-    assert.is_i(board:gate_at(3, 11).new_gate)
-    assert.is_i(board:gate_at(1, 12).new_gate)
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][11].new_gate)
+    assert.is_i(board.gates[3][11].new_gate)
+    assert.is_i(board.gates[1][12].new_gate)
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  H            I
@@ -554,10 +554,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_swap(board:gate_at(1, 11))
-    assert.is_swap(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_swap(board.gates[1][11])
+    assert.is_swap(board.gates[3][11])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --    H            I
@@ -571,10 +571,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_swap(board:gate_at(1, 11))
-    assert.is_swap(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_swap(board.gates[1][11])
+    assert.is_swap(board.gates[3][11])
+    assert.is_i(board.gates[1][12].new_gate)
   end)
 
   --  X            I
@@ -588,10 +588,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_swap(board:gate_at(1, 11))
-    assert.is_swap(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_swap(board.gates[1][11])
+    assert.is_swap(board.gates[3][11])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --    X            I
@@ -605,10 +605,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_swap(board:gate_at(1, 11))
-    assert.is_swap(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_swap(board.gates[1][11])
+    assert.is_swap(board.gates[3][11])
+    assert.is_i(board.gates[1][12].new_gate)
   end)
 
   --  Y            I
@@ -622,10 +622,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_swap(board:gate_at(1, 11))
-    assert.is_swap(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_swap(board.gates[1][11])
+    assert.is_swap(board.gates[3][11])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  Z            I
@@ -640,10 +640,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(2, 10).new_gate)
-    assert.is_swap(board:gate_at(2, 11))
-    assert.is_swap(board:gate_at(4, 11))
-    assert.is_i(board:gate_at(4, 12).new_gate)
+    assert.is_i(board.gates[2][10].new_gate)
+    assert.is_swap(board.gates[2][11])
+    assert.is_swap(board.gates[4][11])
+    assert.is_i(board.gates[4][12].new_gate)
   end)
 
   --  s            Z
@@ -657,10 +657,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_z(board:gate_at(1, 10).new_gate)
-    assert.is_swap(board:gate_at(1, 11))
-    assert.is_swap(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_z(board.gates[1][10].new_gate)
+    assert.is_swap(board.gates[1][11])
+    assert.is_swap(board.gates[3][11])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  T            S
@@ -674,10 +674,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_s(board:gate_at(1, 10).new_gate)
-    assert.is_swap(board:gate_at(1, 11))
-    assert.is_swap(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_s(board.gates[1][10].new_gate)
+    assert.is_swap(board.gates[1][11])
+    assert.is_swap(board.gates[3][11])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  X            Y
@@ -691,10 +691,10 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_y(board:gate_at(1, 10).new_gate)
-    assert.is_swap(board:gate_at(1, 11))
-    assert.is_swap(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_y(board.gates[1][10].new_gate)
+    assert.is_swap(board.gates[1][11])
+    assert.is_swap(board.gates[3][11])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  H            I
@@ -710,11 +710,11 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 9).new_gate)
-    assert.is_z(board:gate_at(1, 10).new_gate)
-    assert.is_swap(board:gate_at(1, 11))
-    assert.is_swap(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][9].new_gate)
+    assert.is_z(board.gates[1][10].new_gate)
+    assert.is_swap(board.gates[1][11])
+    assert.is_swap(board.gates[3][11])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  H            Z
@@ -730,11 +730,11 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_z(board:gate_at(1, 9).new_gate)
-    assert.is_swap(board:gate_at(1, 10))
-    assert.is_swap(board:gate_at(3, 10))
-    assert.is_i(board:gate_at(3, 11).new_gate)
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_z(board.gates[1][9].new_gate)
+    assert.is_swap(board.gates[1][10])
+    assert.is_swap(board.gates[3][10])
+    assert.is_i(board.gates[3][11].new_gate)
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  H            I
@@ -750,11 +750,11 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 9).new_gate)
-    assert.is_x(board:gate_at(1, 10).new_gate)
-    assert.is_swap(board:gate_at(1, 11))
-    assert.is_swap(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][9].new_gate)
+    assert.is_x(board.gates[1][10].new_gate)
+    assert.is_swap(board.gates[1][11])
+    assert.is_swap(board.gates[3][11])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  H            X
@@ -770,11 +770,11 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_x(board:gate_at(1, 9).new_gate)
-    assert.is_swap(board:gate_at(1, 10))
-    assert.is_swap(board:gate_at(3, 10))
-    assert.is_i(board:gate_at(3, 11).new_gate)
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_x(board.gates[1][9].new_gate)
+    assert.is_swap(board.gates[1][10])
+    assert.is_swap(board.gates[3][10])
+    assert.is_i(board.gates[3][11].new_gate)
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  S            I
@@ -790,11 +790,11 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 9).new_gate)
-    assert.is_z(board:gate_at(1, 10).new_gate)
-    assert.is_swap(board:gate_at(1, 11))
-    assert.is_swap(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][9].new_gate)
+    assert.is_z(board.gates[1][10].new_gate)
+    assert.is_swap(board.gates[1][11])
+    assert.is_swap(board.gates[3][11])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  S            Z
@@ -810,11 +810,11 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_z(board:gate_at(1, 9).new_gate)
-    assert.is_swap(board:gate_at(1, 10))
-    assert.is_swap(board:gate_at(3, 10))
-    assert.is_i(board:gate_at(3, 11).new_gate)
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_z(board.gates[1][9].new_gate)
+    assert.is_swap(board.gates[1][10])
+    assert.is_swap(board.gates[3][10])
+    assert.is_i(board.gates[3][11].new_gate)
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  T            I
@@ -830,11 +830,11 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 9).new_gate)
-    assert.is_z(board:gate_at(1, 10).new_gate)
-    assert.is_swap(board:gate_at(1, 11))
-    assert.is_swap(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][9].new_gate)
+    assert.is_z(board.gates[1][10].new_gate)
+    assert.is_swap(board.gates[1][11])
+    assert.is_swap(board.gates[3][11])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  T            Z
@@ -850,11 +850,11 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_z(board:gate_at(1, 9).new_gate)
-    assert.is_swap(board:gate_at(1, 10))
-    assert.is_swap(board:gate_at(3, 10))
-    assert.is_i(board:gate_at(3, 11).new_gate)
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_z(board.gates[1][9].new_gate)
+    assert.is_swap(board.gates[1][10])
+    assert.is_swap(board.gates[3][10])
+    assert.is_i(board.gates[3][11].new_gate)
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  T            I
@@ -872,12 +872,12 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 8).new_gate)
-    assert.is_swap(board:gate_at(1, 9))
-    assert.is_swap(board:gate_at(3, 9))
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_i(board:gate_at(3, 11).new_gate)
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][8].new_gate)
+    assert.is_swap(board.gates[1][9])
+    assert.is_swap(board.gates[3][9])
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_i(board.gates[3][11].new_gate)
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  T            I
@@ -895,12 +895,12 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 8).new_gate)
-    assert.is_swap(board:gate_at(1, 9))
-    assert.is_swap(board:gate_at(3, 9))
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_i(board:gate_at(3, 11).new_gate)
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][8].new_gate)
+    assert.is_swap(board.gates[1][9])
+    assert.is_swap(board.gates[3][9])
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_i(board.gates[3][11].new_gate)
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  Z            I
@@ -918,13 +918,13 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 9).new_gate)
-    assert.is_h(board:gate_at(1, 10))
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_cnot_x(board:gate_at(1, 11))
-    assert.is_control(board:gate_at(3, 11))
-    assert.is_h(board:gate_at(1, 12))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][9].new_gate)
+    assert.is_h(board.gates[1][10])
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_cnot_x(board.gates[1][11])
+    assert.is_control(board.gates[3][11])
+    assert.is_h(board.gates[1][12])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  X            I
@@ -943,13 +943,13 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 8).new_gate)
-    assert.is_h(board:gate_at(1, 9))
-    assert.is_i(board:gate_at(3, 9).new_gate)
-    assert.is_cnot_x(board:gate_at(1, 10))
-    assert.is_control(board:gate_at(3, 10))
-    assert.is_h(board:gate_at(1, 11))
-    assert.is_i(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][8].new_gate)
+    assert.is_h(board.gates[1][9])
+    assert.is_i(board.gates[3][9].new_gate)
+    assert.is_cnot_x(board.gates[1][10])
+    assert.is_control(board.gates[3][10])
+    assert.is_h(board.gates[1][11])
+    assert.is_i(board.gates[1][12].new_gate)
   end)
 
   --  H Z          H I
@@ -965,12 +965,12 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_h(board:gate_at(1, 10))
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_cnot_x(board:gate_at(1, 11))
-    assert.is_control(board:gate_at(3, 11))
-    assert.is_h(board:gate_at(1, 12))
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_h(board.gates[1][10])
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_cnot_x(board.gates[1][11])
+    assert.is_control(board.gates[3][11])
+    assert.is_h(board.gates[1][12])
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 
   --  Z            I
@@ -988,12 +988,12 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 8).new_gate)
-    assert.is_h(board:gate_at(1, 9))
-    assert.is_cnot_x(board:gate_at(1, 10))
-    assert.is_control(board:gate_at(3, 10))
-    assert.is_h(board:gate_at(1, 11))
-    assert.is_i(board:gate_at(1, 12).new_gate)
+    assert.is_i(board.gates[1][8].new_gate)
+    assert.is_h(board.gates[1][9])
+    assert.is_cnot_x(board.gates[1][10])
+    assert.is_control(board.gates[3][10])
+    assert.is_h(board.gates[1][11])
+    assert.is_i(board.gates[1][12].new_gate)
   end)
 
   --  C-X          I I
@@ -1009,11 +1009,11 @@ describe('ゲートの簡約ルール', function()
 
     board:reduce_gates()
 
-    assert.is_i(board:gate_at(1, 10).new_gate)
-    assert.is_i(board:gate_at(3, 10).new_gate)
-    assert.is_swap(board:gate_at(1, 11))
-    assert.is_swap(board:gate_at(3, 11))
-    assert.is_i(board:gate_at(1, 12).new_gate)
-    assert.is_i(board:gate_at(3, 12).new_gate)
+    assert.is_i(board.gates[1][10].new_gate)
+    assert.is_i(board.gates[3][10].new_gate)
+    assert.is_swap(board.gates[1][11])
+    assert.is_swap(board.gates[3][11])
+    assert.is_i(board.gates[1][12].new_gate)
+    assert.is_i(board.gates[3][12].new_gate)
   end)
 end)

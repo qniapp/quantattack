@@ -23,10 +23,10 @@ describe('連鎖 (chain)', function()
 
     board:update()
 
-    assert.is_not_nil(board:gate_at(1, 14).chain_id)
-    assert.is_not_nil(board:gate_at(1, 15).chain_id)
-    assert.is_not_nil(board:gate_at(1, 16).chain_id)
-    assert.is_not_nil(board:gate_at(1, 17).chain_id)
+    assert.is_not_nil(board.gates[1][14].chain_id)
+    assert.is_not_nil(board.gates[1][15].chain_id)
+    assert.is_not_nil(board.gates[1][16].chain_id)
+    assert.is_not_nil(board.gates[1][17].chain_id)
   end)
 
   it("chain_id が付いたゲートは、着地すると chain_id が消える", function()
@@ -41,12 +41,12 @@ describe('連鎖 (chain)', function()
 
     repeat
       board:update()
-    until board:gate_at(1, 17).type == "x" and board:gate_at(1, 17):is_idle()
+    until board.gates[1][17].type == "x" and board.gates[1][17]:is_idle()
 
     board:update()
 
-    assert.is_nil(board:gate_at(1, 16).chain_id)
-    assert.is_nil(board:gate_at(1, 17).chain_id)
+    assert.is_nil(board.gates[1][16].chain_id)
+    assert.is_nil(board.gates[1][17].chain_id)
   end)
 
   it("ゲートがマッチすると、board._chain_count が 1 になる", function()
@@ -187,6 +187,6 @@ describe('連鎖 (chain)', function()
       board:update()
     end
 
-    assert.is_nil(board:gate_at(1, 17).chain_id)
+    assert.is_nil(board.gates[1][17].chain_id)
   end)
 end)

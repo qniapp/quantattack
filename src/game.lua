@@ -15,8 +15,10 @@ function game.reduce_callback(score, _x, _y, player)
 end
 
 function game.combo_callback(combo_count, x, y, player, board, other_board)
-  local attack_cube_callback = function()
+  local attack_cube_callback = function(target_x, target_y)
     sfx(12)
+    create_particle_set(target_x, target_y,
+      "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
 
     player.score = player.score + combo_count
 
@@ -37,8 +39,10 @@ function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, o
   local offset_height = chain_count
 
   if offset_height > 2 then
-    local attack_cube_callback = function()
+    local attack_cube_callback = function(target_x, target_y)
       sfx(12)
+      create_particle_set(target_x, target_y,
+        "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
 
       player.score = player.score + (chain_bonus[chain_count] or 180)
 

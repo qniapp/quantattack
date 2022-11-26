@@ -8,9 +8,7 @@ function update_attack_bubbles()
 
     if abs(_target_x - _x) < 5 and abs(_target_y - _y) < 5 then
       del(all_bubbles, each)
-      create_particle_set(_target_x, _target_y,
-        "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
-      each._callback()
+      each._callback(_target_x, _target_y)
     end
 
     if _tick < 50 then
