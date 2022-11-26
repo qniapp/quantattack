@@ -1,5 +1,7 @@
 ---@diagnostic disable: lowercase-global
 
+slow_attack_bubbles = false
+
 local all_bubbles = {}
 
 function update_attack_bubbles()
@@ -12,6 +14,9 @@ function update_attack_bubbles()
     end
 
     if _tick < 50 then
+      if slow_attack_bubbles and #all_bubbles > 0 then
+        flip()
+      end
       _dx, _dy = _left and 0.5 or -0.5, -0.2
     else
       _dx, _dy = (_target_x - _x) / 6, (_target_y - _y) / 6

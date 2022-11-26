@@ -95,16 +95,83 @@ function set_task()
   end
 end
 
+function render_current_task(x, y, animate_match)
+  local random_color = nil
+  if animate_match then
+    random_color = rnd(16)
+  end
+
+  for i, row in pairs(current_task[1]) do
+    local gate1_type, gate2_type = unpack(row)
+    local row_x = x
+    local row_y = y + (i - 1) * 8
+
+    if gate1_type ~= "?" then
+      if gate1_type == "swap" or gate1_type == "control" or gate1_type == "cnot_x" then
+        line(row_x + 3, row_y + 3, row_x + 11, row_y + 3, 10)
+      end
+      if animate_match then
+        rect(row_x - 1, row_y - 1, row_x + 7, row_y + 7, random_color)
+      else
+        spr(gate(gate1_type).sprite_set.default, row_x, row_y)
+      end
+    end
+
+    if gate2_type then
+      if animate_match then
+        rect(row_x + 7, row_y - 1, row_x + 15, row_y + 7, random_color)
+      else
+        spr(gate(gate2_type).sprite_set.default, row_x + 8, row_y)
+      end
+    end
+  end
+end
+
+local all_match_circles = {}
+
+function create_match_circle(x, y)
+  add(all_match_circles, { x = x, y = y, r = 0 })
+end
+
+function update_match_circles()
+  for _, each in pairs(all_match_circles) do
+    local dr = 0.8
+    if each.r > 35 then
+      dr = 6
+    end
+    each.r = each.r + dr
+  end
+end
+
+function render_match_circles()
+  for _, each in pairs(all_match_circles) do
+    circ(each.x, each.y, each.r, 7)
+  end
+end
+
+state = ":play"
+match_screen_x = nil
+match_screen_y = nil
+
 function game.reduce_callback(score, x, y, player, pattern)
   if current_task and current_task[5] == pattern then
+    state = ":matching"
+
     local attack_cube_callback = function(target_x, target_y)
+      state = ":play"
+      -- ripple_speed = "normal"
+      slow_attack_bubbles = false
       sfx(10)
       create_particle_set(target_x, target_y,
         "10,10,9,7,random,random,-0.03,-0.03,20|10,10,9,7,random,random,-0.03,-0.03,20|9,9,9,7,random,random,-0.03,-0.03,20|9,9,2,5,random,random,-0.03,-0.03,20|9,9,6,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|5,5,2,5,random,random,-0.03,-0.03,20")
       set_task()
     end
 
+    slow_attack_bubbles = true
     sfx(13)
+    match_screen_x = board:screen_x(x)
+    match_screen_y = board:screen_y(y)
+    create_match_circle(board:screen_x(x) + 3, board:screen_y(y) + 3)
     create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback, board.offset_x + board.width + 27,
       40)
   end
@@ -126,13 +193,11 @@ function mission:update()
 
   if player.steps > last_steps then
     -- 10 ステップごとに
-    --   * おじゃまゲートを降らせる (最大 10 段)
     --   * ゲートをせり上げるスピードを上げる
     if player.steps > 0 and player.steps % 10 == 0 then
       if game.auto_raise_frame_count > 10 then
         game.auto_raise_frame_count = game.auto_raise_frame_count - 1
       end
-      board:send_garbage(nil, 6, player.steps / 10 < 11 and player.steps / 10 or 10)
     end
     last_steps = player.steps
   end
@@ -145,38 +210,35 @@ function mission:update()
       end
     end
   end
+
+  update_match_circles()
 end
 
 function mission:render() -- override
+  if state == ":matching" then
+    ripple_speed = "slow"
+  end
   render_ripple()
 
   if current_task then
-    -- MATCH THE PATTERN を表示
-    local pattern_base_x = board.offset_x + board.width + 10
-    local pattern_base_y = 16 + sin(t()) * 2
+    local pattern_box_x = board.offset_x + board.width + 15 + cos(t() / 1.5) * 2
+    local pattern_box_y = 16 + sin(t() / 2) * 4 + 0.5
 
-    print_outlined("match", pattern_base_x, pattern_base_y, 7)
-    print_outlined("the pattern!", pattern_base_x, pattern_base_y + 8, 7)
+    draw_rounded_box(pattern_box_x - 5, pattern_box_y + 2, pattern_box_x + 50, pattern_box_y + 53, 7, 0)
 
-    for i, row in pairs(current_task[1]) do
-      local gate1_type, gate2_type = unpack(row)
-      local row_x = pattern_base_x + 17
-      local row_y = pattern_base_y + 22 + (i - 1) * 8
+    print_outlined("match", pattern_box_x, pattern_box_y, 7)
+    print_outlined("the pattern!", pattern_box_x, pattern_box_y + 8, 7)
 
-      if gate1_type ~= "?" then
-        if gate1_type == "swap" or gate1_type == "control" or gate1_type == "cnot_x" then
-          line(row_x + 3, row_y + 3, row_x + 11, row_y + 3, 10)
-        end
-        spr(gate(gate1_type).default_sprite_id, row_x, row_y)
-      end
-
-      if gate2_type then
-        spr(gate(gate2_type).default_sprite_id, row_x + 8, row_y)
-      end
-    end
+    render_current_task(pattern_box_x + 15, pattern_box_y + 22)
   end
 
   game:render()
+
+  if state == ":matching" then
+    render_current_task(match_screen_x, match_screen_y, true)
+  end
+
+  render_match_circles()
 end
 
 return mission
