@@ -1,7 +1,6 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
 require("garbage_gate")
-require("gate")
 require("pending_garbage_gates")
 
 require("helpers")
@@ -416,10 +415,10 @@ function create_board(__offset_x, __cols)
         end
       end
 
-      local min_cnot_probability = 0.3
-      local max_cnot_probability = 0.7
-      local p = min_cnot_probability + flr(steps / 5) * 0.1
-      p = p > max_cnot_probability and max_cnot_probability or p
+      -- local min_cnot_probability = 0.3
+      -- local max_cnot_probability = 0.7
+      local p = 0.3 + flr(steps / 5) * 0.1
+      p = p > 0.7 and 0.7 or p
 
       if rnd(1) < p then
         local control_x, cnot_x_x
