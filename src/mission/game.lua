@@ -10,71 +10,6 @@ require("ripple")
 
 local all_players, state, countdown
 
-function game.reduce_callback(score, _x, _y, player)
-  player.score = player.score + score
-end
-
-function game.combo_callback(combo_count, x, y, player, board, other_board)
-  local attack_cube_callback = function()
-    sfx(12)
-
-    player.score = player.score + combo_count
-
-    -- 対戦相手がいる時、おじゃまゲートを送る
-    if other_board then
-      other_board:send_garbage(nil, combo_count > 6 and 6 or combo_count - 1, 1)
-    end
-  end
-
-  create_bubble("combo", combo_count, board:screen_x(x), board:screen_y(y))
-  create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback,
-    unpack(board.attack_cube_target))
-end
-
-local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
-
-function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, other_board)
-  local offset_height = chain_count
-
-  if offset_height > 2 then
-    local attack_cube_callback = function()
-      sfx(12)
-
-      player.score = player.score + (chain_bonus[chain_count] or 180)
-
-      if other_board then
-        offset_height = board.pending_garbage_gates:offset(offset_height)
-      end
-    end
-
-    create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback,
-      unpack(board.gate_offset_target))
-  end
-
-  return offset_height
-end
-
-function game.chain_callback(chain_id, chain_count, x, y, player, board, other_board)
-  if chain_count > 2 then
-    local attack_cube_callback = function()
-      sfx(12)
-
-      player.score = player.score + (chain_bonus[chain_count] or 180)
-
-      -- 対戦相手がいる時、おじゃまゲートを送る
-      if other_board then
-        other_board:send_garbage(chain_id, 6, chain_count - 1 < 6 and chain_count - 1 or 5)
-      end
-    end
-
-    create_bubble("chain", chain_count, board:screen_x(x), board:screen_y(y))
-    create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback,
-      unpack(board.attack_cube_target))
-  else
-    player.score = player.score + (chain_bonus[chain_count])
-  end
-end
-
 function game:is_game_over()
   return self.game_over_time ~= nil
 end
@@ -210,8 +145,6 @@ function game:update()
 end
 
 function game:render() -- override
-  render_ripple()
-
   for _, each in pairs(all_players) do
     local player_cursor = each.player_cursor
     local board = each.board

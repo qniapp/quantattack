@@ -2,7 +2,7 @@ local flow = require("engine/application/flow")
 
 local gameapp = new_class()
 
-function gameapp:_init(fps)
+function gameapp:_init()
   self.initial_gamestate = nil
 end
 

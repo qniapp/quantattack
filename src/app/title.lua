@@ -14,7 +14,7 @@ local qpu_cursor = create_player_cursor(qpu_board)
 local qpu = create_qpu(qpu_cursor, qpu_board)
 
 function app:_init()
-  gameapp._init(self, 60)
+  gameapp._init(self)
 
   qpu:init()
   qpu_board:put_random_gates()

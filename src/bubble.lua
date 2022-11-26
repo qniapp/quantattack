@@ -30,7 +30,7 @@ function render_bubbles()
       local rbox_dx = _count < 10 and 0 or -2
 
       draw_rounded_box(_x + rbox_dx - 2, _y + 1, _x - rbox_dx + 8, _y + 9, 5, 5)
-      draw_rounded_box(_x + rbox_dx - 2, _y, _x - rbox_dx + 8, _y + 8, 7, 11)
+      draw_rounded_box(_x + rbox_dx - 2, _y, _x - rbox_dx + 8, _y + 8, 7, 3)
 
       spr(69, _x + rbox_dx, _y - 1) -- the "x" part in "x5"
 

@@ -13,6 +13,7 @@ function create_board(__offset_x, __cols)
     _offset_x = __offset_x,
     show_wires = true,
     show_top_line = true,
+    top_line_start_x = 0,
 
     init = function(_ENV, _cols)
       -- サイズ関係
@@ -27,7 +28,10 @@ function create_board(__offset_x, __cols)
       state, win, lose, top_gate_y, _changed = "play", false, false, row_next_gates, false
 
       -- 各種キャッシュ
-      _reduce_cache, _is_gate_empty_cache, _is_gate_fallable_cache, _gate_or_its_head_gate_cache = {}, {}, {}, {}
+      _reduce_cache, _is_gate_fallable_cache = {}, {}
+
+      -- ゲームオーバーの線
+      top_line_start_x = 0
 
       _chain_count, _topped_out_frame_count, _topped_out_delay_frame_count, _bounce_speed,
           _bounce_screen_dy =
@@ -71,14 +75,14 @@ function create_board(__offset_x, __cols)
             local chain_id = reduction.chain_id
 
             if player then
-              game.reduce_callback(reduction.score, player)
+              game.reduce_callback(reduction.score, x, y, player, reduction.pattern)
             end
 
             if _chain_count[chain_id] == nil then
               _chain_count[chain_id] = 0
             end
 
-            if combo_count then
+            if combo_count and game.combo_callback then
               -- 同時消し
               combo_count = combo_count + #reduction.to
               game.combo_callback(combo_count, x, y, player, _ENV, other_board)
@@ -93,7 +97,7 @@ function create_board(__offset_x, __cols)
             end
 
             -- 連鎖
-            if not chain_id_callbacked[chain_id] and _chain_count[chain_id] > 1 and game then
+            if not chain_id_callbacked[chain_id] and _chain_count[chain_id] > 1 and game and game.chain_callback then
               if #pending_garbage_gates.all > 1 then
                 local offset_height_left = game.gate_offset_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV
                   , other_board)
@@ -103,7 +107,6 @@ function create_board(__offset_x, __cols)
                   game.chain_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
                 end
               else
-                -- そうでなければ、相手に攻撃
                 game.chain_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
               end
               chain_id_callbacked[chain_id] = true
@@ -190,7 +193,7 @@ function create_board(__offset_x, __cols)
         for i = 0, garbage_span - 1 do
           for j = 0, garbage_height - 1 do
             gmg = gate("!")
-            gmg.color = each.body_color
+            gmg.body_color = each.body_color
             put(_ENV, x + i, y - j, gmg)
 
             local new_gate
@@ -298,7 +301,8 @@ function create_board(__offset_x, __cols)
           end
         end
 
-        reduction = { to = rule[2], dx = dx, gate_count = rule[3], score = rule[4] or 1, chain_id = chain_id }
+        reduction = { to = rule[2], dx = dx, gate_count = rule[3], score = rule[4] or 1, chain_id = chain_id,
+          pattern = rule[5] }
         goto matched
 
         ::next_rule::
@@ -498,23 +502,38 @@ function create_board(__offset_x, __cols)
     -------------------------------------------------------------------------------
 
     update = function(_ENV, game, player, other_board)
-      if win then
-        state = "over"
-      end
-
       pending_garbage_gates:update(_ENV)
       _update_bounce(_ENV)
+      top_line_start_x = (top_line_start_x + 4) % 96
 
       if state == "play" then
-        _update_game(_ENV, game, player, other_board)
+        if win or lose then
+          state = "over"
+          tick_over = 0
+          sfx(8)
+        else
+          _update_game(_ENV, game, player, other_board)
+        end
       elseif state == "over" then
         if lose then
+          if tick_over == 20 then
+            sfx(9)
+          end
+
           for x = 1, cols do
             for y = 1, row_next_gates do
-              gates[x][y]._state = "over"
+              if tick_over == 0 then
+                gates[x][y]._state = "over"
+              elseif tick_over == 20 then
+                gates[x][y] = gate("i")
+                create_particle_set(screen_x(_ENV, x), screen_y(_ENV, y),
+                  "5,5,9,7,random,random,-0.03,-0.03,40|5,5,9,7,random,random,-0.03,-0.03,40|4,4,9,7,random,random,-0.03,-0.03,40|4,4,2,5,random,random,-0.03,-0.03,40|4,4,6,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|0,0,2,5,random,random,-0.03,-0.03,40")
+              end
             end
           end
         end
+
+        tick_over = tick_over + 1
       end
     end,
 
@@ -558,20 +577,27 @@ function create_board(__offset_x, __cols)
       -- 残り時間ゲージの描画
       if _is_topped_out(_ENV) then
         local _topped_out_frame_count_left = _topped_out_delay_frame_count - _topped_out_frame_count
-        local gauge_width = 41
-        local time_left_width = _topped_out_frame_count_left / _topped_out_delay_frame_count * gauge_width
-        -- おじゃまゲートと混じらないように、黒い背景を入れる
-        draw_rounded_box(offset_x + 1, 23, offset_x + 45, 29, 0, 0)
-        rectfill(offset_x + 3 + (gauge_width - time_left_width), 25, offset_x + 44, 27, 8) -- ゲージの値
-        draw_rounded_box(offset_x + 2, 24, offset_x + 44, 28, 7) -- ゲージの枠
+        local time_left_height = _topped_out_frame_count_left / _topped_out_delay_frame_count * 128
+        local gauge_x = offset_x < 64 and offset_x + 51 or offset_x - 5
+
+        if time_left_height > 0 then
+          rectfill(gauge_x, 128 - time_left_height, gauge_x + 1, 127, 8)
+        end
       end
 
       -- ゲームオーバーの線
-      if show_top_line then
-        line(offset_x - 2, 40,
-          offset_x + 48 + 1, 40,
-          _is_topped_out(_ENV) and 8 or 1)
+      if show_top_line and not is_game_over(_ENV) then
+        if top_line_start_x < 73 then
+          line(max(offset_x - 1, offset_x + top_line_start_x - 25), 40,
+            min(offset_x + 48, offset_x + top_line_start_x + 5), 40,
+            _is_topped_out(_ENV) and 8 or 1)
+        end
 
+        -- if offset_x - 1 + (top_line_start_x - 24) < offset_x + 48 then
+        --   line(max(offset_x - 1, offset_x - 1 + top_line_start_x - 24), 40,
+        --     min(offset_x + 48, offset_x - 1 + top_line_start_x - 24 + 30), 40,
+        --     _is_topped_out(_ENV) and 8 or 1)
+        -- end
       end
 
       -- 待機中のおじゃまゲート
@@ -579,11 +605,11 @@ function create_board(__offset_x, __cols)
 
       -- WIN! または LOSE を描画
       if is_game_over(_ENV) then
-        sspr(win and 64 or 96, 48, 32, 16, offset_x + width / 2 - 16, offset_y + 56)
+        sspr(win and 64 or 96, 48, 32, 16, offset_x + width / 2 - 16, offset_y + 36)
       end
 
       if push_any_key then
-        print_outlined("push any key!", offset_x - 1, offset_y + 100, 8)
+        print_outlined("push any key!", offset_x - 1, offset_y + 100, 1)
       end
     end,
 
@@ -598,7 +624,6 @@ function create_board(__offset_x, __cols)
 
           if _topped_out_frame_count >= _topped_out_delay_frame_count then
             lose = true
-            state = "over"
           end
         end
       else
@@ -753,10 +778,6 @@ function create_board(__offset_x, __cols)
     -- x, y が空かどうかを返す
     -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
     is_gate_empty = function(_ENV, x, y)
-      return _memoize(_ENV, _is_gate_empty_nocache, _is_gate_empty_cache, x, y)
-    end,
-
-    _is_gate_empty_nocache = function(_ENV, x, y)
       return gates[x][y]:is_empty() and
           not (_is_part_of_garbage(_ENV, x, y) or
               _is_part_of_cnot(_ENV, x, y) or
@@ -769,10 +790,6 @@ function create_board(__offset_x, __cols)
     end,
 
     _gate_or_its_head_gate = function(_ENV, x, y)
-      return _memoize(_ENV, _gate_or_its_head_gate_nocache, _gate_or_its_head_gate_cache, x, y)
-    end,
-
-    _gate_or_its_head_gate_nocache = function(_ENV, x, y)
       return _garbage_head_gate(_ENV, x, y) or
           _cnot_head_gate(_ENV, x, y) or
           _swap_head_gate(_ENV, x, y) or
@@ -931,8 +948,6 @@ function create_board(__offset_x, __cols)
           _is_gate_fallable_cache[i] = {}
         end
       end
-
-      _is_gate_empty_cache, _gate_or_its_head_gate_cache = {}, {}
     end,
 
     -------------------------------------------------------------------------------

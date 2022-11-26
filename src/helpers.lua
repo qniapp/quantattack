@@ -11,10 +11,17 @@ function draw_rounded_box(x0, y0, x1, y1, border_color, fill_color)
   end
 end
 
-function print_outlined(str, x, y, color) -- 21 tokens
-  print(str, x - 1, y, 0)
-  print(str, x + 1, y)
-  print(str, x, y - 1)
-  print(str, x, y + 1)
+function print_outlined(str, x, y, color)
+  for dx = -2, 2 do
+    for dy = -2, 2 do
+      print(str, x + dx, y + dy, 0)
+    end
+  end
+  for dx = -1, 1 do
+    for dy = -1, 1 do
+      print(str, x + dx, y + dy, 12)
+    end
+  end
+
   print(str, x, y, color)
 end

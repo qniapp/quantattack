@@ -45,7 +45,7 @@ describe('garbage_gate', function()
     end)
   end)
 
-  describe('color', function()
+  describe('body_color', function()
     it("色を指定して生成", function()
       local garbage = garbage_gate(6, 1, 2)
 

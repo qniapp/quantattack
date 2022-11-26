@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-./scripts/build_cartridge.sh src main_solo.lua src -o build/solo --data data.p8 -m 1
+./build_single_cartridge.sh solo
+./install_single_cartridge.sh solo debug

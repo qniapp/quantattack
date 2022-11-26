@@ -5,7 +5,7 @@ local app = derived_class(gameapp)
 local vs_qpu = require("vs_qpu")
 
 function app:_init()
-  gameapp._init(self, 60)
+  gameapp._init(self)
 end
 
 function app.instantiate_gamestates()

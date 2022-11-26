@@ -139,7 +139,7 @@ local reduction_rules = {
     --
     --   X            Y
     -- S-S  ----->  S-S
-    -- T            I
+    -- Z            I
     "x\nswap,swap\n?,z|,,y\ntrue,2,|2|6",
 
     -- X            I
@@ -400,7 +400,7 @@ for first_gate, rules in pairs(reduction_rules) do
       end),
       tonum(gate_count),
       tonum(score),
-      pattern -- original string
+      each -- original string
     }
   end
 end
