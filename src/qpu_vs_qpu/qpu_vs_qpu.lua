@@ -1,11 +1,11 @@
-require("board")
-require("player_cursor")
-require("qpu")
+require("lib/board")
+require("lib/player_cursor")
+require("lib/qpu")
 
-local gamestate = require("gamestate")
+local gamestate = require("lib/gamestate")
 local qpu_vs_qpu = derived_class(gamestate)
 
-local game_class = require("game")
+local game_class = require("lib/game")
 local game = game_class()
 
 local qpu1_board, qpu2_board = create_board(3), create_board(78)

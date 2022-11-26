@@ -1,5 +1,5 @@
 require("engine/test/bustedhelper")
-require("particle")
+require("lib/particle")
 
 describe('particle', function()
   before_each(function()

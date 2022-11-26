@@ -1,11 +1,11 @@
 require("engine/test/bustedhelper")
-require("test_helper")
-require("board")
+require("lib/test_helper")
+require("lib/board")
 
 local match = require("luassert.match")
-local game = require("game")
+local game = require("lib/game")
 
-require("player")
+require("lib/player")
 
 describe('chain', function()
   local board

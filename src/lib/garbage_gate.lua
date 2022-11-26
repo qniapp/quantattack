@@ -1,6 +1,6 @@
 ---@diagnostic disable: global-in-nil-env
 
-require("gate")
+require("lib/gate")
 
 --                       span
 --          ██████████████████████████████

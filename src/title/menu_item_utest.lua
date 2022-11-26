@@ -1,5 +1,5 @@
 require("engine/test/bustedhelper")
-local menu_item = require("menu_item")
+local menu_item = require("title/menu_item")
 
 describe('menu_item', function()
   describe('init', function()

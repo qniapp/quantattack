@@ -1,11 +1,10 @@
-require("class")
+require("lib/class")
 
 local gameapp = require("app/gameapp")
-local app = derived_class(gameapp)
-local mission = require("mission")
+local app, mission = derived_class(gameapp), require("mission/mission")
 
 function app:_init()
-  gameapp._init(self, 60)
+  gameapp._init(self)
 end
 
 function app.instantiate_gamestates()

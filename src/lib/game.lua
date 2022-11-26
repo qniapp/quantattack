@@ -1,12 +1,12 @@
-require("class")
+require("lib/class")
 
 local game = new_class()
 
-require("attack_bubble")
-require("bubble")
-require("helpers")
-require("particle")
-require("ripple")
+require("lib/attack_bubble")
+require("lib/bubble")
+require("lib/helpers")
+require("lib/particle")
+require("lib/ripple")
 
 local all_players, countdown
 

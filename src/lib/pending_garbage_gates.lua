@@ -1,6 +1,6 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
-require("garbage_gate")
+require("lib/garbage_gate")
 
 function create_pending_garbage_gates()
   local cue = setmetatable({

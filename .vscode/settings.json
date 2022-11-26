@@ -102,7 +102,10 @@
     "render_ripple",
     "atan2",
     "sqrt",
-    "ripple_speed"
+    "ripple_speed",
+    "render_plasma",
+    "pset",
+    "print_outlined"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,

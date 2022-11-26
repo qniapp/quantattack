@@ -1,6 +1,6 @@
 require("engine/test/bustedhelper")
-require("board")
-require("garbage_gate")
+require("lib/board")
+require("lib/garbage_gate")
 
 describe('garbage_gate', function()
   describe('span', function()

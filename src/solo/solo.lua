@@ -1,18 +1,18 @@
-require("board")
+require("lib/board")
 
 local board = create_board()
 board.attack_cube_target = { 85, 30 }
 
-require("player")
+require("lib/player")
 local player = create_player()
 
-require("player_cursor")
+require("lib/player_cursor")
 local player_cursor = create_player_cursor(board)
 
-local game_class = require("game")
+local game_class = require("lib/game")
 local game = game_class()
 
-local gamestate = require("gamestate")
+local gamestate = require("lib/gamestate")
 local solo = derived_class(gamestate)
 
 solo.type = ':solo'

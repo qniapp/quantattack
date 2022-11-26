@@ -1,6 +1,6 @@
 require("engine/test/bustedhelper")
-require("board")
-require("player_cursor")
+require("lib/board")
+require("lib/player_cursor")
 
 describe('player_cursor', function()
   local player_cursor

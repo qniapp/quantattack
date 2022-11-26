@@ -1,9 +1,9 @@
 require("engine/test/bustedhelper")
 require("engine/render/color")
-require("test_helper")
-require("board")
-require("player_cursor")
-require("qpu")
+require("lib/test_helper")
+require("lib/board")
+require("lib/player_cursor")
+require("lib/qpu")
 
 describe('qpu', function()
   describe('create_qpu', function()

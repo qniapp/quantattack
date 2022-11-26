@@ -1,5 +1,5 @@
 require("engine/test/bustedhelper")
-require("player")
+require("lib/player")
 
 describe('player', function()
   describe('constructor', function()

@@ -1,7 +1,7 @@
 require("engine/test/bustedhelper")
 require("engine/render/color")
-require("test_helper")
-require("board")
+require("lib/test_helper")
+require("lib/board")
 
 describe('連鎖 (chain)', function()
   local board

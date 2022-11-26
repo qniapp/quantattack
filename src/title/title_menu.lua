@@ -1,9 +1,9 @@
-require("board")
-require("plasma")
+require("lib/board")
+require("title/plasma")
 
-local gamestate = require("gamestate")
-local menu_item = require("menu_item")
-local text_menu_class = require("text_menu")
+local gamestate = require("lib/gamestate")
+local menu_item = require("title/menu_item")
+local text_menu_class = require("title/text_menu")
 
 -- main menu: gamestate for player navigating in main menu
 local title_menu = derived_class(gamestate)

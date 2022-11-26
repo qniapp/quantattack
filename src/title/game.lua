@@ -1,11 +1,11 @@
-require("class")
+require("lib/class")
 
 local game = new_class()
 
-require("attack_bubble")
-require("bubble")
-require("helpers")
-require("particle")
+require("lib/attack_bubble")
+require("lib/bubble")
+require("lib/helpers")
+require("lib/particle")
 
 local all_players, state
 

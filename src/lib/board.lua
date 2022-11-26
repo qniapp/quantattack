@@ -1,11 +1,11 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
-require("garbage_gate")
-require("pending_garbage_gates")
+require("lib/garbage_gate")
+require("lib/pending_garbage_gates")
 
-require("helpers")
+require("lib/helpers")
 
-local reduction_rules = require("reduction_rules")
+local reduction_rules = require("lib/reduction_rules")
 
 function create_board(__offset_x, __cols)
   local board = setmetatable({
@@ -557,7 +557,8 @@ function create_board(__offset_x, __cols)
 
       -- 残り時間ゲージの描画
       if _is_topped_out(_ENV) then
-        local time_left_height = (_topped_out_delay_frame_count - _topped_out_frame_count) / _topped_out_delay_frame_count * 128
+        local time_left_height = (_topped_out_delay_frame_count - _topped_out_frame_count) /
+            _topped_out_delay_frame_count * 128
         local gauge_x = offset_x < 64 and offset_x + 51 or offset_x - 5
 
         if time_left_height > 0 then

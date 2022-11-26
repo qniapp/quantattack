@@ -1,8 +1,8 @@
 require("engine/test/bustedhelper")
 require("engine/debug/dump")
 require("engine/render/color")
-require("test_helper")
-require("board")
+require("lib/test_helper")
+require("lib/board")
 
 describe('board', function()
   local board

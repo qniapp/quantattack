@@ -1,18 +1,18 @@
-require("board")
+require("lib/board")
 
 local board = create_board()
 board.attack_cube_target = { 85, 30 }
 
-require("player")
+require("lib/player")
 local player = create_player()
 
-require("player_cursor")
+require("lib/player_cursor")
 local player_cursor = create_player_cursor(board)
 
 local game_class = require("mission/game")
 local game = game_class()
 
-local gamestate = require("gamestate")
+local gamestate = require("lib/gamestate")
 local mission = derived_class(gamestate)
 
 mission.type = ':mission'
@@ -20,9 +20,9 @@ mission.type = ':mission'
 local current_task = nil
 local last_steps = 0
 
-local reduction_rules = require("reduction_rules")
+local reduction_rules = require("lib/reduction_rules")
 
-require("attack_bubble")
+require("lib/attack_bubble")
 
 function shuffle(t)
   -- do a fisher-yates shuffle
