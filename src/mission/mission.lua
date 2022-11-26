@@ -104,6 +104,7 @@ function game.reduce_callback(score, x, y, player, pattern)
       set_task()
     end
 
+    sfx(13)
     create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback, board.offset_x + board.width + 27,
       40)
   end
