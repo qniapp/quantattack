@@ -153,14 +153,16 @@ state = ":play"
 match_screen_x = nil
 match_screen_y = nil
 
+pattern_box_state = nil
+tick_pattern_box_shake = 0
+
 function game.reduce_callback(score, x, y, player, pattern)
   if current_task and current_task[5] == pattern then
     state = ":matching"
 
     local attack_cube_callback = function(target_x, target_y)
       state = ":play"
-      -- ripple_speed = "normal"
-      slow_attack_bubbles = false
+      pattern_box_state = ":shake"
       sfx(10)
       create_particle_set(target_x, target_y,
         "10,10,9,7,random,random,-0.03,-0.03,20|10,10,9,7,random,random,-0.03,-0.03,20|9,9,9,7,random,random,-0.03,-0.03,20|9,9,2,5,random,random,-0.03,-0.03,20|9,9,6,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|5,5,2,5,random,random,-0.03,-0.03,20")
@@ -212,6 +214,15 @@ function mission:update()
   end
 
   update_match_circles()
+
+  if pattern_box_state == ":shake" then
+    if tick_pattern_box_shake < 30 then
+      tick_pattern_box_shake = tick_pattern_box_shake + 1
+    else
+      tick_pattern_box_shake = 0
+      pattern_box_state = nil
+    end
+  end
 end
 
 function mission:render() -- override
@@ -221,8 +232,14 @@ function mission:render() -- override
   render_ripple()
 
   if current_task then
-    local pattern_box_x = board.offset_x + board.width + 10 + cos(t() / 1.5) * 2
-    local pattern_box_y = 16 + sin(t() / 2) * 4 + 0.5
+    local pattern_box_dx, pattern_box_dy = 0, 0
+    if pattern_box_state == ":shake" then
+      pattern_box_dx = (flr(rnd(3)) - 1) * 2
+      pattern_box_dy = (flr(rnd(3)) - 1) * 2
+    end
+
+    local pattern_box_x = board.offset_x + board.width + 10 + cos(t() / 1.5) * 2 + pattern_box_dx
+    local pattern_box_y = 16 + sin(t() / 2) * 4 + 0.5 + pattern_box_dy
 
     draw_rounded_box(pattern_box_x, pattern_box_y, pattern_box_x + 55, pattern_box_y + 51, 7, 0)
 
