@@ -8,7 +8,7 @@ require("helpers")
 require("particle")
 require("ripple")
 
-local all_players, state, countdown
+local all_players, countdown
 
 function game.reduce_callback(score, _x, _y, player)
   player.score = player.score + score
