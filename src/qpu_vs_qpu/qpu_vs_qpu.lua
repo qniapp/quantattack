@@ -2,6 +2,8 @@ require("lib/board")
 require("lib/player_cursor")
 require("lib/qpu")
 
+local flow = require("engine/application/flow")
+
 local gamestate = require("lib/gamestate")
 local qpu_vs_qpu = derived_class(gamestate)
 
@@ -18,10 +20,12 @@ qpu_vs_qpu.type = ':qpu_vs_qpu'
 
 function qpu_vs_qpu:on_enter()
   qpu1:init()
+  qpu1_board:init()
   qpu1_board:put_random_gates()
   qpu1_cursor:init()
 
   qpu2:init()
+  qpu2_board:init()
   qpu2_board:put_random_gates()
   qpu2_cursor:init()
 
@@ -35,9 +39,11 @@ function qpu_vs_qpu:update()
 
   if game:is_game_over() then
     if t() - game.game_over_time > 2 then
-      qpu1_board.push_any_key = true
-      qpu2_board.push_any_key = true
-      if btnp(4) or btnp(5) then -- x または z でタイトルへ戻る
+      qpu1_board.show_gameover_menu = true
+      qpu2_board.show_gameover_menu = true
+      if btnp(4) then -- x でリプレイ
+        flow:query_gamestate_type(":qpu_vs_qpu")
+      elseif btnp(5) then -- z でタイトルへ戻る
         load('qitaev_title')
       end
     end

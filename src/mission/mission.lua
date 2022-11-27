@@ -214,7 +214,7 @@ function mission:update()
   if game:is_game_over() then
     if t() - game.game_over_time > 2 then
       board.show_gameover_menu = true
-      if btnp(4) then -- x でリトライ
+      if btnp(4) then -- x でリプレイ
         flow:query_gamestate_type(":mission")
       elseif btnp(5) then -- z でタイトルへ戻る
         load('qitaev_title')

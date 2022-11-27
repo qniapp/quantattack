@@ -91,6 +91,7 @@ function game:init()
   all_players = {}
   countdown = 240
   self.start_time = t()
+  self.game_over_time = nil
   init_ripple()
 end
 
@@ -231,7 +232,7 @@ function game:render() -- override
       local countdown_sprite_x = { 96, 80, 64 }
       sspr(countdown_sprite_x[board.countdown], 32,
         16, 16,
-        board.offset_x + 16, board.offset_y + 36)
+        board.offset_x + 16, board.offset_y + 43)
     end
   end
 

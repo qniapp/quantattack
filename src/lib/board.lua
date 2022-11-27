@@ -592,8 +592,8 @@ function create_board(__offset_x, __cols)
       end
 
       if show_gameover_menu then
-        print_outlined("z retry", offset_x - 1, offset_y + 100, 1)
-        print_outlined("x back to title", offset_x - 1, offset_y + 108, 1)
+        print_outlined("z play again", offset_x - 1, offset_y + 100, 1)
+        print_outlined("x title", offset_x - 1, offset_y + 108, 1)
       end
     end,
 
