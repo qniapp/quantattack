@@ -85,7 +85,6 @@ local tasks_level5 = shuffle({
 local tasks_level6 = {
   reduction_rules.swap[1]
 }
-
 local tasks = cat(tasks_level1, tasks_level2, tasks_level3, tasks_level4, tasks_level5, tasks_level6)
 
 function set_task()
@@ -121,7 +120,7 @@ function render_current_task(x, y, animate_match)
 
     if gate2_type then
       if animate_match then
-        rect(row_x + 7, row_y - 1, row_x + 15, row_y + 7, random_color)
+        rect(row_x + (match_dx * 8) - 1, row_y - 1, row_x + (match_dx + 1) * 8 - 1, row_y + 7, random_color)
       else
         spr(gate(gate2_type).sprite_set.default, row_x + 8, row_y)
       end
@@ -154,13 +153,15 @@ end
 state = ":play"
 match_screen_x = nil
 match_screen_y = nil
+match_dx = nil
 
 pattern_box_state = nil
 tick_pattern_box_shake = 0
 
-function game.reduce_callback(score, x, y, player, pattern)
+function game.reduce_callback(score, x, y, player, pattern, dx)
   if current_task and current_task[5] == pattern then
     state = ":matching"
+    match_dx = dx
 
     local attack_cube_callback = function(target_x, target_y)
       state = ":play"

@@ -75,7 +75,7 @@ function create_board(__offset_x, __cols)
             local chain_id = reduction.chain_id
 
             if player then
-              game.reduce_callback(reduction.score, x, y, player, reduction.pattern)
+              game.reduce_callback(reduction.score, x, y, player, reduction.pattern, reduction.dx)
             end
 
             if _chain_count[chain_id] == nil then
