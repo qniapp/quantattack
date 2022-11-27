@@ -11,19 +11,19 @@ function create_board(__offset_x, __cols)
     _offset_x = __offset_x,
     show_wires = true,
     show_top_line = true,
-    top_line_start_x = 0,
 
     init = function(_ENV, _cols)
       -- サイズ関係
-      cols, rows = _cols or 6, 17
-      row_next_gates = rows + 1
+      cols, rows, row_next_gates =
+      _cols or 6, 17, 18
 
       -- 画面上のサイズと位置
-      width, height = cols * tile_size, (rows - 1) * tile_size
-      offset_x, offset_y, raised_dots = _offset_x or 11, 0, 0
+      width, height, offset_x, offset_y, raised_dots =
+      cols * tile_size, (rows - 1) * tile_size, _offset_x or 11, 0, 0
 
       -- board の状態
-      state, win, lose, top_gate_y, _changed = "play", false, false, row_next_gates, false
+      state, win, lose, top_gate_y, _changed, show_gameover_menu =
+      "play", false, false, row_next_gates, false, false
 
       -- 各種キャッシュ
       _reduce_cache, _is_gate_fallable_cache = {}, {}
@@ -39,8 +39,6 @@ function create_board(__offset_x, __cols)
 
       -- 各種ゲートの取得
       gates, reducible_gates, _garbage_gates, contains_garbage_match_gate = {}, {}, {}, false
-
-      show_gameover_menu = false
 
       for x = 1, cols do
         gates[x], reducible_gates[x] = {}, {}
@@ -67,7 +65,7 @@ function create_board(__offset_x, __cols)
       local chain_id_callbacked, combo_count = {}
 
       for x, col in pairs(reducible_gates) do
-        for y, each in pairs(col) do
+        for y, _ in pairs(col) do
           local reduction = reduce(_ENV, x, y)
 
           -- コンボ (同時消し) とチェイン (連鎖) の処理
@@ -116,16 +114,12 @@ function create_board(__offset_x, __cols)
               local dx, dy, new_gate = r.dx and reduction.dx or 0, r.dy or 0, gate(r.gate_type)
 
               if new_gate.type == "swap" or new_gate.type == "cnot_x" or new_gate.type == "control" then
-                if r.dx then
-                  new_gate.other_x = x
-                else
-                  new_gate.other_x = x + reduction.dx
-                end
+                new_gate.other_x = x + (r.dx and 0 or reduction.dx)
               end
 
               gates[x + dx][y + dy]:replace_with(new_gate, index, chain_id)
 
-              -- ゲートが消える、または変化するとき、その上にあるゲートすべてにフラグを付ける
+              -- ゲートが消える、または変化するとき、その上にあるゲートすべてに chain_id をセット
               for chainable_y = y + dy - 1, 1, -1 do
                 local gate_to_fall = gates[x + dx][chainable_y]
                 if gate_to_fall.type ~= "i" then
@@ -154,36 +148,19 @@ function create_board(__offset_x, __cols)
           end
         end
 
-        if x > 1 then
-          -- 左側
-          for i = 0, garbage_height - 1 do
-            if y - i > 0 and is_matching(gates[x - 1][y - i]) then
-              goto match
-            end
-          end
-        end
-
-        if x + garbage_span <= cols then
-          -- 右側
-          for i = 0, garbage_height - 1 do
-            if y - i > 0 and is_matching(gates[x + garbage_span][y - i]) then
-              goto match
-            end
-          end
-        end
-
+        -- 下と上
         for gx = x, x + garbage_span - 1 do
-          if y - garbage_height > 1 then
-            -- 上側
-            if is_matching(gates[gx][y - garbage_height]) then
-              goto match
-            end
+          if (y < rows and is_matching(gates[gx][y + 1])) or
+              (y - garbage_height > 1 and is_matching(gates[gx][y - garbage_height])) then
+            goto match
           end
-          if y < rows then
-            -- 下側
-            if is_matching(gates[gx][y + 1]) then
-              goto match
-            end
+        end
+
+        -- 左と右
+        for i = 0, garbage_height - 1 do
+          if (x > 1 and y - i > 0 and is_matching(gates[x - 1][y - i])) or
+              (x + garbage_span <= cols and y - i > 0 and is_matching(gates[x + garbage_span][y - i])) then
+            goto match
           end
         end
 
