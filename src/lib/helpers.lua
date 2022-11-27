@@ -11,7 +11,7 @@ function draw_rounded_box(x0, y0, x1, y1, border_color, fill_color)
   end
 end
 
-function print_outlined(str, x, y, color)
+function print_outlined(str, x, y, color, border_color)
   for dx = -2, 2 do
     for dy = -2, 2 do
       print(str, x + dx, y + dy, 0)
@@ -19,7 +19,7 @@ function print_outlined(str, x, y, color)
   end
   for dx = -1, 1 do
     for dy = -1, 1 do
-      print(str, x + dx, y + dy, 12)
+      print(str, x + dx, y + dy, border_color or 12)
     end
   end
 

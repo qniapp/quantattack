@@ -265,6 +265,11 @@ function mission:render() -- override
     render_current_task(match_screen_x, match_screen_y, true)
   end
 
+  spr(117, 70, 109)
+  print_outlined("swap gates", 81, 110, 7, 0)
+  spr(70, 70, 119)
+  print_outlined("raise gates", 81, 120, 7, 0)
+
   render_match_circles()
 end
 
