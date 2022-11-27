@@ -588,7 +588,7 @@ function create_board(__offset_x, __cols)
 
       -- WIN! または LOSE を描画
       if is_game_over(_ENV) then
-        sspr(win and 64 or 96, 48, 32, 16, offset_x + width / 2 - 16, offset_y + 36)
+        sspr(win and 64 or 96, 48, 32, 16, offset_x + width / 2 - 16, offset_y + 43)
       end
 
       if show_gameover_menu then

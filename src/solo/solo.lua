@@ -1,5 +1,7 @@
 require("lib/board")
 
+local flow = require("engine/application/flow")
+
 local board = create_board()
 board.attack_cube_target = { 85, 30 }
 
@@ -21,6 +23,7 @@ local last_steps = 0
 
 function solo:on_enter()
   player:init()
+  board:init()
   board:put_random_gates()
   player_cursor:init()
 
@@ -47,7 +50,9 @@ function solo:update()
   if game:is_game_over() then
     if t() - game.game_over_time > 2 then
       board.show_gameover_menu = true
-      if btnp(4) or btnp(5) then -- x または z でタイトルへ戻る
+      if btnp(4) then -- x でリプレイ
+        flow:query_gamestate_type(":solo")
+      elseif btnp(5) then -- z でタイトルへ戻る
         load('qitaev_title')
       end
     end
