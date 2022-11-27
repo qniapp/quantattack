@@ -15,13 +15,13 @@ local game_class = require("lib/game")
 local game = game_class()
 
 local gamestate = require("lib/gamestate")
-local solo = derived_class(gamestate)
+local endless = derived_class(gamestate)
 
-solo.type = ':solo'
+endless.type = ':endless'
 
 local last_steps = 0
 
-function solo:on_enter()
+function endless:on_enter()
   player:init()
   board:init()
   board:put_random_gates()
@@ -31,7 +31,7 @@ function solo:on_enter()
   game:add_player(player, player_cursor, board)
 end
 
-function solo:update()
+function endless:update()
   game:update()
 
   if player.steps > last_steps then
@@ -51,7 +51,7 @@ function solo:update()
     if t() - game.game_over_time > 2 then
       board.show_gameover_menu = true
       if btnp(4) then -- x でリプレイ
-        flow:query_gamestate_type(":solo")
+        flow:query_gamestate_type(":endless")
       elseif btnp(5) then -- z でタイトルへ戻る
         load('qitaev_title')
       end
@@ -59,7 +59,7 @@ function solo:update()
   end
 end
 
-function solo:render() -- override
+function endless:render() -- override
   game:render()
 
   -- スコア表示
@@ -72,4 +72,4 @@ function solo:render() -- override
   print("score " .. player.score .. (player.score == 0 and "" or "0"))
 end
 
-return solo
+return endless

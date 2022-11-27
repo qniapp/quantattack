@@ -2,14 +2,14 @@ require("lib/class")
 
 local gameapp = require("app/gameapp")
 local app = derived_class(gameapp)
-local solo = require("solo/solo")
+local endless = require("endless/endless")
 
 function app:_init()
   gameapp._init(self)
 end
 
 function app.instantiate_gamestates()
-  return { solo() }
+  return { endless() }
 end
 
 return app

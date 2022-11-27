@@ -12,7 +12,7 @@ title_menu.type = ':title_menu'
 -- sequence of menu items to display, with their target states
 title_menu._items = {
   menu_item("mission", 'qitaev_mission'),
-  menu_item("solo", 'qitaev_solo'),
+  menu_item("endless", 'qitaev_endless'),
   menu_item("vs qpu", 'qitaev_vs_qpu'),
   menu_item("qpu vs qpu", 'qitaev_qpu_vs_qpu')
 }

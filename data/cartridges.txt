@@ -1,5 +1,5 @@
 title
 mission
-solo
+endless
 vs_qpu
 qpu_vs_qpu
