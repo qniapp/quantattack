@@ -1,15 +1,15 @@
-require("class")
+require("lib/class")
 
 local game = new_class()
 
-require("attack_bubble")
-require("bubble")
-require("helpers")
-require("particle")
+require("lib/attack_bubble")
+require("lib/bubble")
+require("lib/helpers")
+require("lib/particle")
 
 local all_players, state
 
-function game.reduce_callback(score, player)
+function game.reduce_callback(_score, _x, _y, _player)
   -- NOP
 end
 
@@ -31,9 +31,12 @@ function update_title_logo_bounce()
   end
 end
 
-local attack_cube_callback = function()
+local attack_cube_callback = function(target_x, target_y)
   bounce_title_logo()
   sfx(10)
+  create_particle_set(target_x, target_y,
+    "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
+
 end
 
 function game.combo_callback(combo_count, x, y, player, board, other_board)

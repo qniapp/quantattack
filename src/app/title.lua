@@ -1,4 +1,4 @@
-require("class")
+require("lib/class")
 
 local gameapp = require("app/gameapp")
 local app = derived_class(gameapp)

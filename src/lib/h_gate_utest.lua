@@ -1,0 +1,57 @@
+require("engine/test/bustedhelper")
+require("engine/debug/dump")
+require("lib/test_helper")
+
+describe('h_gate', function()
+  local h
+
+  before_each(function()
+    h = h_gate()
+  end)
+
+  describe("gate type", function()
+    describe("is_single_gate", function()
+      it("should return true", function()
+        assert.is_true(h:is_single_gate())
+      end)
+    end)
+
+    describe("is_garbage", function()
+      it("should return false", function()
+        assert.is_false(h.type == "g")
+      end)
+    end)
+  end)
+
+  describe("state", function()
+    describe("is_idle", function()
+      it("should return true", function()
+        assert.is_true(h:is_idle())
+      end)
+    end)
+
+    describe("is_swapping", function()
+      it("should return false", function()
+        assert.is_false(h:is_swapping())
+      end)
+    end)
+
+    describe("is_falling", function()
+      it("should return false", function()
+        assert.is_false(h:is_falling())
+      end)
+    end)
+
+    describe("is_match", function()
+      it("should return false", function()
+        assert.is_false(h:is_match())
+      end)
+    end)
+  end)
+
+  describe("stringify", function()
+    it("should return 'h '", function()
+      assert.are.equals("h ", stringify(h))
+    end)
+  end)
+end)

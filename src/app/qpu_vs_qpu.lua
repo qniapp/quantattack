@@ -1,8 +1,8 @@
-require("class")
+require("lib/class")
 
 local gameapp = require("app/gameapp")
 local app = derived_class(gameapp)
-local qpu_vs_qpu = require("qpu_vs_qpu")
+local qpu_vs_qpu = require("qpu_vs_qpu/qpu_vs_qpu")
 
 function app:_init()
   gameapp._init(self)

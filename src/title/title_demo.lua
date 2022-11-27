@@ -1,10 +1,10 @@
-require("board")
-require("player_cursor")
-require("qpu")
-require("plasma")
+require("lib/board")
+require("lib/player_cursor")
+require("lib/qpu")
+require("title/plasma")
 
 local flow = require("engine/application/flow")
-local gamestate = require("gamestate")
+local gamestate = require("lib/gamestate")
 
 -- main menu: gamestate for player navigating in main menu
 local title_demo = derived_class(gamestate)
