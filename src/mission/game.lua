@@ -22,6 +22,7 @@ function game:init()
   all_players = {}
   countdown = 240
   self.start_time = t()
+  self.game_over_time = nil
   init_ripple()
 end
 

@@ -1,3 +1,5 @@
+local flow = require("engine/application/flow")
+
 require("lib/board")
 
 local board = create_board()
@@ -180,8 +182,13 @@ function game.reduce_callback(score, x, y, player, pattern)
 end
 
 function mission:on_enter()
+  task_number = 1
+
   player:init()
+
+  board:init()
   board:put_random_gates()
+
   player_cursor:init()
 
   game:init()
@@ -206,8 +213,10 @@ function mission:update()
 
   if game:is_game_over() then
     if t() - game.game_over_time > 2 then
-      board.push_any_key = true
-      if btnp(4) or btnp(5) then -- x または z でタイトルへ戻る
+      board.show_gameover_menu = true
+      if btnp(4) then -- x でリトライ
+        flow:query_gamestate_type(":mission")
+      elseif btnp(5) then -- z でタイトルへ戻る
         load('qitaev_title')
       end
     end

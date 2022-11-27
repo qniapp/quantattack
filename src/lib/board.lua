@@ -41,6 +41,8 @@ function create_board(__offset_x, __cols)
       -- 各種ゲートの取得
       gates, reducible_gates, _garbage_gates, contains_garbage_match_gate = {}, {}, {}, false
 
+      show_gameover_menu = false
+
       for x = 1, cols do
         gates[x], reducible_gates[x] = {}, {}
         for y = 1, row_next_gates do
@@ -589,8 +591,9 @@ function create_board(__offset_x, __cols)
         sspr(win and 64 or 96, 48, 32, 16, offset_x + width / 2 - 16, offset_y + 36)
       end
 
-      if push_any_key then
-        print_outlined("push any key!", offset_x - 1, offset_y + 100, 1)
+      if show_gameover_menu then
+        print_outlined("z retry", offset_x - 1, offset_y + 100, 1)
+        print_outlined("x back to title", offset_x - 1, offset_y + 108, 1)
       end
     end,
 
