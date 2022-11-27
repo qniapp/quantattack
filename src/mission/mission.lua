@@ -112,7 +112,7 @@ function render_current_task(x, y, animate_match)
         line(row_x + 3, row_y + 3, row_x + 11, row_y + 3, 10)
       end
       if animate_match then
-        rect(row_x - 1, row_y - 1, row_x + 7, row_y + 7, random_color)
+        draw_rounded_box(row_x - 1, row_y - 1, row_x + 7, row_y + 7, random_color)
       else
         spr(gate(gate1_type).sprite_set.default, row_x, row_y)
       end
@@ -120,7 +120,7 @@ function render_current_task(x, y, animate_match)
 
     if gate2_type then
       if animate_match then
-        rect(row_x + (match_dx * 8) - 1, row_y - 1, row_x + (match_dx + 1) * 8 - 1, row_y + 7, random_color)
+        draw_rounded_box(row_x + (match_dx * 8) - 1, row_y - 1, row_x + (match_dx + 1) * 8 - 1, row_y + 7, random_color)
       else
         spr(gate(gate2_type).sprite_set.default, row_x + 8, row_y)
       end
