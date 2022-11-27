@@ -1,6 +1,4 @@
-local flow = require("engine/application/flow")
-
-local gameapp = new_class()
+local flow, gameapp = require("engine/application/flow"), new_class()
 
 function gameapp:_init()
   self.initial_gamestate = nil
@@ -11,8 +9,6 @@ function gameapp:instantiate_gamestates()
 end
 
 function gameapp:start()
-  self:on_pre_start()
-
   -- register gamestates
   for state in all(self:instantiate_gamestates()) do
     state.app = self
@@ -22,8 +18,6 @@ function gameapp:start()
   assert(self.initial_gamestate ~= nil, "gameapp:start: gameapp.initial_gamestate is not set")
   --#endif
   flow:query_gamestate_type(self.initial_gamestate)
-
-  self:on_post_start()
 end
 
 function gameapp:update()
@@ -35,15 +29,8 @@ end
 function gameapp:draw()
   cls()
   flow:render()
-  flow:render_post()
 
   self:on_render()
-end
-
-function gameapp:on_pre_start() -- virtual
-end
-
-function gameapp:on_post_start() -- virtual
 end
 
 function gameapp:on_update() -- virtual

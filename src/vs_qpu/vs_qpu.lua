@@ -3,6 +3,7 @@ require("lib/player")
 require("lib/player_cursor")
 require("lib/qpu")
 
+local flow = require("engine/application/flow")
 local gamestate = require("lib/gamestate")
 local vs_qpu = derived_class(gamestate)
 
@@ -19,10 +20,12 @@ vs_qpu.type = ':vs_qpu'
 
 function vs_qpu:on_enter()
   player:init()
+  board:init()
   board:put_random_gates()
   player_cursor:init()
 
   qpu:init()
+  qpu_board:init()
   qpu_board:put_random_gates()
   qpu_cursor:init()
 
@@ -37,7 +40,9 @@ function vs_qpu:update()
   if game:is_game_over() then
     if t() - game.game_over_time > 2 then
       board.show_gameover_menu = true
-      if btnp(4) or btnp(5) then -- x または z でタイトルへ戻る
+      if btnp(4) then -- x でリプレイ
+        flow:query_gamestate_type(":vs_qpu")
+      elseif btnp(5) then -- z でタイトルへ戻る
         load('qitaev_title')
       end
     end
