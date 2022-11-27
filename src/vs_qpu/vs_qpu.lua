@@ -51,6 +51,9 @@ end
 
 function vs_qpu:render() -- override
   game:render()
+
+  print_outlined("time", 57, 106, 7, 0)
+  print_outlined(game:elapsed_time_string(), 55, 114, 7, 0)
 end
 
 return vs_qpu

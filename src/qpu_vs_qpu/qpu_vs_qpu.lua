@@ -54,14 +54,8 @@ end
 function qpu_vs_qpu:render()
   game:render()
 
-  color(7)
-
-  -- 経過時間の表示
-  cursor(57, 106)
-  print("time")
-
-  cursor(55, 114)
-  print(game:elapsed_time_string())
+  print_outlined("time", 57, 106, 7, 0)
+  print_outlined(game:elapsed_time_string(), 55, 114, 7, 0)
 end
 
 return qpu_vs_qpu
