@@ -70,7 +70,7 @@ function text_menu:draw(left, top)
     else
       label = "  " .. label
     end
-    api.print(label, left, y, 7)
+    print(label, left, y, 7)
     y = y + 8
   end
 end

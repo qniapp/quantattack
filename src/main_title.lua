@@ -1,7 +1,5 @@
--- we must require engine/pico8/api at the top of our main.lua, so API bridges apply to all modules
-require("engine/pico8/api")
-
 require("app/title")
+
 local app = app_title()
 
 function _init()
