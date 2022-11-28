@@ -1,7 +1,5 @@
--- must require at main top, to be used in any required modules from here
-require("engine/pico8/api")
+require("app/vs_qpu")
 
-local app_vs_qpu = require("app/vs_qpu")
 local app = app_vs_qpu()
 
 function _init()
