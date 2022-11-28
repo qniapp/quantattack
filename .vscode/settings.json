@@ -107,7 +107,8 @@
     "pset",
     "print_outlined",
     "ceil_rnd",
-    "flip"
+    "flip",
+    "app_title"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,
