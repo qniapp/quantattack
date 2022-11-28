@@ -6,8 +6,9 @@ local app = derived_class(gameapp)
 local title_demo = require("title/title_demo")
 local title_menu = require("title/title_menu")
 
-local game_class = require("title/game")
-demo_game = game_class()
+-- local game_class = require("title/game")
+require("title/game")
+demo_game = game()
 
 local qpu_board = create_board(0, 16)
 local qpu_cursor = create_player_cursor(qpu_board)
