@@ -23,8 +23,7 @@ local current_task = nil
 local last_steps = 0
 
 local reduction_rules = require("lib/reduction_rules")
-
-require("lib/attack_bubble")
+local attack_bubble = require("lib/attack_bubble")
 
 local function shuffle(t)
   -- do a fisher-yates shuffle
@@ -172,12 +171,12 @@ function mission_game.reduce_callback(score, x, y, player, pattern, dx)
       set_task()
     end
 
-    slow_attack_bubbles = true
+    attack_bubbles.slow = true
     sfx(13)
     match_screen_x = board:screen_x(x)
     match_screen_y = board:screen_y(y)
     create_match_circle(board:screen_x(x) + 3, board:screen_y(y) + 3)
-    create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback, board.offset_x + board.width + 27,
+    attack_bubble:create(board:screen_x(x), board:screen_y(y), attack_cube_callback, board.offset_x + board.width + 27,
       40)
   end
 end

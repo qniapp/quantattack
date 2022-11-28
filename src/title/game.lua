@@ -1,5 +1,6 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
-require("lib/attack_bubble")
+
+local attack_bubble = require("lib/attack_bubble")
 require("lib/bubble")
 require("lib/helpers")
 require("lib/particle")
@@ -36,7 +37,7 @@ function game()
     end,
 
     combo_callback = function(_combo_count, x, y, _player, board, _other_board)
-      create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback, 64, 36)
+      attack_bubble:create(board:screen_x(x), board:screen_y(y), attack_cube_callback, 64, 36)
     end,
 
     gate_offset_callback = function(_chain_id, chain_count, _x, _y, _player, _board, _other_board)
@@ -44,7 +45,7 @@ function game()
     end,
 
     chain_callback = function(_chain_id, _chain_count, x, y, _player, board, _other_board)
-      create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback, 64, 36)
+      attack_bubble:create(board:screen_x(x), board:screen_y(y), attack_cube_callback, 64, 36)
     end,
 
     init = function(_ENV)
@@ -94,7 +95,7 @@ function game()
 
       update_particles()
       update_bubbles()
-      update_attack_bubbles()
+      attack_bubble:update()
     end,
 
     render = function(_ENV)
@@ -105,7 +106,7 @@ function game()
 
       render_particles()
       render_bubbles()
-      render_attack_bubbles()
+      attack_bubble:render()
     end,
 
     -- ゲートをせりあげる

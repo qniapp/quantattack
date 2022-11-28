@@ -33,15 +33,7 @@
 local logging = require("engine/debug/logging")
 --#endif
 
-function singleton(init)
-  local s = {}
-  -- setmetatable(s, {
-  --   __concat = concat
-  -- })
-  s.init = init
-  s:init()
-  return s
-end
+require("lib/helpers")
 
 -- flow singleton
 -- state vars

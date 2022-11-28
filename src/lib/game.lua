@@ -1,8 +1,8 @@
 require("lib/helpers")
 
 local game = new_class()
+local attack_bubble = require("lib/attack_bubble")
 
-require("lib/attack_bubble")
 require("lib/bubble")
 require("lib/helpers")
 require("lib/particle")
@@ -29,8 +29,11 @@ function game.combo_callback(combo_count, x, y, player, board, other_board)
   end
 
   create_bubble("combo", combo_count, board:screen_x(x), board:screen_y(y))
-  create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback,
-    unpack(board.attack_cube_target))
+  attack_bubble:create(
+    board:screen_x(x), board:screen_y(y),
+    attack_cube_callback,
+    unpack(board.attack_cube_target)
+  )
 end
 
 local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
@@ -51,8 +54,11 @@ function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, o
       end
     end
 
-    create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback,
-      unpack(board.gate_offset_target))
+    attack_bubble:create(
+      board:screen_x(x), board:screen_y(y),
+      attack_cube_callback,
+      unpack(board.gate_offset_target)
+    )
   end
 
   return offset_height
@@ -60,8 +66,10 @@ end
 
 function game.chain_callback(chain_id, chain_count, x, y, player, board, other_board)
   if chain_count > 2 then
-    local attack_cube_callback = function()
+    local attack_cube_callback = function(target_x, target_y)
       sfx(12)
+      create_particle_set(target_x, target_y,
+        "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
 
       player.score = player.score + (chain_bonus[chain_count] or 180)
 
@@ -72,8 +80,11 @@ function game.chain_callback(chain_id, chain_count, x, y, player, board, other_b
     end
 
     create_bubble("chain", chain_count, board:screen_x(x), board:screen_y(y))
-    create_attack_bubble(board:screen_x(x), board:screen_y(y), attack_cube_callback,
-      unpack(board.attack_cube_target))
+    attack_bubble:create(
+      board:screen_x(x), board:screen_y(y),
+      attack_cube_callback,
+      unpack(board.attack_cube_target)
+    )
   else
     player.score = player.score + (chain_bonus[chain_count])
   end
@@ -186,7 +197,7 @@ function game:update()
 
   update_particles()
   update_bubbles()
-  update_attack_bubbles()
+  attack_bubble:update()
 
   if not self:is_game_over() then
     -- ゲーム中だけ elapsed_time を更新
@@ -238,7 +249,7 @@ function game:render() -- override
 
   render_particles()
   render_bubbles()
-  render_attack_bubbles()
+  attack_bubble:render()
 
   -- print_outlined(stat(1), 101, 112, 7)
   -- print_outlined(stat(7), 117, 120, 7)
