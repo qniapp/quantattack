@@ -29,3 +29,32 @@ function print_outlined(str, x, y, color, border_color)
 
   print(str, x, y, color)
 end
+
+local function new(cls, ...)
+  local self = setmetatable({}, cls)
+  self:_init(...)
+  return self
+end
+
+function new_class()
+  local class = {}
+  class.__index = class
+
+  setmetatable(class, {
+    __call = new
+  })
+
+  return class
+end
+
+function derived_class(base_class)
+  local class = {}
+  class.__index = class
+
+  setmetatable(class, {
+    __index = base_class,
+    __call = new
+  })
+
+  return class
+end

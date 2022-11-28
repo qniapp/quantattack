@@ -29,11 +29,19 @@
 -- [when you want to change state:]
 -- flow:query_gamestate_type("state2")
 
-require("lib/class")
-
 --#if log
 local logging = require("engine/debug/logging")
 --#endif
+
+function singleton(init)
+  local s = {}
+  -- setmetatable(s, {
+  --   __concat = concat
+  -- })
+  s.init = init
+  s:init()
+  return s
+end
 
 -- flow singleton
 -- state vars

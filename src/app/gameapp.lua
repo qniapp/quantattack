@@ -1,3 +1,5 @@
+require("lib/helpers")
+
 local flow, gameapp = require("lib/flow"), new_class()
 
 function gameapp:_init()

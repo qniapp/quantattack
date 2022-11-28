@@ -1,4 +1,4 @@
-require("lib/class")
+require("lib/helpers")
 
 local game = new_class()
 
