@@ -3,7 +3,7 @@ require("lib/player_cursor")
 require("lib/qpu")
 require("title/plasma")
 
-local flow = require("engine/application/flow")
+local flow = require("lib/flow")
 local gamestate = require("lib/gamestate")
 
 -- main menu: gamestate for player navigating in main menu

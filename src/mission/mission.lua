@@ -1,4 +1,4 @@
-local flow = require("engine/application/flow")
+local flow = require("lib/flow")
 
 require("lib/board")
 

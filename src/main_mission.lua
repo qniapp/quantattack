@@ -1,7 +1,5 @@
--- must require at main top, to be used in any required modules from here
--- require("engine/pico8/api")
+require("app/mission")
 
-local app_mission = require("app/mission")
 local app = app_mission()
 
 function _init()

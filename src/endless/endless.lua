@@ -1,6 +1,6 @@
 require("lib/board")
 
-local flow = require("engine/application/flow")
+local flow = require("lib/flow")
 
 local board = create_board()
 board.attack_cube_target = { 85, 30 }

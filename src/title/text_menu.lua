@@ -1,6 +1,6 @@
 ---@diagnostic disable: discard-returns
 
-local flow = require("engine/application/flow")
+local flow = require("lib/flow")
 
 -- text menu: class representing a menu with labels and arrow-based navigation
 local text_menu = new_class()

@@ -3,7 +3,7 @@ require("lib/player")
 require("lib/player_cursor")
 require("lib/qpu")
 
-local flow = require("engine/application/flow")
+local flow = require("lib/flow")
 local gamestate = require("lib/gamestate")
 local vs_qpu = derived_class(gamestate)
 

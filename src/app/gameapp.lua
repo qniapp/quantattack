@@ -1,4 +1,4 @@
-local flow, gameapp = require("engine/application/flow"), new_class()
+local flow, gameapp = require("lib/flow"), new_class()
 
 function gameapp:_init()
   self.initial_gamestate = nil
