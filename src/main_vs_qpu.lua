@@ -1,16 +1,16 @@
-require("app/vs_qpu")
-
-local app = app_vs_qpu()
+local flow = require("lib/flow")
+local vs_qpu = require("vs_qpu/vs_qpu")
 
 function _init()
-  app.initial_gamestate = ':vs_qpu'
-  app:start()
+  flow:add_gamestate(vs_qpu())
+  flow:query_gamestate_type(":vs_qpu")
 end
 
 function _update60()
-  app:update()
+  flow:update()
 end
 
 function _draw()
-  app:draw()
+  cls()
+  flow:render()
 end
