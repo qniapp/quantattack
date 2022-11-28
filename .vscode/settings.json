@@ -106,7 +106,8 @@
     "render_plasma",
     "pset",
     "print_outlined",
-    "ceil_rnd"
+    "ceil_rnd",
+    "flip"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,
