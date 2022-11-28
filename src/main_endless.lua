@@ -1,16 +1,16 @@
-require("app/endless")
-
-local app = app_endless()
+local flow = require("lib/flow")
+local endless = require("endless/endless")
 
 function _init()
-  app.initial_gamestate = ':endless'
-  app:start()
+  flow:add_gamestate(endless())
+  flow:query_gamestate_type(":endless")
 end
 
 function _update60()
-  app:update()
+  flow:update()
 end
 
 function _draw()
-  app:draw()
+  cls()
+  flow:render()
 end
