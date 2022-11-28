@@ -302,7 +302,7 @@ function create_board(__offset_x, __cols)
 
     _random_single_gate = function(_ENV)
       local single_gate_types = split('h,x,y,z,s,t')
-      local gate_type = single_gate_types[flr(rnd(#single_gate_types)) + 1]
+      local gate_type = single_gate_types[ceil_rnd(#single_gate_types)]
 
       return gate(gate_type)
     end,
@@ -387,7 +387,7 @@ function create_board(__offset_x, __cols)
         local control_x, cnot_x_x
 
         repeat
-          control_x, cnot_x_x = flr(rnd(cols)) + 1, flr(rnd(cols)) + 1
+          control_x, cnot_x_x = ceil_rnd(cols), ceil_rnd(cols)
         until control_x ~= cnot_x_x
 
         local control_gate = gate("control")

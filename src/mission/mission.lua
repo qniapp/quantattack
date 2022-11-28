@@ -26,17 +26,17 @@ local reduction_rules = require("lib/reduction_rules")
 
 require("lib/attack_bubble")
 
-function shuffle(t)
+local function shuffle(t)
   -- do a fisher-yates shuffle
   for i = #t, 1, -1 do
-    local j = flr(rnd(i)) + 1
+    local j = ceil_rnd(i)
     t[i], t[j] = t[j], t[i]
   end
 
   return t
 end
 
-function cat(f, ...)
+local function cat(f, ...)
   for i, s in pairs({ ... }) do
     for k, v in pairs(s) do
       if tonum(k) then
@@ -87,7 +87,7 @@ local tasks_level6 = {
 }
 local tasks = cat(tasks_level1, tasks_level2, tasks_level3, tasks_level4, tasks_level5, tasks_level6)
 
-function set_task()
+local function set_task()
   current_task = tasks[task_number]
   if current_task == nil then
     board.win = true
@@ -96,10 +96,10 @@ function set_task()
   end
 end
 
-function render_current_task(x, y, animate_match)
+local function render_current_task(x, y, animate_match)
   local random_color = nil
   if animate_match then
-    random_color = rnd(16)
+    random_color = ceil_rnd(15)
   end
 
   for i, row in pairs(current_task[1]) do
@@ -244,8 +244,8 @@ function mission:render() -- override
   if current_task then
     local pattern_box_dx, pattern_box_dy = 0, 0
     if pattern_box_state == ":shake" then
-      pattern_box_dx = (flr(rnd(3)) - 1) * 2
-      pattern_box_dy = (flr(rnd(3)) - 1) * 2
+      pattern_box_dx = (ceil_rnd(3) - 2) * 2
+      pattern_box_dy = (ceil_rnd(3) - 2) * 2
     end
 
     local pattern_box_x = board.offset_x + board.width + 10 + cos(t() / 1.5) * 2 + pattern_box_dx

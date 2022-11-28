@@ -203,7 +203,7 @@ function create_qpu(cursor, board)
         add(commands, direction)
 
         if sleep and not quick then
-          add_sleep_command(_ENV, 5 + flr(rnd(10)))
+          add_sleep_command(_ENV, 5 + ceil_rnd(10))
         end
       end
     end,

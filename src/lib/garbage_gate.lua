@@ -29,7 +29,7 @@ local inner_border_colors = { nil, 14, 11, 9 }
 --- @return GarbageGate
 function garbage_gate(_span, _height, _color)
   local garbage = setmetatable({
-    body_color = _color or garbage_gate_colors[flr(rnd(#garbage_gate_colors)) + 1],
+    body_color = _color or garbage_gate_colors[ceil_rnd(#garbage_gate_colors)],
     first_drop = true,
     _render_box = draw_rounded_box,
 

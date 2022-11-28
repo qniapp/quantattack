@@ -64,8 +64,8 @@ function create_pending_garbage_gates()
             board:put(first_garbage_gate.x, 1, first_garbage_gate)
             first_garbage_gate:fall()
           else
-            first_garbage_gate.dx = flr(rnd(3)) - 1
-            first_garbage_gate.dy = flr(rnd(3)) - 1
+            first_garbage_gate.dx = ceil_rnd(3) - 2
+            first_garbage_gate.dy = ceil_rnd(3) - 2
             first_garbage_gate.tick_fall = first_garbage_gate.tick_fall - 1
           end
         elseif first_garbage_gate.wait_time == 0 then
@@ -74,7 +74,7 @@ function create_pending_garbage_gates()
           if first_garbage_gate.span == 6 then
             x = 1
           else
-            x = flr(rnd(board.cols - first_garbage_gate.span + 1)) + 1
+            x = ceil_rnd(board.cols - first_garbage_gate.span + 1)
           end
 
           for i = x, x + first_garbage_gate.span - 1 do

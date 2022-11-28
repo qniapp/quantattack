@@ -105,7 +105,8 @@
     "ripple_speed",
     "render_plasma",
     "pset",
-    "print_outlined"
+    "print_outlined",
+    "ceil_rnd"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,

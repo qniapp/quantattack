@@ -37,12 +37,12 @@ function create_particle(x, y, radius, end_radius, __color, __color_fade, dx, dy
 
   if dx == "random" or dy == "random" then
     -- move to the left
-    if flr(rnd(2)) == 0 then
+    if ceil_rnd(2) == 1 then
       _dx, _ddx = _dx * -1, _ddx * -1
     end
 
     -- move upwards
-    if flr(rnd(2)) == 0 then
+    if ceil_rnd(2) == 1 then
       _dy, _ddy = _dy * -1, _ddy * -1
     end
   end
