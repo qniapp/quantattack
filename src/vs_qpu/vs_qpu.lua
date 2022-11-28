@@ -3,10 +3,7 @@ require("lib/player")
 require("lib/player_cursor")
 require("lib/qpu")
 
-local flow = require("lib/flow")
-local gamestate = require("lib/gamestate")
-local vs_qpu = derived_class(gamestate)
-
+local vs_qpu = new_class()
 local game_class = require("lib/game")
 local game = game_class()
 
@@ -16,9 +13,11 @@ board.attack_cube_target, qpu_board.attack_cube_target = { 78 + 24, 0 }, { 3 + 2
 local player_cursor, qpu_cursor = create_player_cursor(board), create_player_cursor(qpu_board)
 local player, qpu = create_player(), create_qpu(qpu_cursor, qpu_board)
 
-vs_qpu.type = ':vs_qpu'
+function vs_qpu:_init()
+  -- NOP
+end
 
-function vs_qpu:on_enter()
+function vs_qpu:init()
   player:init()
   board:init()
   board:put_random_gates()
@@ -41,7 +40,7 @@ function vs_qpu:update()
     if t() - game.game_over_time > 2 then
       board.show_gameover_menu = true
       if btnp(4) then -- x でリプレイ
-        flow:query_gamestate_type(":vs_qpu")
+        vs_qpu:init()
       elseif btnp(5) then -- z でタイトルへ戻る
         load('qitaev_title')
       end
