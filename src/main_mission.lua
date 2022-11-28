@@ -1,18 +1,16 @@
--- must require at main top, to be used in any required modules from here
--- require("engine/pico8/api")
-
-local app_mission = require("app/mission")
-local app = app_mission()
+local flow = require("lib/flow")
+local mission = require("mission/mission")
 
 function _init()
-  app.initial_gamestate = ':mission'
-  app:start()
+  flow:add_gamestate(mission())
+  flow:query_gamestate_type(":mission")
 end
 
 function _update60()
-  app:update()
+  flow:update()
 end
 
 function _draw()
-  app:draw()
+  cls()
+  flow:render()
 end

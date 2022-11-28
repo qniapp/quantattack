@@ -1,4 +1,4 @@
-local flow = require("engine/application/flow")
+local flow = require("lib/flow")
 
 require("lib/board")
 
@@ -11,8 +11,8 @@ local player = create_player()
 require("lib/player_cursor")
 local player_cursor = create_player_cursor(board)
 
-local game_class = require("mission/game")
-local game = game_class()
+require("mission/game")
+local mission_game = game()
 
 local gamestate = require("lib/gamestate")
 local mission = derived_class(gamestate)
@@ -158,7 +158,7 @@ match_dx = nil
 pattern_box_state = nil
 tick_pattern_box_shake = 0
 
-function game.reduce_callback(score, x, y, player, pattern, dx)
+function mission_game.reduce_callback(score, x, y, player, pattern, dx)
   if current_task and current_task[5] == pattern then
     state = ":matching"
     match_dx = dx
@@ -192,28 +192,28 @@ function mission:on_enter()
 
   player_cursor:init()
 
-  game:init()
-  game:add_player(player, player_cursor, board)
+  mission_game:init()
+  mission_game:add_player(player, player_cursor, board)
 
   set_task()
 end
 
 function mission:update()
-  game:update()
+  mission_game:update()
 
   if player.steps > last_steps then
     -- 10 ステップごとに
     --   * ゲートをせり上げるスピードを上げる
     if player.steps > 0 and player.steps % 10 == 0 then
-      if game.auto_raise_frame_count > 10 then
-        game.auto_raise_frame_count = game.auto_raise_frame_count - 1
+      if mission_game.auto_raise_frame_count > 10 then
+        mission_game.auto_raise_frame_count = mission_game.auto_raise_frame_count - 1
       end
     end
     last_steps = player.steps
   end
 
-  if game:is_game_over() then
-    if t() - game.game_over_time > 2 then
+  if mission_game:is_game_over() then
+    if t() - mission_game.game_over_time > 2 then
       board.show_gameover_menu = true
       if btnp(4) then -- x でリプレイ
         flow:query_gamestate_type(":mission")
@@ -259,7 +259,7 @@ function mission:render() -- override
     render_current_task(pattern_box_x + 15, pattern_box_y + 22)
   end
 
-  game:render()
+  mission_game:render()
 
   if state == ":matching" then
     render_current_task(match_screen_x, match_screen_y, true)

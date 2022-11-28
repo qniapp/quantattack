@@ -1,6 +1,6 @@
 ---@diagnostic disable: discard-returns
 
-local flow = require("engine/application/flow")
+local flow = require("lib/flow")
 
 -- text menu: class representing a menu with labels and arrow-based navigation
 local text_menu = new_class()
@@ -70,7 +70,7 @@ function text_menu:draw(left, top)
     else
       label = "  " .. label
     end
-    api.print(label, left, y, 7)
+    print(label, left, y, 7)
     y = y + 8
   end
 end
