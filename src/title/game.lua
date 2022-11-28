@@ -1,9 +1,10 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
 local attack_bubble = require("lib/attack_bubble")
-require("lib/bubble")
+local particle = require("lib/particle")
+local bubble = require("lib/bubble")
+
 require("lib/helpers")
-require("lib/particle")
 
 title_logo_bounce_speed, title_logo_bounce_screen_dy = 0, 0
 
@@ -93,8 +94,8 @@ function game()
         player_cursor:update()
       end
 
-      update_particles()
-      update_bubbles()
+      particle:update()
+      bubble:update()
       attack_bubble:update()
     end,
 
@@ -104,9 +105,9 @@ function game()
         each.player_cursor:render()
       end
 
-      render_particles()
-      render_bubbles()
-      attack_bubble:render()
+      particle:render_all()
+      bubble:render_all()
+      attack_bubble:render_all()
     end,
 
     -- ゲートをせりあげる

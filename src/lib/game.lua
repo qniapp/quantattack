@@ -2,10 +2,10 @@ require("lib/helpers")
 
 local game = new_class()
 local attack_bubble = require("lib/attack_bubble")
+local particle = require("lib/particle")
+local bubble = require("lib/bubble")
 
-require("lib/bubble")
 require("lib/helpers")
-require("lib/particle")
 require("lib/ripple")
 
 local all_players, countdown
@@ -28,7 +28,7 @@ function game.combo_callback(combo_count, x, y, player, board, other_board)
     end
   end
 
-  create_bubble("combo", combo_count, board:screen_x(x), board:screen_y(y))
+  bubble:create("combo", combo_count, board:screen_x(x), board:screen_y(y))
   attack_bubble:create(
     board:screen_x(x), board:screen_y(y),
     attack_cube_callback,
@@ -79,7 +79,7 @@ function game.chain_callback(chain_id, chain_count, x, y, player, board, other_b
       end
     end
 
-    create_bubble("chain", chain_count, board:screen_x(x), board:screen_y(y))
+    bubble:create("chain", chain_count, board:screen_x(x), board:screen_y(y))
     attack_bubble:create(
       board:screen_x(x), board:screen_y(y),
       attack_cube_callback,
@@ -195,8 +195,8 @@ function game:update()
     end
   end
 
-  update_particles()
-  update_bubbles()
+  particle:update()
+  bubble:update()
   attack_bubble:update()
 
   if not self:is_game_over() then
@@ -247,9 +247,9 @@ function game:render() -- override
     end
   end
 
-  render_particles()
-  render_bubbles()
-  attack_bubble:render()
+  particle:render_all()
+  bubble:render_all()
+  attack_bubble:render_all()
 
   -- print_outlined(stat(1), 101, 112, 7)
   -- print_outlined(stat(7), 117, 120, 7)

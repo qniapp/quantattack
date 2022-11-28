@@ -1,8 +1,8 @@
 local attack_bubble = require("lib/attack_bubble")
+local particle = require("lib/particle")
+local bubble = require("lib/bubble")
 
-require("lib/bubble")
 require("lib/helpers")
-require("lib/particle")
 require("lib/ripple")
 
 local all_players, countdown
@@ -112,8 +112,8 @@ function game()
         end
       end
 
-      update_particles()
-      update_bubbles()
+      particle:update()
+      bubble:update()
       attack_bubble:update()
 
       if not is_game_over(_ENV) then
@@ -162,9 +162,9 @@ function game()
         end
       end
 
-      render_particles()
-      render_bubbles()
-      attack_bubble:render()
+      particle:render_all()
+      bubble:render_all()
+      attack_bubble:render_all()
 
       -- print_outlined(stat(1), 101, 112, 7)
       -- print_outlined(stat(7), 117, 120, 7)
