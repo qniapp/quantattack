@@ -6,6 +6,7 @@ require("lib/garbage_gate")
 require("lib/pending_garbage_gates")
 require("lib/helpers")
 
+local gate = require("lib/gate")
 local reduction_rules = require("lib/reduction_rules")
 
 function create_board(__offset_x, __cols)

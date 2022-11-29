@@ -2,7 +2,7 @@ require("engine/test/bustedhelper")
 require("engine/debug/dump")
 require("lib/test_helper")
 
-describe('x_gate', function()
+describe('x_gate #solo', function()
   local x
 
   before_each(function()

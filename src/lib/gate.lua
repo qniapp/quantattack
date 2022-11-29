@@ -1,6 +1,4 @@
----@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
-
-local particle = require("lib/particle")
+---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments, undefined-field, undefined-global
 
 gate_match_animation_frame_count = 45
 gate_match_delay_per_gate = 8
@@ -58,13 +56,12 @@ local state_string = {
 --- @field replace_with function
 --- @field new_gate Gate
 --- @field change_state function
-
+local gate = new_class()
 
 --- @param type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "!" gate type
 --- @param span? 1 | 2 | 3 | 4 | 5 | 6 span of the gate
 --- @param height? integer height of the gate
---- @return Gate
-function gate(type, span, height)
+function gate:_init(type, span, height)
   --#if assert
   assert(type == "i" or type == "h" or type == "x" or type == "y" or type == "z" or
     type == "s" or type == "t" or type == "control" or type == "cnot_x" or type == "swap" or
@@ -72,266 +69,242 @@ function gate(type, span, height)
     "invalid type: " .. type)
   --#endif
 
-  local gate_base = setmetatable({
-    type = type,
-    span = span or 1,
-    height = height or 1,
-    sprite_set = sprites[type],
-
-    --- @param _ENV Gate
-    _init = function(_ENV)
-      _state, _fall_screen_dy = "idle", 0
-      return _ENV
-    end,
-
-    -------------------------------------------------------------------------------
-    -- ゲートの種類と状態
-    -------------------------------------------------------------------------------
-
-    --- @param _ENV Gate
-    is_idle = function(_ENV)
-      return _state == "idle"
-    end,
-
-    --- @param _ENV Gate
-    is_fallable = function(_ENV)
-      return not (type == "i" or type == "!" or is_swapping(_ENV) or is_freeze(_ENV))
-    end,
-
-    --- @param _ENV Gate
-    is_falling = function(_ENV)
-      return _state == "falling"
-    end,
-
-    --- @param _ENV Gate
-    is_reducible = function(_ENV)
-      return type ~= "i" and type ~= "!" and is_idle(_ENV)
-    end,
-
-    -- マッチ状態である場合 true を返す
-    --- @param _ENV Gate
-    is_match = function(_ENV)
-      return _state == "match"
-    end,
-
-    -- おじゃまユニタリがゲートに変化した後の硬直中
-    --- @param _ENV Gate
-    is_freeze = function(_ENV)
-      return _state == "freeze"
-    end,
-
-    --- @param _ENV Gate
-    is_swapping = function(_ENV)
-      return _is_swapping_with_right(_ENV) or _is_swapping_with_left(_ENV)
-    end,
-
-    --- @private
-    --- @param _ENV Gate
-    _is_swapping_with_left = function(_ENV)
-      return _state == "swapping_with_left"
-    end,
-
-    --- @private
-    --- @param _ENV Gate
-    _is_swapping_with_right = function(_ENV)
-      return _state == "swapping_with_right"
-    end,
-
-    --- @param _ENV Gate
-    is_empty = function(_ENV)
-      return type == "i" and not is_swapping(_ENV)
-    end,
-
-    --- @param _ENV Gate
-    is_single_gate = function(_ENV)
-      return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
-    end,
-
-    -------------------------------------------------------------------------------
-    -- ゲート操作
-    -------------------------------------------------------------------------------
-
-    --- @param _ENV Gate
-    swap_with_right = function(_ENV)
-      chain_id = nil
-
-      change_state(_ENV, "swapping_with_right")
-    end,
-
-    --- @param _ENV Gate
-    swap_with_left = function(_ENV)
-      chain_id = nil
-
-      change_state(_ENV, "swapping_with_left")
-    end,
-
-    --- @param _ENV Gate
-    fall = function(_ENV)
-      --#if assert
-      assert(is_fallable(_ENV), "gate " .. type .. "(" .. x .. ", " .. y .. ")")
-      --#endif
-
-      if is_falling(_ENV) then
-        return
-      end
-
-      _fall_screen_dy = 0
-
-      change_state(_ENV, "falling")
-    end,
-
-    --- @param _ENV Gate
-    --- @param other Gate
-    --- @param match_index integer
-    --- @param _chain_id string
-    --- @param garbage_span? integer
-    --- @param garbage_height? integer
-    replace_with = function(_ENV, other, match_index, _chain_id, garbage_span, garbage_height)
-      new_gate, _match_index, _tick_match, chain_id, other.chain_id, _garbage_span, _garbage_height =
-      other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height
-
-      change_state(_ENV, "match")
-    end,
-
-    -------------------------------------------------------------------------------
-    -- update and render
-    -------------------------------------------------------------------------------
-
-    --- @param _ENV Gate
-    update = function(_ENV)
-      if is_idle(_ENV) then
-        if _tick_landed then
-          _tick_landed = _tick_landed + 1
-
-          if _tick_landed == 13 then
-            _tick_landed = nil
-          end
-        end
-      elseif is_swapping(_ENV) then
-        if _tick_swap < gate_swap_animation_frame_count then
-          _tick_swap = _tick_swap + 1
-        else
-          chain_id = nil
-          change_state(_ENV, "idle")
-        end
-      elseif is_falling(_ENV) then
-        -- NOP
-      elseif is_match(_ENV) then
-        if _tick_match <= gate_match_animation_frame_count + _match_index * gate_match_delay_per_gate then
-          _tick_match = _tick_match + 1
-        else
-          sfx(3, -1, (_match_index % 6 - 1) * 4, 4)
-          change_state(_ENV, "idle")
-
-          if _garbage_span then
-            new_gate._tick_freeze = 0
-            new_gate._freeze_frame_count = (_garbage_span * _garbage_height - _match_index) * gate_match_delay_per_gate
-            new_gate:change_state("freeze")
-          end
-        end
-      elseif is_freeze(_ENV) then
-        if _tick_freeze < _freeze_frame_count then
-          _tick_freeze = _tick_freeze + 1
-        else
-          change_state(_ENV, "idle")
-        end
-      end
-    end,
-
-    --- @param _ENV Gate
-    --- @param screen_x integer x position of the screen
-    --- @param screen_y integer y position of the screen
-    render = function(_ENV, screen_x, screen_y)
-      if type == "i" then
-        return
-      end
-
-      local swap_screen_dx = (_tick_swap or 0) * (8 / gate_swap_animation_frame_count)
-      if _is_swapping_with_left(_ENV) then
-        swap_screen_dx = -swap_screen_dx
-      end
-
-      local shake_dx, shake_dy, sprite = 0, 0
-
-      if is_idle(_ENV) and _tick_landed then
-        sprite = sprite_set.landed[_tick_landed]
-      elseif is_match(_ENV) then
-        local sequence = sprite_set.match
-        sprite = _tick_match <= gate_match_delay_per_gate and sequence[_tick_match] or sequence[#sequence]
-      elseif _state == "over" then
-        shake_dx, shake_dy = rnd(2) - 1, rnd(2) - 1
-        sprite = sprite_set.match[#sprite_set.match]
-      else
-        sprite = sprite_set.default
-      end
-
-      if type == "!" then
-        palt(0, false)
-        pal(13, body_color)
-      end
-
-      if _state == "over" then
-        pal(13, 9)
-        pal(7, 1)
-      end
-
-      spr(sprite, screen_x + swap_screen_dx + shake_dx, screen_y + _fall_screen_dy + shake_dy)
-
-      palt()
-      pal()
-    end,
-
-    -------------------------------------------------------------------------------
-    -- observer pattern
-    -------------------------------------------------------------------------------
-
-    --- @param _ENV Gate
-    --- @param _observer table
-    attach = function(_ENV, _observer)
-      observer = _observer
-    end,
-
-    --- @param _ENV Gate
-    --- @param new_state string
-    change_state = function(_ENV, new_state)
-      _tick_swap = 0
-
-      local old_state = _state
-      _state = new_state
-      observer:observable_update(_ENV, old_state)
-    end,
-
-    -------------------------------------------------------------------------------
-    -- debug
-    -------------------------------------------------------------------------------
-
-    --#if debug
-    --- @param _ENV Gate
-    _tostring = function(_ENV)
-      return (type_string[type] or type) .. state_string[_state]
-    end
-    --#endif
-  }, { __index = _ENV })
-
-  gate_base:_init()
+  self.type = type
+  self.span = span or 1
+  self.height = height or 1
+  self.sprite_set = sprites[type]
+  self._state = "idle"
+  self._fall_screen_dy = 0
 
   --#if assert
-  assert(0 < gate_base.span, "span must be greater than 0")
-  assert(gate_base.span < 7, "span must be less than 7")
-  assert(type == "g" or
-    ((type == "i" or type == "h" or type == "x" or type == "y" or type == "z" or
-        type == "s" or type == "t" or
-        type == "control" or type == "cnot_x" or type == "swap" or type == "!") and
-        gate_base.span == 1),
-    "invalid span: " .. gate_base.span)
-  assert(gate_base.height > 0, "height must be greater than 0")
-  assert(type == "g" or
-    ((type == "i" or type == "h" or type == "x" or type == "y" or type == "z" or
-        type == "s" or type == "t" or
-        type == "control" or type == "cnot_x" or type == "swap" or type == "!") and
-        gate_base.height == 1),
-    "invalid height: " .. gate_base.height)
+  assert(0 < self.span, "span must be greater than 0")
+  assert(self.span < 7, "span must be less than 7")
+  assert(self.type == "g" or
+    ((self.type == "i" or self.type == "h" or self.type == "x" or self.type == "y" or self.type == "z" or
+        self.type == "s" or self.type == "t" or
+        self.type == "control" or self.type == "cnot_x" or self.type == "swap" or self.type == "!") and
+        self.span == 1),
+    "invalid span: " .. self.span)
+  assert(self.height > 0, "height must be greater than 0")
+  assert(self.type == "g" or
+    ((self.type == "i" or self.type == "h" or self.type == "x" or self.type == "y" or self.type == "z" or
+        self.type == "s" or self.type == "t" or
+        self.type == "control" or self.type == "cnot_x" or self.type == "swap" or self.type == "!") and
+        self.height == 1),
+    "invalid height: " .. self.height)
+  --#endif
+end
+
+-------------------------------------------------------------------------------
+-- ゲートの種類と状態
+-------------------------------------------------------------------------------
+
+function gate:is_idle()
+  return self._state == "idle"
+end
+
+function gate:is_fallable()
+  return not (self.type == "i" or self.type == "!" or self:is_swapping() or self:is_freeze())
+end
+
+function gate:is_falling()
+  return self._state == "falling"
+end
+
+function gate:is_reducible()
+  return self.type ~= "i" and self.type ~= "!" and self:is_idle()
+end
+
+-- マッチ状態である場合 true を返す
+function gate:is_match()
+  return self._state == "match"
+end
+
+-- おじゃまユニタリがゲートに変化した後の硬直中
+function gate:is_freeze()
+  return self._state == "freeze"
+end
+
+function gate:is_swapping()
+  return self:_is_swapping_with_right() or self:_is_swapping_with_left()
+end
+
+--- @private
+function gate:_is_swapping_with_left()
+  return self._state == "swapping_with_left"
+end
+
+--- @private
+function gate:_is_swapping_with_right()
+  return self._state == "swapping_with_right"
+end
+
+function gate:is_empty()
+  return self.type == "i" and not self:is_swapping()
+end
+
+function gate:is_single_gate()
+  return self.type == 'h' or self.type == 'x' or self.type == 'y' or self.type == 'z' or self.type == 's' or
+      self.type == 't'
+end
+
+-------------------------------------------------------------------------------
+-- ゲート操作
+-------------------------------------------------------------------------------
+
+function gate:swap_with_right()
+  self.chain_id = nil
+
+  self:change_state("swapping_with_right")
+end
+
+function gate:swap_with_left()
+  self.chain_id = nil
+
+  self:change_state("swapping_with_left")
+end
+
+function gate:fall()
+  --#if assert
+  assert(self:is_fallable(), "gate " .. self.type .. "(" .. self.x .. ", " .. self.y .. ")")
   --#endif
 
-  return gate_base
+  if self:is_falling() then
+    return
+  end
+
+  self._fall_screen_dy = 0
+
+  self:change_state("falling")
 end
+
+--- @param other Gate
+--- @param match_index integer
+--- @param _chain_id string
+--- @param garbage_span? integer
+--- @param garbage_height? integer
+function gate:replace_with(other, match_index, _chain_id, garbage_span, garbage_height)
+  self.new_gate, self._match_index, self._tick_match, self.chain_id, other.chain_id, self._garbage_span,
+      self._garbage_height =
+  other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height
+
+  self:change_state("match")
+end
+
+-------------------------------------------------------------------------------
+-- update and render
+-------------------------------------------------------------------------------
+
+function gate:update()
+  if self:is_idle() then
+    if self._tick_landed then
+      self._tick_landed = self._tick_landed + 1
+
+      if self._tick_landed == 13 then
+        self._tick_landed = nil
+      end
+    end
+  elseif self:is_swapping() then
+    if self._tick_swap < gate_swap_animation_frame_count then
+      self._tick_swap = self._tick_swap + 1
+    else
+      self.chain_id = nil
+      self:change_state("idle")
+    end
+  elseif self:is_falling() then
+    -- NOP
+  elseif self:is_match() then
+    if self._tick_match <= gate_match_animation_frame_count + self._match_index * gate_match_delay_per_gate then
+      self._tick_match = self._tick_match + 1
+    else
+      sfx(3, -1, (self._match_index % 6 - 1) * 4, 4)
+      self:change_state("idle")
+
+      if self._garbage_span then
+        self.new_gate._tick_freeze = 0
+        self.new_gate._freeze_frame_count = (self._garbage_span * self._garbage_height - self._match_index) *
+            gate_match_delay_per_gate
+        self.new_gate:change_state("freeze")
+      end
+    end
+  elseif self:is_freeze() then
+    if self._tick_freeze < self._freeze_frame_count then
+      self._tick_freeze = self._tick_freeze + 1
+    else
+      self:change_state("idle")
+    end
+  end
+end
+
+--- @param screen_x integer x position of the screen
+--- @param screen_y integer y position of the screen
+function gate:render(screen_x, screen_y)
+  if self.type == "i" then
+    return
+  end
+
+  local swap_screen_dx = (self._tick_swap or 0) * (8 / gate_swap_animation_frame_count)
+  if self:_is_swapping_with_left() then
+    swap_screen_dx = -swap_screen_dx
+  end
+
+  local shake_dx, shake_dy, sprite = 0, 0
+
+  if self:is_idle() and self._tick_landed then
+    sprite = self.sprite_set.landed[_tick_landed]
+  elseif self:is_match() then
+    local sequence = self.sprite_set.match
+    sprite = self._tick_match <= gate_match_delay_per_gate and sequence[self._tick_match] or sequence[#sequence]
+  elseif _state == "over" then
+    shake_dx, shake_dy = rnd(2) - 1, rnd(2) - 1
+    sprite = self.sprite_set.match[#sprite_set.match]
+  else
+    sprite = self.sprite_set.default
+  end
+
+  if type == "!" then
+    palt(0, false)
+    pal(13, self.body_color)
+  end
+
+  if _state == "over" then
+    pal(13, 9)
+    pal(7, 1)
+  end
+
+  spr(sprite, screen_x + swap_screen_dx + shake_dx, screen_y + self._fall_screen_dy + shake_dy)
+
+  palt()
+  pal()
+end
+
+-------------------------------------------------------------------------------
+-- observer pattern
+-------------------------------------------------------------------------------
+
+--- @param observer table
+function gate:attach(observer)
+  self.observer = observer
+end
+
+--- @param new_state string
+function gate:change_state(new_state)
+  self._tick_swap = 0
+
+  local old_state = self._state
+  self._state = new_state
+  self.observer:observable_update(self, old_state)
+end
+
+-------------------------------------------------------------------------------
+-- debug
+-------------------------------------------------------------------------------
+
+--#if debug
+function gate:_tostring()
+  return (type_string[self.type] or self.type) .. state_string[self._state]
+end
+
+--#endif
+
+return gate

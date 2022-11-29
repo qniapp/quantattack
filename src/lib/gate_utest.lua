@@ -2,7 +2,9 @@ require("engine/test/bustedhelper")
 require("lib/test_helper")
 require("lib/board")
 
-describe('gate', function()
+local gate = require("lib/gate")
+
+describe('gate #solo', function()
   describe('type', function()
     it("type を指定", function()
       local g = gate("i")
