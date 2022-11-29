@@ -27,7 +27,7 @@ end
 local attack_cube_callback = function(target_x, target_y)
   bounce_title_logo()
   sfx(10)
-  create_particle_set(target_x, target_y,
+  particle:create_chunk(target_x, target_y,
     "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
 end
 

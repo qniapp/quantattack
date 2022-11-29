@@ -10,8 +10,8 @@ describe('particle #solo', function()
 
   describe('create', function()
     it("creates a particle", function()
-      particle:create(1, 1, 1, 1, 7, 5, 1, 1, 1, 1, 10)
-      particle:create(2, 2, 2, 2, 8, 11, 1, 1, 1, 1, 20)
+      particle:_create(1, 1, 1, 1, 7, 5, 1, 1, 1, 1, 10)
+      particle:_create(2, 2, 2, 2, 8, 11, 1, 1, 1, 1, 20)
 
       assert.are_equal(2, #particle.all)
 
@@ -33,7 +33,7 @@ describe('particle #solo', function()
 
   describe('update', function()
     it("updates all partciles", function()
-      particle:create(1, 1, 1, 1, 7, 5, 1, 1, 1, 1, 20)
+      particle:_create(1, 1, 1, 1, 7, 5, 1, 1, 1, 1, 20)
 
       assert.are_equal(1, #particle.all)
 
@@ -45,7 +45,7 @@ describe('particle #solo', function()
 
   describe('render', function()
     it("renders all particles", function()
-      particle:create(1, 1, 1, 1, 7, 5, 1, 1, 1, 1, 20)
+      particle:_create(1, 1, 1, 1, 7, 5, 1, 1, 1, 1, 20)
 
       assert.has_no.errors(function()
         particle:render_all()

@@ -4,7 +4,13 @@ local effect_set = require("lib/effect_set")
 local particle_class = derived_class(effect_set)
 local particle = particle_class()
 
-function particle:create(x, y, radius, end_radius, __color, __color_fade, dx, dy, ddx, ddy, max_tick)
+function particle:create_chunk(x, y, data)
+  for _, each in pairs(split(data, "|")) do
+    self:_create(x, y, unpack(split(each)))
+  end
+end
+
+function particle:_create(x, y, radius, end_radius, __color, __color_fade, dx, dy, ddx, ddy, max_tick)
   self:_add(function(_ENV)
     _x, _y, _radius, _end_radius, _color, _color_fade, _tick, _max_tick, _ddx, _ddy =
     x, y, radius, end_radius, __color, __color_fade, 0, max_tick + rnd(10), ddx, ddy
@@ -40,12 +46,6 @@ end
 
 function particle._render(_ENV)
   circfill(_x, _y, _radius, _color)
-end
-
-function create_particle_set(x, y, data)
-  for _, each in pairs(split(data, "|")) do
-    particle:create(x, y, unpack(split(each)))
-  end
 end
 
 return particle

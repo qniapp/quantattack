@@ -5,7 +5,6 @@ local attack_bubble = require("lib/attack_bubble")
 local particle = require("lib/particle")
 local bubble = require("lib/bubble")
 
-require("lib/helpers")
 require("lib/ripple")
 
 local all_players, countdown
@@ -17,7 +16,7 @@ end
 function game.combo_callback(combo_count, x, y, player, board, other_board)
   local attack_cube_callback = function(target_x, target_y)
     sfx(12)
-    create_particle_set(target_x, target_y,
+    particle:create_chunk(target_x, target_y,
       "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
 
     player.score = player.score + combo_count
@@ -44,7 +43,7 @@ function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, o
   if offset_height > 2 then
     local attack_cube_callback = function(target_x, target_y)
       sfx(12)
-      create_particle_set(target_x, target_y,
+      particle:create_chunk(target_x, target_y,
         "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
 
       player.score = player.score + (chain_bonus[chain_count] or 180)
@@ -68,7 +67,7 @@ function game.chain_callback(chain_id, chain_count, x, y, player, board, other_b
   if chain_count > 2 then
     local attack_cube_callback = function(target_x, target_y)
       sfx(12)
-      create_particle_set(target_x, target_y,
+      particle:create_chunk(target_x, target_y,
         "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
 
       player.score = player.score + (chain_bonus[chain_count] or 180)

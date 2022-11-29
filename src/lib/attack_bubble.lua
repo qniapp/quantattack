@@ -1,12 +1,5 @@
 ---@diagnostic disable: lowercase-global, global-in-nil-env
 
--- 7745
---
--- 7770
--- 7794
--- 7818
--- 7823
-
 local effect_set = require("lib/effect_set")
 local attack_bubble_class = derived_class(effect_set)
 local attack_bubble = attack_bubble_class()

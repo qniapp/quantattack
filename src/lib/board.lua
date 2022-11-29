@@ -1,5 +1,7 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
+local particle = require("lib/particle")
+
 require("lib/garbage_gate")
 require("lib/pending_garbage_gates")
 require("lib/helpers")
@@ -485,7 +487,7 @@ function create_board(__offset_x, __cols)
                 gates[x][y]._state = "over"
               elseif tick_over == 20 then
                 gates[x][y] = gate("i")
-                create_particle_set(screen_x(_ENV, x), screen_y(_ENV, y),
+                particle:create_chunk(screen_x(_ENV, x), screen_y(_ENV, y),
                   "5,5,9,7,random,random,-0.03,-0.03,40|5,5,9,7,random,random,-0.03,-0.03,40|4,4,9,7,random,random,-0.03,-0.03,40|4,4,2,5,random,random,-0.03,-0.03,40|4,4,6,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|0,0,2,5,random,random,-0.03,-0.03,40")
               end
             end
@@ -858,11 +860,11 @@ function create_board(__offset_x, __cols)
         --#endif
 
         if right_gate.type ~= "i" then
-          create_particle_set(screen_x(_ENV, x) - 2, screen_y(_ENV, y) + 3,
+          particle:create_chunk(screen_x(_ENV, x) - 2, screen_y(_ENV, y) + 3,
             "1,1,10,10,-1,-0.8,0.05,0.05,3|1,1,10,10,-1,0,0.05,0,5|1,1,10,10,-1,0.8,0.05,-0.05,3")
         end
         if type ~= "i" then
-          create_particle_set(screen_x(_ENV, new_x) + 10, screen_y(_ENV, y) + 3,
+          particle:create_chunk(screen_x(_ENV, new_x) + 10, screen_y(_ENV, y) + 3,
             "1,1,10,10,1,-0.8,-0.05,0.05,3|1,1,10,10,1,0,-0.05,0,5|1,1,10,10,1,0.8,-0.05,-0.05,3")
         end
 
@@ -886,7 +888,7 @@ function create_board(__offset_x, __cols)
 
       if old_state == "match" and gate:is_idle() then
         put(_ENV, x, y, gate.new_gate)
-        create_particle_set(screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3,
+        particle:create_chunk(screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3,
           "2,1,7,5,-1,-1,0.05,0.05,16|2,1,7,5,1,-1,-0.05,0.05,16|2,1,7,5,-1,1,0.05,0.05,16|2,1,7,5,1,1,-0.05,-0.05,16")
         return
       end
