@@ -41,6 +41,7 @@ function new_class()
   class.__index = class
 
   setmetatable(class, {
+    __index = _ENV,
     __call = new
   })
 

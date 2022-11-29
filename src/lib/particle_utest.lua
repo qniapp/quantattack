@@ -1,7 +1,7 @@
 require("engine/test/bustedhelper")
 local particle = require("lib/particle")
 
-describe('particle #solo', function()
+describe('particle', function()
   before_each(function()
     for i = 1, 100 do
       particle:update_all()
