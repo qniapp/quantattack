@@ -1,12 +1,11 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments, undefined-field, undefined-global
 
-gate_match_animation_frame_count,
-    gate_match_delay_per_gate,
-    gate_swap_animation_frame_count,
-    gate_fall_speed =
-45, 8, 4, 2
+local gate_match_animation_frame_count,
+gate_match_delay_per_gate,
+gate_swap_animation_frame_count =
+45, 8, 4
 
-sprites = {
+local sprites = {
   -- default|landed|match
   h = "0|16,16,16,16,48,48,32,32,32,16,16,16|9,9,9,25,25,25,9,9,9,41,41,41,0,0,0,57",
   x = "1|17,17,17,17,49,49,33,33,33,17,17,17|10,10,10,26,26,26,10,10,10,42,42,42,1,1,1,58",
@@ -82,8 +81,8 @@ function gate:is_falling()
   return self._state == "falling"
 end
 
-function gate:is_reducible()
-  return self.type ~= "i" and self.type ~= "!" and self:is_idle()
+function gate.is_reducible(_ENV)
+  return type ~= "i" and type ~= "!" and is_idle(_ENV)
 end
 
 -- マッチ状態である場合 true を返す
@@ -162,43 +161,41 @@ end
 -- update and render
 -------------------------------------------------------------------------------
 
-function gate:update()
-  if self:is_idle() then
-    if self._tick_landed then
-      self._tick_landed = self._tick_landed + 1
+function gate.update(_ENV)
+  if is_idle(_ENV) then
+    if _tick_landed then
+      _tick_landed = _tick_landed + 1
 
-      if self._tick_landed == 13 then
-        self._tick_landed = nil
+      if _tick_landed == 13 then
+        _tick_landed = nil
       end
     end
-  elseif self:is_swapping() then
-    if self._tick_swap < gate_swap_animation_frame_count then
-      self._tick_swap = self._tick_swap + 1
+  elseif is_swapping(_ENV) then
+    if _tick_swap < gate_swap_animation_frame_count then
+      _tick_swap = _tick_swap + 1
     else
-      self.chain_id = nil
-      self:change_state("idle")
+      chain_id = nil
+      change_state(_ENV, "idle")
     end
-  elseif self:is_falling() then
+  elseif is_falling(_ENV) then
     -- NOP
-  elseif self:is_match() then
-    if self._tick_match <= gate_match_animation_frame_count + self._match_index * gate_match_delay_per_gate then
-      self._tick_match = self._tick_match + 1
+  elseif is_match(_ENV) then
+    if _tick_match <= gate_match_animation_frame_count + _match_index * gate_match_delay_per_gate then
+      _tick_match = _tick_match + 1
     else
-      sfx(3, -1, (self._match_index % 6 - 1) * 4, 4)
-      self:change_state("idle")
+      change_state(_ENV, "idle")
 
-      if self._garbage_span then
-        self.new_gate._tick_freeze = 0
-        self.new_gate._freeze_frame_count = (self._garbage_span * self._garbage_height - self._match_index) *
-            gate_match_delay_per_gate
-        self.new_gate:change_state("freeze")
+      if _garbage_span then
+        new_gate._tick_freeze = 0
+        new_gate._freeze_frame_count = (_garbage_span * _garbage_height - _match_index) * gate_match_delay_per_gate
+        new_gate:change_state("freeze")
       end
     end
-  elseif self:is_freeze() then
-    if self._tick_freeze < self._freeze_frame_count then
-      self._tick_freeze = self._tick_freeze + 1
+  elseif is_freeze(_ENV) then
+    if _tick_freeze < _freeze_frame_count then
+      _tick_freeze = _tick_freeze + 1
     else
-      self:change_state("idle")
+      change_state(_ENV, "idle")
     end
   end
 end
@@ -206,27 +203,32 @@ end
 --- @param screen_x integer x position of the screen
 --- @param screen_y integer y position of the screen
 function gate:render(screen_x, screen_y)
-  if self.type == "i" then
-    return
-  end
+  local shake_dx, shake_dy, swap_screen_dx, sprite = 0, 0
 
-  local swap_screen_dx = (self._tick_swap or 0) * (8 / gate_swap_animation_frame_count)
-  if self:_is_swapping_with_left() then
-    swap_screen_dx = -swap_screen_dx
-  end
+  do
+    local _ENV = self
 
-  local shake_dx, shake_dy, sprite_set, sprite = 0, 0, sprites[self.type]
+    if type == "i" then
+      return
+    end
 
-  if self:is_idle() and self._tick_landed then
-    sprite = sprite_set.landed[_tick_landed]
-  elseif self:is_match() then
-    local sequence = sprite_set.match
-    sprite = self._tick_match <= gate_match_delay_per_gate and sequence[self._tick_match] or sequence[#sequence]
-  elseif _state == "over" then
-    shake_dx, shake_dy = rnd(2) - 1, rnd(2) - 1
-    sprite = sprite_set.match[#sprite_set.match]
-  else
-    sprite = sprite_set.default
+    swap_screen_dx = (_tick_swap or 0) * (8 / gate_swap_animation_frame_count)
+    if _is_swapping_with_left(_ENV) then
+      swap_screen_dx = -swap_screen_dx
+    end
+
+    local sprite_set = sprites[type]
+
+    if is_idle(_ENV) and _tick_landed then
+      sprite = sprite_set.landed[_tick_landed]
+    elseif is_match(_ENV) then
+      local sequence = sprite_set.match
+      sprite = _tick_match <= gate_match_delay_per_gate and sequence[_tick_match] or sequence[#sequence]
+    elseif _state == "over" then
+      sprite = sprite_set.match[#sprite_set.match]
+    else
+      sprite = sprite_set.default
+    end
   end
 
   if type == "!" then
@@ -235,13 +237,13 @@ function gate:render(screen_x, screen_y)
   end
 
   if _state == "over" then
+    shake_dx, shake_dy = rnd(2) - 1, rnd(2) - 1
     pal(13, 9)
     pal(7, 1)
   end
 
   spr(sprite, screen_x + swap_screen_dx + shake_dx, screen_y + self._fall_screen_dy + shake_dy)
 
-  palt()
   pal()
 end
 
