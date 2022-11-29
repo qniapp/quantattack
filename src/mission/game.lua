@@ -1,7 +1,8 @@
-require("lib/attack_bubble")
-require("lib/bubble")
+local attack_bubble = require("lib/attack_bubble")
+local particle = require("lib/particle")
+local bubble = require("lib/bubble")
+
 require("lib/helpers")
-require("lib/particle")
 require("lib/ripple")
 
 local all_players, countdown
@@ -111,9 +112,9 @@ function game()
         end
       end
 
-      update_particles()
-      update_bubbles()
-      update_attack_bubbles()
+      particle:update_all()
+      bubble:update_all()
+      attack_bubble:update_all()
 
       if not is_game_over(_ENV) then
         -- ゲーム中だけ elapsed_time を更新
@@ -156,14 +157,14 @@ function game()
         if board.countdown then
           local countdown_sprite_x = { 96, 80, 64 }
           sspr(countdown_sprite_x[board.countdown], 32,
-               16, 16,
-               board.offset_x + 16, board.offset_y + 43)
+            16, 16,
+            board.offset_x + 16, board.offset_y + 43)
         end
       end
 
-      render_particles()
-      render_bubbles()
-      render_attack_bubbles()
+      particle:render_all()
+      bubble:render_all()
+      attack_bubble:render_all()
 
       -- print_outlined(stat(1), 101, 112, 7)
       -- print_outlined(stat(7), 117, 120, 7)

@@ -1,6 +1,6 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
-require("lib/particle")
+local particle = require("lib/particle")
 
 gate_match_animation_frame_count = 45
 gate_match_delay_per_gate = 8

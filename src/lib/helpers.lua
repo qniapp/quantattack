@@ -58,3 +58,10 @@ function derived_class(base_class)
 
   return class
 end
+
+function singleton(init)
+  local s = {}
+  s.init = init
+  s:init()
+  return s
+end

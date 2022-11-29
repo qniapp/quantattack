@@ -1,51 +1,45 @@
 ---@diagnostic disable: lowercase-global
 
-all_bubbles = {}
+local effect_set = require("lib/effect_set")
+local bubble_class = derived_class(effect_set)
+local bubble = bubble_class()
 
-function update_bubbles()
-  foreach(all_bubbles, function(each)
-    local _ENV = each
-
-    if _tick > 40 then
-      del(all_bubbles, each)
-    end
-    if _tick < 30 then
-      _y = _y - 0.2
-    end
-
-    _tick = _tick + 1
+function bubble:create(bubble_type, count, x, y)
+  self:_add(function(_ENV)
+    _type, _count, _x, _y, _tick = bubble_type, count, x, y - 8, 0
   end)
 end
 
-function render_bubbles()
-  foreach(all_bubbles, function(each)
-    local _ENV = each
+function bubble._update(_ENV, self)
+  if _tick > 40 then
+    del(self.all, _ENV)
+  end
+  if _tick < 30 then
+    _y = _y - 0.2
+  end
 
-    if _type == "combo" then
-      draw_rounded_box(_x - 1, _y + 1, _x + 7, _y + 9, 5, 5)
-      draw_rounded_box(_x - 1, _y, _x + 7, _y + 8, 7, 8)
-
-      cursor(_x + 2, _y + 2)
-    else
-      local rbox_dx = _count < 10 and 0 or -2
-
-      draw_rounded_box(_x + rbox_dx - 2, _y + 1, _x - rbox_dx + 8, _y + 9, 5, 5)
-      draw_rounded_box(_x + rbox_dx - 2, _y, _x - rbox_dx + 8, _y + 8, 7, 3)
-
-      spr(69, _x + rbox_dx, _y - 1) -- the "x" part in "x5"
-
-      cursor(_x + rbox_dx + 4, _y + 2)
-    end
-
-    color(10)
-    print(_count)
-  end)
+  _tick = _tick + 1
 end
 
-function create_bubble(bubble_type, count, x, y)
-  local _ENV = setmetatable({}, { __index = _ENV })
+function bubble._render(_ENV)
+  if _type == "combo" then
+    draw_rounded_box(_x - 1, _y + 1, _x + 7, _y + 9, 5, 5)
+    draw_rounded_box(_x - 1, _y, _x + 7, _y + 8, 7, 8)
 
-  _type, _count, _x, _y, _tick = bubble_type, count, x, y - 8, 0
+    cursor(_x + 2, _y + 2)
+  else
+    local rbox_dx = _count < 10 and 0 or -2
 
-  add(all_bubbles, _ENV)
+    draw_rounded_box(_x + rbox_dx - 2, _y + 1, _x - rbox_dx + 8, _y + 9, 5, 5)
+    draw_rounded_box(_x + rbox_dx - 2, _y, _x - rbox_dx + 8, _y + 8, 7, 3)
+
+    spr(69, _x + rbox_dx, _y - 1) -- the "x" part in "x5"
+
+    cursor(_x + rbox_dx + 4, _y + 2)
+  end
+
+  color(10)
+  print(_count)
 end
+
+return bubble
