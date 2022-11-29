@@ -3,6 +3,8 @@ require("engine/render/color")
 require("lib/test_helper")
 require("lib/board")
 
+local gate = require("lib/gate")
+
 describe('連鎖 (chain)', function()
   local board
 
@@ -122,25 +124,25 @@ describe('連鎖 (chain)', function()
     board:update()
 
     -- おじゃまゲートの一番左が分解
-    for i = 1, 45 do
+    for i = 1, gate.gate_match_animation_frame_count do
       board:update()
     end
     assert.is_true(board.gates[1][15]:is_freeze())
 
     -- おじゃまゲートの真ん中が分解
-    for i = 1, 8 do
+    for i = 1, gate.gate_match_delay_per_gate do
       board:update()
     end
     assert.is_true(board.gates[2][15]:is_freeze())
 
     -- おじゃまゲートの一番右が分解
-    for i = 1, 8 do
+    for i = 1, gate.gate_match_delay_per_gate do
       board:update()
     end
     assert.is_true(board.gates[3][15]:is_freeze())
 
     -- 分解してできたゲートすべてのフリーズ解除
-    for i = 1, 8 do
+    for i = 1, gate.gate_match_delay_per_gate do
       board:update()
     end
     board:update()

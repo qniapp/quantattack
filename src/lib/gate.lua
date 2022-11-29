@@ -1,10 +1,6 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments, undefined-field, undefined-global
 
-local gate_match_animation_frame_count,
-gate_match_delay_per_gate,
-gate_swap_animation_frame_count =
-45, 8, 4
-
+-- TODO: gate クラスの定数にする
 local sprites = {
   -- default|landed|match
   h = "0|16,16,16,16,48,48,32,32,32,16,16,16|9,9,9,25,25,25,9,9,9,41,41,41,0,0,0,57",
@@ -57,6 +53,9 @@ local state_string = {
 --- @field new_gate Gate
 --- @field change_state function
 local gate = new_class()
+gate.gate_match_animation_frame_count = 45
+gate.gate_match_delay_per_gate = 8
+gate.gate_swap_animation_frame_count = 4
 
 --- @param _type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "!" gate type
 --- @param _span? 1 | 2 | 3 | 4 | 5 | 6 span of the gate
