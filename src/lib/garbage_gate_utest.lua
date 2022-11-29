@@ -2,7 +2,7 @@ require("engine/test/bustedhelper")
 require("lib/board")
 require("lib/garbage_gate")
 
-describe('garbage_gate', function()
+describe('garbage_gate #solo', function()
   describe('span', function()
     it("幅はデフォルトで 6", function()
       local garbage = garbage_gate()
@@ -38,10 +38,6 @@ describe('garbage_gate', function()
       local garbage = garbage_gate(3, 4)
 
       assert.are_equal(4, garbage.height)
-    end)
-
-    it("高さを 1 未満に指定するとエラー", function()
-      assert.error(function() garbage_gate(3, 0) end)
     end)
   end)
 

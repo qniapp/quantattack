@@ -6,7 +6,9 @@ require("lib/garbage_gate")
 require("lib/pending_garbage_gates")
 require("lib/helpers")
 
+local gate = require("lib/gate")
 local reduction_rules = require("lib/reduction_rules")
+local gate_fall_speed = 2
 
 function create_board(__offset_x, __cols)
   local board = setmetatable({
@@ -887,6 +889,7 @@ function create_board(__offset_x, __cols)
       end
 
       if old_state == "match" and gate:is_idle() then
+        sfx(3, -1, (gate._match_index % 6 - 1) * 4, 4)
         put(_ENV, x, y, gate.new_gate)
         particle:create_chunk(screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3,
           "2,1,7,5,-1,-1,0.05,0.05,16|2,1,7,5,1,-1,-0.05,0.05,16|2,1,7,5,-1,1,0.05,0.05,16|2,1,7,5,1,1,-0.05,-0.05,16")
