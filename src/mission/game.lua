@@ -112,9 +112,9 @@ function game()
         end
       end
 
-      particle:update()
-      bubble:update()
-      attack_bubble:update()
+      particle:update_all()
+      bubble:update_all()
+      attack_bubble:update_all()
 
       if not is_game_over(_ENV) then
         -- ゲーム中だけ elapsed_time を更新

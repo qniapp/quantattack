@@ -10,20 +10,18 @@ function bubble:create(bubble_type, count, x, y)
   end)
 end
 
-function bubble:update()
-  self:_foreach(function(_ENV)
-    if _tick > 40 then
-      del(self.all, _ENV)
-    end
-    if _tick < 30 then
-      _y = _y - 0.2
-    end
+function bubble._update(_ENV, self)
+  if _tick > 40 then
+    del(self.all, _ENV)
+  end
+  if _tick < 30 then
+    _y = _y - 0.2
+  end
 
-    _tick = _tick + 1
-  end)
+  _tick = _tick + 1
 end
 
-function bubble.render(_ENV)
+function bubble._render(_ENV)
   if _type == "combo" then
     draw_rounded_box(_x - 1, _y + 1, _x + 7, _y + 9, 5, 5)
     draw_rounded_box(_x - 1, _y, _x + 7, _y + 8, 7, 8)

@@ -26,21 +26,19 @@ function particle:create(x, y, radius, end_radius, __color, __color_fade, dx, dy
   end)
 end
 
-function particle:update()
-  self:_foreach(function(_ENV)
-    if _tick > _max_tick then
-      del(self.all, _ENV)
-    end
-    if _tick > _max_tick * 0.5 then
-      _color = _color_fade
-      _radius = _end_radius
-    end
+function particle._update(_ENV, self)
+  if _tick > _max_tick then
+    del(self.all, _ENV)
+  end
+  if _tick > _max_tick * 0.5 then
+    _color = _color_fade
+    _radius = _end_radius
+  end
 
-    _x, _y, _dx, _dy, _tick = _x + _dx, _y + _dy, _dx + _ddx, _dy + _ddy, _tick + 1
-  end)
+  _x, _y, _dx, _dy, _tick = _x + _dx, _y + _dy, _dx + _ddx, _dy + _ddy, _tick + 1
 end
 
-function particle.render(_ENV)
+function particle._render(_ENV)
   circfill(_x, _y, _radius, _color)
 end
 

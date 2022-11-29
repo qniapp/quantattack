@@ -4,7 +4,7 @@ local particle = require("lib/particle")
 describe('particle #solo', function()
   before_each(function()
     for i = 1, 100 do
-      particle:update()
+      particle:update_all()
     end
   end)
 
@@ -37,7 +37,7 @@ describe('particle #solo', function()
 
       assert.are_equal(1, #particle.all)
 
-      particle:update()
+      particle:update_all()
 
       assert.are_equal(1, particle.all[1]._tick)
     end)

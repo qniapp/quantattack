@@ -5,7 +5,7 @@
 -- 7770
 -- 7794
 -- 7818
--- 7828
+-- 7823
 
 local effect_set = require("lib/effect_set")
 local attack_bubble_class = derived_class(effect_set)
@@ -18,27 +18,25 @@ function attack_bubble:create(x, y, callback, target_x, target_y)
   end)
 end
 
-function attack_bubble:update()
-  self:_foreach(function(_ENV)
-    if abs(_target_x - _x) < 5 and abs(_target_y - _y) < 5 then
-      _callback(_target_x, _target_y)
-      del(self.all, _ENV)
-    end
+function attack_bubble._update(_ENV, self)
+  if abs(_target_x - _x) < 5 and abs(_target_y - _y) < 5 then
+    _callback(_target_x, _target_y)
+    del(self.all, _ENV)
+  end
 
-    if t() - _start_time < 0.8 then
-      if self.slow and #self.all > 0 then
-        flip()
-      end
-      _dx, _dy = _left and 0.5 or -0.5, -0.2
-    else
-      _dx, _dy = (_target_x - _x) / 6, (_target_y - _y) / 6
+  if t() - _start_time < 0.8 then
+    if self.slow and #self.all > 0 then
+      flip()
     end
+    _dx, _dy = _left and 0.5 or -0.5, -0.2
+  else
+    _dx, _dy = (_target_x - _x) / 6, (_target_y - _y) / 6
+  end
 
-    _x, _y = _x + _dx, _y + _dy
-  end)
+  _x, _y = _x + _dx, _y + _dy
 end
 
-function attack_bubble.render(_ENV)
+function attack_bubble._render(_ENV)
   local angle = t()
 
   fillp(23130.5)

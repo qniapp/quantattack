@@ -94,9 +94,9 @@ function game()
         player_cursor:update()
       end
 
-      particle:update()
-      bubble:update()
-      attack_bubble:update()
+      particle:update_all()
+      bubble:update_all()
+      attack_bubble:update_all()
     end,
 
     render = function(_ENV)

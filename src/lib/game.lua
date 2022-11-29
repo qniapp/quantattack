@@ -195,9 +195,9 @@ function game:update()
     end
   end
 
-  particle:update()
-  bubble:update()
-  attack_bubble:update()
+  particle:update_all()
+  bubble:update_all()
+  attack_bubble:update_all()
 
   if not self:is_game_over() then
     -- ゲーム中だけ elapsed_time を更新

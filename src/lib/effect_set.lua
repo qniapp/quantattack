@@ -12,13 +12,14 @@ function effect_set:_add(f)
   add(self.all, _ENV)
 end
 
-function effect_set:render_all()
-  -- FIXME: .render を _render (プライベート) にする
-  foreach(self.all, self.render)
+function effect_set:update_all()
+  foreach(self.all, function(each)
+    self._update(each, self)
+  end)
 end
 
-function effect_set:_foreach(f)
-  foreach(self.all, f)
+function effect_set:render_all()
+  foreach(self.all, self._render)
 end
 
 return effect_set
