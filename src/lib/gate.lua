@@ -1,7 +1,18 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments, undefined-field, undefined-global
 
--- TODO: gate クラスの定数にする
-local sprites = {
+--- @class Gate
+--- @field type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "!" gate type
+--- @field span 1 | 2 | 3 | 4 | 5 | 6 span of the gate
+--- @field height integer height of the gate
+--- @field render function
+--- @field replace_with function
+--- @field new_gate Gate
+--- @field change_state function
+local gate = new_class()
+gate.gate_match_animation_frame_count = 45
+gate.gate_match_delay_per_gate = 8
+gate.gate_swap_animation_frame_count = 4
+gate.sprites = {
   -- default|landed|match
   h = "0|16,16,16,16,48,48,32,32,32,16,16,16|9,9,9,25,25,25,9,9,9,41,41,41,0,0,0,57",
   x = "1|17,17,17,17,49,49,33,33,33,17,17,17|10,10,10,26,26,26,10,10,10,42,42,42,1,1,1,58",
@@ -15,47 +26,15 @@ local sprites = {
   ["!"] = "101|101,101,101,101,101,101,101,101,101,101,101,101|101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101"
 }
 
-for key, each in pairs(sprites) do
+for key, each in pairs(gate.sprites) do
   local default, landed, match = unpack(split(each, "|"))
   ---@diagnostic disable-next-line: assign-type-mismatch
-  sprites[key] = {
+  gate.sprites[key] = {
     default = default,
     landed = split(landed),
     match = split(match)
   }
 end
-
---#if debug
-local type_string = {
-  i = '_',
-  control = 'C',
-  cnot_x = 'X',
-  swap = 'S'
-}
-
-local state_string = {
-  idle = " ",
-  swapping_with_left = "<",
-  swapping_with_right = ">",
-  falling = "|",
-  match = "*",
-  freeze = "f",
-}
---#endif
-
-
---- @class Gate
---- @field type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "!" gate type
---- @field span 1 | 2 | 3 | 4 | 5 | 6 span of the gate
---- @field height integer height of the gate
---- @field render function
---- @field replace_with function
---- @field new_gate Gate
---- @field change_state function
-local gate = new_class()
-gate.gate_match_animation_frame_count = 45
-gate.gate_match_delay_per_gate = 8
-gate.gate_swap_animation_frame_count = 4
 
 --- @param _type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "!" gate type
 --- @param _span? 1 | 2 | 3 | 4 | 5 | 6 span of the gate
@@ -269,10 +248,25 @@ end
 -------------------------------------------------------------------------------
 
 --#if debug
+local type_string = {
+  i = '_',
+  control = 'C',
+  cnot_x = 'X',
+  swap = 'S'
+}
+
+local state_string = {
+  idle = " ",
+  swapping_with_left = "<",
+  swapping_with_right = ">",
+  falling = "|",
+  match = "*",
+  freeze = "f",
+}
+
 function gate:_tostring()
   return (type_string[self.type] or self.type) .. state_string[self._state]
 end
-
 --#endif
 
 return gate
