@@ -2,7 +2,7 @@ require("engine/test/bustedhelper")
 require("lib/test_helper")
 require("lib/board")
 
-describe('ゲートの入れ替え #solo', function()
+describe('ゲートの入れ替え', function()
   local board
 
   before_each(function()

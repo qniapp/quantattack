@@ -4,7 +4,7 @@ require("engine/render/color")
 require("lib/test_helper")
 require("lib/board")
 
-describe('board #solo', function()
+describe('board', function()
   local board
 
   before_each(function()

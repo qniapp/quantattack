@@ -4,7 +4,7 @@ require("lib/board")
 
 local gate = require("lib/gate")
 
-describe('gate #solo', function()
+describe('gate', function()
   describe('type', function()
     it("type を指定", function()
       local g = gate("i")

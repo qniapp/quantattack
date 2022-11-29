@@ -13,7 +13,7 @@ function foo_class:bar()
   printh("state = " .. state)
 end
 
-describe('self を省略できる #solo', function()
+describe('self を省略できる', function()
   it('呼び出された側で self. を省略できる', function()
     local foo = foo_class()
     assert.has_no.errors(function() foo:bar() end)

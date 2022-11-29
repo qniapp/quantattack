@@ -1,9 +1,10 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments, undefined-field, undefined-global
 
-gate_match_animation_frame_count = 45
-gate_match_delay_per_gate = 8
-gate_swap_animation_frame_count = 4
-gate_fall_speed = 2
+gate_match_animation_frame_count,
+    gate_match_delay_per_gate,
+    gate_swap_animation_frame_count,
+    gate_fall_speed =
+45, 8, 4, 2
 
 sprites = {
   -- default|landed|match
@@ -144,8 +145,9 @@ function gate:is_empty()
 end
 
 function gate:is_single_gate()
-  return self.type == 'h' or self.type == 'x' or self.type == 'y' or self.type == 'z' or self.type == 's' or
-      self.type == 't'
+  local _ENV = self
+
+  return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
 end
 
 -------------------------------------------------------------------------------
@@ -184,8 +186,9 @@ end
 --- @param garbage_span? integer
 --- @param garbage_height? integer
 function gate:replace_with(other, match_index, _chain_id, garbage_span, garbage_height)
-  self.new_gate, self._match_index, self._tick_match, self.chain_id, other.chain_id, self._garbage_span,
-      self._garbage_height =
+  local _ENV = self
+
+  new_gate, _match_index, _tick_match, chain_id, other.chain_id, _garbage_span, _garbage_height =
   other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height
 
   self:change_state("match")
