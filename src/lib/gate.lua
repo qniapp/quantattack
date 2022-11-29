@@ -59,41 +59,11 @@ local state_string = {
 --- @field change_state function
 local gate = new_class()
 
---- @param type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "!" gate type
---- @param span? 1 | 2 | 3 | 4 | 5 | 6 span of the gate
---- @param height? integer height of the gate
-function gate:_init(type, span, height)
-  --#if assert
-  assert(type == "i" or type == "h" or type == "x" or type == "y" or type == "z" or
-    type == "s" or type == "t" or type == "control" or type == "cnot_x" or type == "swap" or
-    type == "g" or type == "!",
-    "invalid type: " .. type)
-  --#endif
-
-  self.type = type
-  self.span = span or 1
-  self.height = height or 1
-  self.sprite_set = sprites[type]
-  self._state = "idle"
-  self._fall_screen_dy = 0
-
-  --#if assert
-  assert(0 < self.span, "span must be greater than 0")
-  assert(self.span < 7, "span must be less than 7")
-  assert(self.type == "g" or
-    ((self.type == "i" or self.type == "h" or self.type == "x" or self.type == "y" or self.type == "z" or
-        self.type == "s" or self.type == "t" or
-        self.type == "control" or self.type == "cnot_x" or self.type == "swap" or self.type == "!") and
-        self.span == 1),
-    "invalid span: " .. self.span)
-  assert(self.height > 0, "height must be greater than 0")
-  assert(self.type == "g" or
-    ((self.type == "i" or self.type == "h" or self.type == "x" or self.type == "y" or self.type == "z" or
-        self.type == "s" or self.type == "t" or
-        self.type == "control" or self.type == "cnot_x" or self.type == "swap" or self.type == "!") and
-        self.height == 1),
-    "invalid height: " .. self.height)
-  --#endif
+--- @param _type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "!" gate type
+--- @param _span? 1 | 2 | 3 | 4 | 5 | 6 span of the gate
+--- @param _height? integer height of the gate
+function gate._init(_ENV, _type, _span, _height)
+  type, span, height, _state, _fall_screen_dy = _type, _span or 1, _height or 1, "idle", 0
 end
 
 -------------------------------------------------------------------------------
@@ -104,8 +74,8 @@ function gate:is_idle()
   return self._state == "idle"
 end
 
-function gate:is_fallable()
-  return not (self.type == "i" or self.type == "!" or self:is_swapping() or self:is_freeze())
+function gate.is_fallable(_ENV)
+  return not (type == "i" or type == "!" or is_swapping(_ENV) or is_freeze(_ENV))
 end
 
 function gate:is_falling()
@@ -144,9 +114,7 @@ function gate:is_empty()
   return self.type == "i" and not self:is_swapping()
 end
 
-function gate:is_single_gate()
-  local _ENV = self
-
+function gate.is_single_gate(_ENV)
   return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
 end
 
@@ -156,13 +124,11 @@ end
 
 function gate:swap_with_right()
   self.chain_id = nil
-
   self:change_state("swapping_with_right")
 end
 
 function gate:swap_with_left()
   self.chain_id = nil
-
   self:change_state("swapping_with_left")
 end
 
@@ -185,13 +151,11 @@ end
 --- @param _chain_id string
 --- @param garbage_span? integer
 --- @param garbage_height? integer
-function gate:replace_with(other, match_index, _chain_id, garbage_span, garbage_height)
-  local _ENV = self
-
+function gate.replace_with(_ENV, other, match_index, _chain_id, garbage_span, garbage_height)
   new_gate, _match_index, _tick_match, chain_id, other.chain_id, _garbage_span, _garbage_height =
   other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height
 
-  self:change_state("match")
+  change_state(_ENV, "match")
 end
 
 -------------------------------------------------------------------------------
@@ -251,18 +215,18 @@ function gate:render(screen_x, screen_y)
     swap_screen_dx = -swap_screen_dx
   end
 
-  local shake_dx, shake_dy, sprite = 0, 0
+  local shake_dx, shake_dy, sprite_set, sprite = 0, 0, sprites[self.type]
 
   if self:is_idle() and self._tick_landed then
-    sprite = self.sprite_set.landed[_tick_landed]
+    sprite = sprite_set.landed[_tick_landed]
   elseif self:is_match() then
-    local sequence = self.sprite_set.match
+    local sequence = sprite_set.match
     sprite = self._tick_match <= gate_match_delay_per_gate and sequence[self._tick_match] or sequence[#sequence]
   elseif _state == "over" then
     shake_dx, shake_dy = rnd(2) - 1, rnd(2) - 1
-    sprite = self.sprite_set.match[#sprite_set.match]
+    sprite = sprite_set.match[#sprite_set.match]
   else
-    sprite = self.sprite_set.default
+    sprite = sprite_set.default
   end
 
   if type == "!" then
@@ -291,14 +255,12 @@ function gate:attach(observer)
 end
 
 --- @param new_state string
-function gate:change_state(new_state)
-  local _ENV = self
-
+function gate.change_state(_ENV, new_state)
   _tick_swap = 0
 
   local old_state = _state
   _state = new_state
-  observer:observable_update(self, old_state)
+  observer:observable_update(_ENV, old_state)
 end
 
 -------------------------------------------------------------------------------
