@@ -289,11 +289,13 @@ end
 
 --- @param new_state string
 function gate:change_state(new_state)
-  self._tick_swap = 0
+  local _ENV = self
 
-  local old_state = self._state
-  self._state = new_state
-  self.observer:observable_update(self, old_state)
+  _tick_swap = 0
+
+  local old_state = _state
+  _state = new_state
+  observer:observable_update(self, old_state)
 end
 
 -------------------------------------------------------------------------------
