@@ -24,7 +24,7 @@ describe('gate #solo', function()
       assert.has_no.errors(function() gate("cnot_x") end)
       assert.has_no.errors(function() gate("swap") end)
       assert.has_no.errors(function() gate("g") end)
-      assert.has_no.errors(function() gate("!") end)
+      assert.has_no.errors(function() gate("?") end)
     end)
   end)
 

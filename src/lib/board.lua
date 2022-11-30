@@ -144,14 +144,27 @@ function create_board(__offset_x, __cols)
       for _, each in pairs(_garbage_gates) do
         if each:is_idle() then
           local x, y, garbage_span, garbage_height, chain_id = each.x, each.y, each.span, each.height
-          local is_matching = function(g)
-            chain_id = g.chain_id
-            if g.type == "!" then
-              return g:is_match() and each.body_color == g.body_color
-            else
-              return g:is_match()
+          local is_matching = function(adjacent_gate)
+            if not adjacent_gate:is_match() then
+              return false
             end
+
+            if adjacent_gate.type == "?" then
+              if each.body_color == adjacent_gate.body_color then
+                chain_id = adjacent_gate.chain_id
+                return true
+              end
+            else
+              chain_id = adjacent_gate.chain_id
+              return true
+            end
+
+            return false
           end
+
+          -- あるおじゃまゲートの上下左右にマッチ中のゲート、
+          -- または同じ色の ? ゲートがあれば、おじゃまゲートに chain_id をセットして
+          -- ? ゲートに分解 & 一列ちぢめる。
 
           -- 下と上
           for gx = x, x + garbage_span - 1 do
@@ -174,7 +187,7 @@ function create_board(__offset_x, __cols)
           ::match::
           for i = 0, garbage_span - 1 do
             for j = 0, garbage_height - 1 do
-              gmg = gate("!")
+              gmg = gate("?")
               gmg.body_color = each.body_color
               put(_ENV, x + i, y - j, gmg)
 
@@ -613,7 +626,7 @@ function create_board(__offset_x, __cols)
         for x = 1, cols do
           local gate = gates[x][y]
 
-          if gate.type == "!" then
+          if gate.type == "?" then
             contains_garbage_match_gate = true
           end
 

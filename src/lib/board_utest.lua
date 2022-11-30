@@ -143,7 +143,7 @@ describe('board', function()
 
       board:reduce_gates()
 
-      assert.are_equal('!', board.gates[2][16].type)
+      assert.are_equal("?", board.gates[2][16].type)
     end)
 
     it('おじゃまゲートの右に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
@@ -156,7 +156,7 @@ describe('board', function()
 
       board:reduce_gates()
 
-      assert.are_equal('!', board.gates[1][16].type)
+      assert.are_equal("?", board.gates[1][16].type)
     end)
 
     it('おじゃまゲートの上に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
@@ -169,7 +169,7 @@ describe('board', function()
 
       board:reduce_gates()
 
-      assert.are_equal('!', board.gates[1][16].type)
+      assert.are_equal("?", board.gates[1][16].type)
     end)
 
     it('おじゃまゲートの下に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
@@ -182,7 +182,7 @@ describe('board', function()
 
       board:reduce_gates()
 
-      assert.are_equal('!', board.gates[1][15].type)
+      assert.are_equal("?", board.gates[1][15].type)
     end)
   end)
 
