@@ -13,6 +13,10 @@ function effect_set:_add(f)
 end
 
 function effect_set:update_all()
+  if self.slow and #self.all > 0 then
+    flip()
+  end
+
   foreach(self.all, function(each)
     self._update(each, self)
   end)

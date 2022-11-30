@@ -44,6 +44,8 @@ function create_board(__offset_x, __cols)
       -- 各種ゲートの取得
       gates, reducible_gates, _garbage_gates, contains_garbage_match_gate = {}, {}, {}, false
 
+      tick = 0
+
       for x = 1, cols do
         gates[x], reducible_gates[x] = {}, {}
         for y = 1, row_next_gates do
@@ -519,6 +521,8 @@ function create_board(__offset_x, __cols)
 
         tick_over = tick_over + 1
       end
+
+      tick = tick + 1
     end,
 
     render = function(_ENV)
@@ -566,6 +570,18 @@ function create_board(__offset_x, __cols)
 
         if time_left_height > 0 then
           rectfill(gauge_x, 128 - time_left_height, gauge_x + 1, 127, 8)
+        end
+
+        for y = 1, row_next_gates do
+          for x = 1, cols do
+            local gate = gates[x][y]
+            if time_left_height < 128 / 3 then
+              gate.pinch = true
+              gate.tick_pinch = tick
+            else
+              gate.pinch = false
+            end
+          end
         end
       end
 

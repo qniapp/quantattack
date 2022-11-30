@@ -1,4 +1,5 @@
 local flow = require("lib/flow")
+local gate = require("lib/gate")
 
 require("lib/board")
 
