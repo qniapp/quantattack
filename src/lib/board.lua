@@ -365,8 +365,12 @@ function create_board(__offset_x, __cols)
 
     put = function(_ENV, x, y, gate)
       --#if assert
-      assert(1 <= x and x <= cols, x)
-      assert(1 <= y and y <= row_next_gates, y)
+      assert(1 <= x and x <= cols, "x = " .. x)
+
+      -- 上段のおじゃまゲートをマッチさせると
+      -- garbage match gate を y < 0 な領域に作るので、
+      -- 0 < y はチェックしない。
+      assert(y <= row_next_gates, "y = " .. y)
       --#endif
 
       gate.x, gate.y = x, y
