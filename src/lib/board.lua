@@ -610,11 +610,11 @@ function create_board(__offset_x, __cols)
 
       if show_gameover_menu then
         draw_rounded_box(offset_x - 1, offset_y + 96, offset_x + 7, offset_y + 105, 0, 0)
-        spr(117, offset_x, offset_y + 97)
+        spr(70, offset_x, offset_y + 97)
         print_outlined("try again", offset_x + 11, offset_y + 98, 1, 7)
 
         draw_rounded_box(offset_x - 1, offset_y + 109, offset_x + 7, offset_y + 118, 0, 0)
-        spr(70, offset_x, offset_y + 110)
+        spr(117, offset_x, offset_y + 110)
         print_outlined("title", offset_x + 11, offset_y + 111, 1, 7)
       end
     end,

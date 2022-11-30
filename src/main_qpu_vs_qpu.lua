@@ -36,7 +36,7 @@ function _update60()
       qpu1_board.show_gameover_menu = true
       qpu2_board.show_gameover_menu = true
       if btnp(4) then -- x でリプレイ
-        flow:query_gamestate_type(":qpu_vs_qpu")
+        _init()
       elseif btnp(5) then -- z でタイトルへ戻る
         load('qitaev_title')
       end

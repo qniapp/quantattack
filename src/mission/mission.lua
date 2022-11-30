@@ -25,6 +25,7 @@ local last_steps = 0
 
 local reduction_rules = require("lib/reduction_rules")
 local attack_bubble = require("lib/attack_bubble")
+local particle = require("lib/particle")
 
 local function shuffle(t)
   -- do a fisher-yates shuffle
@@ -172,7 +173,7 @@ function mission_game.reduce_callback(score, x, y, player, pattern, dx)
       set_task()
     end
 
-    attack_bubbles.slow = true
+    attack_bubble.slow = true
     sfx(13)
     match_screen_x = board:screen_x(x)
     match_screen_y = board:screen_y(y)
@@ -265,9 +266,9 @@ function mission:render() -- override
     render_current_task(match_screen_x, match_screen_y, true)
   end
 
-  spr(117, 70, 109)
+  spr(70, 70, 109)
   print_outlined("swap gates", 81, 110, 7, 0)
-  spr(70, 70, 119)
+  spr(117, 70, 119)
   print_outlined("raise gates", 81, 120, 7, 0)
 
   render_match_circles()
