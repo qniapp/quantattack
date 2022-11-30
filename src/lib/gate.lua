@@ -209,7 +209,7 @@ function gate:render(screen_x, screen_y)
     end
   end
 
-  if type == "!" then
+  if self.type == "!" then
     palt(0, false)
     pal(13, self.body_color)
   end

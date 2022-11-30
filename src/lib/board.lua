@@ -142,63 +142,65 @@ function create_board(__offset_x, __cols)
 
       -- おじゃまゲートのマッチ
       for _, each in pairs(_garbage_gates) do
-        local x, y, garbage_span, garbage_height, chain_id = each.x, each.y, each.span, each.height
-        local is_matching = function(g)
-          chain_id = g.chain_id
-          if g.type == "!" then
-            return g:is_match() and each.body_color == g.body_color
-          else
-            return g:is_match()
-          end
-        end
-
-        -- 下と上
-        for gx = x, x + garbage_span - 1 do
-          if (y < rows and is_matching(gates[gx][y + 1])) or
-              (y - garbage_height > 1 and is_matching(gates[gx][y - garbage_height])) then
-            goto match
-          end
-        end
-
-        -- 左と右
-        for i = 0, garbage_height - 1 do
-          if (x > 1 and y - i > 0 and is_matching(gates[x - 1][y - i])) or
-              (x + garbage_span <= cols and y - i > 0 and is_matching(gates[x + garbage_span][y - i])) then
-            goto match
-          end
-        end
-
-        goto next_gate
-
-        ::match::
-        for i = 0, garbage_span - 1 do
-          for j = 0, garbage_height - 1 do
-            gmg = gate("!")
-            gmg.body_color = each.body_color
-            put(_ENV, x + i, y - j, gmg)
-
-            local new_gate
-            if j == 0 then
-              -- 一行目にはランダムなゲートを入れる
-              new_gate = _random_single_gate(_ENV)
-            elseif j == 1 and i == 0 then
-              -- 二行目の先頭にはおじゃまゲート
-              new_gate = garbage_gate(garbage_span, garbage_height - 1, each.body_color)
+        if each:is_idle() then
+          local x, y, garbage_span, garbage_height, chain_id = each.x, each.y, each.span, each.height
+          local is_matching = function(g)
+            chain_id = g.chain_id
+            if g.type == "!" then
+              return g:is_match() and each.body_color == g.body_color
             else
-              new_gate = gate("i")
+              return g:is_match()
             end
+          end
 
-            gates[x + i][y - j]:replace_with(
-              new_gate,
-              i + j * garbage_span,
-              j == 0 and chain_id or nil,
-              garbage_span,
-              garbage_height
-            )
+          -- 下と上
+          for gx = x, x + garbage_span - 1 do
+            if (y < rows and is_matching(gates[gx][y + 1])) or
+                (y - garbage_height > 1 and is_matching(gates[gx][y - garbage_height])) then
+              goto match
+            end
+          end
+
+          -- 左と右
+          for i = 0, garbage_height - 1 do
+            if (x > 1 and y - i > 0 and is_matching(gates[x - 1][y - i])) or
+                (x + garbage_span <= cols and y - i > 0 and is_matching(gates[x + garbage_span][y - i])) then
+              goto match
+            end
+          end
+
+          goto next_garbage_gate
+
+          ::match::
+          for i = 0, garbage_span - 1 do
+            for j = 0, garbage_height - 1 do
+              gmg = gate("!")
+              gmg.body_color = each.body_color
+              put(_ENV, x + i, y - j, gmg)
+
+              local new_gate
+              if j == 0 then
+                -- 一行目にはランダムなゲートを入れる
+                new_gate = _random_single_gate(_ENV)
+              elseif j == 1 and i == 0 then
+                -- 二行目の先頭にはおじゃまゲート
+                new_gate = garbage_gate(garbage_span, garbage_height - 1, each.body_color)
+              else
+                new_gate = gate("i")
+              end
+
+              gates[x + i][y - j]:replace_with(
+                new_gate,
+                i + j * garbage_span,
+                j == 0 and chain_id or nil,
+                garbage_span,
+                garbage_height
+              )
+            end
           end
         end
 
-        ::next_gate::
+        ::next_garbage_gate::
       end
     end,
 
