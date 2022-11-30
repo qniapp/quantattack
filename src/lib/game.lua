@@ -98,6 +98,9 @@ function game:_init()
 end
 
 function game:init()
+  attack_bubble.slow = false
+  particle.slow = false
+
   all_players = {}
   countdown = 240
   self.start_time = t()

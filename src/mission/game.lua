@@ -16,6 +16,9 @@ function game()
     end,
 
     init = function(_ENV)
+      attack_bubble.slow = false
+      particle.slow = false
+
       all_players = {}
       countdown = 240
       start_time = t()

@@ -200,7 +200,6 @@ function gate:render(screen_x, screen_y)
       sprite = sprite_set.landed[_tick_landed]
     elseif (is_idle(_ENV) or is_freeze(_ENV)) and pinch then
       sprite = sprite_set.bouncing[tick_pinch % #sprite_set.bouncing + 1]
-      printh(sprite)
     elseif is_match(_ENV) then
       local sequence = sprite_set.match
       sprite = _tick_match <= gate_match_delay_per_gate and sequence[_tick_match] or sequence[#sequence]
