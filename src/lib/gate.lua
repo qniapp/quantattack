@@ -217,7 +217,7 @@ function gate:render(screen_x, screen_y)
 
   if self._state == "over" then
     shake_dx, shake_dy = rnd(2) - 1, rnd(2) - 1
-    pal(13, 9)
+    pal(6, 9)
     pal(7, 1)
   end
 
