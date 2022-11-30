@@ -116,7 +116,9 @@ function game()
       bubble:update_all()
       attack_bubble:update_all()
 
-      if not is_game_over(_ENV) then
+      if is_game_over(_ENV) then
+        particle.slow = true
+      else
         -- ゲーム中だけ elapsed_time を更新
         elapsed_time = t() - start_time
 
