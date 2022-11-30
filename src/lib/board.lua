@@ -445,13 +445,6 @@ function create_board(__offset_x, __cols)
     -- 入れ替えできた場合は true を、そうでない場合は false を返す
     swap = function(_ENV, x_left, y)
       local x_right = x_left + 1
-
-      --#if assert
-      assert(1 <= x_left and x_left <= cols - 1)
-      assert(2 <= x_right and x_right <= cols)
-      assert(1 <= y and y <= rows)
-      --#endif
-
       local left_gate, right_gate = gates[x_left][y], gates[x_right][y]
 
       if _is_part_of_garbage(_ENV, x_left, y) or _is_part_of_garbage(_ENV, x_right, y) or
@@ -616,8 +609,13 @@ function create_board(__offset_x, __cols)
       end
 
       if show_gameover_menu then
-        print_outlined("z play again", offset_x, offset_y + 100, 1)
-        print_outlined("x title", offset_x, offset_y + 108, 1)
+        draw_rounded_box(offset_x - 1, offset_y + 96, offset_x + 7, offset_y + 105, 0, 0)
+        spr(117, offset_x, offset_y + 97)
+        print_outlined("try again", offset_x + 11, offset_y + 98, 1, 7)
+
+        draw_rounded_box(offset_x - 1, offset_y + 109, offset_x + 7, offset_y + 118, 0, 0)
+        spr(70, offset_x, offset_y + 110)
+        print_outlined("title", offset_x + 11, offset_y + 111, 1, 7)
       end
     end,
 
@@ -786,6 +784,9 @@ function create_board(__offset_x, __cols)
     -- x, y が空かどうかを返す
     -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
     is_gate_empty = function(_ENV, x, y)
+      assert(0 < x and x <= cols)
+      assert(0 < y and y <= row_next_gates)
+
       return gates[x][y]:is_empty() and
           not (_is_part_of_garbage(_ENV, x, y) or
               _is_part_of_cnot(_ENV, x, y) or

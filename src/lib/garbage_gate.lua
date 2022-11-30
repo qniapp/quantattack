@@ -42,7 +42,7 @@ function garbage_gate(_span, _height, _color)
           screen_y + 6 + _fall_screen_dy,
           _state ~= "over" and body_color or 9
 
-      _render_box(screen_x, y0 + 1, x1, y1 + 1, 1) -- 影
+      _render_box(screen_x, y0 + 1, x1, y1 + 1, 5) -- 影
       _render_box(screen_x, y0, x1, y1, _body_color, _body_color) -- 本体
       _render_box(screen_x + 1, y0 + 1, x1 - 1, y1 - 1, _state ~= "over" and inner_border_color or 1) -- 内側の線
     end
