@@ -1,7 +1,7 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments, undefined-field, undefined-global
 
 --- @class Gate
---- @field type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "!" gate type
+--- @field type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "?" gate type
 --- @field span 1 | 2 | 3 | 4 | 5 | 6 span of the gate
 --- @field height integer height of the gate
 --- @field render function
@@ -23,7 +23,7 @@ gate.sprites = {
   control = "6|22,22,22,22,54,54,38,38,38,22,22,22|15,15,15,31,31,31,15,15,15,47,47,47,6,6,6,63",
   cnot_x = "7|23,23,23,23,55,55,39,39,39,23,23,23|64,64,64,80,80,80,64,64,64,96,96,96,7,7,7,112",
   swap = "8|24,24,24,24,56,56,40,40,40,24,24,24|65,65,65,81,81,81,65,65,65,97,97,97,8,8,8,113",
-  ["!"] = "101|101,101,101,101,101,101,101,101,101,101,101,101|101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101"
+  ["?"] = "101|101,101,101,101,101,101,101,101,101,101,101,101|101,101,101,101,101,101,101,101,101,101,101,101,101,101,101,101"
 }
 
 for key, each in pairs(gate.sprites) do
@@ -36,7 +36,7 @@ for key, each in pairs(gate.sprites) do
   }
 end
 
---- @param _type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "!" gate type
+--- @param _type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "?" gate type
 --- @param _span? 1 | 2 | 3 | 4 | 5 | 6 span of the gate
 --- @param _height? integer height of the gate
 function gate._init(_ENV, _type, _span, _height)
@@ -52,7 +52,7 @@ function gate:is_idle()
 end
 
 function gate.is_fallable(_ENV)
-  return not (type == "i" or type == "!" or is_swapping(_ENV) or is_freeze(_ENV))
+  return not (type == "i" or type == "?" or is_swapping(_ENV) or is_freeze(_ENV))
 end
 
 function gate:is_falling()
@@ -60,7 +60,7 @@ function gate:is_falling()
 end
 
 function gate.is_reducible(_ENV)
-  return type ~= "i" and type ~= "!" and is_idle(_ENV)
+  return type ~= "i" and type ~= "?" and is_idle(_ENV)
 end
 
 -- マッチ状態である場合 true を返す
@@ -209,7 +209,7 @@ function gate:render(screen_x, screen_y)
     end
   end
 
-  if self.type == "!" then
+  if self.type == "?" then
     palt(0, false)
     pal(13, self.body_color)
   end
@@ -267,6 +267,7 @@ local state_string = {
 function gate:_tostring()
   return (type_string[self.type] or self.type) .. state_string[self._state]
 end
+
 --#endif
 
 return gate

@@ -53,5 +53,5 @@ function swap_gate(other_x)
 end
 
 function garbage_match_gate()
-  return gate("!")
+  return gate("?")
 end
