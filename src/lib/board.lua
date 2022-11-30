@@ -566,7 +566,7 @@ function create_board(__offset_x, __cols)
       if _is_topped_out(_ENV) then
         local time_left_height = (_topped_out_delay_frame_count - _topped_out_frame_count) /
             _topped_out_delay_frame_count * 128
-        local gauge_x = offset_x < 64 and offset_x + 51 or offset_x - 5
+        local gauge_x = offset_x < 64 and offset_x + 50 or offset_x - 4
 
         if time_left_height > 0 then
           rectfill(gauge_x, 128 - time_left_height, gauge_x + 1, 127, 8)
