@@ -604,8 +604,15 @@ function create_board(__offset_x, __cols)
       pending_garbage_gates:render(_ENV)
 
       -- WIN! または LOSE を描画
-      if is_game_over(_ENV) then
-        sspr(win and 64 or 96, 48, 32, 16, offset_x + width / 2 - 16, offset_y + 43)
+      if is_game_over(_ENV) and tick_over > 20 and #particle.all == 0 then
+        sspr(
+          win and 0 or 48,
+          96,
+          48,
+          24,
+          win and offset_x or offset_x + 3 * sin(tick % 60 / 60),
+          win and offset_y + 40 + 3 * sin(tick % 60 / 60) or offset_y + 43
+        )
       end
 
       if show_gameover_menu then
