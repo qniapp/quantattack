@@ -252,12 +252,9 @@ function mission:render() -- override
     local pattern_box_x = board.offset_x + board.width + 10 + cos(t() / 1.5) * 2 + pattern_box_dx
     local pattern_box_y = 16 + sin(t() / 2) * 4 + 0.5 + pattern_box_dy
 
-    draw_rounded_box(pattern_box_x, pattern_box_y, pattern_box_x + 55, pattern_box_y + 51, 7, 0)
+    sspr(56, 32, 16, 12, pattern_box_x, pattern_box_y)
 
-    print_outlined("match", pattern_box_x + 5, pattern_box_y - 2, 7)
-    print_outlined("the pattern!", pattern_box_x + 5, pattern_box_y + 6, 7)
-
-    render_current_task(pattern_box_x + 15, pattern_box_y + 22)
+    render_current_task(pattern_box_x + 4, pattern_box_y + 12)
   end
 
   mission_game:render()
