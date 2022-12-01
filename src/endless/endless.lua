@@ -71,10 +71,12 @@ function endless:render() -- override
   cursor(board.offset_x * 2 + board.width, 24)
   print("score " .. player.score .. (player.score == 0 and "" or "0"))
 
-  spr(70, 70, 109)
-  print_outlined("swap gates", 81, 110, 7, 0)
-  spr(117, 70, 119)
-  print_outlined("raise gates", 81, 120, 7, 0)
+  if not game:is_game_over() then
+    spr(70, 70, 109)
+    print_outlined("swap gates", 81, 110, 7, 0)
+    spr(117, 70, 119)
+    print_outlined("raise gates", 81, 120, 7, 0)
+  end
 end
 
 return endless
