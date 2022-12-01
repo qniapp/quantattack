@@ -475,8 +475,8 @@ function create_board(__offset_x, __cols)
         return false
       end
 
-      left_gate:swap_with_right()
-      right_gate:swap_with_left()
+      left_gate:swap_with("right")
+      right_gate:swap_with("left")
 
       return true
     end,

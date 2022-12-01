@@ -100,14 +100,10 @@ end
 -- ゲート操作
 -------------------------------------------------------------------------------
 
-function gate:swap_with_right()
+--- @param direction "left" | "right"
+function gate:swap_with(direction)
   self.chain_id = nil
-  self:change_state("swapping_with_right")
-end
-
-function gate:swap_with_left()
-  self.chain_id = nil
-  self:change_state("swapping_with_left")
+  self:change_state("swapping_with_" .. direction)
 end
 
 function gate:fall()

@@ -1,3 +1,4 @@
+---@diagnostic disable: global-in-nil-env
 local attack_bubble = require("lib/attack_bubble")
 local particle = require("lib/particle")
 local bubble = require("lib/bubble")
@@ -160,8 +161,8 @@ function game()
 
         -- カウントダウンの数字はカーソルの上に表示
         if board.countdown then
-          local countdown_sprite_x = { 96, 80, 64 }
-          sspr(countdown_sprite_x[board.countdown], 32,
+          local countdown_sprite_x = { 32, 16, 0 }
+          sspr(countdown_sprite_x[board.countdown], 80,
             16, 16,
             board.offset_x + 16, board.offset_y + 43)
         end

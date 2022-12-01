@@ -59,7 +59,7 @@ describe('gate #solo', function()
     end)
   end)
 
-  describe('swap_with_left', function()
+  describe('swap_with("left")', function()
     local gate
 
     before_each(function()
@@ -70,17 +70,17 @@ describe('gate #solo', function()
     end)
 
     it('should swap with the left gate without errors', function()
-      assert.has_no.errors(function() gate:swap_with_left() end)
+      assert.has_no.errors(function() gate:swap_with("left") end)
     end)
 
     it('should transition its state to swapping', function()
-      gate:swap_with_left()
+      gate:swap_with("left")
 
       assert.is_true(gate:is_swapping())
     end)
   end)
 
-  describe('swap_with_right', function()
+  describe('swap_with("right")', function()
     local gate
 
     before_each(function()
@@ -91,11 +91,11 @@ describe('gate #solo', function()
     end)
 
     it('should swap with the right gate without errors', function()
-      assert.has_no.errors(function() gate:swap_with_right() end)
+      assert.has_no.errors(function() gate:swap_with("right") end)
     end)
 
     it('should transition its state to swapping', function()
-      gate:swap_with_right()
+      gate:swap_with("right")
 
       assert.is_true(gate:is_swapping())
     end)

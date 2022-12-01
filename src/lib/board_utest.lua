@@ -27,7 +27,7 @@ describe('board', function()
 
     it('should not swap gates if the left gate is in swap', function()
       board:put(2, 16, h_gate())
-      board.gates[2][16]:swap_with_left()
+      board.gates[2][16]:swap_with("left")
       board:put(3, 16, x_gate())
 
       local swapped = board:swap(2, 16)
@@ -40,7 +40,7 @@ describe('board', function()
     it('should not swap gates if the right gate is in swap', function()
       board:put(1, 16, h_gate())
       board:put(2, 16, x_gate())
-      board.gates[2][16]:swap_with_right()
+      board.gates[2][16]:swap_with("right")
 
       local swapped = board:swap(1, 16)
 
