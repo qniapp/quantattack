@@ -788,8 +788,10 @@ function create_board(__offset_x, __cols)
     -- x, y が空かどうかを返す
     -- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
     is_gate_empty = function(_ENV, x, y)
+      --#if assert
       assert(0 < x and x <= cols, "x = " .. x)
       assert(y <= row_next_gates, "y = " .. y)
+      --#endif
 
       return gates[x][y]:is_empty() and
           not (_is_part_of_garbage(_ENV, x, y) or
