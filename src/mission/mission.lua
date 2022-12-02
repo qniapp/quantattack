@@ -27,22 +27,7 @@ local reduction_rules = require("lib/reduction_rules")
 local attack_bubble = require("lib/attack_bubble")
 local particle = require("lib/particle")
 
-local all_balloons = {}
-
-local task_balloon = new_class()
-
-function task_balloon:_init(rule, dx, dy)
-  self.rule = rule
-  self.dx = dx + rnd(5)
-  self.dy = dy + rnd(10)
-  self.dt = rnd(10)
-  self.state = ":idle"
-end
-
-function task_balloon:update()
-  self.x = board.offset_x + board.width + 10 + cos((t() + self.dt) / 2) * 2 + self.dx
-  self.y = 26 + sin((t() + self.dt) / 2.5) * 4 + self.dy
-end
+local task_balloon = require("mission/task_balloon")
 
 function render_matching_pattern(pattern, x, y)
   local random_color = ceil_rnd(15)
@@ -62,29 +47,6 @@ function render_matching_pattern(pattern, x, y)
   end
 end
 
-function task_balloon:render()
-  -- バルーン
-  sspr(56, 32, 16, 12, self.x, self.y)
-
-  -- ゲート
-  for i, row in pairs(self.rule[1]) do
-    local gate1_type, gate2_type = unpack(row)
-    local row_x = self.x + 4
-    local row_y = self.y + (i - 1) * 8 + 12
-
-    if gate1_type ~= "?" then
-      if gate1_type == "swap" or gate1_type == "control" or gate1_type == "cnot_x" then
-        line(row_x + 3, row_y + 3, row_x + 11, row_y + 3, 10)
-      end
-      spr(gate(gate1_type).sprite_set.default, row_x, row_y)
-    end
-
-    if gate2_type then
-      spr(gate(gate2_type).sprite_set.default, row_x + 8, row_y)
-    end
-  end
-end
-
 local function shuffle(t)
   -- do a fisher-yates shuffle
   for i = #t, 1, -1 do
@@ -95,7 +57,7 @@ local function shuffle(t)
   return t
 end
 
---- waves
+-- waves
 local wave_number = 1
 
 local waves = {
@@ -145,37 +107,6 @@ local waves = {
   }
 }
 
-local all_match_circles = {}
-
-local function create_match_circle(x, y)
-  add(all_match_circles, { x = x, y = y, r = 0, c = 7 })
-  add(all_match_circles, { x = x, y = y, r = 2, c = 13, pattern = 23130.5 })
-end
-
-local function update_match_circles()
-  for _, each in pairs(all_match_circles) do
-    local dr = 4
-    if attack_bubble.slow then
-      dr = 0.8
-    end
-    each.r = each.r + dr
-
-    if each.r > 128 then
-      del(all_match_circles, each)
-    end
-  end
-end
-
-local function render_match_circles()
-  for _, each in pairs(all_match_circles) do
-    if each.pattern then
-      fillp(each.pattern)
-    end
-    circ(each.x, each.y, each.r, each.c)
-    fillp()
-  end
-end
-
 state = ":play"
 match_pattern = nil
 match_screen_x = nil
@@ -183,15 +114,13 @@ match_screen_y = nil
 match_dx = nil
 
 function mission_game.reduce_callback(score, x, y, player, pattern, dx)
-  printh("reduce_callback")
-
-  for _, each in pairs(all_balloons) do
+  for _, each in pairs(task_balloon.all) do
     if each.rule[5] == pattern then
       state = ":matching"
       match_dx = dx
 
       local attack_cube_callback = function(target_x, target_y)
-        del(all_balloons, each)
+        task_balloon:delete(each)
         state = ":play"
         sfx(14)
         particle:create_chunk(target_x, target_y,
@@ -203,7 +132,6 @@ function mission_game.reduce_callback(score, x, y, player, pattern, dx)
       match_pattern = each.rule
       match_screen_x = board:screen_x(x)
       match_screen_y = board:screen_y(y)
-      create_match_circle(board:screen_x(x) + 3, board:screen_y(y) + 3)
       attack_bubble:create(board:screen_x(x), board:screen_y(y), attack_cube_callback, each.x, each.y)
     end
   end
@@ -211,10 +139,10 @@ end
 
 function mission:on_enter()
   wave_number = 0
-  all_balloons = {}
+
+  task_balloon:init()
 
   player:init()
-
   board:init()
   board:put_random_gates()
 
@@ -249,23 +177,19 @@ function mission:update()
     end
   end
 
-  update_match_circles()
-
-  if #all_balloons == 0 then
+  if #task_balloon.all == 0 then
     wave_number = wave_number + 1
     local current_wave = waves[wave_number]
     if current_wave then
       for i, each in pairs(current_wave) do
-        add(all_balloons, task_balloon(each, i % 3 * 15, (i % 2) * 38))
+        task_balloon:create(each, board.offset_x + board.width, i % 3 * 15, (i % 2) * 38)
       end
     else
       board.win = true
     end
   end
 
-  for _, each in pairs(all_balloons) do
-    each:update()
-  end
+  task_balloon:update()
 end
 
 function mission:render() -- override
@@ -274,10 +198,7 @@ function mission:render() -- override
   end
   render_ripple()
 
-  for _, each in pairs(all_balloons) do
-    each:render()
-  end
-
+  task_balloon:render()
   mission_game:render()
 
   if state == ":matching" then
@@ -290,8 +211,6 @@ function mission:render() -- override
     spr(117, 70, 119)
     print_outlined("raise gates", 81, 120, 7, 0)
   end
-
-  render_match_circles()
 
   if flr(t() * 2) % 2 == 0 then
     print_outlined("match", 84, 2, 0, 12)
