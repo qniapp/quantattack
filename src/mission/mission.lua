@@ -189,7 +189,7 @@ function mission_game.reduce_callback(score, x, y, player, pattern, dx)
       local attack_cube_callback = function(target_x, target_y)
         del(all_balloons, each)
         state = ":play"
-        sfx(10)
+        sfx(14)
         particle:create_chunk(target_x, target_y,
           "10,10,9,7,random,random,-0.03,-0.03,20|10,10,9,7,random,random,-0.03,-0.03,20|9,9,9,7,random,random,-0.03,-0.03,20|9,9,2,5,random,random,-0.03,-0.03,20|9,9,6,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|5,5,2,5,random,random,-0.03,-0.03,20")
       end
