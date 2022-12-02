@@ -33,15 +33,15 @@ local task_balloon = new_class()
 
 function task_balloon:_init(rule, dx, dy)
   self.rule = rule
-  self.dx = dx + rnd(10)
+  self.dx = dx + rnd(5)
   self.dy = dy + rnd(10)
   self.dt = rnd(10)
   self.state = ":idle"
 end
 
 function task_balloon:update()
-  self.x = board.offset_x + board.width + 10 + cos((t() + self.dt) / 1.5) * 2 + self.dx
-  self.y = 16 + sin((t() + self.dt) / 2) * 4 + self.dy
+  self.x = board.offset_x + board.width + 10 + cos((t() + self.dt) / 2) * 2 + self.dx
+  self.y = 26 + sin((t() + self.dt) / 2.5) * 4 + self.dy
 end
 
 function render_matching_pattern(pattern, x, y)
@@ -95,61 +95,48 @@ local function shuffle(t)
   return t
 end
 
-local function cat(f, ...)
-  for i, s in pairs({ ... }) do
-    for k, v in pairs(s) do
-      if tonum(k) then
-        add(f, v)
-      else
-        f[k] = v
-      end
-    end
-  end
-  return f
-end
-
 --- waves
 local wave_number = 1
 
 local waves = {
   -- wave 1
   shuffle({
-      reduction_rules.h[1],
-      reduction_rules.x[1],
-      reduction_rules.y[1],
-      reduction_rules.z[1],
-      reduction_rules.s[1],
-      reduction_rules.t[1]
+    reduction_rules.h[1],
+    reduction_rules.x[1],
+    reduction_rules.y[1],
+    reduction_rules.z[1],
+    reduction_rules.s[1],
+    reduction_rules.t[1]
   }),
 
   -- wave 2
   shuffle({
-      reduction_rules.x[2],
-      reduction_rules.z[2]
+    reduction_rules.x[2],
+    reduction_rules.z[2]
   }),
 
   -- wave 3
   shuffle({
-      reduction_rules.h[2],
-      reduction_rules.h[3],
-      reduction_rules.s[2],
-      reduction_rules.t[2]
+    reduction_rules.h[2],
+    reduction_rules.h[3],
+    reduction_rules.s[2],
+    reduction_rules.t[2]
   }),
 
   -- wave 4
   shuffle({
-      reduction_rules.control[1],
-      reduction_rules.control[2]
+    reduction_rules.control[1],
+    reduction_rules.control[2]
   }),
 
   -- wave 5
   shuffle({
-      reduction_rules.h[5],
-      reduction_rules.x[5],
-      reduction_rules.y[2],
-      reduction_rules.z[5],
-      reduction_rules.s[3],
-      reduction_rules.t[3]
+    reduction_rules.h[5],
+    reduction_rules.x[5],
+    reduction_rules.y[2],
+    reduction_rules.z[5],
+    reduction_rules.s[3],
+    reduction_rules.t[3]
   }),
 
   -- wave 6
@@ -160,12 +147,12 @@ local waves = {
 
 local all_match_circles = {}
 
-function create_match_circle(x, y)
+local function create_match_circle(x, y)
   add(all_match_circles, { x = x, y = y, r = 0, c = 7 })
-  add(all_match_circles, { x = x, y = y, r = 2, c = 13 })
+  add(all_match_circles, { x = x, y = y, r = 2, c = 13, pattern = 23130.5 })
 end
 
-function update_match_circles()
+local function update_match_circles()
   for _, each in pairs(all_match_circles) do
     local dr = 4
     if attack_bubble.slow then
@@ -175,9 +162,13 @@ function update_match_circles()
   end
 end
 
-function render_match_circles()
+local function render_match_circles()
   for _, each in pairs(all_match_circles) do
+    if each.pattern then
+      fillp(each.pattern)
+    end
     circ(each.x, each.y, each.r, each.c)
+    fillp()
   end
 end
 
@@ -200,7 +191,7 @@ function mission_game.reduce_callback(score, x, y, player, pattern, dx)
         state = ":play"
         sfx(10)
         particle:create_chunk(target_x, target_y,
-                              "10,10,9,7,random,random,-0.03,-0.03,20|10,10,9,7,random,random,-0.03,-0.03,20|9,9,9,7,random,random,-0.03,-0.03,20|9,9,2,5,random,random,-0.03,-0.03,20|9,9,6,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|5,5,2,5,random,random,-0.03,-0.03,20")
+          "10,10,9,7,random,random,-0.03,-0.03,20|10,10,9,7,random,random,-0.03,-0.03,20|9,9,9,7,random,random,-0.03,-0.03,20|9,9,2,5,random,random,-0.03,-0.03,20|9,9,6,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|5,5,2,5,random,random,-0.03,-0.03,20")
       end
 
       attack_bubble.slow = true
@@ -297,6 +288,11 @@ function mission:render() -- override
   end
 
   render_match_circles()
+
+  if flr(t() * 2) % 2 == 0 then
+    print_outlined("match", 84, 2, 0, 12)
+    print_outlined("the pattern!", 70, 10, 0, 12)
+  end
 end
 
 return mission

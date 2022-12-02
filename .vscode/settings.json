@@ -108,7 +108,8 @@
     "print_outlined",
     "ceil_rnd",
     "flip",
-    "app_title"
+    "app_title",
+    "circ"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,
