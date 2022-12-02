@@ -158,15 +158,6 @@ local waves = {
   }
 }
 
-local function set_wave()
-  current_wave = waves[wave_number]
-  if current_wave == nil then
-    board.win = true
-  else
-    wave_number = wave_number + 1
-  end
-end
-
 local all_match_circles = {}
 
 function create_match_circle(x, y)
@@ -225,6 +216,7 @@ end
 
 function mission:on_enter()
   wave_number = 0
+  all_balloons = {}
 
   player:init()
 
@@ -235,8 +227,6 @@ function mission:on_enter()
 
   mission_game:init()
   mission_game:add_player(player, player_cursor, board)
-
-  -- set_wave()
 end
 
 function mission:update()
