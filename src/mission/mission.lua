@@ -173,7 +173,6 @@ function mission_game.reduce_callback(score, x, y, player, pattern, dx)
       match_pattern = each.rule
       match_screen_x = board:screen_x(x)
       match_screen_y = board:screen_y(y)
-      -- create_match_circle(board:screen_x(x) + 3, board:screen_y(y) + 3)
       attack_bubble:create(board:screen_x(x), board:screen_y(y), attack_cube_callback, each.x, each.y)
     end
   end

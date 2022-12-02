@@ -21,6 +21,12 @@ function bubble._update(_ENV, self)
   _tick = _tick + 1
 end
 
+function bubble:post_update_all()
+  if self.slow and #self.all > 0 then
+    flip()
+  end
+end
+
 function bubble._render(_ENV)
   if _type == "combo" then
     draw_rounded_box(_x - 1, _y + 1, _x + 7, _y + 9, 5, 5)

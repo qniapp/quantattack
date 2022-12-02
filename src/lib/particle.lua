@@ -44,6 +44,12 @@ function particle._update(_ENV, self)
   _x, _y, _dx, _dy, _tick = _x + _dx, _y + _dy, _dx + _ddx, _dy + _ddy, _tick + 1
 end
 
+function particle:post_update_all()
+  if self.slow and #self.all > 0 then
+    flip()
+  end
+end
+
 function particle._render(_ENV)
   circfill(_x, _y, _radius, _color)
 end
