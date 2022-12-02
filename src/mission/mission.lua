@@ -27,6 +27,64 @@ local reduction_rules = require("lib/reduction_rules")
 local attack_bubble = require("lib/attack_bubble")
 local particle = require("lib/particle")
 
+local all_balloons = {}
+
+local task_balloon = new_class()
+
+function task_balloon:_init(rule, dx, dy)
+  self.rule = rule
+  self.dx = dx + rnd(5)
+  self.dy = dy + rnd(10)
+  self.dt = rnd(10)
+  self.state = ":idle"
+end
+
+function task_balloon:update()
+  self.x = board.offset_x + board.width + 10 + cos((t() + self.dt) / 2) * 2 + self.dx
+  self.y = 26 + sin((t() + self.dt) / 2.5) * 4 + self.dy
+end
+
+function render_matching_pattern(pattern, x, y)
+  local random_color = ceil_rnd(15)
+
+  for i, row in pairs(pattern[1]) do
+    local gate1_type, gate2_type = unpack(row)
+    local row_x = x
+    local row_y = y + (i - 1) * 8
+
+    if gate1_type ~= "?" then
+      draw_rounded_box(row_x - 1, row_y - 1, row_x + 7, row_y + 7, random_color)
+    end
+
+    if gate2_type then
+      draw_rounded_box(row_x + (match_dx * 8) - 1, row_y - 1, row_x + (match_dx + 1) * 8 - 1, row_y + 7, random_color)
+    end
+  end
+end
+
+function task_balloon:render()
+  -- バルーン
+  sspr(56, 32, 16, 12, self.x, self.y)
+
+  -- ゲート
+  for i, row in pairs(self.rule[1]) do
+    local gate1_type, gate2_type = unpack(row)
+    local row_x = self.x + 4
+    local row_y = self.y + (i - 1) * 8 + 12
+
+    if gate1_type ~= "?" then
+      if gate1_type == "swap" or gate1_type == "control" or gate1_type == "cnot_x" then
+        line(row_x + 3, row_y + 3, row_x + 11, row_y + 3, 10)
+      end
+      spr(gate(gate1_type).sprite_set.default, row_x, row_y)
+    end
+
+    if gate2_type then
+      spr(gate(gate2_type).sprite_set.default, row_x + 8, row_y)
+    end
+  end
+end
+
 local function shuffle(t)
   -- do a fisher-yates shuffle
   for i = #t, 1, -1 do
@@ -37,154 +95,123 @@ local function shuffle(t)
   return t
 end
 
-local function cat(f, ...)
-  for i, s in pairs({ ... }) do
-    for k, v in pairs(s) do
-      if tonum(k) then
-        add(f, v)
-      else
-        f[k] = v
-      end
-    end
-  end
-  return f
-end
+--- waves
+local wave_number = 1
 
---- タスク
-local task_number = 1
+local waves = {
+  -- wave 1
+  shuffle({
+    reduction_rules.h[1],
+    reduction_rules.x[1],
+    reduction_rules.y[1],
+    reduction_rules.z[1],
+    reduction_rules.s[1],
+    reduction_rules.t[1]
+  }),
 
-local tasks_level1 = shuffle({
-  reduction_rules.h[1],
-  reduction_rules.x[1],
-  reduction_rules.y[1],
-  reduction_rules.z[1],
-  reduction_rules.s[1],
-  reduction_rules.t[1]
-})
-local tasks_level2 = shuffle({
-  reduction_rules.x[2],
-  reduction_rules.z[2]
-})
-local tasks_level3 = shuffle({
-  reduction_rules.h[2],
-  reduction_rules.h[3],
-  reduction_rules.s[2],
-  reduction_rules.t[2]
-})
-local tasks_level4 = shuffle({
-  reduction_rules.control[1],
-  reduction_rules.control[2]
-})
-local tasks_level5 = shuffle({
-  reduction_rules.h[5],
-  reduction_rules.x[5],
-  reduction_rules.y[2],
-  reduction_rules.z[5],
-  reduction_rules.s[3],
-  reduction_rules.t[3]
-})
-local tasks_level6 = {
-  reduction_rules.swap[1]
+  -- wave 2
+  shuffle({
+    reduction_rules.x[2],
+    reduction_rules.z[2]
+  }),
+
+  -- wave 3
+  shuffle({
+    reduction_rules.h[2],
+    reduction_rules.h[3],
+    reduction_rules.s[2],
+    reduction_rules.t[2]
+  }),
+
+  -- wave 4
+  shuffle({
+    reduction_rules.control[1],
+    reduction_rules.control[2]
+  }),
+
+  -- wave 5
+  shuffle({
+    reduction_rules.h[5],
+    reduction_rules.x[5],
+    reduction_rules.y[2],
+    reduction_rules.z[5],
+    reduction_rules.s[3],
+    reduction_rules.t[3]
+  }),
+
+  -- wave 6
+  {
+    reduction_rules.swap[1]
+  }
 }
-local tasks = cat(tasks_level1, tasks_level2, tasks_level3, tasks_level4, tasks_level5, tasks_level6)
-
-local function set_task()
-  current_task = tasks[task_number]
-  if current_task == nil then
-    board.win = true
-  else
-    task_number = task_number + 1
-  end
-end
-
-local function render_current_task(x, y, animate_match)
-  local random_color = nil
-  if animate_match then
-    random_color = ceil_rnd(15)
-  end
-
-  for i, row in pairs(current_task[1]) do
-    local gate1_type, gate2_type = unpack(row)
-    local row_x = x
-    local row_y = y + (i - 1) * 8
-
-    if gate1_type ~= "?" then
-      if gate1_type == "swap" or gate1_type == "control" or gate1_type == "cnot_x" then
-        line(row_x + 3, row_y + 3, row_x + 11, row_y + 3, 10)
-      end
-      if animate_match then
-        draw_rounded_box(row_x - 1, row_y - 1, row_x + 7, row_y + 7, random_color)
-      else
-        spr(gate(gate1_type).sprite_set.default, row_x, row_y)
-      end
-    end
-
-    if gate2_type then
-      if animate_match then
-        draw_rounded_box(row_x + (match_dx * 8) - 1, row_y - 1, row_x + (match_dx + 1) * 8 - 1, row_y + 7, random_color)
-      else
-        spr(gate(gate2_type).sprite_set.default, row_x + 8, row_y)
-      end
-    end
-  end
-end
 
 local all_match_circles = {}
 
-function create_match_circle(x, y)
-  add(all_match_circles, { x = x, y = y, r = 0 })
+local function create_match_circle(x, y)
+  add(all_match_circles, { x = x, y = y, r = 0, c = 7 })
+  add(all_match_circles, { x = x, y = y, r = 2, c = 13, pattern = 23130.5 })
 end
 
-function update_match_circles()
+local function update_match_circles()
   for _, each in pairs(all_match_circles) do
-    local dr = 0.8
-    if each.r > 35 then
-      dr = 6
+    local dr = 4
+    if attack_bubble.slow then
+      dr = 0.8
     end
     each.r = each.r + dr
+
+    if each.r > 128 then
+      del(all_match_circles, each)
+    end
   end
 end
 
-function render_match_circles()
+local function render_match_circles()
   for _, each in pairs(all_match_circles) do
-    circ(each.x, each.y, each.r, 7)
+    if each.pattern then
+      fillp(each.pattern)
+    end
+    circ(each.x, each.y, each.r, each.c)
+    fillp()
   end
 end
 
 state = ":play"
+match_pattern = nil
 match_screen_x = nil
 match_screen_y = nil
 match_dx = nil
 
-pattern_box_state = nil
-tick_pattern_box_shake = 0
-
 function mission_game.reduce_callback(score, x, y, player, pattern, dx)
-  if current_task and current_task[5] == pattern then
-    state = ":matching"
-    match_dx = dx
+  printh("reduce_callback")
 
-    local attack_cube_callback = function(target_x, target_y)
-      state = ":play"
-      pattern_box_state = ":shake"
-      sfx(10)
-      particle:create_chunk(target_x, target_y,
-        "10,10,9,7,random,random,-0.03,-0.03,20|10,10,9,7,random,random,-0.03,-0.03,20|9,9,9,7,random,random,-0.03,-0.03,20|9,9,2,5,random,random,-0.03,-0.03,20|9,9,6,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|5,5,2,5,random,random,-0.03,-0.03,20")
-      set_task()
+  for _, each in pairs(all_balloons) do
+    if each.rule[5] == pattern then
+      state = ":matching"
+      match_dx = dx
+
+      local attack_cube_callback = function(target_x, target_y)
+        del(all_balloons, each)
+        state = ":play"
+        sfx(14)
+        particle:create_chunk(target_x, target_y,
+          "10,10,9,7,random,random,-0.03,-0.03,20|10,10,9,7,random,random,-0.03,-0.03,20|9,9,9,7,random,random,-0.03,-0.03,20|9,9,2,5,random,random,-0.03,-0.03,20|9,9,6,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|5,5,2,5,random,random,-0.03,-0.03,20")
+      end
+
+      attack_bubble.slow = true
+      sfx(13)
+      match_pattern = each.rule
+      match_screen_x = board:screen_x(x)
+      match_screen_y = board:screen_y(y)
+      create_match_circle(board:screen_x(x) + 3, board:screen_y(y) + 3)
+      attack_bubble:create(board:screen_x(x), board:screen_y(y), attack_cube_callback, each.x, each.y)
     end
-
-    attack_bubble.slow = true
-    sfx(13)
-    match_screen_x = board:screen_x(x)
-    match_screen_y = board:screen_y(y)
-    create_match_circle(board:screen_x(x) + 3, board:screen_y(y) + 3)
-    attack_bubble:create(board:screen_x(x), board:screen_y(y), attack_cube_callback, board.offset_x + board.width + 27,
-      40)
   end
 end
 
 function mission:on_enter()
-  task_number = 1
+  wave_number = 0
+  all_balloons = {}
 
   player:init()
 
@@ -195,8 +222,6 @@ function mission:on_enter()
 
   mission_game:init()
   mission_game:add_player(player, player_cursor, board)
-
-  set_task()
 end
 
 function mission:update()
@@ -226,13 +251,20 @@ function mission:update()
 
   update_match_circles()
 
-  if pattern_box_state == ":shake" then
-    if tick_pattern_box_shake < 30 then
-      tick_pattern_box_shake = tick_pattern_box_shake + 1
+  if #all_balloons == 0 then
+    wave_number = wave_number + 1
+    local current_wave = waves[wave_number]
+    if current_wave then
+      for i, each in pairs(current_wave) do
+        add(all_balloons, task_balloon(each, i % 3 * 15, (i % 2) * 38))
+      end
     else
-      tick_pattern_box_shake = 0
-      pattern_box_state = nil
+      board.win = true
     end
+  end
+
+  for _, each in pairs(all_balloons) do
+    each:update()
   end
 end
 
@@ -242,28 +274,14 @@ function mission:render() -- override
   end
   render_ripple()
 
-  if current_task then
-    local pattern_box_dx, pattern_box_dy = 0, 0
-    if pattern_box_state == ":shake" then
-      pattern_box_dx = (ceil_rnd(3) - 2) * 2
-      pattern_box_dy = (ceil_rnd(3) - 2) * 2
-    end
-
-    local pattern_box_x = board.offset_x + board.width + 10 + cos(t() / 1.5) * 2 + pattern_box_dx
-    local pattern_box_y = 16 + sin(t() / 2) * 4 + 0.5 + pattern_box_dy
-
-    draw_rounded_box(pattern_box_x, pattern_box_y, pattern_box_x + 55, pattern_box_y + 51, 7, 0)
-
-    print_outlined("match", pattern_box_x + 5, pattern_box_y - 2, 7)
-    print_outlined("the pattern!", pattern_box_x + 5, pattern_box_y + 6, 7)
-
-    render_current_task(pattern_box_x + 15, pattern_box_y + 22)
+  for _, each in pairs(all_balloons) do
+    each:render()
   end
 
   mission_game:render()
 
   if state == ":matching" then
-    render_current_task(match_screen_x, match_screen_y, true)
+    render_matching_pattern(match_pattern, match_screen_x, match_screen_y)
   end
 
   if not mission_game:is_game_over() then
@@ -274,6 +292,11 @@ function mission:render() -- override
   end
 
   render_match_circles()
+
+  if flr(t() * 2) % 2 == 0 then
+    print_outlined("match", 84, 2, 0, 12)
+    print_outlined("the pattern!", 70, 10, 0, 12)
+  end
 end
 
 return mission

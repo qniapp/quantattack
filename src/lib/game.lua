@@ -255,8 +255,10 @@ function game:render() -- override
   bubble:render_all()
   attack_bubble:render_all()
 
-  -- print_outlined(stat(1), 101, 112, 7)
-  -- print_outlined(stat(7), 117, 120, 7)
+  --#ifn release
+  print_outlined(stat(1), 101, 112, 0)
+  print_outlined(stat(7), 117, 120, 0)
+  --#endif
 end
 
 -- ゲートをせりあげる

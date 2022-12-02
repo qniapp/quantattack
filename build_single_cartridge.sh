@@ -93,39 +93,7 @@ build_output_path="${build_dir_path}/v${version}_${config}"
 symbols=''
 
 if [[ $config == 'debug' ]]; then
-  # symbols='assert,deprecated,log,visual_logger,tuner,profiler,mouse,cheat,sandbox'
-  # lighter config (to remain under 65536 chars)
-  # symbols='assert,tostring,dump,log,debug_menu,debug_character'
-  # symbols='tostring,dump,log,debug_menu,debug_character,cheat'
-  # symbols='debug_menu,debug_character,cheat'
-  symbols='assert,tostring,dump,debug_character,debug_menu,debug_collision_mask,cheat,pfx'
-elif [[ $config == 'debug-ultrafast' ]]; then
-  symbols='assert,tostring,dump,log,cheat,ultrafast'
-elif [[ $config == 'cheat' ]]; then
-  # symbols='cheat,tostring,dump,log,debug_menu'
-  symbols='cheat,tostring,dump,debug_menu'
-elif [[ $config == 'tuner' ]]; then
-  symbols='tuner,mouse'
-elif [[ $config == 'ultrafast' ]]; then
-  symbols='ultrafast'
-elif [[ $config == 'cheat-ultrafast' ]]; then
-  symbols='cheat,ultrafast,debug_menu'
-elif [[ $config == 'sandbox' ]]; then
-  # symbols='assert,deprecated,sandbox'
-  symbols='sandbox,assert,tuner,mouse'
-elif [[ $config == 'assert' ]]; then
-  # symbols='assert,tostring,dump'
-  symbols='assert,tostring,debug_collision_mask'
-elif [[ $config == 'profiler' ]]; then
-  # symbols='profiler,debug_menu'
-  # profiler is too heavy right now, cannot build, so use lightweight version
-  symbols='profiler_lightweight,cheat'
-elif [[ $config == 'recorder' ]]; then
-  symbols='recorder,tostring,log'
-elif [[ $config == 'itest' ]]; then
-  # cheat needed to set debug motion mode; remove if not testing and you need to spare chars
-  # symbols='itest,proto,tostring,cheat'
-  symbols='itest,proto,tostring'
+  symbols='tostring,dump'
 elif [[ $config == 'release' ]]; then
   # usually release has no symbols except those that help making the code more compact
   # in this game project we define 'release' as a special symbol for that

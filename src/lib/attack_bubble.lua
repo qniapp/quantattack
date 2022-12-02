@@ -17,12 +17,13 @@ function attack_bubble._update(_ENV, self)
     del(self.all, _ENV)
   end
 
-  if t() - _start_time < 0.8 then
+  if t() - _start_time < 0.3 then
     if self.slow and #self.all > 0 then
       flip()
     end
     _dx, _dy = _left and 0.5 or -0.5, -0.2
   else
+    self.slow = false
     _dx, _dy = (_target_x - _x) / 6, (_target_y - _y) / 6
   end
 
