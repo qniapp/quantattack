@@ -16,16 +16,17 @@ function effect_set:update_all()
   foreach(self.all, function(each)
     self._update(each, self)
   end)
-
-  self:post_update_all()
-end
-
-function effect_set:post_update_all()
-  -- NOP
 end
 
 function effect_set:render_all()
-  foreach(self.all, self._render)
+  foreach(self.all, function(each)
+    self._render(each, self)
+  end)
+  self:post_render_all()
+end
+
+function effect_set:post_render_all()
+  -- NOP
 end
 
 return effect_set

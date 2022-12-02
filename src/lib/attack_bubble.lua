@@ -20,10 +20,7 @@ function attack_bubble._update(_ENV, self)
   end
 
   if _tick < 40 then
-    if self.slow and _tick < 20 and #self.all > 0 then
-      flip()
-    end
-    _dx, _dy = _left and 0.5 or -0.5, -0.2
+    _dx, _dy = _left and 0.5 or -0.5, _target_y < _y and -0.2 or 0.2
   else
     _dx, _dy = (_target_x - _x) / 6, (_target_y - _y) / 6
   end
@@ -31,7 +28,7 @@ function attack_bubble._update(_ENV, self)
   _x, _y = _x + _dx, _y + _dy
 end
 
-function attack_bubble._render(_ENV)
+function attack_bubble._render(_ENV, self)
   local angle = t()
 
   fillp(23130.5)
@@ -39,6 +36,10 @@ function attack_bubble._render(_ENV)
   fillp()
   circfill(_x, _y, 4 + 2 * sin(1.5 * angle), 12)
   circfill(_x, _y, 3 + sin(2.5 * angle), 7)
+
+  if self.slow and _tick < 20 and #self.all > 0 then
+    flip()
+  end
 end
 
 return attack_bubble
