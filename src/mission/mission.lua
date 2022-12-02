@@ -26,6 +26,7 @@ local last_steps = 0
 local reduction_rules = require("lib/reduction_rules")
 local attack_bubble = require("lib/attack_bubble")
 local particle = require("lib/particle")
+local ripple = require("lib/ripple")
 
 local all_balloons = {}
 
@@ -237,11 +238,12 @@ end
 
 function mission:render() -- override
   if state == ":matching" then
-    ripple_speed = "slow"
+    ripple.slow = true
   else
-    ripple_speed = "normal"
+    ripple.slow = false
   end
-  render_ripple()
+  ripple:render()
+  -- render_ripple()
 
   for _, each in pairs(all_balloons) do
     each:render()
