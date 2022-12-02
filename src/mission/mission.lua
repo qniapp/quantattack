@@ -159,6 +159,10 @@ local function update_match_circles()
       dr = 0.8
     end
     each.r = each.r + dr
+
+    if each.r > 128 then
+      del(all_match_circles, each)
+    end
   end
 end
 
