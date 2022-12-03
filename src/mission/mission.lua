@@ -186,16 +186,18 @@ function mission:update()
     end
   end
 
-  if #task_balloon.all == 0 then
-    wave_number = wave_number + 1
-    local current_wave = waves[wave_number]
-    if current_wave then
-      for i, each in pairs(current_wave) do
-        task_balloon:create(each, board.offset_x + board.width, i % 3 * 15, (i % 2) * 38)
+  if not mission_game.countdown then
+    if #task_balloon.all == 0 then
+      wave_number = wave_number + 1
+      local current_wave = waves[wave_number]
+      if current_wave then
+        for i, each in pairs(current_wave) do
+          task_balloon:create(each, board.offset_x + board.width, i % 3 * 15, (i % 2) * 38)
+        end
+        task_balloon:enter_all()
+      else
+        board.win = true
       end
-      task_balloon:enter_all()
-    else
-      board.win = true
     end
   end
 
@@ -224,14 +226,16 @@ function mission:render() -- override
     print_outlined("raise gates", 81, 120, 7, 0)
   end
 
-  if task_balloon.state == ":enter" then
-    if flr(t() * 4) % 2 == 0 then
-      print_outlined("wave #" .. wave_number, 80, 10, 0, 8)
-    end
-  else
-    if flr(t() * 2) % 2 == 0 then
-      print_outlined("match", 84, 2, 0, 12)
-      print_outlined("the pattern!", 70, 10, 0, 12)
+  if not mission_game.countdown then
+    if task_balloon.state == ":enter" then
+      if flr(t() * 4) % 2 == 0 then
+        print_outlined("wave #" .. wave_number, 80, 10, 0, 8)
+      end
+    else
+      if flr(t() * 2) % 2 == 0 then
+        print_outlined("match", 84, 2, 0, 12)
+        print_outlined("the pattern!", 70, 10, 0, 12)
+      end
     end
   end
 end

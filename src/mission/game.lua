@@ -6,7 +6,7 @@ local ripple = require("lib/ripple")
 
 require("lib/helpers")
 
-local all_players, countdown
+local all_players
 
 function game()
   return setmetatable({
