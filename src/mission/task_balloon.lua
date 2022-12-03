@@ -27,6 +27,7 @@ end
 function task_balloon:enter_all()
    self.state = ":enter"
    self.enter_tick_left = 128
+   sfx(15)
 end
 
 function task_balloon:delete(balloon)
@@ -36,7 +37,7 @@ end
 function task_balloon:update()
   if self.state == ":enter" then
     self.enter_tick_left = self.enter_tick_left - 1
-    if self.enter_tick_left == 0 then
+    if self.enter_tick_left < 0 then
       self.state = ":idle"
     end
   end
