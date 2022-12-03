@@ -227,12 +227,14 @@ function mission:render() -- override
   end
 
   if not mission_game.countdown and stat(16) == -1 then
-    if task_balloon.state == ":enter" then
-      print_outlined("wave #" .. wave_number, 80, 10, 0, 8)
-    else
-      if flr(t() * 2) % 2 == 0 then
-        print_outlined("match", 84, 2, 0, 12)
-        print_outlined("the pattern!", 70, 10, 0, 12)
+    if not mission_game:is_game_over() then
+      if task_balloon.state == ":enter" then
+        print_outlined("wave #" .. wave_number, 80, 10, 7, 8)
+      else
+        if flr(t() * 2) % 2 == 0 then
+          print_outlined("match", 84, 2, 0, 12)
+          print_outlined("the pattern!", 70, 10, 0, 12)
+        end
       end
     end
   end
