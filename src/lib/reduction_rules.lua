@@ -356,25 +356,36 @@ local reduction_rules = {
 
   control = {
     -- C-X          I I
-    -- C-X  ----->  I I
-    --
-    -- X-C          I I
-    -- X-C  ----->  I I
-    "control,cnot_x\ncontrol,cnot_x|,,\ntrue,,\n,1,\ntrue,1,|4|5",
-
-    -- C-X          I I
     -- X-C          I I
     -- C-X  ----->  S-S
     --
     -- X-C          I I
     -- C-X          I I
     -- X-C  ----->  S-S
-    "control,cnot_x\ncnot_x,control\ncontrol,cnot_x|,,\ntrue,,\n,1,\ntrue,1,\n,2,swap\ntrue,2,swap|6|10",
+    -- "control,cnot_x\ncnot_x,control\ncontrol,cnot_x|,,\ntrue,,\n,1,\ntrue,1,\n,2,swap\ntrue,2,swap|6|10",
 
     --  C-X          I I
     --  S-S  ----->  S-S
     --  X-C          I I
     "control,cnot_x\nswap,swap\ncnot_x,control|,,\ntrue,,\n,2,\ntrue,2,|4|10"
+  },
+
+  cnot_x = {
+    -- X-C          I I
+    -- X-C  ----->  I I
+    --
+    -- C-X          I I
+    -- C-X  ----->  I I
+    "cnot_x,control\ncnot_x,control|,,\ntrue,,\n,1,\ntrue,1,|4|5",
+
+    -- X-C          I I
+    -- C-X          I I
+    -- X-C  ----->  S-S
+    --
+    -- C-X          I I
+    -- X-C          I I
+    -- C-X  ----->  S-S
+    "cnot_x,control\ncontrol,cnot_x\ncnot_x,control|,,\ntrue,,\n,1,\ntrue,1,\n,2,swap\ntrue,2,swap|6|10",
   },
 
   swap = {

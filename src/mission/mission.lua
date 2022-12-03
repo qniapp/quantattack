@@ -84,23 +84,15 @@ local waves = {
 
   -- wave 4
   {
-    reduction_rules.control[1]
+    reduction_rules.cnot_x[1]
   },
 
   -- wave 5
   {
-    reduction_rules.control[2]
+    reduction_rules.cnot_x[2]
   },
 
   -- wave 6
-  shuffle({
-    reduction_rules.h[2],
-    reduction_rules.h[3],
-    reduction_rules.s[2],
-    reduction_rules.t[2]
-  }),
-
-  -- wave 7
   shuffle({
     reduction_rules.h[5],
     reduction_rules.x[5],
@@ -108,6 +100,14 @@ local waves = {
     reduction_rules.z[5],
     reduction_rules.s[3],
     reduction_rules.t[3]
+  }),
+
+  -- wave 7
+  shuffle({
+    reduction_rules.h[2],
+    reduction_rules.h[3],
+    reduction_rules.s[2],
+    reduction_rules.t[2]
   }),
 
   -- wave 8
