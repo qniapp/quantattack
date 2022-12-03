@@ -67,18 +67,32 @@ local waves = {
     reduction_rules.h[1],
     reduction_rules.x[1],
     reduction_rules.y[1],
-    reduction_rules.z[1],
+    reduction_rules.z[1]
+  }),
+
+  -- wave 2
+  shuffle({
     reduction_rules.s[1],
     reduction_rules.t[1]
   }),
 
-  -- wave 2
+  -- wave 3
   shuffle({
     reduction_rules.x[2],
     reduction_rules.z[2]
   }),
 
-  -- wave 3
+  -- wave 4
+  {
+    reduction_rules.control[1]
+  },
+
+  -- wave 5
+  {
+    reduction_rules.control[2]
+  },
+
+  -- wave 6
   shuffle({
     reduction_rules.h[2],
     reduction_rules.h[3],
@@ -86,13 +100,7 @@ local waves = {
     reduction_rules.t[2]
   }),
 
-  -- wave 4
-  shuffle({
-    reduction_rules.control[1],
-    reduction_rules.control[2]
-  }),
-
-  -- wave 5
+  -- wave 7
   shuffle({
     reduction_rules.h[5],
     reduction_rules.x[5],
@@ -102,7 +110,7 @@ local waves = {
     reduction_rules.t[3]
   }),
 
-  -- wave 6
+  -- wave 8
   {
     reduction_rules.swap[1]
   }
