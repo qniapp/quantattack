@@ -26,6 +26,7 @@ local last_steps = 0
 local reduction_rules = require("lib/reduction_rules")
 local attack_bubble = require("lib/attack_bubble")
 local particle = require("lib/particle")
+local ripple = require("lib/ripple")
 
 local task_balloon = require("mission/task_balloon")
 
@@ -107,6 +108,37 @@ local waves = {
   }
 }
 
+local all_match_circles = {}
+
+local function create_match_circle(x, y)
+  add(all_match_circles, { x = x, y = y, r = 0, c = 7 })
+  add(all_match_circles, { x = x, y = y, r = 2, c = 13, pattern = 23130.5 })
+end
+
+local function update_match_circles()
+  for _, each in pairs(all_match_circles) do
+    local dr = 4
+    if attack_bubble.slow then
+      dr = 0.8
+    end
+    each.r = each.r + dr
+
+    if each.r > 128 then
+      del(all_match_circles, each)
+    end
+  end
+end
+
+local function render_match_circles()
+  for _, each in pairs(all_match_circles) do
+    if each.pattern then
+      fillp(each.pattern)
+    end
+    circ(each.x, each.y, each.r, each.c)
+    fillp()
+  end
+end
+
 state = ":play"
 match_pattern = nil
 match_screen_x = nil
@@ -132,6 +164,7 @@ function mission_game.reduce_callback(score, x, y, player, pattern, dx)
       match_pattern = each.rule
       match_screen_x = board:screen_x(x)
       match_screen_y = board:screen_y(y)
+      create_match_circle(board:screen_x(x) + 3, board:screen_y(y) + 3)
       attack_bubble:create(board:screen_x(x), board:screen_y(y), attack_cube_callback, each.x, each.y)
     end
   end
@@ -177,7 +210,9 @@ function mission:update()
     end
   end
 
-  if #task_balloon.all == 0 then
+  update_match_circles()
+
+  if #all_balloons == 0 then
     wave_number = wave_number + 1
     local current_wave = waves[wave_number]
     if current_wave then
@@ -194,9 +229,12 @@ end
 
 function mission:render() -- override
   if state == ":matching" then
-    ripple_speed = "slow"
+    ripple.slow = true
+  else
+    ripple.slow = false
   end
-  render_ripple()
+  ripple:render()
+  -- render_ripple()
 
   task_balloon:render()
   mission_game:render()
@@ -211,6 +249,8 @@ function mission:render() -- override
     spr(117, 70, 119)
     print_outlined("raise gates", 81, 120, 7, 0)
   end
+
+  render_match_circles()
 
   if flr(t() * 2) % 2 == 0 then
     print_outlined("match", 84, 2, 0, 12)

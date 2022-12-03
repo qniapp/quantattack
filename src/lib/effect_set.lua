@@ -13,17 +13,20 @@ function effect_set:_add(f)
 end
 
 function effect_set:update_all()
-  if self.slow and #self.all > 0 then
-    flip()
-  end
-
   foreach(self.all, function(each)
     self._update(each, self)
   end)
 end
 
 function effect_set:render_all()
-  foreach(self.all, self._render)
+  foreach(self.all, function(each)
+    self._render(each, self)
+  end)
+  self:post_render_all()
+end
+
+function effect_set:post_render_all()
+  -- NOP
 end
 
 return effect_set

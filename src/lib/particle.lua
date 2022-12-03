@@ -48,4 +48,10 @@ function particle._render(_ENV)
   circfill(_x, _y, _radius, _color)
 end
 
+function particle:post_render_all()
+  if self.slow and #self.all > 0 then
+    flip()
+  end
+end
+
 return particle
