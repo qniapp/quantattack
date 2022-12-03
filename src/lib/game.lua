@@ -252,11 +252,6 @@ function game:render() -- override
   particle:render_all()
   bubble:render_all()
   attack_bubble:render_all()
-
-  --#ifn release
-  print_outlined(stat(1), 101, 112, 0)
-  print_outlined(stat(7), 117, 120, 0)
-  --#endif
 end
 
 -- ゲートをせりあげる

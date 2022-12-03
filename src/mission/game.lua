@@ -6,7 +6,7 @@ local ripple = require("lib/ripple")
 
 require("lib/helpers")
 
-local all_players, countdown
+local all_players
 
 function game()
   return setmetatable({
@@ -170,9 +170,6 @@ function game()
       particle:render_all()
       bubble:render_all()
       attack_bubble:render_all()
-
-      -- print_outlined(stat(1), 101, 112, 7)
-      -- print_outlined(stat(7), 117, 120, 7)
     end,
 
     -- ゲートをせりあげる

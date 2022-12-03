@@ -8,6 +8,7 @@ end
 
 function task_balloon:init()
    self.all = {}
+   self.state = ":idle"
 end
 
 function task_balloon:create(_rule, _x_base, _dx, _dy)
@@ -18,9 +19,15 @@ function task_balloon:create(_rule, _x_base, _dx, _dy)
   dx = _dx + rnd(5)
   dy = _dy + rnd(10)
   dt = rnd(10)
-  state = ":idle"
+  y = 26 + dy - 128
 
   add(self.all, _ENV)
+end
+
+function task_balloon:enter_all()
+   self.state = ":enter"
+   self.enter_tick_left = 128
+   sfx(15)
 end
 
 function task_balloon:delete(balloon)
@@ -28,11 +35,23 @@ function task_balloon:delete(balloon)
 end
 
 function task_balloon:update()
+  if self.state == ":enter" then
+    self.enter_tick_left = self.enter_tick_left - 1
+    if self.enter_tick_left < 0 then
+      self.state = ":idle"
+    end
+  end
+
   foreach(self.all, function(each)
     local _ENV = each
 
     x = x_base + 10 + cos((t() + dt) / 2) * 2 + dx
-    y = 26 + sin((t() + dt) / 2.5) * 4 + dy
+
+    if self.state == ":enter" then
+      y = y + 1
+    else
+      y = 26 + sin((t() + dt) / 2.5) * 4 + dy
+    end
   end)
 end
 
