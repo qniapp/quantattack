@@ -23,6 +23,7 @@ cd(export_folder)
   -- #cartridge (tagged to easily find what code to change when adding a new cartridge,
   -- and because this script cannot access external files like cartridges.txt)
   local additional_main_cartridges_list = {
+    "qitaev_mission.p8",
     "qitaev_endless.p8",
     "qitaev_vs_qpu.p8",
     "qitaev_qpu_vs_qpu.p8",
