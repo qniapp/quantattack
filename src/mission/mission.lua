@@ -69,10 +69,12 @@ local waves = {
   -- wave 5
   "cnot_x,2",
   -- wave 6
-  "h,5|x,5|y,2|z,5|s,3|t,3",
+  "h,5|x,5|y,2|z,5",
   -- wave 7
-  "h,2|h,3|s,2|t,2",
+  "s,3|t,3",
   -- wave 8
+  "h,2|h,3|s,2|t,2",
+  -- wave 9
   "swap,1"
 }
 
