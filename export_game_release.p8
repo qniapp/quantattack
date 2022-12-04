@@ -24,6 +24,7 @@ cd(export_folder)
   -- and because this script cannot access external files like cartridges.txt)
   local additional_main_cartridges_list = {
     "qitaev_mission.p8",
+    "qitaev_time_attack.p8",
     "qitaev_endless.p8",
     "qitaev_vs_qpu.p8",
     "qitaev_qpu_vs_qpu.p8",
