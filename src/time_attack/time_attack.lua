@@ -1,3 +1,7 @@
+-- TODO
+--- 残り時間 < 0 のときゲームを終わる
+--- ハイスコアの保存と表示
+
 require("lib/board")
 
 local flow = require("lib/flow")
@@ -11,7 +15,7 @@ local player = create_player()
 require("lib/player_cursor")
 local player_cursor = create_player_cursor(board)
 
-local game_class = require("lib/game")
+local game_class = require("time_attack/game")
 local game = game_class()
 
 local gamestate = require("lib/gamestate")
@@ -70,6 +74,9 @@ function time_attack:render() -- override
   -- skip 2 lines and draw score
   cursor(board.offset_x * 2 + board.width, 24)
   print("score " .. player.score .. (player.score == 0 and "" or "0"))
+
+  print_outlined("time left", board.offset_x * 2 + board.width, 36, 7, 0)
+  print_outlined(game:time_left_string(), board.offset_x * 2 + board.width, 44, 7, 0)
 
   if not game:is_game_over() then
     spr(70, 70, 109)
