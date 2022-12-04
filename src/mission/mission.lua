@@ -2,9 +2,7 @@ local flow = require("lib/flow")
 local gate = require("lib/gate")
 
 require("lib/board")
-
 local board = create_board()
-board.attack_cube_target = { 85, 30 }
 
 require("lib/player")
 local player = create_player()
@@ -20,14 +18,13 @@ local mission = derived_class(gamestate)
 
 mission.type = ':mission'
 
-local current_task = nil
 local last_steps = 0
 
 local reduction_rules = require("lib/reduction_rules")
 local attack_bubble = require("lib/attack_bubble")
 local particle = require("lib/particle")
 local ripple = require("lib/ripple")
-
+local sash = require("mission/sash")
 local task_balloon = require("mission/task_balloon")
 
 function render_matching_pattern(pattern, x, y)
@@ -54,7 +51,6 @@ local function shuffle(t)
     local j = ceil_rnd(i)
     t[i], t[j] = t[j], t[i]
   end
-
   return t
 end
 
@@ -63,57 +59,23 @@ local wave_number = 1
 
 local waves = {
   -- wave 1
-  shuffle({
-    reduction_rules.h[1],
-    reduction_rules.x[1],
-    reduction_rules.y[1],
-    reduction_rules.z[1]
-  }),
-
+  "h,1|x,1|y,1|z,1",
   -- wave 2
-  shuffle({
-    reduction_rules.s[1],
-    reduction_rules.t[1]
-  }),
-
+  "s,1|t,1",
   -- wave 3
-  shuffle({
-    reduction_rules.x[2],
-    reduction_rules.z[2]
-  }),
-
+  "x,2|z,2",
   -- wave 4
-  {
-    reduction_rules.cnot_x[1]
-  },
-
+  "cnot_x,1",
   -- wave 5
-  {
-    reduction_rules.cnot_x[2]
-  },
-
+  "cnot_x,2",
   -- wave 6
-  shuffle({
-    reduction_rules.h[5],
-    reduction_rules.x[5],
-    reduction_rules.y[2],
-    reduction_rules.z[5],
-    reduction_rules.s[3],
-    reduction_rules.t[3]
-  }),
-
+  "h,5|x,5|y,2|z,5",
   -- wave 7
-  shuffle({
-    reduction_rules.h[2],
-    reduction_rules.h[3],
-    reduction_rules.s[2],
-    reduction_rules.t[2]
-  }),
-
+  "s,3|t,3",
   -- wave 8
-  {
-    reduction_rules.swap[1]
-  }
+  "h,2|h,3|s,2|t,2",
+  -- wave 9
+  "swap,1"
 }
 
 state = ":play"
@@ -186,13 +148,14 @@ function mission:update()
     end
   end
 
-  if not mission_game.countdown and stat(16) == -1 then
+  if mission_game.countdown == nil then
     if #task_balloon.all == 0 then
       wave_number = wave_number + 1
       local current_wave = waves[wave_number]
       if current_wave then
-        for i, each in pairs(current_wave) do
-          task_balloon:create(each, board.offset_x + board.width, i % 3 * 15, (i % 2) * 36)
+        for i, each in pairs(shuffle(split(current_wave, "|"))) do
+          local gate_type, rule_number = unpack(split(each))
+          task_balloon:create(reduction_rules[gate_type][rule_number], board.offset_x + board.width, i % 3 * 15, (i % 2) * 36)
         end
         task_balloon:enter_all()
       else
@@ -202,6 +165,7 @@ function mission:update()
   end
 
   task_balloon:update()
+  sash:update()
 end
 
 function mission:render() -- override
@@ -214,6 +178,7 @@ function mission:render() -- override
 
   task_balloon:render()
   mission_game:render()
+  sash:render()
 
   if state == ":matching" then
     render_matching_pattern(match_pattern, match_screen_x, match_screen_y)
@@ -226,14 +191,14 @@ function mission:render() -- override
     print_outlined("raise gates", 81, 120, 7, 0)
   end
 
-  if not mission_game.countdown and stat(16) == -1 then
+  if not mission_game.countdown then
     if not mission_game:is_game_over() then
       if task_balloon.state == ":enter" then
-        print_outlined("wave #" .. wave_number, 80, 10, 7, 8)
+        sash:create("wave #" .. wave_number, 13, 7)
       else
         if flr(t() * 2) % 2 == 0 then
-          print_outlined("match", 84, 2, 0, 12)
-          print_outlined("the pattern!", 70, 10, 0, 12)
+          print_outlined("match", 84, 2, 1, 12)
+          print_outlined("the pattern!", 70, 10, 1, 12)
         end
       end
     end

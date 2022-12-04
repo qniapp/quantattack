@@ -27,7 +27,6 @@ end
 function task_balloon:enter_all()
    self.state = ":enter"
    self.enter_tick_left = 128
-   sfx(15)
 end
 
 function task_balloon:delete(balloon)
