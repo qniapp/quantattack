@@ -1,5 +1,5 @@
+---@diagnostic disable: lowercase-global
 local flow = require("lib/flow")
-local gate = require("lib/gate")
 
 require("lib/board")
 local board = create_board()
@@ -15,7 +15,6 @@ local mission_game = game()
 
 local gamestate = require("lib/gamestate")
 local mission = derived_class(gamestate)
-
 mission.type = ':mission'
 
 local last_steps = 0
@@ -84,7 +83,7 @@ match_screen_x = nil
 match_screen_y = nil
 match_dx = nil
 
-function mission_game.reduce_callback(score, x, y, player, pattern, dx)
+function mission_game.reduce_callback(_score, x, y, _player, pattern, dx)
   for _, each in pairs(task_balloon.all) do
     if each.rule[5] == pattern then
       state = ":matching"
@@ -155,7 +154,8 @@ function mission:update()
       if current_wave then
         for i, each in pairs(shuffle(split(current_wave, "|"))) do
           local gate_type, rule_number = unpack(split(each))
-          task_balloon:create(reduction_rules[gate_type][rule_number], board.offset_x + board.width, i % 3 * 15, (i % 2) * 36)
+          task_balloon:create(reduction_rules[gate_type][rule_number], board.offset_x + board.width, i % 3 * 15,
+            (i % 2) * 36)
         end
         task_balloon:enter_all()
       else
