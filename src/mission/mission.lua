@@ -146,12 +146,12 @@ function mission:update()
     end
   end
 
-  if not mission_game.countdown and stat(16) == -1 then
+  if mission_game.countdown == nil then
     if #task_balloon.all == 0 then
       wave_number = wave_number + 1
-      local current_wave = shuffle(split(waves[wave_number], "|"))
+      local current_wave = waves[wave_number]
       if current_wave then
-        for i, each in pairs(current_wave) do
+        for i, each in pairs(shuffle(split(current_wave, "|"))) do
           local gate_type, rule_number = unpack(split(each))
           task_balloon:create(reduction_rules[gate_type][rule_number], board.offset_x + board.width, i % 3 * 15, (i % 2) * 36)
         end
@@ -189,7 +189,7 @@ function mission:render() -- override
     print_outlined("raise gates", 81, 120, 7, 0)
   end
 
-  if not mission_game.countdown and stat(16) == -1 then
+  if not mission_game.countdown then
     if not mission_game:is_game_over() then
       if task_balloon.state == ":enter" then
         sash:create("wave #" .. wave_number, 13, 7)
