@@ -38,7 +38,7 @@ function title_menu:render()
   -- メニューのウィンドウを表示
   draw_rounded_box(31, 65, 96, 106, 0, 0) -- ふちどり
   draw_rounded_box(32, 66, 95, 105, 12, 12) -- 枠線
-  draw_rounded_box(34, 68, 93, 104, 1, 1) -- 本体
+  draw_rounded_box(34, 68, 93, 103, 1, 1) -- 本体
 
   -- メニューを表示
   text_menu:draw(40, 72) -- 40 + 4 * character_height (= 6)
