@@ -230,8 +230,8 @@ function mission:render() -- override
         sash:create("wave #" .. wave_number, 13, 7)
       else
         if flr(t() * 2) % 2 == 0 then
-          print_outlined("match", 84, 2, 0, 12)
-          print_outlined("the pattern!", 70, 10, 0, 12)
+          print_outlined("match", 84, 2, 1, 12)
+          print_outlined("the pattern!", 70, 10, 1, 12)
         end
       end
     end

@@ -1,6 +1,4 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
--- トークン削減
---- sash.update
 -- sfx の音をサイレンっぽくする
 
 local sash = new_class()
@@ -53,9 +51,11 @@ function sash.update(_ENV)
 end
 
 function sash:render()
-  if self.state ~= ":idle" and self.height > 0 then
-    rectfill(0, 64 - self.height / 2, 127, 64 + self.height / 2, self.background_color)
-    print(self.text, self.text_x, 64 - 2, self.text_color)
+  local _rectfill, _print, _ENV = rectfill, print, self
+
+  if state ~= ":idle" and height > 0 then
+    _rectfill(0, 64 - height / 2, 127, 64 + height / 2, background_color)
+    _print(text, text_x, 64 - 2, text_color)
   end
 end
 
