@@ -1,4 +1,7 @@
--- トークン最適化
+---@diagnostic disable: global-in-nil-env, lowercase-global
+-- トークン削減
+--- sash.update
+-- sfx の音をサイレンっぽくする
 
 local sash = new_class()
 
@@ -6,31 +9,18 @@ function sash:_init()
   self.state = ":idle"
 end
 
-function sash:create(_text, _color, _background_color)
-  local _ENV = self
-
+function sash.create(_ENV, _text, _color, _background_color)
   if state == ":idle" and text ~= _text then
-    dh = 0.1
-    ddh = 0.2
-    background_color = _background_color
-
-    text_dx = 5
-    text_ddx = -0.15
-
-    height = 0
-    text = _text
-    text_color = _color
-    text_width = #text * 4
-    text_x = -text_width
-    text_center_x = 128 / 2 - text_width / 2
-
+    height, dh, ddh, background_color =
+    0, 0.1, 0.2, _background_color
+    text_width = #_text * 4
+    text, text_x, text_dx, text_ddx, text_center_x, text_color =
+    _text, -text_width, 5, -0.15, 128 / 2 - text_width / 2, _color
     state = ":slidein"
   end
 end
 
-function sash:update()
-  local _ENV = self
-
+function sash.update(_ENV)
   if state == ":slidein" then
     height = height + dh
     dh = dh + ddh
