@@ -59,57 +59,21 @@ local wave_number = 1
 
 local waves = {
   -- wave 1
-  shuffle({
-    reduction_rules.h[1],
-    reduction_rules.x[1],
-    reduction_rules.y[1],
-    reduction_rules.z[1]
-  }),
-
+  "h,1|x,1|y,1|z,1",
   -- wave 2
-  shuffle({
-    reduction_rules.s[1],
-    reduction_rules.t[1]
-  }),
-
-  -- -- wave 3
-  -- shuffle({
-  --   reduction_rules.x[2],
-  --   reduction_rules.z[2]
-  -- }),
-
-  -- -- wave 4
-  -- {
-  --   reduction_rules.cnot_x[1]
-  -- },
-
-  -- -- wave 5
-  -- {
-  --   reduction_rules.cnot_x[2]
-  -- },
-
-  -- -- wave 6
-  -- shuffle({
-  --   reduction_rules.h[5],
-  --   reduction_rules.x[5],
-  --   reduction_rules.y[2],
-  --   reduction_rules.z[5],
-  --   reduction_rules.s[3],
-  --   reduction_rules.t[3]
-  -- }),
-
-  -- -- wave 7
-  -- shuffle({
-  --   reduction_rules.h[2],
-  --   reduction_rules.h[3],
-  --   reduction_rules.s[2],
-  --   reduction_rules.t[2]
-  -- }),
-
-  -- -- wave 8
-  -- {
-  --   reduction_rules.swap[1]
-  -- }
+  "s,1|t,1",
+  -- wave 3
+  "x,2|z,2",
+  -- wave 4
+  "cnot_x,1",
+  -- wave 5
+  "cnot_x,2",
+  -- wave 6
+  "h,5|x,5|y,2|z,5|s,3|t,3",
+  -- wave 7
+  "h,2|h,3|s,2|t,2",
+  -- wave 8
+  "swap,1"
 }
 
 state = ":play"
@@ -185,10 +149,11 @@ function mission:update()
   if not mission_game.countdown and stat(16) == -1 then
     if #task_balloon.all == 0 then
       wave_number = wave_number + 1
-      local current_wave = waves[wave_number]
+      local current_wave = shuffle(split(waves[wave_number], "|"))
       if current_wave then
         for i, each in pairs(current_wave) do
-          task_balloon:create(each, board.offset_x + board.width, i % 3 * 15, (i % 2) * 36)
+          local gate_type, rule_number = unpack(split(each))
+          task_balloon:create(reduction_rules[gate_type][rule_number], board.offset_x + board.width, i % 3 * 15, (i % 2) * 36)
         end
         task_balloon:enter_all()
       else
