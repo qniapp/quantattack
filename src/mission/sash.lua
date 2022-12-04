@@ -1,5 +1,4 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
--- sfx の音をサイレンっぽくする
 
 local sash = new_class()
 
