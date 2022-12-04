@@ -22,41 +22,29 @@ end
 
 function sash.update(_ENV)
   if state == ":slidein" then
-    height = height + dh
-    dh = dh + ddh
+    height, dh = height + dh, dh + ddh
     if height > 10 then
       height = 10
     end
 
     if text_x < text_center_x then
-      text_dx = text_dx + text_ddx
-      text_x = text_x + text_dx
+      text_x, text_dx = text_x + text_dx, text_dx + text_ddx
     end
 
     if text_x > text_center_x then
-      text_x = text_center_x
-      time_stop = t()
+      text_x, time_stop, state = text_center_x, t(), ":stop"
       sfx(15)
-      state = ":stop"
     end
   end
 
   if state == ":stop" then
     if t() - time_stop > 1 then
-      dh = -0.1
-      ddh = -0.2
-      text_dx = 3
-      text_ddx = 0.8
-      state = ":slideout"
+      dh, ddh, text_dx, text_ddx, state = -0.1, -0.2, 3, 0.8, ":slideout"
     end
   end
 
   if state == ":slideout" then
-    height = height + dh
-    dh = dh + ddh
-
-    text_dx = text_dx + text_ddx
-    text_x = text_x + text_dx
+    height, dh, text_x, text_dx = height + dh, dh + ddh, text_x + text_dx, text_dx + text_ddx
 
     if text_x > 127 then
       state = ":idle"
