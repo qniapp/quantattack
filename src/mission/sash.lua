@@ -1,4 +1,3 @@
--- 背景色と前景色を指定できるようにする
 -- トークン最適化
 
 local sash = new_class()
@@ -7,21 +6,24 @@ function sash:_init()
   self.state = ":idle"
 end
 
-function sash:create(_text)
+function sash:create(_text, _color, _background_color)
   local _ENV = self
 
   if state == ":idle" and text ~= _text then
     dh = 0.1
     ddh = 0.2
+    background_color = _background_color
 
     text_dx = 5
     text_ddx = -0.15
 
     height = 0
     text = _text
+    text_color = _color
     text_width = #text * 4
     text_x = -text_width
     text_center_x = 128 / 2 - text_width / 2
+
     state = ":slidein"
   end
 end
@@ -74,8 +76,8 @@ end
 
 function sash:render()
   if self.state ~= ":idle" and self.height > 0 then
-    rectfill(0, 64 - self.height / 2, 127, 64 + self.height / 2, 7)
-    print(self.text, self.text_x, 64 - 2, 13)
+    rectfill(0, 64 - self.height / 2, 127, 64 + self.height / 2, self.background_color)
+    print(self.text, self.text_x, 64 - 2, self.text_color)
   end
 end
 

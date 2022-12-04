@@ -227,7 +227,7 @@ function mission:render() -- override
   if not mission_game.countdown and stat(16) == -1 then
     if not mission_game:is_game_over() then
       if task_balloon.state == ":enter" then
-        sash:create("wave #" .. wave_number)
+        sash:create("wave #" .. wave_number, 13, 7)
       else
         if flr(t() * 2) % 2 == 0 then
           print_outlined("match", 84, 2, 0, 12)
