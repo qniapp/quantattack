@@ -153,6 +153,8 @@ function mission:update()
             (i % 2) * 36)
         end
         task_balloon:enter_all()
+        sfx(15)
+        sash:create("wave #" .. wave_number, 13, 7, function() sfx(-2, -1) end)
       else
         board.win = true
       end
@@ -184,11 +186,7 @@ function mission:render()
 
   if not mission_game.countdown then
     if not mission_game:is_game_over() then
-      local sash_text = "wave #" .. wave_number
-      if task_balloon.state == ":enter" and sash.current_text ~= sash_text then
-        sfx(15)
-        sash:create(sash_text, 13, 7, nil, function() sfx(-2, -1) end)
-      else
+      if #task_balloon.all > 0 then
         if flr(t() * 2) % 2 == 0 then
           print_outlined("match", 84, 2, 1, 12)
           print_outlined("the pattern!", 70, 10, 1, 12)

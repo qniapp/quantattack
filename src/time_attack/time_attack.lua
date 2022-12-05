@@ -37,8 +37,6 @@ function time_attack:on_enter()
 
   game:init()
   game:add_player(player, player_cursor, board)
-
-  sash:init()
 end
 
 function time_attack:update()
@@ -71,9 +69,10 @@ function time_attack:update()
       board.timeup = true
       game.game_over_time = t()
       sfx(16)
-      sash:create("time up!", 13, 7, nil, function()
+      sash:create("time up!", 13, 7, function()
         if high_score:put(player.score) then
-          sash:create("high score!", 9, 8, function() sfx(13) end)
+          sfx(13)
+          sash:create("high score!", 9, 8)
         end
       end)
     end
