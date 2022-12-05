@@ -26,8 +26,8 @@ function create_board(__offset_x, __cols)
       cols * tile_size, (rows - 1) * tile_size, _offset_x or 11, 0, 0
 
       -- board の状態
-      state, win, lose, top_gate_y, _changed, show_gameover_menu =
-      "play", false, false, row_next_gates, false, false
+      state, win, lose, timeup, top_gate_y, _changed, show_gameover_menu =
+      "play", false, false, false, row_next_gates, false, false
 
       -- 各種キャッシュ
       _reduce_cache, _is_gate_fallable_cache = {}, {}
@@ -494,6 +494,8 @@ function create_board(__offset_x, __cols)
         if win or lose then
           state, tick_over = "over", 0
           sfx(8)
+        elseif timeup then
+          state, tick_over = "over", 0
         else
           _update_game(_ENV, game, player, other_board)
         end
@@ -601,7 +603,7 @@ function create_board(__offset_x, __cols)
       pending_garbage_gates:render(_ENV)
 
       -- WIN! または LOSE を描画
-      if is_game_over(_ENV) and tick_over > 20 and #particle.all == 0 then
+      if is_game_over(_ENV) and (win or lose) and tick_over > 20 and #particle.all == 0 then
         sspr(
           win and 0 or 48,
           96,

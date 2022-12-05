@@ -1,5 +1,6 @@
 title
 mission
+time_attack
 endless
 vs_qpu
 qpu_vs_qpu

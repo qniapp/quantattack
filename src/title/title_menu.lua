@@ -12,6 +12,7 @@ title_menu.type = ':title_menu'
 -- sequence of menu items to display, with their target states
 title_menu._items = {
   menu_item("mission", 'qitaev_mission'),
+  menu_item("time attack", 'qitaev_time_attack'),
   menu_item("endless", 'qitaev_endless'),
   menu_item("vs qpu", 'qitaev_vs_qpu'),
   menu_item("qpu vs qpu", 'qitaev_qpu_vs_qpu')
@@ -36,9 +37,9 @@ function title_menu:render()
   sspr(0, 64, 128, 16, 0, 24)
 
   -- メニューのウィンドウを表示
-  draw_rounded_box(31, 65, 96, 106, 0, 0) -- ふちどり
-  draw_rounded_box(32, 66, 95, 105, 12, 12) -- 枠線
-  draw_rounded_box(34, 68, 93, 103, 1, 1) -- 本体
+  draw_rounded_box(31, 65, 99, 114, 0, 0) -- ふちどり
+  draw_rounded_box(32, 66, 98, 113, 12, 12) -- 枠線
+  draw_rounded_box(34, 68, 96, 111, 1, 1) -- 本体
 
   -- メニューを表示
   text_menu:draw(40, 72) -- 40 + 4 * character_height (= 6)

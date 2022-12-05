@@ -2,15 +2,12 @@
 local flow = require("lib/flow")
 
 require("lib/board")
-local board = create_board()
-
 require("lib/player")
-local player = create_player()
-
 require("lib/player_cursor")
-local player_cursor = create_player_cursor(board)
-
 require("mission/game")
+
+local board, player = create_board(), create_player()
+local player_cursor = create_player_cursor(board)
 local mission_game = game()
 
 local gamestate = require("lib/gamestate")
@@ -23,7 +20,7 @@ local reduction_rules = require("lib/reduction_rules")
 local attack_bubble = require("lib/attack_bubble")
 local particle = require("lib/particle")
 local ripple = require("lib/ripple")
-local sash = require("mission/sash")
+local sash = require("lib/sash")
 local task_balloon = require("mission/task_balloon")
 
 function render_matching_pattern(pattern, x, y)
@@ -31,8 +28,7 @@ function render_matching_pattern(pattern, x, y)
 
   for i, row in pairs(pattern[1]) do
     local gate1_type, gate2_type = unpack(row)
-    local row_x = x
-    local row_y = y + (i - 1) * 8
+    local row_x, row_y = x, y + (i - 1) * 8
 
     if gate1_type ~= "?" then
       draw_rounded_box(row_x - 1, row_y - 1, row_x + 7, row_y + 7, random_color)
@@ -55,7 +51,6 @@ end
 
 -- waves
 local wave_number = 1
-
 local waves = {
   -- wave 1
   "h,1|x,1|y,1|z,1",
@@ -168,12 +163,8 @@ function mission:update()
   sash:update()
 end
 
-function mission:render() -- override
-  if state == ":matching" then
-    ripple.slow = true
-  else
-    ripple.slow = false
-  end
+function mission:render()
+  ripple.slow = state == ":matching"
   ripple:render()
 
   task_balloon:render()
@@ -193,8 +184,10 @@ function mission:render() -- override
 
   if not mission_game.countdown then
     if not mission_game:is_game_over() then
-      if task_balloon.state == ":enter" then
-        sash:create("wave #" .. wave_number, 13, 7)
+      local sash_text = "wave #" .. wave_number
+      if task_balloon.state == ":enter" and sash.current_text ~= sash_text then
+        sfx(15)
+        sash:create(sash_text, 13, 7, nil, function() sfx(-2, -1) end)
       else
         if flr(t() * 2) % 2 == 0 then
           print_outlined("match", 84, 2, 1, 12)
