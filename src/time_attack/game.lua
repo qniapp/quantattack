@@ -153,7 +153,7 @@ function game:update()
     local board = each.board
     local other_board = each.other_board
 
-    if board:is_game_over() then
+    if self:is_game_over() then
       board:update()
       ripple.slow = false
     else
@@ -204,25 +204,10 @@ function game:update()
   else
     -- ゲーム中だけ time_left を更新
     game.time_left = 180 - (t() - self.start_time)
+    -- game.time_left = 10 - (t() - self.start_time)
 
-    -- プレーヤーが 2 人であれば、勝ったほうの board に win = true をセット
-    if #all_players == 1 then
-      if all_players[1].board:is_game_over() then
-        self.game_over_time = t()
-      end
-    else
-      local board1, board2 = all_players[1].board, all_players[2].board
-
-      if board1:is_game_over() or board2:is_game_over() then
-        self.game_over_time = t()
-
-        if board1.lose then
-          board2.win = true
-        end
-        if board2.lose then
-          board1.win = true
-        end
-      end
+    if game.time_left <= 0 or all_players[1].board:is_game_over() then
+      self.game_over_time = t()
     end
   end
 end
