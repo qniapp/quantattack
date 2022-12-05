@@ -271,7 +271,7 @@ end
 function game:time_left_string()
   return length2_number_string_0filled(flr(self.time_left / 60)) ..
       ":" ..
-      length2_number_string_0filled(flr(self.time_left) % 60)
+      length2_number_string_0filled(ceil(self.time_left) % 60)
 end
 
 function length2_number_string_0filled(num)

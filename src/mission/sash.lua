@@ -17,7 +17,7 @@ function sash.create(_ENV, _text, _color, _background_color)
   end
 end
 
-function sash.update(_ENV)
+function sash.update(_ENV, slideout_callback)
   if state == ":slidein" then
     height, dh = height + dh, dh + ddh
     if height > 10 then
@@ -44,7 +44,10 @@ function sash.update(_ENV)
 
     if text_x > 127 then
       state = ":idle"
-      sfx(-2, -1)
+      if slideout_callback then
+         printh("slideout_callback")
+         slideout_callback()
+      end
     end
   end
 end

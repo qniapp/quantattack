@@ -165,7 +165,7 @@ function mission:update()
   end
 
   task_balloon:update()
-  sash:update()
+  sash:update(function() sfx(-2, -1) end)
 end
 
 function mission:render() -- override
@@ -193,9 +193,10 @@ function mission:render() -- override
 
   if not mission_game.countdown then
     if not mission_game:is_game_over() then
-      if task_balloon.state == ":enter" then
+      local sash_text = "wave #" .. wave_number
+      if task_balloon.state == ":enter" and sash.state == ":idle" and sash.text ~= sash_text then
         sfx(15)
-        sash:create("wave #" .. wave_number, 13, 7)
+        sash:create(sash_text, 13, 7)
       else
         if flr(t() * 2) % 2 == 0 then
           print_outlined("match", 84, 2, 1, 12)
