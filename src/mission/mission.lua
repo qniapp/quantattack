@@ -194,6 +194,7 @@ function mission:render() -- override
   if not mission_game.countdown then
     if not mission_game:is_game_over() then
       if task_balloon.state == ":enter" then
+        sfx(15)
         sash:create("wave #" .. wave_number, 13, 7)
       else
         if flr(t() * 2) % 2 == 0 then

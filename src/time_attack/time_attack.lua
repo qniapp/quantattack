@@ -1,9 +1,10 @@
 -- TODO
----- 時間切れのときの sfx を鳴らす (ホイッスル)
 --- ハイスコアの保存と表示
 
 require("lib/board")
 
+-- TODO: lib/sash に移動
+local sash = require("mission/sash")
 local flow = require("lib/flow")
 
 local board = create_board()
@@ -60,7 +61,15 @@ function time_attack:update()
         load('qitaev_title')
       end
     end
+  else
+     if game.time_left <= 0 then
+        game.game_over_time = t()
+        sfx(16)
+        sash:create("time up!", 13, 7)
+     end
   end
+
+  sash:update()
 end
 
 function time_attack:render() -- override
@@ -84,6 +93,8 @@ function time_attack:render() -- override
     spr(117, 70, 119)
     print_outlined("raise gates", 81, 120, 7, 0)
   end
+
+  sash:render()
 end
 
 return time_attack

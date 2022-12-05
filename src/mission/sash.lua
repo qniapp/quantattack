@@ -14,7 +14,6 @@ function sash.create(_ENV, _text, _color, _background_color)
     text, text_x, text_dx, text_ddx, text_center_x, text_color =
     _text, -text_width, 5, -0.15, 128 / 2 - text_width / 2, _color
     state = ":slidein"
-    sfx(15)
   end
 end
 
