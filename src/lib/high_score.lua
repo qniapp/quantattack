@@ -1,7 +1,7 @@
 local high_score = new_class()
 
-function high_score:_init()
-  cartdata("qitaev_0_1_0_time_atack")
+function high_score:_init(id)
+   cartdata(id)
 end
 
 function high_score:get()

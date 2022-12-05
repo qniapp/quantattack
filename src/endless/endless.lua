@@ -1,6 +1,12 @@
 require("lib/board")
 
 local flow = require("lib/flow")
+local sash = require("lib/sash")
+
+-- ハイスコア関係
+local high_score_class = require("lib/high_score")
+local high_score = high_score_class("qitaev_0_1_0_endless")
+local current_high_score
 
 local board = create_board()
 board.attack_cube_target = { 85, 30 }
@@ -22,6 +28,8 @@ endless.type = ':endless'
 local last_steps = 0
 
 function endless:on_enter()
+  current_high_score = high_score:get()
+
   player:init()
   board:init()
   board:put_random_gates()
@@ -49,6 +57,13 @@ function endless:update()
 
   if game:is_game_over() then
     if t() - game.game_over_time > 2 then
+      if not board.show_gameover_menu then
+        if high_score:put(player.score) then
+          sfx(13)
+          sash:create("high score!", 9, 8)
+        end
+      end
+
       board.show_gameover_menu = true
       if btnp(4) then -- x でリプレイ
         flow:query_gamestate_type(":endless")
@@ -57,26 +72,28 @@ function endless:update()
       end
     end
   end
+
+  sash:update()
 end
 
 function endless:render() -- override
   game:render()
 
-  -- スコア表示
-  color(7)
-  cursor(board.offset_x * 2 + board.width, 16)
-  print(player.steps .. " steps")
+  local base_x = board.offset_x * 2 + board.width
 
-  -- skip 2 lines and draw score
-  cursor(board.offset_x * 2 + board.width, 24)
-  print("score " .. player.score .. (player.score == 0 and "" or "0"))
+  -- スコア表示
+  print_outlined("score " .. player.score .. (player.score == 0 and "" or "0"), base_x, 16, 7, 0)
+  print_outlined("hi-score " .. current_high_score * 10, base_x, 24, 7, 0)
+  print_outlined(player.steps .. " steps", base_x, 38, 7, 0)
 
   if not game:is_game_over() then
-    spr(70, 70, 109)
+    spr(70, base_x, 109)
     print_outlined("swap gates", 81, 110, 7, 0)
-    spr(117, 70, 119)
+    spr(117, base_x, 119)
     print_outlined("raise gates", 81, 120, 7, 0)
   end
+
+  sash:render()
 end
 
 return endless
