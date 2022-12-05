@@ -3,8 +3,7 @@
 
 require("lib/board")
 
--- TODO: lib/sash に移動
-local sash = require("mission/sash")
+local sash = require("lib/sash")
 local flow = require("lib/flow")
 
 local board = create_board()
@@ -62,11 +61,11 @@ function time_attack:update()
       end
     end
   else
-     if game.time_left <= 0 then
-        game.game_over_time = t()
-        sfx(16)
-        sash:create("time up!", 13, 7)
-     end
+    if game.time_left <= 0 then
+      game.game_over_time = t()
+      sfx(16)
+      sash:create("time up!", 13, 7)
+    end
   end
 
   sash:update()

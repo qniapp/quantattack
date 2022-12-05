@@ -23,7 +23,7 @@ local reduction_rules = require("lib/reduction_rules")
 local attack_bubble = require("lib/attack_bubble")
 local particle = require("lib/particle")
 local ripple = require("lib/ripple")
-local sash = require("mission/sash")
+local sash = require("lib/sash")
 local task_balloon = require("mission/task_balloon")
 
 function render_matching_pattern(pattern, x, y)
