@@ -104,6 +104,7 @@ function game:init()
   countdown = 240
   self.start_time = t()
   self.game_over_time = nil
+  self.time_left = nil
 end
 
 function game:add_player(player, player_cursor, board, other_board)
@@ -203,8 +204,7 @@ function game:update()
     particle.slow = true
   else
     -- ゲーム中だけ time_left を更新
-    -- game.time_left = 180 - (t() - self.start_time)
-    game.time_left = 10 - (t() - self.start_time)
+    game.time_left = 180 - (t() - self.start_time)
 
     if all_players[1].board:is_game_over() then
       self.game_over_time = t()
@@ -221,7 +221,7 @@ function game:render() -- override
 
     board:render()
 
-    if not board:is_game_over() then
+    if not self:is_game_over() then
       player_cursor:render()
     end
 

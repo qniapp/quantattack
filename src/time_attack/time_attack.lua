@@ -1,10 +1,12 @@
--- TODO
---- ハイスコアの保存と表示
-
 require("lib/board")
 
 local sash = require("lib/sash")
 local flow = require("lib/flow")
+
+-- ハイスコア関係
+local high_score_class = require("lib/high_score")
+local high_score = high_score_class()
+local current_high_score
 
 local board = create_board()
 board.attack_cube_target = { 85, 30 }
@@ -26,6 +28,8 @@ time_attack.type = ':time_attack'
 local last_steps = 0
 
 function time_attack:on_enter()
+  current_high_score = high_score:get()
+
   player:init()
   board:init()
   board:put_random_gates()
@@ -33,6 +37,8 @@ function time_attack:on_enter()
 
   game:init()
   game:add_player(player, player_cursor, board)
+
+  sash:init()
 end
 
 function time_attack:update()
@@ -62,9 +68,14 @@ function time_attack:update()
     end
   else
     if game.time_left <= 0 then
+      board.timeup = true
       game.game_over_time = t()
       sfx(16)
-      sash:create("time up!", 13, 7)
+      sash:create("time up!", 13, 7, nil, function()
+        if high_score:put(player.score) then
+          sash:create("high score!", 9, 8, function() sfx(13) end)
+        end
+      end)
     end
   end
 
@@ -74,22 +85,20 @@ end
 function time_attack:render() -- override
   game:render()
 
+  local base_x = board.offset_x * 2 + board.width
+
   -- スコア表示
-  color(7)
-  cursor(board.offset_x * 2 + board.width, 16)
-  print(player.steps .. " steps")
+  print_outlined("score " .. player.score .. (player.score == 0 and "" or "0"), base_x, 16, 7, 0)
+  print_outlined("hi-score " .. current_high_score * 10, base_x, 24, 7, 0)
 
-  -- skip 2 lines and draw score
-  cursor(board.offset_x * 2 + board.width, 24)
-  print("score " .. player.score .. (player.score == 0 and "" or "0"))
-
-  print_outlined("time left", board.offset_x * 2 + board.width, 36, 7, 0)
-  print_outlined(game:time_left_string(), board.offset_x * 2 + board.width, 44, 7, 0)
+  -- 残り時間表示
+  print_outlined("time left", base_x, 44, 7, 0)
+  print_outlined(game:time_left_string(), base_x, 52, 7, 0)
 
   if not game:is_game_over() then
-    spr(70, 70, 109)
+    spr(70, base_x, 109)
     print_outlined("swap gates", 81, 110, 7, 0)
-    spr(117, 70, 119)
+    spr(117, base_x, 119)
     print_outlined("raise gates", 81, 120, 7, 0)
   end
 

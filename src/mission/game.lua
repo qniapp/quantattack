@@ -126,23 +126,8 @@ function game()
         elapsed_time = t() - start_time
 
         -- プレーヤーが 2 人であれば、勝ったほうの board に win = true をセット
-        if #all_players == 1 then
-          if all_players[1].board:is_game_over() then
-            game_over_time = t()
-          end
-        else
-          local board1, board2 = all_players[1].board, all_players[2].board
-
-          if board1:is_game_over() or board2:is_game_over() then
-            game_over_time = t()
-
-            if board1.lose then
-              board2.win = true
-            end
-            if board2.lose then
-              board1.win = true
-            end
-          end
+        if all_players[1].board:is_game_over() then
+          game_over_time = t()
         end
       end
     end,
