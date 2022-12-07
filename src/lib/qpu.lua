@@ -1,5 +1,7 @@
 ---@diagnostic disable: lowercase-global, global-in-nil-env
 
+local gate = require("lib/gate")
+
 local function _is_empty(board, gate_x, gate_y)
   if gate_x < 1 or board.cols < gate_x then
     return false
@@ -79,15 +81,17 @@ function create_qpu(cursor, board)
     end,
 
     _reduce_cnot = function(_ENV, each, each_x, each_y)
+      local upper_gate = each_y > 1 and board:reducible_gate_at(each_x, each_y - 1) or gate("i")
+      local lower_gate = each_y < board.rows and board:reducible_gate_at(each_x, each_y + 1) or gate("i")
+
       if not each:is_single_gate() then
         -- d-2. 上の X-C を左にずらす
         --
         -- [X--]-C
         --  X-C  ■
-        if each_y < board.rows and
-            each.type == "cnot_x" and each.other_x == each_x + 2 and
-            board:reducible_gate_at(each_x, each_y + 1).type == "cnot_x" and
-            board:reducible_gate_at(each_x, each_y + 1).other_x == each_x + 1 then
+        if each.type == "cnot_x" and each.other_x == each_x + 2 and
+            lower_gate.type == "cnot_x" and
+            lower_gate.other_x == each_x + 1 then
           move_and_swap(_ENV, each_x + 1, each_y, true)
           return true
         end
@@ -96,10 +100,9 @@ function create_qpu(cursor, board)
         --
         --  X-C  ■
         -- [X--]-C
-        if each_y > 1 and
-            each.type == "cnot_x" and each.other_x == each_x + 2 and
-            board:reducible_gate_at(each_x, each_y - 1).type == "cnot_x" and
-            board:reducible_gate_at(each_x, each_y - 1).other_x == each_x + 1 then
+        if each.type == "cnot_x" and each.other_x == each_x + 2 and
+            upper_gate.type == "cnot_x" and
+            upper_gate.other_x == each_x + 1 then
           move_and_swap(_ENV, each_x + 1, each_y, true)
           return true
         end
@@ -113,7 +116,7 @@ function create_qpu(cursor, board)
           return true
         end
 
-        -- b. CNOT を同じ方向にそろえる
+        -- b. CNOT を同じ方向 (右がC) にそろえる
         --
         --   C-X --> X-C
         --   X-C --> X-C
@@ -137,8 +140,8 @@ function create_qpu(cursor, board)
         --  X-C  ■
         if each_x > 1 and each_y < board.rows and
             _is_empty(board, each_x - 1, each_y) and each.type == "cnot_x" and each.other_x == each_x + 1 and
-            board:reducible_gate_at(each_x, each_y + 1).type == "control" and
-            board:reducible_gate_at(each_x, each_y + 1).other_x == each_x - 1 then
+            lower_gate.type == "control" and
+            lower_gate.other_x == each_x - 1 then
           move_and_swap(_ENV, each_x - 1, each_y, true)
           return true
         end
@@ -147,10 +150,10 @@ function create_qpu(cursor, board)
         --
         --  X-C  ■
         -- [  X]-C
-        if each_x > 1 and each_y > 1 and
+        if each_x > 1 and
             _is_empty(board, each_x - 1, each_y) and each.type == "cnot_x" and each.other_x == each_x + 1 and
-            board:reducible_gate_at(each_x, each_y - 1).type == "control" and
-            board:reducible_gate_at(each_x, each_y - 1).other_x == each_x - 1 then
+            upper_gate.type == "control" and
+            upper_gate.other_x == each_x - 1 then
           move_and_swap(_ENV, each_x - 1, each_y, true)
           return true
         end
