@@ -31,6 +31,8 @@ function create_qpu(cursor, board)
     board = board,
 
     init = function(_ENV)
+      -- raise はテスト用で、false にすると QPU プレーヤーは x を押さない
+      -- 通常は常に true
       steps, score, commands, sleep, raise = 0, 0, {}, true, true
     end,
 
