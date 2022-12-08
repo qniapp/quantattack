@@ -71,9 +71,14 @@ function create_pending_garbage_gates()
         elseif first_garbage_gate.wait_time == 0 then
           -- 落とす時の x 座標を決める
           local x
-          if first_garbage_gate.span == 6 then
+          if first_garbage_gate.span == board.cols then
             x = 1
           else
+            -- おじゃまゲートの x 座標
+            -- x + span - 1 <= board.cols を満たす x をランダムに決める
+            --
+            -- x = ceil_rnd(6 - 3 + 1)
+            -- →   ceil_rnd(4)
             x = ceil_rnd(board.cols - first_garbage_gate.span + 1)
           end
 
