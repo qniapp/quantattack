@@ -18,7 +18,7 @@ function foo_class.access_global_variable(_ENV)
   printh("global_variable = " .. global_variable)
 end
 
-describe('self を省略できる #solo', function()
+describe('self を省略できる', function()
   it('呼び出された側で self. を省略できる', function()
     local foo = foo_class()
     assert.has_no.errors(function() foo:access_instance_variable() end)
