@@ -35,6 +35,7 @@ function _update60()
     if t() - game.game_over_time > 2 then
       qpu1_board.show_gameover_menu = true
       qpu2_board.show_gameover_menu = true
+
       if btnp(4) then -- x でリプレイ
         _init()
       elseif btnp(5) then -- z でタイトルへ戻る

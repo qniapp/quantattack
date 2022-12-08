@@ -918,7 +918,7 @@ function create_board(__offset_x, __cols)
           particle:create_chunk(screen_x(_ENV, x) - 2, screen_y(_ENV, y) + 3,
             "1,1,10,10,-1,-0.8,0.05,0.05,3|1,1,10,10,-1,0,0.05,0,5|1,1,10,10,-1,0.8,0.05,-0.05,3")
         end
-        if type ~= "i" then
+        if gate.type ~= "i" then
           particle:create_chunk(screen_x(_ENV, new_x) + 10, screen_y(_ENV, y) + 3,
             "1,1,10,10,1,-0.8,-0.05,0.05,3|1,1,10,10,1,0,-0.05,0,5|1,1,10,10,1,0.8,-0.05,-0.05,3")
         end

@@ -1,7 +1,7 @@
 tile_size = 8
 
 function ceil_rnd(num)
-  return ceil(rnd(num))
+  return flr(rnd(num)) + 1
 end
 
 function draw_rounded_box(x0, y0, x1, y1, border_color, fill_color)

@@ -2,7 +2,7 @@ require("engine/test/bustedhelper")
 require("lib/board")
 require("lib/garbage_gate")
 
-describe('garbage_gate #solo', function()
+describe('garbage_gate', function()
   describe('span', function()
     it("幅はデフォルトで 6", function()
       local garbage = garbage_gate()
