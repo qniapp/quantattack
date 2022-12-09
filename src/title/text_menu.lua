@@ -32,7 +32,7 @@ function text_menu:update()
     elseif btnp(3) then
       self:select_next()
     elseif btnp(4) then -- z
-      sfx(7)
+      sfx(15)
       self:confirm_selection()
     elseif btnp(5) then -- x
       -- FIXME: ベタ書きをやめる

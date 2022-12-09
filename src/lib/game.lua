@@ -14,7 +14,7 @@ end
 
 function game.combo_callback(combo_count, x, y, player, board, other_board)
   local attack_cube_callback = function(target_x, target_y)
-    sfx(12)
+    sfx(21)
     particle:create_chunk(target_x, target_y,
       "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
 
@@ -42,7 +42,7 @@ function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, o
 
   if offset_height > 2 then
     local attack_cube_callback = function(target_x, target_y)
-      sfx(12)
+      sfx(21)
       particle:create_chunk(target_x, target_y,
         "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
 
@@ -67,7 +67,7 @@ end
 function game.chain_callback(chain_id, chain_count, x, y, player, board, other_board)
   if chain_count > 2 then
     local attack_cube_callback = function(target_x, target_y)
-      sfx(12)
+      sfx(21)
       particle:create_chunk(target_x, target_y,
         "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
 
@@ -135,7 +135,7 @@ function game:update()
       end
 
       if countdown % 60 == 0 then
-        sfx(5)
+        sfx(13)
       end
     elseif countdown == 0 then
       countdown = nil
@@ -144,7 +144,7 @@ function game:update()
         each.board.countdown = nil
       end
 
-      sfx(6)
+      sfx(14)
     end
   end
 
@@ -163,23 +163,23 @@ function game:update()
       each:update(board)
 
       if each.left then
-        sfx(0)
+        sfx(8)
         player_cursor:move_left()
       end
       if each.right then
-        sfx(0)
+        sfx(8)
         player_cursor:move_right()
       end
       if each.up then
-        sfx(0)
+        sfx(8)
         player_cursor:move_up()
       end
       if each.down then
-        sfx(0)
+        sfx(8)
         player_cursor:move_down()
       end
       if each.o and not countdown and board:swap(player_cursor.x, player_cursor.y) then
-        sfx(2)
+        sfx(10)
       end
       if each.x and not countdown and board.top_gate_y > 2 then
         self:_raise(each)

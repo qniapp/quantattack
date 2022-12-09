@@ -52,7 +52,7 @@ function game()
           end
 
           if countdown % 60 == 0 then
-            sfx(5)
+            sfx(13)
           end
         elseif countdown == 0 then
           countdown = nil
@@ -61,7 +61,7 @@ function game()
             each.board.countdown = nil
           end
 
-          sfx(6)
+          sfx(14)
         end
       end
 
@@ -80,23 +80,23 @@ function game()
           each:update(board)
 
           if each.left then
-            sfx(0)
+            sfx(8)
             player_cursor:move_left()
           end
           if each.right then
-            sfx(0)
+            sfx(8)
             player_cursor:move_right()
           end
           if each.up then
-            sfx(0)
+            sfx(8)
             player_cursor:move_up()
           end
           if each.down then
-            sfx(0)
+            sfx(8)
             player_cursor:move_down()
           end
           if each.o and not countdown and board:swap(player_cursor.x, player_cursor.y) then
-            sfx(2)
+            sfx(10)
           end
           if each.x and not countdown and board.top_gate_y > 2 then
             _raise(_ENV, each)

@@ -59,7 +59,7 @@ function endless:update()
     if t() - game.game_over_time > 2 then
       if not board.show_gameover_menu then
         if high_score:put(player.score) then
-          sfx(13)
+          sfx(22)
           sash:create("high score!", 9, 8)
         end
       end

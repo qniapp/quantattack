@@ -71,7 +71,7 @@ function time_attack:update()
       sfx(16)
       sash:create("time up!", 13, 7, function()
         if high_score:put(player.score) then
-          sfx(13)
+          sfx(22)
           sash:create("high score!", 9, 8)
         end
       end)

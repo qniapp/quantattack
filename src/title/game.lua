@@ -26,7 +26,7 @@ end
 
 local attack_cube_callback = function(target_x, target_y)
   bounce_title_logo()
-  sfx(10)
+  sfx(19)
   particle:create_chunk(target_x, target_y,
     "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
 end
@@ -82,23 +82,23 @@ function game()
         each:update(board)
 
         if each.left then
-          sfx(0)
+          sfx(8)
           player_cursor:move_left()
         end
         if each.right then
-          sfx(0)
+          sfx(8)
           player_cursor:move_right()
         end
         if each.up then
-          sfx(0)
+          sfx(8)
           player_cursor:move_up()
         end
         if each.down then
-          sfx(0)
+          sfx(8)
           player_cursor:move_down()
         end
         if each.o and board:swap(player_cursor.x, player_cursor.y) then
-          sfx(2)
+          sfx(10)
         end
         if each.x and board.top_gate_y > 2 then
           _raise(_ENV, each)

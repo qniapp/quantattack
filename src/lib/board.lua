@@ -493,7 +493,7 @@ function create_board(__offset_x, __cols)
       if state == "play" then
         if win or lose then
           state, tick_over = "over", 0
-          sfx(8)
+          sfx(17)
         elseif timeup then
           state, tick_over = "over", 0
         else
@@ -502,7 +502,7 @@ function create_board(__offset_x, __cols)
       elseif state == "over" then
         if lose then
           if tick_over == 20 then
-            sfx(9)
+            sfx(18)
           end
 
           for x = 1, cols do
@@ -695,10 +695,10 @@ function create_board(__offset_x, __cols)
             if not is_gate_fallable(_ENV, x, y) then
               if gate.type == "g" then
                 bounce(_ENV)
-                sfx(1)
+                sfx(9)
                 gate.first_drop = false
               else
-                sfx(4)
+                sfx(12)
               end
 
               gate._fall_screen_dy = 0
@@ -942,7 +942,7 @@ function create_board(__offset_x, __cols)
       end
 
       if old_state == "match" and gate:is_idle() then
-        sfx(3, -1, (gate._match_index % 6 - 1) * 4, 4)
+        sfx(11, -1, (gate._match_index % 6 - 1) * 4, 4)
         put(_ENV, x, y, gate.new_gate)
         particle:create_chunk(screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3,
           "2,1,7,7,-1,-1,0.05,0.05,16|2,1,7,7,1,-1,-0.05,0.05,16|2,1,7,7,-1,1,0.05,-0.05,16|2,1,7,7,1,1,-0.05,-0.05,16")

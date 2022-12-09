@@ -8,7 +8,7 @@ function attack_bubble:create(x, y, callback, clr, target_x, target_y)
   self:_add(function(_ENV)
     _from_x, _from_y, _target_x, _target_y, _mid_x, _mid_y, _callback, _tick, _max_tick, _color =
     x, y, target_x, target_y, x > 64 and x + 60 or x - 60, y + 40, callback, 0, 60, clr
-    sfx(11)
+    sfx(20)
   end)
 end
 

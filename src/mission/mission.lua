@@ -87,13 +87,13 @@ function mission_game.reduce_callback(_score, x, y, _player, pattern, dx)
       local attack_cube_callback = function(target_x, target_y)
         task_balloon:delete(each)
         state = ":play"
-        sfx(14)
+        sfx(23)
         particle:create_chunk(target_x, target_y,
           "10,10,9,7,random,random,-0.03,-0.03,20|10,10,9,7,random,random,-0.03,-0.03,20|9,9,9,7,random,random,-0.03,-0.03,20|9,9,2,5,random,random,-0.03,-0.03,20|9,9,6,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,9,7,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|7,7,6,5,random,random,-0.03,-0.03,20|5,5,2,5,random,random,-0.03,-0.03,20")
       end
 
       attack_bubble.slow = true
-      sfx(13)
+      sfx(22)
       match_pattern = each.rule
       match_screen_x = board:screen_x(x)
       match_screen_y = board:screen_y(y)
@@ -160,7 +160,7 @@ function mission:update()
             (i % 2) * 36)
         end
         task_balloon:enter_all()
-        sfx(15)
+        sfx(24)
         sash:create("wave #" .. wave_number, 13, 7, function() sfx(-2, -1) end)
       else
         board.win = true
