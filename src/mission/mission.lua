@@ -97,7 +97,14 @@ function mission_game.reduce_callback(_score, x, y, _player, pattern, dx)
       match_pattern = each.rule
       match_screen_x = board:screen_x(x)
       match_screen_y = board:screen_y(y)
-      attack_bubble:create(board:screen_x(x), board:screen_y(y), attack_cube_callback, each.x, each.y)
+      attack_bubble:create(
+        board:screen_x(x),
+        board:screen_y(y),
+        attack_cube_callback,
+        12,
+        each.x,
+        each.y
+      )
     end
   end
 end

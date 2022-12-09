@@ -38,7 +38,14 @@ function game()
     end,
 
     combo_callback = function(_combo_count, x, y, _player, board, _other_board)
-      attack_bubble:create(board:screen_x(x), board:screen_y(y), attack_cube_callback, 64, 36)
+      attack_bubble:create(
+        board:screen_x(x),
+        board:screen_y(y),
+        attack_cube_callback,
+        12,
+        64,
+        36
+      )
     end,
 
     gate_offset_callback = function(_chain_id, chain_count, _x, _y, _player, _board, _other_board)
@@ -46,7 +53,14 @@ function game()
     end,
 
     chain_callback = function(_chain_id, _chain_count, x, y, _player, board, _other_board)
-      attack_bubble:create(board:screen_x(x), board:screen_y(y), attack_cube_callback, 64, 36)
+      attack_bubble:create(
+        board:screen_x(x),
+        board:screen_y(y),
+        attack_cube_callback,
+        12,
+        64,
+        36
+      )
     end,
 
     init = function(_ENV)
