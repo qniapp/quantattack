@@ -59,7 +59,7 @@ function task_balloon:render()
     local _ENV = each
 
     -- バルーン
-    sspr(56, 32, 16, 12, x, y)
+    sspr(32, 48, 16, 12, x, y)
 
     -- ゲート
     for i, row in pairs(rule[1]) do

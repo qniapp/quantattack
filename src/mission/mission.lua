@@ -178,9 +178,9 @@ function mission:render()
   end
 
   if not mission_game:is_game_over() then
-    spr(70, 70, 109)
+    spr(112, 70, 109)
     print_outlined("swap gates", 81, 110, 7, 0)
-    spr(117, 70, 119)
+    spr(99, 70, 119)
     print_outlined("raise gates", 81, 120, 7, 0)
   end
 

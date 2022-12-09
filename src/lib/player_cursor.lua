@@ -40,9 +40,9 @@ function create_player_cursor(board)
       local screen_x, screen_y = _board:screen_x(x), _board:screen_y(y)
 
       if _tick >= 14 then
-        sspr(16, 32, 19, 11, screen_x - 2, screen_y - 2)
+        sspr(32, 32, 19, 11, screen_x - 2, screen_y - 2)
       else
-        sspr(16, 48, 21, 13, screen_x - 3, screen_y - 3)
+        sspr(56, 32, 21, 13, screen_x - 3, screen_y - 3)
       end
     end
   }, { __index = _ENV })
