@@ -26,7 +26,6 @@ function create_pending_garbage_gates()
       local new_garbage_gate = garbage_gate(span, height)
       new_garbage_gate.chain_id = chain_id
       new_garbage_gate.wait_time = 60
-      new_garbage_gate.dx = 0
       new_garbage_gate.dy = 0
       add(all, new_garbage_gate)
     end,
@@ -64,8 +63,7 @@ function create_pending_garbage_gates()
             board:put(first_garbage_gate.x, 1, first_garbage_gate)
             first_garbage_gate:fall()
           else
-            first_garbage_gate.dx = ceil_rnd(3) - 2
-            first_garbage_gate.dy = ceil_rnd(3) - 2
+            first_garbage_gate.dy = ceil_rnd(2) - 1
             first_garbage_gate.tick_fall = first_garbage_gate.tick_fall - 1
           end
         elseif first_garbage_gate.wait_time == 0 then
@@ -100,7 +98,7 @@ function create_pending_garbage_gates()
     render = function(_ENV, board)
       for i, each in pairs(all) do
         if i < 6 then
-          local x0, y0 = board.offset_x + 1 + (i - 1) * 9 + each.dx, board.offset_y + each.dy
+          local x0, y0 = board.offset_x + 1 + (i - 1) * 9, board.offset_y + each.dy
 
           if each.tick_fall then
             pal(7, each.inner_border_color)

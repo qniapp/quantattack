@@ -87,9 +87,9 @@ function endless:render() -- override
   print_outlined(player.steps .. " steps", base_x, 38, 7, 0)
 
   if not game:is_game_over() then
-    spr(70, base_x, 109)
+    spr(112, base_x, 109)
     print_outlined("swap gates", 81, 110, 7, 0)
-    spr(117, base_x, 119)
+    spr(99, base_x, 119)
     print_outlined("raise gates", 81, 120, 7, 0)
   end
 

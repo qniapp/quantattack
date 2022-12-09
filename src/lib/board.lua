@@ -556,7 +556,7 @@ function create_board(__offset_x, __cols)
 
           -- 一番下のマスクを描画
           if y == row_next_gates and not is_game_over(_ENV) then
-            spr(85, scr_x, scr_y)
+            spr(97, scr_x, scr_y)
           end
         end
       end
@@ -616,11 +616,11 @@ function create_board(__offset_x, __cols)
 
       if show_gameover_menu then
         draw_rounded_box(offset_x - 1, offset_y + 96, offset_x + 7, offset_y + 105, 0, 0)
-        spr(70, offset_x, offset_y + 97)
+        spr(112, offset_x, offset_y + 97)
         print_outlined("try again", offset_x + 11, offset_y + 98, 1, 7)
 
         draw_rounded_box(offset_x - 1, offset_y + 109, offset_x + 7, offset_y + 118, 0, 0)
-        spr(117, offset_x, offset_y + 110)
+        spr(99, offset_x, offset_y + 110)
         print_outlined("title", offset_x + 11, offset_y + 111, 1, 7)
       end
     end,
