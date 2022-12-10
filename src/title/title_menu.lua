@@ -3,7 +3,7 @@ require("title/plasma")
 
 local gamestate = require("lib/gamestate")
 local menu_item = require("title/menu_item")
-local text_menu_class = require("title/text_menu")
+local menu_class = require("title/menu")
 
 -- main menu: gamestate for player navigating in main menu
 local title_menu = derived_class(gamestate)
@@ -21,14 +21,14 @@ title_menu._items = {
   menu_item("qpu vs qpu", 'watch qpu vs qpu', 96, 'qitaev_qpu_vs_qpu')
 }
 
-local text_menu = text_menu_class(title_menu._items)
+local menu = menu_class(title_menu._items)
 
 function title_menu:on_enter()
   -- NOP
 end
 
 function title_menu:update()
-  text_menu:update()
+  menu:update()
 end
 
 function title_menu:render()
@@ -40,12 +40,12 @@ function title_menu:render()
   sspr(0, 64, 128, 16, 0, 24)
 
   -- メニューのウィンドウを表示
-  draw_rounded_box(6, 46, 117, 105, 0, 0) -- ふちどり
-  draw_rounded_box(7, 47, 116, 104, 12, 12) -- 枠線
-  draw_rounded_box(9, 49, 114, 102, 1, 1) -- 本体
+  draw_rounded_box(7, 46, 118, 105, 0, 0) -- ふちどり
+  draw_rounded_box(8, 47, 117, 104, 12, 12) -- 枠線
+  draw_rounded_box(10, 49, 115, 102, 1, 1) -- 本体
 
   -- メニューを表示
-  text_menu:draw(14, 72)
+  menu:draw(15, 72)
 end
 
 return title_menu

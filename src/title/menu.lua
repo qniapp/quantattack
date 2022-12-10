@@ -1,27 +1,15 @@
 ---@diagnostic disable: discard-returns
 
 local flow = require("lib/flow")
+local menu = new_class()
 
--- text menu: class representing a menu with labels and arrow-based navigation
-local text_menu = new_class()
-
--- parameters
--- items: {menu_item}      sequence of items to display
---
--- state
--- selection_index: int    index of the item currently selected
-function text_menu:_init(items)
-  -- parameters
+function menu:_init(items)
   self.items = items
-
-  -- state
   self.selection_index = 1
-
   self.cart_to_load = nil
 end
 
--- handle navigation input
-function text_menu:update()
+function menu:update()
   if self.cart_to_load then
     if stat(16) == -1 then
       load(self.cart_to_load)
@@ -35,32 +23,25 @@ function text_menu:update()
       sfx(15)
       self:confirm_selection()
     elseif btnp(5) then -- x
-      -- FIXME: ベタ書きをやめる
+      -- TODO: flow を消す
       flow:query_gamestate_type(':title_demo')
     end
   end
 end
 
-function text_menu:select_previous()
-  -- clamp selection
+function menu:select_previous()
   self.selection_index = max(self.selection_index - 1, 1)
 end
 
-function text_menu:select_next()
-  -- clamp selection
+function menu:select_next()
   self.selection_index = min(self.selection_index + 1, #self.items)
 end
 
-function text_menu:confirm_selection()
-  -- currently, text menu is only used to navigate to other gamestates,
-  -- but later, it may support generic on_confirm callbacks
-  -- flow:query_gamestate_type(self.items[self.selection_index].target_state)
-
+function menu:confirm_selection()
   self.cart_to_load = self.items[self.selection_index].target_state
-  -- load(self.items[self.selection_index].target_state)
 end
 
-function text_menu:draw(left, top)
+function menu:draw(left, top)
   local sx = left
 
   for i, each in pairs(self.items) do
@@ -87,4 +68,4 @@ function print_centered(text, center_x, center_y, col)
   print(text, center_x - #text * 2 + 1, center_y - 2, col)
 end
 
-return text_menu
+return menu

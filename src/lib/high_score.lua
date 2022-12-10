@@ -1,6 +1,8 @@
-local high_score = new_class()
+---@diagnostic disable: undefined-global
 
 cartdata("qitaev_0_1_0")
+
+local high_score = new_class()
 
 function high_score:_init(id)
   self.id = id
