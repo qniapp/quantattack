@@ -210,7 +210,7 @@ function game:update()
     particle.slow = true
   else
     -- ゲーム中だけ time_left を更新
-    game.time_left = 180 - (t() - self.start_time)
+    game.time_left = 120 - (t() - self.start_time)
 
     if all_players[1].board:is_game_over() then
       self.game_over_time = t()
