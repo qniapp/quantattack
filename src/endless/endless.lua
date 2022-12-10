@@ -5,7 +5,7 @@ local sash = require("lib/sash")
 
 -- ハイスコア関係
 local high_score_class = require("lib/high_score")
-local high_score = high_score_class("qitaev_0_1_0_endless")
+local high_score = high_score_class(1)
 local current_high_score
 
 local board = create_board()

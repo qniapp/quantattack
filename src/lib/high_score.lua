@@ -1,16 +1,18 @@
 local high_score = new_class()
 
+cartdata("qitaev_0_1_0")
+
 function high_score:_init(id)
-   cartdata(id)
+  self.id = id
 end
 
 function high_score:get()
-  return dget(0) or 0
+  return dget(self.id) or 0
 end
 
 function high_score:put(score)
-  if dget(0) < score then
-    dset(0, score)
+  if self:get() < score then
+    dset(self.id, score)
     return true
   end
 

@@ -27,9 +27,9 @@ function text_menu:update()
       load(self.cart_to_load)
     end
   else
-    if btnp(2) then
+    if btnp(0) then
       self:select_previous()
-    elseif btnp(3) then
+    elseif btnp(1) then
       self:select_next()
     elseif btnp(4) then -- z
       sfx(15)
@@ -61,18 +61,30 @@ function text_menu:confirm_selection()
 end
 
 function text_menu:draw(left, top)
-  local y = top
+  local sx = left
 
-  for i = 1, #self.items do
-    local label = self.items[i].label
+  for i, each in pairs(self.items) do
     if i == self.selection_index then
-      label = "> " .. label
+      print_centered(each.label, 62, top - 16, 10)
+      print_centered(each.description, 62, top - 8, 7)
+
+      draw_rounded_box(sx - 2, top - 2, sx + 17, top + 17, 12)
+
+      print_centered(each.high_score and 'hi score: ' .. each.high_score or '', 62, top + 23, 7)
     else
-      label = "  " .. label
+      pal(7, 13)
     end
-    print(label, left, y, 7)
-    y = y + 8
+
+    sspr(each.sx, each.sy, 16, 16, sx, top)
+
+    pal()
+
+    sx = sx + 20
   end
+end
+
+function print_centered(text, center_x, center_y, col)
+  print(text, center_x - #text * 2 + 1, center_y - 2, col)
 end
 
 return text_menu

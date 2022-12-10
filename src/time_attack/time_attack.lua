@@ -5,7 +5,7 @@ local flow = require("lib/flow")
 
 -- ハイスコア関係
 local high_score_class = require("lib/high_score")
-local high_score = high_score_class("qitaev_0_1_0_time_atack")
+local high_score = high_score_class(0)
 local current_high_score
 
 local board = create_board()
