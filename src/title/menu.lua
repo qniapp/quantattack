@@ -1,6 +1,5 @@
 ---@diagnostic disable: discard-returns
 
-local flow = require("lib/flow")
 local menu = new_class()
 
 function menu:_init(items)
@@ -25,8 +24,7 @@ function menu:update()
       sfx(15)
       self:confirm_selection()
     elseif btnp(5) then -- x
-      -- TODO: flow を消す
-      flow:query_gamestate_type(':title_demo')
+      state = ":demo"
     end
   end
 end
