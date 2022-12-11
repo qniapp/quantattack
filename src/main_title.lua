@@ -1,6 +1,5 @@
-local flow = require("lib/flow")
-local title_demo = require("title/title_demo")
-local title_menu = require("title/title_menu")
+local flow, title_demo, title_menu =
+require("lib/flow"), require("title/title_demo"), require("title/title_menu")
 
 require("title/game")
 demo_game = game()

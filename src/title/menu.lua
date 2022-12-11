@@ -16,8 +16,10 @@ function menu:update()
     end
   else
     if btnp(0) then
+      sfx(8)
       self:select_previous()
     elseif btnp(1) then
+      sfx(8)
       self:select_next()
     elseif btnp(4) then -- z
       sfx(15)
