@@ -117,7 +117,8 @@ function create_pending_garbage_gates()
             print(each.height)
           end
 
-          pal()
+          pal(6, 6)
+          pal(7, 7)
         end
       end
     end

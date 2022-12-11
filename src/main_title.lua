@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 require("lib/board")
 require("lib/player_cursor")
 require("lib/qpu")
@@ -23,8 +24,9 @@ local menu = menu_class({
   menu_item("qpu vs qpu", 'watch qpu vs qpu', 96, 'qitaev_qpu_vs_qpu')
 })
 
-state = ":demo"
-local tick_start
+-- state = ":demo"
+state = ":logo_slidein"
+local tick = 0
 
 function _init()
   local qpu_board = create_board(0, 16)
@@ -40,14 +42,14 @@ function _init()
 
   demo_game:init()
   demo_game:add_player(qpu, qpu_cursor, qpu_board)
-
-  tick_start = 0
 end
 
 function _update60()
-  if state == ":demo" then
-    tick_start = (tick_start + 1) % 60
-
+  if state == ":logo_slidein" then
+    -- NOP
+  elseif state == ":board_fadein" then
+    demo_game:update()
+  elseif state == ":demo" then
     demo_game:update()
     update_title_logo_bounce()
 
@@ -58,6 +60,8 @@ function _update60()
   else
     menu:update()
   end
+
+  tick = tick + 1
 end
 
 function _draw()
@@ -65,18 +69,38 @@ function _draw()
 
   render_plasma()
 
-  -- ロゴを表示
-  -- attack bubble をロゴの上に表示するので、最初に描画
-  sspr(0, 64, 128, 16, 0, 24 + title_logo_bounce_screen_dy)
+  if state == ":logo_slidein" then
+    sspr(0, 64, 128, 16, 0, tick)
 
-  demo_game:render()
+    if tick > 24 then
+      state = ":board_fadein"
+    end
+  elseif state == ":board_fadein" then
+    sspr(0, 64, 128, 16, 0, 24)
 
-  if state == ":demo" then
+    if tick <= 90 then
+      fadein((tick - 26) / 3)
+    end
+    demo_game:render()
+    pal()
+
+    if tick > 90 then
+      state = ":demo"
+    end
+  elseif state == ":demo" then
+    sspr(0, 64, 128, 16, 0, 24 + title_logo_bounce_screen_dy)
+
+    demo_game:render()
+
     -- Z/X start を表示
-    if tick_start < 30 then
+    if tick % 60 < 30 then
       print_outlined("z+x start", 50, 50, 1)
     end
   else
+    sspr(0, 64, 128, 16, 0, 24 + title_logo_bounce_screen_dy)
+
+    demo_game:render()
+
     -- メニューのウィンドウを表示
     draw_rounded_box(7, 46, 118, 105, 0, 0) -- ふちどり
     draw_rounded_box(8, 47, 117, 104, 12, 12) -- 枠線
@@ -84,5 +108,37 @@ function _draw()
 
     -- メニューを表示
     menu:draw(15, 72)
+  end
+end
+
+local fadetable = {
+  "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
+  "1,1,129,129,129,129,129,129,129,129,0,0,0,0,0",
+  "2,2,2,130,130,130,130,130,128,128,128,128,128,0,0",
+  "3,3,3,131,131,131,131,129,129,129,129,129,0,0,0",
+  "4,4,132,132,132,132,132,132,130,128,128,128,128,0,0",
+  "5,5,133,133,133,133,130,130,128,128,128,128,128,0,0",
+  "6,6,134,13,13,13,141,5,5,5,133,130,128,128,0",
+  "7,6,6,6,134,134,134,134,5,5,5,133,130,128,0",
+  "8,8,136,136,136,136,132,132,132,130,128,128,128,128,0",
+  "9,9,9,4,4,4,4,132,132,132,128,128,128,128,0",
+  "10,10,138,138,138,4,4,4,132,132,133,128,128,128,0",
+  "11,139,139,139,139,3,3,3,3,129,129,129,0,0,0",
+  "12,12,12,140,140,140,140,131,131,131,1,129,129,129,0",
+  "13,13,141,141,5,5,5,133,133,130,129,129,128,128,0",
+  "14,14,14,134,134,141,141,2,2,133,130,130,128,128,0",
+  "15,143,143,134,134,134,134,5,5,5,133,133,128,128,0"
+}
+
+function fadein(i)
+  local index = flr(15 - i)
+  printh("fadein " .. index)
+
+  for c = 0, 15 do
+    if index < 1 then
+      pal(c, c)
+    else
+      pal(c, split(fadetable[c + 1])[index])
+    end
   end
 end

@@ -219,7 +219,10 @@ function gate:render(screen_x, screen_y)
 
   spr(sprite, screen_x + swap_screen_dx + shake_dx, screen_y + self._fall_screen_dy + shake_dy)
 
-  pal()
+  palt(0, true)
+  pal(13, 13)
+  pal(6, 6)
+  pal(7, 7)
 end
 
 -------------------------------------------------------------------------------
