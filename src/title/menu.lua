@@ -5,14 +5,13 @@ local menu = new_class()
 function menu:_init(items, previous_state)
   self.items = items
   self.selection_index = 1
-  self.cart_to_load = nil
   self.previous_state = previous_state
 end
 
 function menu:update()
   if self.cart_to_load then
     if stat(16) == -1 then
-      load(self.cart_to_load)
+      load(self.cart_to_load, nil, self.load_param)
     end
   else
     if btnp(0) then
@@ -40,12 +39,14 @@ function menu:select_next()
 end
 
 function menu:confirm_selection()
-  local target = self.items[self.selection_index].target_state
-  if type(target) == "string" then
-    self.cart_to_load = target
+  local selected_menu_item = self.items[self.selection_index]
+
+  if type(selected_menu_item.target_state) == "string" then
+    self.cart_to_load = selected_menu_item.target_state
+    self.load_param = selected_menu_item.load_param
   else
     self.stale = true
-    target()
+    selected_menu_item.target_state()
   end
 end
 
@@ -54,15 +55,15 @@ function menu:draw(left, top)
 
   for i, each in pairs(self.items) do
     if i == self.selection_index then
-      print_centered(each.label or "", 62, top - 16, 10)
-      print_centered(each.description or "", 62, top - 8, 7)
+      print_centered(each.label, 62, top - 16, 10)
+      print_centered(each.description, 62, top - 8, 7)
 
       draw_rounded_box(sx - 2, top - 2, sx + each.width + 1, top + each.height + 1, self.stale and 6 or 12)
       if self.stale then
         pal(7, 6)
       end
 
-      print_centered(each.high_score and 'hi score: ' .. each.high_score or '', 62, top + 23, 7)
+      print_centered(each.high_score and 'hi score: ' .. each.high_score or nil, 62, top + 23, 7)
     else
       pal(7, 13)
     end
@@ -76,7 +77,9 @@ function menu:draw(left, top)
 end
 
 function print_centered(text, center_x, center_y, col)
-  print(text, center_x - #text * 2 + 1, center_y - 2, col)
+  if text then
+    print(text, center_x - #text * 2 + 1, center_y - 2, col)
+  end
 end
 
 return menu

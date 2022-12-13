@@ -22,9 +22,9 @@ local main_menu = menu_class({
   menu_item("qpu vs qpu", 'watch qpu vs qpu', 96, 48, 16, 16, 'qitaev_qpu_vs_qpu')
 }, ":demo")
 local level_menu = menu_class({
-  menu_item(nil, nil, 48, 80, 19, 7, 'qitaev_vs_qpu'),
-  menu_item(nil, nil, 72, 80, 27, 7, 'qitaev_vs_qpu'),
-  menu_item(nil, nil, 104, 80, 19, 7, 'qitaev_vs_qpu'),
+  menu_item(nil, nil, 48, 80, 19, 7, 'qitaev_vs_qpu', nil, 3), -- easy
+  menu_item(nil, nil, 72, 80, 27, 7, 'qitaev_vs_qpu', nil, 2), -- normal
+  menu_item(nil, nil, 104, 80, 19, 7, 'qitaev_vs_qpu', nil, 1), -- hard
 }, ":main_menu")
 
 -- :logo_slidein QuantumAttack のロゴ slide-in アニメーション
@@ -39,7 +39,7 @@ local tick = 0
 function _init()
   local qpu_board = create_board(0, 16)
   local qpu_cursor = create_player_cursor(qpu_board)
-  local qpu = create_qpu(qpu_cursor, qpu_board)
+  local qpu = create_qpu(qpu_cursor, qpu_board, 2)
 
   qpu:init()
   qpu_board:put_random_gates()

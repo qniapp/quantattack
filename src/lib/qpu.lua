@@ -25,10 +25,11 @@ local function _is_swappable(board, gate_x, gate_y)
 end
 
 -- 新しい QPU プレーヤーを返す
-function create_qpu(cursor, board)
+function create_qpu(cursor, board, _level)
   local qpu = setmetatable({
     cursor = cursor,
     board = board,
+    level = _level or 2,
 
     init = function(_ENV)
       -- raise はテスト用で、false にすると QPU プレーヤーは x を押さない
@@ -94,7 +95,7 @@ function create_qpu(cursor, board)
         if each.type == "cnot_x" and each.other_x == each_x + 2 and
             lower_gate.type == "cnot_x" and
             lower_gate.other_x == each_x + 1 then
-          move_and_swap(_ENV, each_x + 1, each_y, true)
+          move_and_swap(_ENV, each_x + 1, each_y)
           return true
         end
 
@@ -105,7 +106,7 @@ function create_qpu(cursor, board)
         if each.type == "cnot_x" and each.other_x == each_x + 2 and
             upper_gate.type == "cnot_x" and
             upper_gate.other_x == each_x + 1 then
-          move_and_swap(_ENV, each_x + 1, each_y, true)
+          move_and_swap(_ENV, each_x + 1, each_y)
           return true
         end
 
@@ -114,7 +115,7 @@ function create_qpu(cursor, board)
         --   [X-]--C
         --   [C-]--X
         if (each.type == "cnot_x" or each.type == "control") and each_x + 1 < each.other_x then
-          move_and_swap(_ENV, each_x, each_y, true)
+          move_and_swap(_ENV, each_x, each_y)
           return true
         end
 
@@ -123,7 +124,7 @@ function create_qpu(cursor, board)
         --   C-X --> X-C
         --   X-C --> X-C
         if each.type == "control" and each.other_x == each_x + 1 then
-          move_and_swap(_ENV, each_x, each_y, true)
+          move_and_swap(_ENV, each_x, each_y)
           return true
         end
 
@@ -132,7 +133,7 @@ function create_qpu(cursor, board)
         --   X-[C ]
         if each_x < board.cols and
             each.type == "control" and each.other_x < each_x and _is_empty(board, each_x + 1, each_y) then
-          move_and_swap(_ENV, each_x, each_y, true)
+          move_and_swap(_ENV, each_x, each_y)
           return true
         end
 
@@ -144,7 +145,7 @@ function create_qpu(cursor, board)
             _is_empty(board, each_x - 1, each_y) and each.type == "cnot_x" and each.other_x == each_x + 1 and
             lower_gate.type == "control" and
             lower_gate.other_x == each_x - 1 then
-          move_and_swap(_ENV, each_x - 1, each_y, true)
+          move_and_swap(_ENV, each_x - 1, each_y)
           return true
         end
 
@@ -156,13 +157,13 @@ function create_qpu(cursor, board)
             _is_empty(board, each_x - 1, each_y) and each.type == "cnot_x" and each.other_x == each_x + 1 and
             upper_gate.type == "control" and
             upper_gate.other_x == each_x - 1 then
-          move_and_swap(_ENV, each_x - 1, each_y, true)
+          move_and_swap(_ENV, each_x - 1, each_y)
           return true
         end
       end
     end,
 
-    find_left_and_right = function(_ENV, f, gate, upper, quick)
+    find_left_and_right = function(_ENV, f, gate, upper)
       local gate_x, gate_y, other_row_gate_y = gate.x, gate.y, gate.y + (upper and -1 or 1)
       local find_left, find_right = true, true
 
@@ -174,7 +175,7 @@ function create_qpu(cursor, board)
         if find_left then
           if _is_swappable(board, gate_x - dx, gate_y) then
             if f(board, gate_x - dx, other_row_gate_y, gate) then
-              move_and_swap(_ENV, gate_x - 1, gate_y, quick)
+              move_and_swap(_ENV, gate_x - 1, gate_y)
               return true
             end
           else
@@ -185,7 +186,7 @@ function create_qpu(cursor, board)
         if find_right then
           if _is_empty(board, gate_x + dx, gate_y) then
             if f(board, gate_x + dx, other_row_gate_y, gate) then
-              move_and_swap(_ENV, gate_x, gate_y, quick)
+              move_and_swap(_ENV, gate_x, gate_y)
               return true
             end
           else
@@ -197,18 +198,18 @@ function create_qpu(cursor, board)
       return false
     end,
 
-    move_and_swap = function(_ENV, gate_x, gate_y, quick)
-      add_move_command(_ENV, gate_x < cursor.x and "left" or "right", abs(cursor.x - gate_x), quick)
-      add_move_command(_ENV, gate_y < cursor.y and "up" or "down", abs(cursor.y - gate_y), quick)
+    move_and_swap = function(_ENV, gate_x, gate_y)
+      add_move_command(_ENV, gate_x < cursor.x and "left" or "right", abs(cursor.x - gate_x))
+      add_move_command(_ENV, gate_y < cursor.y and "up" or "down", abs(cursor.y - gate_y))
       add_swap_command(_ENV)
     end,
 
-    add_move_command = function(_ENV, direction, count, quick)
+    add_move_command = function(_ENV, direction, count)
       for i = 1, count do
         add(commands, direction)
 
-        if sleep and not quick then
-          add_sleep_command(_ENV, 5 + ceil_rnd(10))
+        if sleep then
+          add_sleep_command(_ENV, ceil_rnd(level * 8))
         end
       end
     end,
