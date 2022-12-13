@@ -3,11 +3,8 @@ require("lib/board")
 require("lib/player_cursor")
 require("lib/qpu")
 require("title/plasma")
-
--- local title_demo, title_menu =
--- require("title/title_demo"), require("title/title_menu")
-
 require("title/game")
+
 demo_game = game()
 
 -- ハイスコア
@@ -16,16 +13,27 @@ local high_score = require("lib/high_score")
 -- メニュー
 local menu_item = require("title/menu_item")
 local menu_class = require("title/menu")
-local menu = menu_class({
-  menu_item("mission", 'clear 9 waves', 32, 'qitaev_mission'),
-  menu_item("time attack", 'play for 2 minutes', 48, 'qitaev_time_attack', high_score(0):get() * 10),
-  menu_item("endless", 'play as long as you can', 64, 'qitaev_endless', high_score(1):get() * 10),
-  menu_item("vs qpu", 'defeat the qpu', 80, 'qitaev_vs_qpu'),
-  menu_item("qpu vs qpu", 'watch qpu vs qpu', 96, 'qitaev_qpu_vs_qpu')
-})
 
--- state = ":demo"
-state = ":logo_slidein"
+local main_menu = menu_class({
+  menu_item("mission", 'clear 9 waves', 32, 48, 16, 16, 'qitaev_mission'),
+  menu_item("time attack", 'play for 2 minutes', 48, 48, 16, 16, 'qitaev_time_attack', high_score(0):get() * 10),
+  menu_item("endless", 'play as long as you can', 64, 48, 16, 16, 'qitaev_endless', high_score(1):get() * 10),
+  menu_item("vs qpu", 'defeat the qpu', 80, 48, 16, 16, function() title_state = ":level_menu" end),
+  menu_item("qpu vs qpu", 'watch qpu vs qpu', 96, 48, 16, 16, 'qitaev_qpu_vs_qpu')
+}, ":demo")
+local level_menu = menu_class({
+  menu_item(nil, nil, 48, 80, 19, 7, 'qitaev_vs_qpu'),
+  menu_item(nil, nil, 72, 80, 27, 7, 'qitaev_vs_qpu'),
+  menu_item(nil, nil, 104, 80, 19, 7, 'qitaev_vs_qpu'),
+}, ":main_menu")
+
+-- :logo_slidein QuantumAttack のロゴ slide-in アニメーション
+-- :board_fadein ボードの fade-in アニメーション
+-- :demo デモプレイ
+-- :main_menu メニューを表示した状態
+-- :level_menu QPU のレベル選択
+title_state = ":logo_slidein"
+
 local tick = 0
 
 function _init()
@@ -45,20 +53,23 @@ function _init()
 end
 
 function _update60()
-  if state == ":logo_slidein" then
+  if title_state == ":logo_slidein" then
     -- NOP
-  elseif state == ":board_fadein" then
+  elseif title_state == ":board_fadein" then
     demo_game:update()
-  elseif state == ":demo" then
+  elseif title_state == ":demo" then
     demo_game:update()
     update_title_logo_bounce()
 
     if btnp(4) or btnp(5) then -- x または z でタイトルへ進む
       sfx(15)
-      state = ":menu"
+      title_state = ":main_menu"
     end
-  else
-    menu:update()
+  elseif title_state == ":main_menu" then
+    main_menu.stale = false
+    main_menu:update()
+  elseif title_state == ":level_menu" then
+    level_menu:update()
   end
 
   tick = tick + 1
@@ -69,13 +80,13 @@ function _draw()
 
   render_plasma()
 
-  if state == ":logo_slidein" then
+  if title_state == ":logo_slidein" then
     sspr(0, 64, 128, 16, 0, tick)
 
     if tick > 24 then
-      state = ":board_fadein"
+      title_state = ":board_fadein"
     end
-  elseif state == ":board_fadein" then
+  elseif title_state == ":board_fadein" then
     sspr(0, 64, 128, 16, 0, 24)
 
     if tick <= 90 then
@@ -85,29 +96,33 @@ function _draw()
     pal()
 
     if tick > 90 then
-      state = ":demo"
-    end
-  elseif state == ":demo" then
-    sspr(0, 64, 128, 16, 0, 24 + title_logo_bounce_screen_dy)
-
-    demo_game:render()
-
-    -- Z/X start を表示
-    if tick % 60 < 30 then
-      print_outlined("z+x start", 50, 50, 1)
+      title_state = ":demo"
     end
   else
     sspr(0, 64, 128, 16, 0, 24 + title_logo_bounce_screen_dy)
 
     demo_game:render()
 
-    -- メニューのウィンドウを表示
-    draw_rounded_box(7, 46, 118, 105, 0, 0) -- ふちどり
-    draw_rounded_box(8, 47, 117, 104, 12, 12) -- 枠線
-    draw_rounded_box(10, 49, 115, 102, 1, 1) -- 本体
+    if title_state == ":demo" then
+      -- Z/X start を表示
+      if tick % 60 < 30 then
+        print_outlined("z+x start", 50, 50, 1)
+      end
+    else -- ":main_menu" or ":level_menu"
+      -- メニューのウィンドウを表示
+      draw_rounded_box(7, 46, 118, 108, 0, 0) -- ふちどり
+      draw_rounded_box(8, 47, 117, 107, 12, 12) -- 枠線
+      draw_rounded_box(10, 49, 115, 105, 1, 1) -- 本体
 
-    -- メニューを表示
-    menu:draw(15, 72)
+      -- メニューを表示
+      main_menu:draw(15, 72)
+
+      if title_state == ":level_menu" then
+        level_menu:draw(27, 93)
+      end
+
+      print_outlined("z select  x cancel", 27, 107, 1, 7)
+    end
   end
 end
 
@@ -132,7 +147,6 @@ local fadetable = {
 
 function fadein(i)
   local index = flr(15 - i)
-  printh("fadein " .. index)
 
   for c = 0, 15 do
     if index < 1 then

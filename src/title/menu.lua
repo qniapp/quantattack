@@ -2,10 +2,11 @@
 
 local menu = new_class()
 
-function menu:_init(items)
+function menu:_init(items, previous_state)
   self.items = items
   self.selection_index = 1
   self.cart_to_load = nil
+  self.previous_state = previous_state
 end
 
 function menu:update()
@@ -24,7 +25,8 @@ function menu:update()
       sfx(15)
       self:confirm_selection()
     elseif btnp(5) then -- x
-      state = ":demo"
+      sfx(8)
+      title_state = self.previous_state
     end
   end
 end
@@ -38,7 +40,13 @@ function menu:select_next()
 end
 
 function menu:confirm_selection()
-  self.cart_to_load = self.items[self.selection_index].target_state
+  local target = self.items[self.selection_index].target_state
+  if type(target) == "string" then
+    self.cart_to_load = target
+  else
+    self.stale = true
+    target()
+  end
 end
 
 function menu:draw(left, top)
@@ -46,21 +54,24 @@ function menu:draw(left, top)
 
   for i, each in pairs(self.items) do
     if i == self.selection_index then
-      print_centered(each.label, 62, top - 16, 10)
-      print_centered(each.description, 62, top - 8, 7)
+      print_centered(each.label or "", 62, top - 16, 10)
+      print_centered(each.description or "", 62, top - 8, 7)
 
-      draw_rounded_box(sx - 2, top - 2, sx + 17, top + 17, 12)
+      draw_rounded_box(sx - 2, top - 2, sx + each.width + 1, top + each.height + 1, self.stale and 6 or 12)
+      if self.stale then
+        pal(7, 6)
+      end
 
       print_centered(each.high_score and 'hi score: ' .. each.high_score or '', 62, top + 23, 7)
     else
       pal(7, 13)
     end
 
-    sspr(each.sx, each.sy, 16, 16, sx, top)
+    sspr(each.sx, each.sy, each.width, 16, sx, top)
 
     pal()
 
-    sx = sx + 20
+    sx = sx + each.width + 4
   end
 end
 
