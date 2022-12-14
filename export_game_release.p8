@@ -12,22 +12,22 @@ __lua__
 -- #version
 -- PICO-8 cannot read data/version.txt, so exceptionally set the version manually here
 local version = "0.2.0"
-local export_folder = "qitaev/v"..version.."_release"
-local game_basename = "qitaev_v"..version.."_release"
+local export_folder = "quantattack/v"..version.."_release"
+local game_basename = "quantattack_v"..version.."_release"
 local rel_png_folder = game_basename.."_png_cartridges"
 
 cd(export_folder)
 
-  local entry_cartridge = "qitaev_title.p8"
+  local entry_cartridge = "quantattack_title.p8"
 
   -- #cartridge (tagged to easily find what code to change when adding a new cartridge,
   -- and because this script cannot access external files like cartridges.txt)
   local additional_main_cartridges_list = {
-    "qitaev_mission.p8",
-    "qitaev_time_attack.p8",
-    "qitaev_endless.p8",
-    "qitaev_vs_qpu.p8",
-    "qitaev_qpu_vs_qpu.p8",
+    "quantattack_mission.p8",
+    "quantattack_time_attack.p8",
+    "quantattack_endless.p8",
+    "quantattack_vs_qpu.p8",
+    "quantattack_qpu_vs_qpu.p8",
   }
 
   -- all main cartridges, including entry cartridge
@@ -111,7 +111,7 @@ cd(export_folder)
   mkdir(game_basename.."_web")
   -- Do not cd into game_basename.."_web" because we want the additional cartridges to be accessible
   --  in current path. Instead, export directly into the _web folder
-  -- Use custom template. It is located in plates/qitaev_template.html and copied into PICO-8 config dir plates
+  -- Use custom template. It is located in plates/quantattack_template.html and copied into PICO-8 config dir plates
   --  in export_and_patch_cartridge_release.sh
   export(game_basename.."_web/"..game_basename..".html "..additional_cartridges_string.." -i 46 -s 2 -c 14 -p crtplate")
   printh("Exported HTML in carts/"..export_folder.."/"..game_basename..".html")

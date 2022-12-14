@@ -68,7 +68,7 @@ function endless:update()
       if btnp(4) then -- x でリプレイ
         flow:query_gamestate_type(":endless")
       elseif btnp(5) then -- z でタイトルへ戻る
-        load('qitaev_title')
+        jump('quantattack_title')
       end
     end
   end

@@ -27,7 +27,7 @@ if ! [[ $# -ge 1 &&  $# -le 4 ]] ; then
 fi
 
 # Configuration: cartridge
-cartridge_stem="qitaev"
+cartridge_stem="quantattack"
 version=`cat "$data_path/version.txt"`
 cartridge_suffix="$1"; shift
 config="$1"; shift
