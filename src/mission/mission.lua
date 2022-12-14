@@ -186,9 +186,9 @@ function mission:render()
 
   if not mission_game:is_game_over() then
     spr(99, 70, 109)
-    print_outlined("swap gates", 81, 110, 7, 0)
+    print_outlined("swap blocks", 81, 110, 7, 0)
     spr(112, 70, 119)
-    print_outlined("raise gates", 81, 120, 7, 0)
+    print_outlined("raise blocks", 81, 120, 7, 0)
   end
 
   if not mission_game.countdown then
