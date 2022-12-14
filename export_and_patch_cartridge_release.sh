@@ -19,7 +19,7 @@ config_plates_dirpath="$HOME/.lexaloffle/pico-8/plates"
 # Configuration: cartridge
 pico8_version=`cat "$data_path/pico8_version.txt"`
 version=`cat "$data_path/version.txt"`
-cartridge_stem="qitaev"
+cartridge_stem="quantattack"
 export_folder="$carts_dirpath/${cartridge_stem}/v${version}_release"
 cartridge_basename="${cartridge_stem}_v${version}_release"
 
@@ -84,7 +84,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # vs_qpu is the biggest cartridge so if PNG export fails, this one will fail first
-# if [[ ! -f "${png_folder}/qitaev_vs_qpu.p8.png" ]]; then
+# if [[ ! -f "${png_folder}/quantattack_vs_qpu.p8.png" ]]; then
 #   echo ""
 #   echo "Exporting PNG cartridge for vs_qpu via PICO-8 failed, STOP. Check that this cartridge compressed size <= 100% even after adding '.png' for reload."
 #   exit 1

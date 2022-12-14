@@ -15,16 +15,16 @@ local menu_item = require("title/menu_item")
 local menu_class = require("title/menu")
 
 local main_menu = menu_class({
-  menu_item("mission", 'clear 9 waves', 32, 48, 16, 16, 'qitaev_mission'),
-  menu_item("time attack", 'play for 2 minutes', 48, 48, 16, 16, 'qitaev_time_attack', high_score(0):get() * 10),
-  menu_item("endless", 'play as long as you can', 64, 48, 16, 16, 'qitaev_endless', high_score(1):get() * 10),
+  menu_item("mission", 'clear 9 waves', 32, 48, 16, 16, 'quantattack_mission'),
+  menu_item("time attack", 'play for 2 minutes', 48, 48, 16, 16, 'quantattack_time_attack', high_score(0):get() * 10),
+  menu_item("endless", 'play as long as you can', 64, 48, 16, 16, 'quantattack_endless', high_score(1):get() * 10),
   menu_item("vs qpu", 'defeat the qpu', 80, 48, 16, 16, function() title_state = ":level_menu" end),
-  menu_item("qpu vs qpu", 'watch qpu vs qpu', 96, 48, 16, 16, 'qitaev_qpu_vs_qpu')
+  menu_item("qpu vs qpu", 'watch qpu vs qpu', 96, 48, 16, 16, 'quantattack_qpu_vs_qpu')
 }, ":demo")
 local level_menu = menu_class({
-  menu_item(nil, nil, 48, 80, 19, 7, 'qitaev_vs_qpu', nil, 3), -- easy
-  menu_item(nil, nil, 72, 80, 27, 7, 'qitaev_vs_qpu', nil, 2), -- normal
-  menu_item(nil, nil, 104, 80, 19, 7, 'qitaev_vs_qpu', nil, 1), -- hard
+  menu_item(nil, nil, 48, 80, 19, 7, 'quantattack_vs_qpu', nil, 3), -- easy
+  menu_item(nil, nil, 72, 80, 27, 7, 'quantattack_vs_qpu', nil, 2), -- normal
+  menu_item(nil, nil, 104, 80, 19, 7, 'quantattack_vs_qpu', nil, 1), -- hard
 }, ":main_menu")
 
 -- :logo_slidein QuantumAttack のロゴ slide-in アニメーション

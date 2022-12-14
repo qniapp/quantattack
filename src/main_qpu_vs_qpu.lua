@@ -39,7 +39,7 @@ function _update60()
       if btnp(4) then -- x でリプレイ
         _init()
       elseif btnp(5) then -- z でタイトルへ戻る
-        load('qitaev_title')
+        load('quantattack_title')
       end
     end
   end
