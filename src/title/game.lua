@@ -97,10 +97,10 @@ function game()
           sfx(8)
           player_cursor:move_down()
         end
-        if each.o and board:swap(player_cursor.x, player_cursor.y) then
+        if each.x and board:swap(player_cursor.x, player_cursor.y) then
           sfx(10)
         end
-        if each.x and board.top_gate_y > 2 then
+        if each.o and board.top_gate_y > 2 then
           _raise(_ENV, each)
         end
 

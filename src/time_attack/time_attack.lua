@@ -58,10 +58,10 @@ function time_attack:update()
   if game:is_game_over() then
     if t() - game.game_over_time > 2 then
       board.show_gameover_menu = true
-      if btnp(4) then -- x でリプレイ
+      if btnp(5) then -- x でリプレイ
         flow:query_gamestate_type(":time_attack")
-      elseif btnp(5) then -- z でタイトルへ戻る
-        load('qitaev_title')
+      elseif btnp(4) then -- z でタイトルへ戻る
+        jump('quantattack_title')
       end
     end
   else
@@ -95,9 +95,9 @@ function time_attack:render() -- override
   print_outlined(game:time_left_string(), base_x, 52, 7, 0)
 
   if not game:is_game_over() then
-    spr(112, base_x, 109)
+    spr(99, base_x, 109)
     print_outlined("swap gates", 81, 110, 7, 0)
-    spr(99, base_x, 119)
+    spr(112, base_x, 119)
     print_outlined("raise gates", 81, 120, 7, 0)
   end
 

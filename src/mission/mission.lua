@@ -141,10 +141,10 @@ function mission:update()
   if mission_game:is_game_over() then
     if t() - mission_game.game_over_time > 2 then
       board.show_gameover_menu = true
-      if btnp(4) then -- x でリプレイ
+      if btnp(5) then -- x でリプレイ
         flow:query_gamestate_type(":mission")
-      elseif btnp(5) then -- z でタイトルへ戻る
-        load('qitaev_title')
+      elseif btnp(4) then -- c でタイトルへ戻る
+        jump('quantattack_title')
       end
     end
   end
@@ -185,9 +185,9 @@ function mission:render()
   end
 
   if not mission_game:is_game_over() then
-    spr(112, 70, 109)
+    spr(99, 70, 109)
     print_outlined("swap gates", 81, 110, 7, 0)
-    spr(99, 70, 119)
+    spr(112, 70, 119)
     print_outlined("raise gates", 81, 120, 7, 0)
   end
 

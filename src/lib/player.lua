@@ -7,7 +7,7 @@ function create_player()
     end,
 
     update = function(_ENV)
-      left, right, up, down, x, o = btnp(0), btnp(1), btnp(2), btnp(3), btn(5), btnp(4)
+      left, right, up, down, x, o = btnp(0), btnp(1), btnp(2), btnp(3), btnp(5), btn(4)
     end
   }, { __index = _ENV })
 

@@ -36,10 +36,10 @@ function _update60()
       qpu1_board.show_gameover_menu = true
       qpu2_board.show_gameover_menu = true
 
-      if btnp(4) then -- x でリプレイ
+      if btnp(5) then -- x でリプレイ
         _init()
-      elseif btnp(5) then -- z でタイトルへ戻る
-        load('qitaev_title')
+      elseif btnp(4) then -- c でタイトルへ戻る
+        jump('quantattack_title')
       end
     end
   end

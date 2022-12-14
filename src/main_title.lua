@@ -61,7 +61,7 @@ function _update60()
     demo_game:update()
     update_title_logo_bounce()
 
-    if btnp(4) or btnp(5) then -- x または z でタイトルへ進む
+    if btnp(4) or btnp(5) then -- x または c でタイトルへ進む
       sfx(15)
       title_state = ":main_menu"
     end
@@ -104,9 +104,9 @@ function _draw()
     demo_game:render()
 
     if title_state == ":demo" then
-      -- Z/X start を表示
+      -- Z+X start を表示
       if tick % 60 < 30 then
-        print_outlined("z+x start", 50, 50, 1)
+        print_outlined("x+c start", 50, 50, 1)
       end
     else -- ":main_menu" or ":level_menu"
       -- メニューのウィンドウを表示
@@ -121,7 +121,7 @@ function _draw()
         level_menu:draw(27, 93)
       end
 
-      print_outlined("z select  x cancel", 27, 107, 1, 7)
+      print_outlined("x select  c cancel", 27, 107, 1, 7)
     end
   end
 end

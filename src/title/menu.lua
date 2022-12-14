@@ -20,10 +20,10 @@ function menu:update()
     elseif btnp(1) then
       sfx(8)
       self:select_next()
-    elseif btnp(4) then -- z
+    elseif btnp(5) then -- x
       sfx(15)
       self:confirm_selection()
-    elseif btnp(5) then -- x
+    elseif btnp(4) then -- c
       sfx(8)
       title_state = self.previous_state
     end
