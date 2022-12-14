@@ -61,7 +61,7 @@ function time_attack:update()
       if btnp(4) then -- x でリプレイ
         flow:query_gamestate_type(":time_attack")
       elseif btnp(5) then -- z でタイトルへ戻る
-        load('quantattack_title')
+        jump('quantattack_title')
       end
     end
   else

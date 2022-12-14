@@ -38,7 +38,7 @@ function _update60()
       if btnp(4) then -- x でリプレイ
         _init()
       elseif btnp(5) then -- z でタイトルへ戻る
-        load('quantattack_title')
+        jump('quantattack_title')
       end
     end
   end

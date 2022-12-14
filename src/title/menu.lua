@@ -11,7 +11,7 @@ end
 function menu:update()
   if self.cart_to_load then
     if stat(16) == -1 then
-      load(self.cart_to_load, nil, self.load_param)
+      jump(self.cart_to_load, nil, self.load_param)
     end
   else
     if btnp(0) then

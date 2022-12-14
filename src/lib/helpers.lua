@@ -1,3 +1,4 @@
+---@diagnostic disable: discard-returns, lowercase-global
 tile_size = 8
 
 function ceil_rnd(num)
@@ -67,4 +68,9 @@ function singleton(init)
   s.init = init
   s:init()
   return s
+end
+
+function jump(name, breadcrumb, param)
+  load(name .. ".p8", breadcrumb, param)
+  load("#" .. name, breadcrumb, param)
 end
