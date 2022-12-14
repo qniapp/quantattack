@@ -46,7 +46,7 @@ function create_qpu(cursor, board, _level)
         _ENV[next_command] = true
       else
         if raise and board.top_gate_y > 10 then
-          add(commands, "x")
+          add(commands, "o")
           add_sleep_command(_ENV, 3)
         else
           if not for_all_reducible_gates(_ENV, _flatten_gate) then
@@ -215,7 +215,7 @@ function create_qpu(cursor, board, _level)
     end,
 
     add_swap_command = function(_ENV)
-      add(commands, "o")
+      add(commands, "x")
       -- NOTE: ゲートの入れ替えコマンドを送った後は、
       -- 必ず次のように入れ替え完了するまで sleep する。
       -- これをしないと「左に連続して移動して落とす」などの
