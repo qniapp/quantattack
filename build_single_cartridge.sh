@@ -14,8 +14,8 @@ build_dir_path="$(dirname "$0")/build"
 # Configuration: cartridge
 version=`cat "$data_path/version.txt"`
 author="yasuhito"
-cartridge_stem="qitaev"
-title="qitaev v$version"
+cartridge_stem="quantattack"
+title="quantattack v$version"
 
 help() {
   echo "Build a PICO-8 cartridge with the passed config."

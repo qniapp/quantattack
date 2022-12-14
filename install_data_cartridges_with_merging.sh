@@ -21,7 +21,7 @@ fi
 data_path="$(dirname "$0")/data"
 
 # Configuration: cartridge
-cartridge_stem="qitaev"
+cartridge_stem="quantattack"
 version=`cat "$data_path/version.txt"`
 config="$1"; shift
 

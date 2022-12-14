@@ -15,16 +15,16 @@ local menu_item = require("title/menu_item")
 local menu_class = require("title/menu")
 
 local main_menu = menu_class({
-  menu_item("mission", 'clear 9 waves', 32, 48, 16, 16, 'qitaev_mission'),
-  menu_item("time attack", 'play for 2 minutes', 48, 48, 16, 16, 'qitaev_time_attack', high_score(0):get() * 10),
-  menu_item("endless", 'play as long as you can', 64, 48, 16, 16, 'qitaev_endless', high_score(1):get() * 10),
+  menu_item("mission", 'clear 9 waves', 32, 48, 16, 16, 'quantattack_mission'),
+  menu_item("time attack", 'play for 2 minutes', 48, 48, 16, 16, 'quantattack_time_attack', high_score(0):get() * 10),
+  menu_item("endless", 'play as long as you can', 64, 48, 16, 16, 'quantattack_endless', high_score(1):get() * 10),
   menu_item("vs qpu", 'defeat the qpu', 80, 48, 16, 16, function() title_state = ":level_menu" end),
-  menu_item("qpu vs qpu", 'watch qpu vs qpu', 96, 48, 16, 16, 'qitaev_qpu_vs_qpu')
+  menu_item("qpu vs qpu", 'watch qpu vs qpu', 96, 48, 16, 16, 'quantattack_qpu_vs_qpu')
 }, ":demo")
 local level_menu = menu_class({
-  menu_item(nil, nil, 48, 80, 19, 7, 'qitaev_vs_qpu', nil, 3), -- easy
-  menu_item(nil, nil, 72, 80, 27, 7, 'qitaev_vs_qpu', nil, 2), -- normal
-  menu_item(nil, nil, 104, 80, 19, 7, 'qitaev_vs_qpu', nil, 1), -- hard
+  menu_item(nil, nil, 48, 80, 19, 7, 'quantattack_vs_qpu', nil, 3), -- easy
+  menu_item(nil, nil, 72, 80, 27, 7, 'quantattack_vs_qpu', nil, 2), -- normal
+  menu_item(nil, nil, 104, 80, 19, 7, 'quantattack_vs_qpu', nil, 1), -- hard
 }, ":main_menu")
 
 -- :logo_slidein QuantumAttack のロゴ slide-in アニメーション
@@ -126,24 +126,7 @@ function _draw()
   end
 end
 
-local fadetable = {
-  "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
-  "1,1,129,129,129,129,129,129,129,129,0,0,0,0,0",
-  "2,2,2,130,130,130,130,130,128,128,128,128,128,0,0",
-  "3,3,3,131,131,131,131,129,129,129,129,129,0,0,0",
-  "4,4,132,132,132,132,132,132,130,128,128,128,128,0,0",
-  "5,5,133,133,133,133,130,130,128,128,128,128,128,0,0",
-  "6,6,134,13,13,13,141,5,5,5,133,130,128,128,0",
-  "7,6,6,6,134,134,134,134,5,5,5,133,130,128,0",
-  "8,8,136,136,136,136,132,132,132,130,128,128,128,128,0",
-  "9,9,9,4,4,4,4,132,132,132,128,128,128,128,0",
-  "10,10,138,138,138,4,4,4,132,132,133,128,128,128,0",
-  "11,139,139,139,139,3,3,3,3,129,129,129,0,0,0",
-  "12,12,12,140,140,140,140,131,131,131,1,129,129,129,0",
-  "13,13,141,141,5,5,5,133,133,130,129,129,128,128,0",
-  "14,14,14,134,134,141,141,2,2,133,130,130,128,128,0",
-  "15,143,143,134,134,134,134,5,5,5,133,133,128,128,0"
-}
+local fadetable = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0|1,1,129,129,129,129,129,129,129,129,0,0,0,0,0|2,2,2,130,130,130,130,130,128,128,128,128,128,0,0|3,3,3,131,131,131,131,129,129,129,129,129,0,0,0|4,4,132,132,132,132,132,132,130,128,128,128,128,0,0|5,5,133,133,133,133,130,130,128,128,128,128,128,0,0|6,6,134,13,13,13,141,5,5,5,133,130,128,128,0|7,6,6,6,134,134,134,134,5,5,5,133,130,128,0|8,8,136,136,136,136,132,132,132,130,128,128,128,128,0|9,9,9,4,4,4,4,132,132,132,128,128,128,128,0|10,10,138,138,138,4,4,4,132,132,133,128,128,128,0|11,139,139,139,139,3,3,3,3,129,129,129,0,0,0|12,12,12,140,140,140,140,131,131,131,1,129,129,129,0|13,13,141,141,5,5,5,133,133,130,129,129,128,128,0|14,14,14,134,134,141,141,2,2,133,130,130,128,128,0|15,143,143,134,134,134,134,5,5,5,133,133,128,128,0"
 
 function fadein(i)
   local index = flr(15 - i)
@@ -152,7 +135,7 @@ function fadein(i)
     if index < 1 then
       pal(c, c)
     else
-      pal(c, split(fadetable[c + 1])[index])
+      pal(c, split(split(fadetable, "|")[c + 1])[index])
     end
   end
 end
