@@ -11,8 +11,8 @@ local current_high_score
 local board = create_board()
 board.attack_cube_target = { 85, 30 }
 
-require("lib/player")
-local player = create_player()
+local player_class = require("lib/player")
+local player = player_class()
 
 require("lib/player_cursor")
 local player_cursor = create_player_cursor(board)
@@ -30,7 +30,7 @@ local last_steps = 0
 function time_attack:on_enter()
   current_high_score = high_score:get()
 
-  player:init()
+  player:_init()
   board:init()
   board:put_random_gates()
   player_cursor:init()

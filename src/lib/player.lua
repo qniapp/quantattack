@@ -1,17 +1,13 @@
----@diagnostic disable: lowercase-global, global-in-nil-env
+---@diagnostic disable: global-in-nil-env, lowercase-global
 
-function create_player()
-  local player = setmetatable({
-    init = function(_ENV)
-      steps, score = 0, 0
-    end,
+local player = new_class()
 
-    update = function(_ENV)
-      left, right, up, down, x, o = btnp(0), btnp(1), btnp(2), btnp(3), btnp(5), btn(4)
-    end
-  }, { __index = _ENV })
-
-  player:init()
-
-  return player
+function player._init(_ENV)
+  steps, score = 0, 0
 end
+
+function player.update(_ENV)
+  left, right, up, down, x, o = btnp(0), btnp(1), btnp(2), btnp(3), btnp(5), btn(4)
+end
+
+return player

@@ -2,11 +2,12 @@
 local flow = require("lib/flow")
 
 require("lib/board")
-require("lib/player")
 require("lib/player_cursor")
 require("mission/game")
 
-local board, player = create_board(), create_player()
+local player_class = require("lib/player")
+
+local board, player = create_board(), player_class()
 local player_cursor = create_player_cursor(board)
 local mission_game = game()
 
@@ -114,7 +115,7 @@ function mission:on_enter()
 
   task_balloon:init()
 
-  player:init()
+  player:_init()
   board:init()
   board:put_random_gates()
 

@@ -4,8 +4,7 @@ require("lib/board")
 
 local match = require("luassert.match")
 local game = require("lib/game")
-
-require("lib/player")
+local player_class = require("lib/player")
 
 describe('chain', function()
   local board
@@ -15,7 +14,7 @@ describe('chain', function()
     stub(game, "chain_callback")
     board = create_board()
     board.attack_cube_target = { 85, 30 }
-    player = create_player()
+    player = player_class()
   end)
 
   it("コールバックが呼ばれる", function()
