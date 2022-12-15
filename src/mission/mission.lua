@@ -7,8 +7,8 @@ require("mission/game")
 local player_class = require("lib/player")
 local player_cursor_class = require("lib/player_cursor")
 
-local board, player = create_board(), player_class()
-local player_cursor = player_cursor_class(board)
+local player_cursor = player_cursor_class()
+local board, player = create_board(player_cursor), player_class()
 local mission_game = game()
 
 local gamestate = require("lib/gamestate")

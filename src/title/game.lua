@@ -87,7 +87,7 @@ function game()
         end
         if each.right then
           sfx(8)
-          player_cursor:move_right()
+          player_cursor:move_right(board.cols)
         end
         if each.up then
           sfx(8)
@@ -95,7 +95,7 @@ function game()
         end
         if each.down then
           sfx(8)
-          player_cursor:move_down()
+          player_cursor:move_down(board.rows)
         end
         if each.x and board:swap(player_cursor.x, player_cursor.y) then
           sfx(10)
@@ -116,7 +116,6 @@ function game()
     render = function(_ENV)
       for _, each in pairs(all_players) do
         each.board:render()
-        each.player_cursor:render()
       end
 
       particle:render_all()

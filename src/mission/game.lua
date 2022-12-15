@@ -85,7 +85,7 @@ function game()
           end
           if each.right then
             sfx(8)
-            player_cursor:move_right()
+            player_cursor:move_right(board.cols)
           end
           if each.up then
             sfx(8)
@@ -93,7 +93,7 @@ function game()
           end
           if each.down then
             sfx(8)
-            player_cursor:move_down()
+            player_cursor:move_down(board.rows)
           end
           if each.x and not countdown and board:swap(player_cursor.x, player_cursor.y) then
             sfx(10)
@@ -134,14 +134,9 @@ function game()
 
     render = function(_ENV) -- override
       for _, each in pairs(all_players) do
-        local player_cursor = each.player_cursor
         local board = each.board
 
         board:render()
-
-        if not board:is_game_over() then
-          player_cursor:render()
-        end
 
         -- カウントダウンの数字はカーソルの上に表示
         if board.countdown then
