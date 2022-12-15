@@ -1,5 +1,4 @@
 require("lib/board")
-require("lib/player")
 require("lib/player_cursor")
 require("lib/qpu")
 
@@ -7,14 +6,16 @@ local game_class = require("lib/game")
 local game = game_class()
 local qpu_level = stat(6) -- 3: easy, 2: normal, 1: hard
 
+local player_class = require("lib/player")
+
 local board, qpu_board = create_board(3), create_board(78)
 board.gate_offset_target, qpu_board.gate_offset_target = { 3 + 24, 0 }, { 78 + 24, 0 }
 board.attack_cube_target, qpu_board.attack_cube_target = { 78 + 24, 0 }, { 3 + 24, 0 }
 local player_cursor, qpu_cursor = create_player_cursor(board), create_player_cursor(qpu_board)
-local player, qpu = create_player(), create_qpu(qpu_cursor, qpu_board, qpu_level)
+local player, qpu = player_class(), create_qpu(qpu_cursor, qpu_board, qpu_level)
 
 function _init()
-  player:init()
+  player:_init()
   board:init()
   board:put_random_gates()
   player_cursor:init()
