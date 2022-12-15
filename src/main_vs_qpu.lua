@@ -1,4 +1,3 @@
-require("lib/board")
 require("lib/qpu")
 
 local game_class = require("lib/game")
@@ -7,9 +6,10 @@ local qpu_level = stat(6) -- 3: easy, 2: normal, 1: hard
 
 local player_class = require("lib/player")
 local cursor_class = require("lib/cursor")
+local board_class = require("lib/board")
 
 local player_cursor, qpu_cursor = cursor_class(), cursor_class()
-local board, qpu_board = create_board(player_cursor, 3), create_board(qpu_cursor, 78)
+local board, qpu_board = board_class(player_cursor, 3), board_class(qpu_cursor, 78)
 board.gate_offset_target, qpu_board.gate_offset_target = { 3 + 24, 0 }, { 78 + 24, 0 }
 board.attack_cube_target, qpu_board.attack_cube_target = { 78 + 24, 0 }, { 3 + 24, 0 }
 local player, qpu = player_class(), create_qpu(qpu_cursor, qpu_board, qpu_level)
