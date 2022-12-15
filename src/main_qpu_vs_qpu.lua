@@ -6,10 +6,10 @@ local game = game_class()
 
 local player_cursor_class = require("lib/player_cursor")
 
-local qpu1_board, qpu2_board = create_board(3), create_board(78)
+local qpu1_cursor, qpu2_cursor = player_cursor_class(), player_cursor_class()
+local qpu1_board, qpu2_board = create_board(qpu1_cursor, 3), create_board(qpu2_cursor, 78)
 qpu1_board.gate_offset_target, qpu2_board.gate_offset_target = { 3 + 24, 0 }, { 78 + 24, 0 }
 qpu1_board.attack_cube_target, qpu2_board.attack_cube_target = { 78 + 24, 0 }, { 3 + 24, 0 }
-local qpu1_cursor, qpu2_cursor = player_cursor_class(qpu1_board), player_cursor_class(qpu2_board)
 local qpu1, qpu2 = create_qpu(qpu1_cursor, qpu1_board, 1), create_qpu(qpu2_cursor, qpu2_board, 1)
 
 function _init()

@@ -1,5 +1,4 @@
 require("engine/test/bustedhelper")
-require("lib/board")
 
 local player_cursor_class = require("lib/player_cursor")
 
@@ -7,7 +6,7 @@ describe('player_cursor', function()
   local player_cursor
 
   before_each(function()
-    player_cursor = player_cursor_class(create_board())
+    player_cursor = player_cursor_class()
   end)
 
   describe('constructor', function()
@@ -38,17 +37,17 @@ describe('player_cursor', function()
 
   describe('move_right', function()
     it("should move right", function()
-      player_cursor:move_right()
+      player_cursor:move_right(6)
 
       assert.are_equal(4, player_cursor.x)
       assert.are_equal(11, player_cursor.y)
     end)
 
     it("should not move any further to the right when reaching the right edge", function()
-      player_cursor:move_right() -- x = 4
-      player_cursor:move_right() -- x = 5
+      player_cursor:move_right(6) -- x = 4
+      player_cursor:move_right(6) -- x = 5
 
-      player_cursor:move_right()
+      player_cursor:move_right(6)
 
       assert.are_equal(5, player_cursor.x)
       assert.are_equal(11, player_cursor.y)
@@ -78,26 +77,26 @@ describe('player_cursor', function()
 
   describe('move_down', function()
     it("should move down", function()
-      player_cursor:move_down()
+      player_cursor:move_down(17)
 
       assert.are_equal(3, player_cursor.x)
       assert.are_equal(12, player_cursor.y)
     end)
 
     it("should not move any further down when reaching the bottom", function()
-      player_cursor:move_down() -- y = 7
-      player_cursor:move_down() -- y = 8
-      player_cursor:move_down() -- y = 9
-      player_cursor:move_down() -- y = 10
-      player_cursor:move_down() -- y = 11
-      player_cursor:move_down() -- y = 12
-      player_cursor:move_down() -- y = 13
-      player_cursor:move_down() -- y = 14
-      player_cursor:move_down() -- y = 15
-      player_cursor:move_down() -- y = 16
-      player_cursor:move_down() -- y = 17
+      player_cursor:move_down(17) -- y = 7
+      player_cursor:move_down(17) -- y = 8
+      player_cursor:move_down(17) -- y = 9
+      player_cursor:move_down(17) -- y = 10
+      player_cursor:move_down(17) -- y = 11
+      player_cursor:move_down(17) -- y = 12
+      player_cursor:move_down(17) -- y = 13
+      player_cursor:move_down(17) -- y = 14
+      player_cursor:move_down(17) -- y = 15
+      player_cursor:move_down(17) -- y = 16
+      player_cursor:move_down(17) -- y = 17
 
-      player_cursor:move_down()
+      player_cursor:move_down(17)
 
       assert.are_equal(3, player_cursor.x)
       assert.are_equal(17, player_cursor.y)
@@ -111,12 +110,6 @@ describe('player_cursor', function()
       player_cursor:update()
 
       assert.are_equal(tick + 1, player_cursor._tick)
-    end)
-  end)
-
-  describe("render", function()
-    it("should render without errors", function()
-      assert.has_no.errors(function() player_cursor:render() end)
     end)
   end)
 end)

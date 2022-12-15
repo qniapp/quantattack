@@ -4,11 +4,13 @@ require("engine/render/color")
 require("lib/test_helper")
 require("lib/board")
 
+local player_cursor_class = require("lib/player_cursor")
+
 describe('board', function()
   local board
 
   before_each(function()
-    board = create_board()
+    board = create_board(player_cursor_class())
   end)
 
   describe('swap', function()
