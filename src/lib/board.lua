@@ -10,8 +10,9 @@ local gate = require("lib/gate")
 local reduction_rules = require("lib/reduction_rules")
 local gate_fall_speed = 2
 
-function create_board(__offset_x, __cols)
+function create_board(_cursor, __offset_x, __cols)
   local board = setmetatable({
+    cursor = _cursor,
     _offset_x = __offset_x,
     show_wires = true,
     show_top_line = true,
@@ -601,6 +602,11 @@ function create_board(__offset_x, __cols)
 
       -- 待機中のおじゃまゲート
       pending_garbage_gates:render(_ENV)
+
+      -- カーソル
+      if not is_game_over(_ENV) then
+        cursor:render(screen_x(_ENV, cursor.x), screen_y(_ENV, cursor.y))
+      end
 
       -- WIN! または LOSE を描画
       if is_game_over(_ENV) and (win or lose) and tick_over > 20 and #particle.all == 0 then

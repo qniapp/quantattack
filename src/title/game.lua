@@ -67,8 +67,8 @@ function game()
       all_players = {}
     end,
 
-    add_player = function(_ENV, player, player_cursor, board)
-      player.player_cursor = player_cursor
+    add_player = function(_ENV, player, board)
+      player.cursor = board.cursor
       player.board = board
       player.tick = 0
 
@@ -77,27 +77,27 @@ function game()
 
     update = function(_ENV)
       for _, each in pairs(all_players) do
-        local player_cursor, board = each.player_cursor, each.board
+        local cursor, board = each.cursor, each.board
 
         each:update(board)
 
         if each.left then
           sfx(8)
-          player_cursor:move_left()
+          cursor:move_left()
         end
         if each.right then
           sfx(8)
-          player_cursor:move_right()
+          cursor:move_right(board.cols)
         end
         if each.up then
           sfx(8)
-          player_cursor:move_up()
+          cursor:move_up()
         end
         if each.down then
           sfx(8)
-          player_cursor:move_down()
+          cursor:move_down(board.rows)
         end
-        if each.x and board:swap(player_cursor.x, player_cursor.y) then
+        if each.x and board:swap(cursor.x, cursor.y) then
           sfx(10)
         end
         if each.o and board.top_gate_y > 2 then
@@ -105,7 +105,7 @@ function game()
         end
 
         board:update(_ENV, each)
-        player_cursor:update()
+        cursor:update()
       end
 
       particle:update_all()
@@ -116,7 +116,6 @@ function game()
     render = function(_ENV)
       for _, each in pairs(all_players) do
         each.board:render()
-        each.player_cursor:render()
       end
 
       particle:render_all()
@@ -126,7 +125,7 @@ function game()
 
     -- ゲートをせりあげる
     _raise = function(_ENV, player)
-      local board, cursor = player.board, player.player_cursor
+      local board, cursor = player.board, player.cursor
 
       board.raised_dots = board.raised_dots + 1
 

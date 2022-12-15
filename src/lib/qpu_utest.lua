@@ -2,8 +2,9 @@ require("engine/test/bustedhelper")
 require("engine/render/color")
 require("lib/test_helper")
 require("lib/board")
-require("lib/player_cursor")
 require("lib/qpu")
+
+local cursor_class = require("lib/cursor")
 
 describe('qpu', function()
   describe('create_qpu', function()
@@ -35,7 +36,7 @@ describe('qpu', function()
 
     before_each(function()
       board = create_board()
-      cursor = create_player_cursor(board)
+      cursor = cursor_class(board)
       qpu = create_qpu(cursor, board)
       qpu.sleep = false
       qpu.raise = false

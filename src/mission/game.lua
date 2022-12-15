@@ -26,8 +26,8 @@ function game()
       game_over_time = nil
     end,
 
-    add_player = function(_ENV, player, player_cursor, board, other_board)
-      player.player_cursor = player_cursor
+    add_player = function(_ENV, player, cursor, board, other_board)
+      player.cursor = cursor
       player.board = board
       player.other_board = other_board
       player.tick = 0
@@ -69,7 +69,7 @@ function game()
       ripple.slow = false
 
       for index, each in pairs(all_players) do
-        local player_cursor = each.player_cursor
+        local cursor = each.cursor
         local board = each.board
         local other_board = each.other_board
 
@@ -81,21 +81,21 @@ function game()
 
           if each.left then
             sfx(8)
-            player_cursor:move_left()
+            cursor:move_left()
           end
           if each.right then
             sfx(8)
-            player_cursor:move_right()
+            cursor:move_right(board.cols)
           end
           if each.up then
             sfx(8)
-            player_cursor:move_up()
+            cursor:move_up()
           end
           if each.down then
             sfx(8)
-            player_cursor:move_down()
+            cursor:move_down(board.rows)
           end
-          if each.x and not countdown and board:swap(player_cursor.x, player_cursor.y) then
+          if each.x and not countdown and board:swap(cursor.x, cursor.y) then
             sfx(10)
           end
           if each.o and not countdown and board.top_gate_y > 2 then
@@ -103,7 +103,7 @@ function game()
           end
 
           board:update(_ENV, each, other_board)
-          player_cursor:update()
+          cursor:update()
 
           if not countdown then
             _auto_raise(_ENV, each)
@@ -134,14 +134,9 @@ function game()
 
     render = function(_ENV) -- override
       for _, each in pairs(all_players) do
-        local player_cursor = each.player_cursor
         local board = each.board
 
         board:render()
-
-        if not board:is_game_over() then
-          player_cursor:render()
-        end
 
         -- カウントダウンの数字はカーソルの上に表示
         if board.countdown then
@@ -159,7 +154,7 @@ function game()
 
     -- ゲートをせりあげる
     _raise = function(_ENV, player)
-      local board, cursor = player.board, player.player_cursor
+      local board, cursor = player.board, player.cursor
 
       board.raised_dots = board.raised_dots + 1
 
