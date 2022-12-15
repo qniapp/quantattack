@@ -1,5 +1,4 @@
 ---@diagnostic disable: lowercase-global
-require("lib/board")
 require("lib/qpu")
 require("title/plasma")
 require("title/game")
@@ -37,9 +36,11 @@ title_state = ":logo_slidein"
 
 local tick = 0
 
+local board_class = require("lib/board")
+
 function _init()
   local qpu_cursor = cursor_class()
-  local qpu_board = create_board(qpu_cursor, 0, 16)
+  local qpu_board = board_class(qpu_cursor, 0, 16)
   local qpu = create_qpu(qpu_cursor, qpu_board, 2)
 
   qpu:init()
