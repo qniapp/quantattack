@@ -2,13 +2,13 @@
 local flow = require("lib/flow")
 
 require("lib/board")
-require("lib/player_cursor")
 require("mission/game")
 
 local player_class = require("lib/player")
+local player_cursor_class = require("lib/player_cursor")
 
 local board, player = create_board(), player_class()
-local player_cursor = create_player_cursor(board)
+local player_cursor = player_cursor_class(board)
 local mission_game = game()
 
 local gamestate = require("lib/gamestate")

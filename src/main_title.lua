@@ -1,11 +1,12 @@
 ---@diagnostic disable: lowercase-global
 require("lib/board")
-require("lib/player_cursor")
 require("lib/qpu")
 require("title/plasma")
 require("title/game")
 
 demo_game = game()
+
+local player_cursor_class = require("lib/player_cursor")
 
 -- ハイスコア
 local high_score = require("lib/high_score")
@@ -38,7 +39,7 @@ local tick = 0
 
 function _init()
   local qpu_board = create_board(0, 16)
-  local qpu_cursor = create_player_cursor(qpu_board)
+  local qpu_cursor = player_cursor_class(qpu_board)
   local qpu = create_qpu(qpu_cursor, qpu_board, 2)
 
   qpu:init()

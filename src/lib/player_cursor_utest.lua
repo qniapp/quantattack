@@ -1,12 +1,13 @@
 require("engine/test/bustedhelper")
 require("lib/board")
-require("lib/player_cursor")
+
+local player_cursor_class = require("lib/player_cursor")
 
 describe('player_cursor', function()
   local player_cursor
 
   before_each(function()
-    player_cursor = create_player_cursor(create_board())
+    player_cursor = player_cursor_class(create_board())
   end)
 
   describe('constructor', function()

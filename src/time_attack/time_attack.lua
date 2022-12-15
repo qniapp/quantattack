@@ -14,8 +14,8 @@ board.attack_cube_target = { 85, 30 }
 local player_class = require("lib/player")
 local player = player_class()
 
-require("lib/player_cursor")
-local player_cursor = create_player_cursor(board)
+local player_cursor_class = require("lib/player_cursor")
+local player_cursor = player_cursor_class(board)
 
 local game_class = require("time_attack/game")
 local game = game_class()
