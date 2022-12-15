@@ -4,7 +4,7 @@ require("lib/test_helper")
 require("lib/board")
 require("lib/qpu")
 
-local player_cursor_class = require("lib/player_cursor")
+local cursor_class = require("lib/cursor")
 
 describe('qpu', function()
   describe('create_qpu', function()
@@ -36,7 +36,7 @@ describe('qpu', function()
 
     before_each(function()
       board = create_board()
-      cursor = player_cursor_class(board)
+      cursor = cursor_class(board)
       qpu = create_qpu(cursor, board)
       qpu.sleep = false
       qpu.raise = false

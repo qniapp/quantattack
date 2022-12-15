@@ -8,10 +8,10 @@ local high_score_class = require("lib/high_score")
 local high_score = high_score_class(1)
 local current_high_score
 
-local player_cursor_class = require("lib/player_cursor")
-local player_cursor = player_cursor_class()
+local cursor_class = require("lib/cursor")
+local cursor = cursor_class()
 
-local board = create_board(player_cursor)
+local board = create_board(cursor)
 board.attack_cube_target = { 85, 30 }
 
 local player_class = require("lib/player")
@@ -33,10 +33,10 @@ function endless:on_enter()
   player:_init()
   board:init()
   board:put_random_gates()
-  player_cursor:init()
+  cursor:init()
 
   game:init()
-  game:add_player(player, player_cursor, board)
+  game:add_player(player, cursor, board)
 end
 
 function endless:update()

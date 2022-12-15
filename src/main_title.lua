@@ -6,7 +6,7 @@ require("title/game")
 
 demo_game = game()
 
-local player_cursor_class = require("lib/player_cursor")
+local cursor_class = require("lib/cursor")
 
 -- ハイスコア
 local high_score = require("lib/high_score")
@@ -38,7 +38,7 @@ title_state = ":logo_slidein"
 local tick = 0
 
 function _init()
-  local qpu_cursor = player_cursor_class()
+  local qpu_cursor = cursor_class()
   local qpu_board = create_board(qpu_cursor, 0, 16)
   local qpu = create_qpu(qpu_cursor, qpu_board, 2)
 
@@ -49,7 +49,7 @@ function _init()
   qpu_board.show_top_line = false
 
   demo_game:init()
-  demo_game:add_player(qpu, qpu_cursor, qpu_board)
+  demo_game:add_player(qpu, qpu_board)
 end
 
 function _update60()

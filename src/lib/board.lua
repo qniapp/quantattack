@@ -10,9 +10,9 @@ local gate = require("lib/gate")
 local reduction_rules = require("lib/reduction_rules")
 local gate_fall_speed = 2
 
-function create_board(player_cursor, __offset_x, __cols)
+function create_board(_cursor, __offset_x, __cols)
   local board = setmetatable({
-    _player_cursor = player_cursor,
+    cursor = _cursor,
     _offset_x = __offset_x,
     show_wires = true,
     show_top_line = true,
@@ -605,7 +605,7 @@ function create_board(player_cursor, __offset_x, __cols)
 
       -- カーソル
       if not is_game_over(_ENV) then
-        _player_cursor:render(screen_x(_ENV, player_cursor.x), screen_y(_ENV, player_cursor.y))
+        cursor:render(screen_x(_ENV, cursor.x), screen_y(_ENV, cursor.y))
       end
 
       -- WIN! または LOSE を描画

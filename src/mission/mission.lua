@@ -5,10 +5,10 @@ require("lib/board")
 require("mission/game")
 
 local player_class = require("lib/player")
-local player_cursor_class = require("lib/player_cursor")
+local cursor_class = require("lib/cursor")
 
-local player_cursor = player_cursor_class()
-local board, player = create_board(player_cursor), player_class()
+local cursor = cursor_class()
+local board, player = create_board(cursor), player_class()
 local mission_game = game()
 
 local gamestate = require("lib/gamestate")
@@ -119,10 +119,10 @@ function mission:on_enter()
   board:init()
   board:put_random_gates()
 
-  player_cursor:init()
+  cursor:init()
 
   mission_game:init()
-  mission_game:add_player(player, player_cursor, board)
+  mission_game:add_player(player, cursor, board)
 end
 
 function mission:update()

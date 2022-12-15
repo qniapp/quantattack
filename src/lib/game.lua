@@ -109,8 +109,8 @@ function game:init()
   self.game_over_time = nil
 end
 
-function game:add_player(player, player_cursor, board, other_board)
-  player.player_cursor = player_cursor
+function game:add_player(player, cursor, board, other_board)
+  player.cursor = cursor
   player.board = board
   player.other_board = other_board
   player.tick = 0
@@ -152,7 +152,7 @@ function game:update()
   ripple.slow = false
 
   for index, each in pairs(all_players) do
-    local player_cursor = each.player_cursor
+    local cursor = each.cursor
     local board = each.board
     local other_board = each.other_board
 
@@ -164,21 +164,21 @@ function game:update()
 
       if each.left then
         sfx(8)
-        player_cursor:move_left()
+        cursor:move_left()
       end
       if each.right then
         sfx(8)
-        player_cursor:move_right(board.cols)
+        cursor:move_right(board.cols)
       end
       if each.up then
         sfx(8)
-        player_cursor:move_up()
+        cursor:move_up()
       end
       if each.down then
         sfx(8)
-        player_cursor:move_down(board.rows)
+        cursor:move_down(board.rows)
       end
-      if each.x and not countdown and board:swap(player_cursor.x, player_cursor.y) then
+      if each.x and not countdown and board:swap(cursor.x, cursor.y) then
         sfx(10)
       end
       if each.o and not countdown and board.top_gate_y > 2 then
@@ -186,7 +186,7 @@ function game:update()
       end
 
       board:update(self, each, other_board)
-      player_cursor:update()
+      cursor:update()
 
       if not countdown then
         self:_auto_raise(each)
@@ -254,7 +254,7 @@ end
 
 -- ゲートをせりあげる
 function game:_raise(player)
-  local board, cursor = player.board, player.player_cursor
+  local board, cursor = player.board, player.cursor
 
   board.raised_dots = board.raised_dots + 1
 
