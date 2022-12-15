@@ -8,14 +8,14 @@ local high_score_class = require("lib/high_score")
 local high_score = high_score_class(1)
 local current_high_score
 
-local board = create_board()
+local player_cursor_class = require("lib/player_cursor")
+local player_cursor = player_cursor_class()
+
+local board = create_board(player_cursor)
 board.attack_cube_target = { 85, 30 }
 
 local player_class = require("lib/player")
 local player = player_class()
-
-local player_cursor_class = require("lib/player_cursor")
-local player_cursor = player_cursor_class(board)
 
 local game_class = require("lib/game")
 local game = game_class()
