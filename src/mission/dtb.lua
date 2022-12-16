@@ -1,5 +1,7 @@
 ---@diagnostic disable: lowercase-global
 
+require ("lib/helpers")
+
 -- call this before you start using dtb.
 -- optional parameter is the number of lines that are displayed. default is 3.
 function dtb_init(numlines)
@@ -126,12 +128,17 @@ function dtb_draw()
     if dtb_curline < dislineslength then
       offset = dislineslength - dtb_curline
     end
-    rectfill(2, 125 - dislineslength * 8, 125, 125, 0)
-    if dtb_curline > 0 and #dtb_dislines[#dtb_dislines] == #dtb_queu[1][dtb_curline] then
-      print("\x8e", 118, 120, 1)
-    end
+
+    -- 背景のボックスを描画
+    draw_rounded_box(1, 27 - dislineslength * 8, 126, 29, 7, 1)
+
+    -- TODO: 「次」のスプライトを表示
+    -- if dtb_curline > 0 and #dtb_dislines[#dtb_dislines] == #dtb_queu[1][dtb_curline] then
+    --   print("\x8e", 118, 120, 1)
+    -- end
+
     for i = 1, dislineslength do
-      print(dtb_dislines[i], 4, i * 8 + 119 - (dislineslength + offset) * 8, 7)
+      print(dtb_dislines[i], 4, i * 8 + 22 - (dislineslength + offset) * 8, 7)
     end
   end
 end
