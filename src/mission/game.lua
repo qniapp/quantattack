@@ -8,10 +8,6 @@ local ripple = require("lib/ripple")
 
 local game = new_class()
 
-function game.is_game_over(_ENV)
-  return game_over_time ~= nil
-end
-
 function game._init(_ENV)
 end
 

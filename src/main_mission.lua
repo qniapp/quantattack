@@ -59,6 +59,6 @@ function _draw()
   sash:render()
   dtb_draw()
 
-  spr(112, 70, 109)
+  spr(99, 70, 119)
   print_outlined("swap blocks", 81, 120, 7, 0)
 end
