@@ -11,8 +11,6 @@ local all_players
 
 function game()
   return setmetatable({
-    auto_raise_frame_count = 30,
-
     is_game_over = function(_ENV)
       return game_over_time ~= nil
     end,
@@ -41,7 +39,7 @@ function game()
       -- もしどちらかの board でおじゃまゲートを分解中だった場合 "slow" にする
       ripple.slow = false
 
-      for index, each in pairs(all_players) do
+      for _, each in pairs(all_players) do
         local cursor = each.cursor
         local board = each.board
         local other_board = each.other_board
@@ -70,9 +68,6 @@ function game()
           end
           if each.x and board:swap(cursor.x, cursor.y) then
             sfx(10)
-          end
-          if each.o and board.top_gate_y > 2 then
-            _raise(_ENV, each)
           end
 
           board:update(_ENV, each, other_board)
@@ -110,34 +105,6 @@ function game()
       particle:render_all()
       bubble:render_all()
       attack_bubble:render_all()
-    end,
-
-    -- ゲートをせりあげる
-    _raise = function(_ENV, player)
-      local board, cursor = player.board, player.cursor
-
-      board.raised_dots = board.raised_dots + 1
-
-      if board.raised_dots == 8 then
-        board.raised_dots = 0
-        board:insert_gates_at_bottom(player.steps)
-        cursor:move_up()
-        player.steps = player.steps + 1
-      end
-    end,
-
-    -- 可能な場合ゲートを自動的にせりあげる
-    _auto_raise = function(_ENV, player)
-      if player.board:is_busy() then
-        return
-      end
-
-      player.tick = player.tick + 1
-
-      if player.tick > auto_raise_frame_count then
-        _raise(_ENV, player)
-        player.tick = 0
-      end
     end,
   }, { __index = _ENV })
 end
