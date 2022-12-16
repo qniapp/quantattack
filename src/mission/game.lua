@@ -2,7 +2,6 @@
 
 require("lib/helpers")
 
-local attack_bubble = require("lib/attack_bubble")
 local particle = require("lib/particle")
 local bubble = require("lib/bubble")
 local ripple = require("lib/ripple")
@@ -16,7 +15,6 @@ function game.is_game_over(_ENV)
 end
 
 function game._init(_ENV)
-  attack_bubble.slow = false
   particle.slow = false
 
   all_players = {}
@@ -81,7 +79,6 @@ function game.update(_ENV)
 
   particle:update_all()
   bubble:update_all()
-  attack_bubble:update_all()
 
   if is_game_over(_ENV) then
     particle.slow = true
@@ -104,7 +101,6 @@ function game.render(_ENV)
 
   particle:render_all()
   bubble:render_all()
-  attack_bubble:render_all()
 end
 
 return game
