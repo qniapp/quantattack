@@ -1,12 +1,13 @@
 require("engine/test/bustedhelper")
 require("lib/test_helper")
-require("lib/board")
+
+local board_class = require("lib/board")
 
 describe('ゲートの入れ替え', function()
   local board
 
   before_each(function()
-    board = create_board()
+    board = board_class()
   end)
 
   describe('フレーム数', function()

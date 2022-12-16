@@ -1,15 +1,15 @@
 require("engine/test/bustedhelper")
-require("lib/board")
 require("lib/qpu")
 
+local board_class = require("lib/board")
 local game_class = require("lib/game")
 local cursor_class = require("lib/cursor")
 local profiler = require("lib/profiler")
 
 describe('パフォーマンス', function()
   it("QPU vs QPU のプロファイルを取る", function()
-    local qpu1_board = create_board()
-    local qpu2_board = create_board()
+    local qpu1_board = board_class()
+    local qpu2_board = board_class()
     local qpu1_cursor = cursor_class(qpu1_board)
     local qpu2_cursor = cursor_class(qpu2_board)
     local qpu1 = create_qpu(qpu1_cursor, qpu1_board)

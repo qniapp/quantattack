@@ -1,14 +1,14 @@
 ---@diagnostic disable: lowercase-global
 local flow = require("lib/flow")
 
-require("lib/board")
 require("mission/game")
 
 local player_class = require("lib/player")
 local cursor_class = require("lib/cursor")
+local board_class = require("lib/board")
 
 local cursor = cursor_class()
-local board, player = create_board(cursor), player_class()
+local board, player = board_class(cursor), player_class()
 local mission_game = game()
 
 local gamestate = require("lib/gamestate")
