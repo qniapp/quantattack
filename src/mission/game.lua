@@ -1,4 +1,5 @@
----@diagnostic disable: global-in-nil-env
+---@diagnostic disable: global-in-nil-env, lowercase-global
+
 local attack_bubble = require("lib/attack_bubble")
 local particle = require("lib/particle")
 local bubble = require("lib/bubble")
@@ -21,7 +22,6 @@ function game()
       particle.slow = false
 
       all_players = {}
-      countdown = 240
       start_time = t()
       game_over_time = nil
     end,
@@ -37,33 +37,6 @@ function game()
 
     update = function(_ENV)
       ripple:update()
-
-      if countdown then
-        countdown = countdown - 1
-        local countdown_number = flr(countdown / 60 + 1)
-
-        if countdown > 0 then
-          start_time = t()
-
-          if countdown_number < 4 then
-            for _, each in pairs(all_players) do
-              each.board.countdown = countdown_number
-            end
-          end
-
-          if countdown % 60 == 0 then
-            sfx(13)
-          end
-        elseif countdown == 0 then
-          countdown = nil
-
-          for _, each in pairs(all_players) do
-            each.board.countdown = nil
-          end
-
-          sfx(14)
-        end
-      end
 
       -- もしどちらかの board でおじゃまゲートを分解中だった場合 "slow" にする
       ripple.slow = false
@@ -95,19 +68,15 @@ function game()
             sfx(8)
             cursor:move_down(board.rows)
           end
-          if each.x and not countdown and board:swap(cursor.x, cursor.y) then
+          if each.x and board:swap(cursor.x, cursor.y) then
             sfx(10)
           end
-          if each.o and not countdown and board.top_gate_y > 2 then
+          if each.o and board.top_gate_y > 2 then
             _raise(_ENV, each)
           end
 
           board:update(_ENV, each, other_board)
           cursor:update()
-
-          if not countdown then
-            _auto_raise(_ENV, each)
-          end
 
           if board.contains_garbage_match_gate then
             ripple.slow = true
@@ -135,16 +104,7 @@ function game()
     render = function(_ENV) -- override
       for _, each in pairs(all_players) do
         local board = each.board
-
         board:render()
-
-        -- カウントダウンの数字はカーソルの上に表示
-        if board.countdown then
-          local countdown_sprite_x = { 32, 16, 0 }
-          sspr(countdown_sprite_x[board.countdown], 80,
-            16, 16,
-            board.offset_x + 16, board.offset_y + 43)
-        end
       end
 
       particle:render_all()
