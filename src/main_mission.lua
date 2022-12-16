@@ -1,13 +1,13 @@
 require("mission/dtb")
-require("mission/game")
 
+local game_class = require("mission/game")
 local player_class = require("lib/player")
 local cursor_class = require("lib/cursor")
 local board_class = require("lib/board")
 
 local cursor = cursor_class()
 local board, player = board_class(cursor), player_class()
-local mission_game = game()
+local mission_game = game_class()
 
 local gamestate = require("lib/gamestate")
 local mission = derived_class(gamestate)
@@ -30,7 +30,7 @@ function _init()
 
   cursor:init()
 
-  mission_game:init()
+  mission_game:_init()
   mission_game:add_player(player, cursor, board)
 end
 
@@ -42,7 +42,6 @@ dtb_disp("dtb_prompt also has a callback which is called when the piece of dialo
   --whatever is in this function is called after this dialogue is done.
   sfx(17)
 end)
-
 
 function _update60()
   mission_game:update()
