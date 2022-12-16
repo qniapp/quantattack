@@ -47,43 +47,18 @@ end)
 
 function _update60()
   mission_game:update()
-
   sash:update()
-
-  -- make sure to update dtb. no need for logic additional here, dtb takes care of everything.
   dtb_update()
 end
 
 function _draw()
   cls()
 
-  -- ripple.slow = state == ":matching"
   ripple:render()
-
-  -- task_balloon:render()
   mission_game:render()
   sash:render()
-
-  -- as with the update function. just make sure dtb is being drawn.
   dtb_draw()
 
-  -- if state == ":matching" then
-  --   render_matching_pattern(match_pattern, match_screen_x, match_screen_y)
-  -- end
-
-  if not mission_game:is_game_over() then
-    spr(112, 70, 109)
-    print_outlined("swap blocks", 81, 120, 7, 0)
-  end
-
-  -- if not mission_game.countdown then
-  --   if not mission_game:is_game_over() then
-  --     if #task_balloon.all > 0 then
-  --       if flr(t() * 2) % 2 == 0 then
-  --         print_outlined("match", 84, 2, 1, 12)
-  --         print_outlined("the pattern!", 70, 10, 1, 12)
-  --       end
-  --     end
-  --   end
-  -- end
+  spr(112, 70, 109)
+  print_outlined("swap blocks", 81, 120, 7, 0)
 end
