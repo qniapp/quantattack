@@ -30,8 +30,10 @@ function _init()
 
   cursor:init()
 
+  mission_game.player = player
+  mission_game.cursor = cursor
+  mission_game.board = board
   mission_game:_init()
-  mission_game:add_player(player, cursor, board)
 end
 
 dtb_disp("a dialogue can be queud with: dtb_disp(text,callback)")
