@@ -2,15 +2,15 @@ require("engine/test/bustedhelper")
 require("engine/debug/dump")
 require("engine/render/color")
 require("lib/test_helper")
-require("lib/board")
 
+local board_class = require("lib/board")
 local cursor_class = require("lib/cursor")
 
 describe('board', function()
   local board
 
   before_each(function()
-    board = create_board(cursor_class())
+    board = board_class(cursor_class())
   end)
 
   describe('swap', function()

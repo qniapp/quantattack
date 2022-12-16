@@ -1,13 +1,14 @@
 require("engine/test/bustedhelper")
 require("engine/render/color")
 require("lib/test_helper")
-require("lib/board")
+
+local board_class = require("lib/board")
 
 describe('ゲートの落下', function()
   local board
 
   before_each(function()
-    board = create_board()
+    board = board_class()
   end)
 
   describe('ゲートが 1 つだけ落ちる', function()

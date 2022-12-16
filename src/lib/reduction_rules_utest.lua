@@ -1,7 +1,7 @@
 require("engine/test/bustedhelper")
 require("lib/test_helper")
-require("lib/board")
 
+local board_class = require("lib/board")
 -- https://github.com/lunarmodules/say
 local say = require("say")
 
@@ -117,7 +117,7 @@ describe('ゲートの簡約ルール', function()
   local board
 
   before_each(function()
-    board = create_board()
+    board = board_class()
   end)
 
   it('should reduce HH', function()

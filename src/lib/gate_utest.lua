@@ -1,7 +1,7 @@
 require("engine/test/bustedhelper")
 require("lib/test_helper")
-require("lib/board")
 
+local board_class = require("lib/board")
 local gate = require("lib/gate")
 
 describe('gate', function()
@@ -50,7 +50,7 @@ describe('gate', function()
 
   describe('render', function()
     it('should render without errors', function()
-      local board = create_board()
+      local board = board_class()
       local gate = h_gate()
 
       board:put(1, 1, gate)
@@ -63,7 +63,7 @@ describe('gate', function()
     local gate
 
     before_each(function()
-      local board = create_board()
+      local board = board_class()
       gate = h_gate()
 
       board:put(2, 1, gate)
@@ -84,7 +84,7 @@ describe('gate', function()
     local gate
 
     before_each(function()
-      local board = create_board()
+      local board = board_class()
       gate = h_gate()
 
       board:put(1, 1, gate)
@@ -105,7 +105,7 @@ describe('gate', function()
     local gate
 
     before_each(function()
-      local board = create_board()
+      local board = board_class()
       gate = h_gate()
 
       board:put(1, 1, gate)
@@ -123,7 +123,7 @@ describe('gate', function()
   end)
 
   it('should replace with other gate', function()
-    local board = create_board()
+    local board = board_class()
     local gate = h_gate()
     local other_gate = x_gate()
     board:put(1, 1, gate)

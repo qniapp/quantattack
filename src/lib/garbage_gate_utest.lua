@@ -1,6 +1,7 @@
 require("engine/test/bustedhelper")
-require("lib/board")
 require("lib/garbage_gate")
+
+local board_class = require("lib/board")
 
 describe('garbage_gate', function()
   describe('span', function()
@@ -78,7 +79,7 @@ end)
 describe("board", function()
   describe("_is_part_of_garbage", function()
     it("指定した座標がおじゃまゲートに含まれるかどうかを判定", function()
-      local board = create_board()
+      local board = board_class()
 
       -- 行
       --  9 _ _ _ _ _ _
