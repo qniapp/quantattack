@@ -38,7 +38,7 @@ function game.update(_ENV)
     sfx(10)
   end
 
-  board:update(_ENV, player, other_board)
+  board:update(_ENV, player)
   cursor:update()
 
   ripple:update()

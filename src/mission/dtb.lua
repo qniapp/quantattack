@@ -99,7 +99,7 @@ function dtb_update()
           local curchar = sub(curlines[dtb_curline], curchari, curchari)
           dtb_ltime = 1
           if curchar ~= " " then
-            sfx(0)
+            sfx(25)
           end
           if curchar == "." then
             dtb_ltime = 6
