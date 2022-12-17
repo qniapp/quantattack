@@ -1,9 +1,10 @@
 require("mission/dtb")
 
-local game_class = require("mission/game")
 local player_class = require("lib/player")
 local cursor_class = require("lib/cursor")
 local board_class = require("lib/board")
+local game_class = require("mission/game")
+local ion_class = require("mission/ion")
 
 local cursor = cursor_class()
 local board, player = board_class(cursor), player_class()
@@ -21,6 +22,7 @@ state = ":play"
 function mission_game.reduce_callback(_score, x, y, _player, pattern, dx)
 end
 
+local ion
 dtb_init()
 
 function _init()
@@ -35,9 +37,12 @@ function _init()
   mission_game:_init()
 end
 
--- TODO: イオン登場を追加
+-- TODO: イオンに show メソッドを追加
 
-dtb_disp("boom!") -- TODO: イオン登場、ゆれる & sfx
+-- TODO: イオン登場、ゆれる & sfx
+dtb_disp("boom!", function ()
+           ion = ion_class()
+end)
 dtb_disp("hi! my name is ion.")
 dtb_disp("let me introduce the rules of this game.")
 
@@ -54,6 +59,9 @@ function _draw()
   mission_game:render()
   sash:render()
   dtb_draw()
+  if ion then
+    ion:draw()
+  end
 
   spr(99, 70, 119)
   print_outlined("swap blocks", 81, 120, 7, 0)
