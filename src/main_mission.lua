@@ -26,7 +26,6 @@ dtb_init()
 function _init()
   player:_init()
   board:init()
-  board:put_random_gates()
 
   cursor:init()
 
@@ -36,14 +35,11 @@ function _init()
   mission_game:_init()
 end
 
-dtb_disp("a dialogue can be queud with: dtb_disp(text,callback)")
+-- TODO: 開始時はブロックを表示しない
 
-dtb_disp("the prompted dialogue will not interfere with previousily running dialogue boxes.")
-
-dtb_disp("dtb_prompt also has a callback which is called when the piece of dialogue is finished.", function()
-  --whatever is in this function is called after this dialogue is done.
-  sfx(17)
-end)
+dtb_disp("boom!") -- TODO: キャラ登場、ゆれる & sfx
+dtb_disp("hi! my name is atom.")
+dtb_disp("let me introduce the rules of this game.")
 
 function _update60()
   mission_game:update()
