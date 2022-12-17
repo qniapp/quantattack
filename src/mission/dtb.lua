@@ -120,7 +120,6 @@ function dtb_update()
   end
 end
 
--- make sure to call this function everytime you draw.
 function dtb_draw()
   if #dtb_queu > 0 then
     local dislineslength = #dtb_dislines
@@ -129,13 +128,13 @@ function dtb_draw()
       offset = dislineslength - dtb_curline
     end
 
-    -- 背景のボックスを描画
+    -- 背景のボックス
     draw_rounded_box(3, 27 - dislineslength * 8, 124, 29, 7, 1)
 
-    -- TODO: 「次」のスプライトを表示
-    -- if dtb_curline > 0 and #dtb_dislines[#dtb_dislines] == #dtb_queu[1][dtb_curline] then
-    --   print("\x8e", 118, 120, 1)
-    -- end
+    -- 「次へ」ボタン
+    if dtb_curline > 0 and #dtb_dislines[#dtb_dislines] == #dtb_queu[1][dtb_curline] then
+      spr(112, 115, 19)
+    end
 
     for i = 1, dislineslength do
       print(dtb_dislines[i], 6, i * 8 + 22 - (dislineslength + offset) * 8, 7)

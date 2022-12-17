@@ -35,7 +35,7 @@ function _init()
   mission_game:_init()
 end
 
--- TODO: ダイアログの幅をちぢめる
+-- TODO: attack_bubble → attack_ion
 
 dtb_disp("boom!") -- TODO: キャラ登場、ゆれる & sfx
 dtb_disp("hi! my name is ion.")
