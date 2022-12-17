@@ -1,7 +1,7 @@
 require("lib/helpers")
 
 local game = new_class()
-local attack_bubble = require("lib/attack_bubble")
+local attack_ion = require("lib/attack_ion")
 local particle = require("lib/particle")
 local bubble = require("lib/bubble")
 local ripple = require("lib/ripple")
@@ -27,7 +27,7 @@ function game.combo_callback(combo_count, x, y, player, board, other_board)
   end
 
   bubble:create("combo", combo_count, board:screen_x(x), board:screen_y(y))
-  attack_bubble:create(
+  attack_ion:create(
     board:screen_x(x),
     board:screen_y(y),
     attack_cube_callback,
@@ -54,7 +54,7 @@ function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, o
       end
     end
 
-    attack_bubble:create(
+    attack_ion:create(
       board:screen_x(x),
       board:screen_y(y),
       attack_cube_callback,
@@ -82,7 +82,7 @@ function game.chain_callback(chain_id, chain_count, x, y, player, board, other_b
     end
 
     bubble:create("chain", chain_count, board:screen_x(x), board:screen_y(y))
-    attack_bubble:create(
+    attack_ion:create(
       board:screen_x(x),
       board:screen_y(y),
       attack_cube_callback,
@@ -103,7 +103,7 @@ function game:_init()
 end
 
 function game:init()
-  attack_bubble.slow = false
+  attack_ion.slow = false
   particle.slow = false
 
   all_players = {}
@@ -204,7 +204,7 @@ function game:update()
 
   particle:update_all()
   bubble:update_all()
-  attack_bubble:update_all()
+  attack_ion:update_all()
 
   if self:is_game_over() then
     particle.slow = true
@@ -237,7 +237,7 @@ function game:render() -- override
 
   particle:render_all()
   bubble:render_all()
-  attack_bubble:render_all()
+  attack_ion:render_all()
 end
 
 -- ゲートをせりあげる

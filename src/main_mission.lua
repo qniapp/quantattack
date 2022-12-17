@@ -35,9 +35,9 @@ function _init()
   mission_game:_init()
 end
 
--- TODO: attack_bubble → attack_ion
+-- TODO: イオン登場を追加
 
-dtb_disp("boom!") -- TODO: キャラ登場、ゆれる & sfx
+dtb_disp("boom!") -- TODO: イオン登場、ゆれる & sfx
 dtb_disp("hi! my name is ion.")
 dtb_disp("let me introduce the rules of this game.")
 
