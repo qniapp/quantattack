@@ -35,10 +35,10 @@ function _init()
   mission_game:_init()
 end
 
--- TODO: 開始時はブロックを表示しない
+-- TODO: ダイアログの幅をちぢめる
 
 dtb_disp("boom!") -- TODO: キャラ登場、ゆれる & sfx
-dtb_disp("hi! my name is atom.")
+dtb_disp("hi! my name is ion.")
 dtb_disp("let me introduce the rules of this game.")
 
 function _update60()

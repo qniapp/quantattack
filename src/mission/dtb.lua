@@ -130,7 +130,7 @@ function dtb_draw()
     end
 
     -- 背景のボックスを描画
-    draw_rounded_box(1, 27 - dislineslength * 8, 126, 29, 7, 1)
+    draw_rounded_box(3, 27 - dislineslength * 8, 124, 29, 7, 1)
 
     -- TODO: 「次」のスプライトを表示
     -- if dtb_curline > 0 and #dtb_dislines[#dtb_dislines] == #dtb_queu[1][dtb_curline] then
@@ -138,7 +138,7 @@ function dtb_draw()
     -- end
 
     for i = 1, dislineslength do
-      print(dtb_dislines[i], 4, i * 8 + 22 - (dislineslength + offset) * 8, 7)
+      print(dtb_dislines[i], 6, i * 8 + 22 - (dislineslength + offset) * 8, 7)
     end
   end
 end
