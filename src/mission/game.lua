@@ -43,7 +43,7 @@ function game.update(_ENV)
 end
 
 function game.render(_ENV)
-  board:render()
+  -- board:render()
   particle:render_all()
   bubble:render_all()
 end

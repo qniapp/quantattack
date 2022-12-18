@@ -12,6 +12,7 @@ function attack_ion:create(x, y, callback, clr, target_x, target_y)
   end)
 end
 
+-- TODO: self いらない
 function attack_ion._update(_ENV, self)
   _tick = _tick + 1
 

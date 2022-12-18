@@ -4,7 +4,6 @@ local player_class = require("lib/player")
 local cursor_class = require("lib/cursor")
 local board_class = require("lib/board")
 local game_class = require("mission/game")
-local ion_class = require("mission/ion")
 
 local cursor = cursor_class()
 local board, player = board_class(cursor), player_class()
@@ -17,12 +16,12 @@ mission.type = ':mission'
 local ripple = require("lib/ripple")
 local sash = require("lib/sash")
 
-state = ":play"
+local ion_class = require("mission/ion")
+local ion = ion_class()
 
 function mission_game.reduce_callback(_score, x, y, _player, pattern, dx)
 end
 
-local ion
 dtb_init()
 
 function _init()
@@ -35,21 +34,22 @@ function _init()
   mission_game.cursor = cursor
   mission_game.board = board
   mission_game:_init()
+
+  ion:appear(function ()
+    dtb_disp("boom!")
+    dtb_disp("hi! my name is ion.")
+  end)
 end
 
--- TODO: イオンに show メソッドを追加
-
--- TODO: イオン登場、ゆれる & sfx
-dtb_disp("boom!", function ()
-           ion = ion_class()
-end)
-dtb_disp("hi! my name is ion.")
-dtb_disp("let me introduce the rules of this game.")
+-- dtb_disp("let me introduce the rules of this game.")
+-- dtb_disp("you control this cursor.")
+-- dtb_disp("you can move it with the arrow keys.")
 
 function _update60()
   mission_game:update()
   sash:update()
   dtb_update()
+  ion:update()
 end
 
 function _draw()
@@ -59,10 +59,8 @@ function _draw()
   mission_game:render()
   sash:render()
   dtb_draw()
-  if ion then
-    ion:draw()
-  end
+  ion:draw()
 
-  spr(99, 70, 119)
-  print_outlined("swap blocks", 81, 120, 7, 0)
+  -- spr(99, 70, 119)
+  -- print_outlined("swap blocks", 81, 120, 7, 0)
 end
