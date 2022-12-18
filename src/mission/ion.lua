@@ -19,6 +19,14 @@ function ion.update(_ENV)
      _dx, _dy = 0, 0
      _x, _y =
        _quadratic_bezier(_ENV, 64, 128, 84), _quadratic_bezier(_ENV, 128, 64, 42)
+   elseif _state == ":shake" then
+     if _tick == _max_tick then
+        _state = ":idle"
+        _shake_callback()
+     end
+
+     _dx = cos(t() / 0.2) * 4
+     _dy = 0
    else -- state == ":idle"
      _dx = cos(t() / 2) * 1.5
      _dy = sin(t() / 2.5) * 1.5
@@ -40,11 +48,20 @@ function ion.draw(_ENV)
 end
 
 -- 画面外から定位置に登場
-function ion.appear(_END, callback)
+function ion.appear(_ENV, callback)
   _state = ":appear"
   _tick = 0
   _max_tick = 60
   _appear_callback = callback
+  sfx(20)
+end
+
+-- 左右に素早くゆれる
+function ion.shake(_ENV, callback)
+  _state = ":shake"
+  _tick = 0
+  _max_tick = 30
+  _shake_callback = callback
   sfx(20)
 end
 

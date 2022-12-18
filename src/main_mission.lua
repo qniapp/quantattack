@@ -37,7 +37,11 @@ function _init()
 
   ion:appear(function ()
     dtb_disp("boom!")
-    dtb_disp("hi! my name is ion.")
+    dtb_disp("hi! my name is ion.", function ()
+      ion:shake(function ()
+        dtb_disp("let me introduce the rules of this game.")
+      end)
+    end)
   end)
 end
 
