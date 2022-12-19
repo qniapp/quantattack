@@ -25,8 +25,8 @@ function ion.update(_ENV)
         _shake_callback()
      end
 
-     _dx = cos(t() / 0.2) * 4
-     _dy = 0
+     _dx = 0
+     _dy = cos(t() / 0.2) * 4
    else -- state == ":idle"
      _dx = cos(t() / 2) * 1.5
      _dy = sin(t() / 2.5) * 1.5

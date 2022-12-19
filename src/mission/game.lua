@@ -7,33 +7,55 @@ local bubble = require("lib/bubble")
 local ripple = require("lib/ripple")
 
 local game = new_class()
+local _state
 
 function game._init(_ENV)
+  _state = ":initial"
+  show_board = false
 end
 
 function game.update(_ENV)
-  player:update(board)
+  if _state == ":initial" then
+    -- NOP
+  elseif _state == ":raise_stack" then
+    board.raised_dots = board.raised_dots + 1
 
-  if player.left then
-    sfx(8)
-    cursor:move_left()
-  end
-  if player.right then
-    sfx(8)
-    cursor:move_right(board.cols)
-  end
-  if player.up then
-    sfx(8)
-    cursor:move_up()
-  end
-  if player.down then
-    sfx(8)
-    cursor:move_down(board.rows)
-  end
-  if player.x and board:swap(cursor.x, cursor.y) then
-    sfx(10)
+    if _rows_raised < 8 then
+      if board.raised_dots == 8 then
+        _rows_raised = _rows_raised + 1
+        board.raised_dots = 0
+        board:insert_gates_at_bottom(0)
+        cursor:move_up()
+      end
+    else
+      _state = ":idle"
+      _raise_stack_callback()
+    end
+  else
+    player:update(board)
+
+    if player.left then
+      sfx(8)
+      cursor:move_left()
+    end
+    if player.right then
+      sfx(8)
+      cursor:move_right(board.cols)
+    end
+    if player.up then
+      sfx(8)
+      cursor:move_up()
+    end
+    if player.down then
+      sfx(8)
+      cursor:move_down(board.rows)
+    end
+    if player.x and board:swap(cursor.x, cursor.y) then
+      sfx(10)
+    end
   end
 
+  -- すべてのモードに共通な update 処理
   board:update(_ENV, player)
   cursor:update()
 
@@ -43,9 +65,17 @@ function game.update(_ENV)
 end
 
 function game.render(_ENV)
-  -- board:render()
+  if _state ~= ":initial" then
+    board:render()
+  end
   particle:render_all()
   bubble:render_all()
+end
+
+function game.raise_stack(_ENV, callback)
+  _state = ":raise_stack"
+  _rows_raised = 0
+  _raise_stack_callback = callback
 end
 
 return game

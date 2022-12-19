@@ -22,9 +22,12 @@ local ion = ion_class()
 function mission_game.reduce_callback(_score, x, y, _player, pattern, dx)
 end
 
+_main_state = nil
 dtb_init()
 
 function _init()
+  _main_state = ":ion_appear"
+
   player:_init()
   board:init()
 
@@ -35,21 +38,29 @@ function _init()
   mission_game.board = board
   mission_game:_init()
 
-  ion:appear(function ()
+  ion:appear(function()
     dtb_disp("boom!")
-    dtb_disp("hi! my name is ion.", function ()
-      ion:shake(function ()
-        dtb_disp("let me introduce the rules of this game.")
+    dtb_disp("hi! my name is ion.", function()
+      ion:shake(function()
+        dtb_disp("let me introduce the rules of this game.", function()
+          mission_game:raise_stack(function()
+            _main_state = ":how_to_play"
+          end)
+        end)
       end)
     end)
   end)
 end
 
--- dtb_disp("let me introduce the rules of this game.")
--- dtb_disp("you control this cursor.")
--- dtb_disp("you can move it with the arrow keys.")
-
 function _update60()
+  if _main_state == ":how_to_play" then
+    dtb_disp("your mission is to clear these blocks so they do not top out.")
+    dtb_disp("by swapping blocks with the cursor, two same blocks lined up vertically will be cleared.")
+    dtb_disp("try it!", function ()
+      _main_state = ":try_h_h"
+    end)
+  end
+
   mission_game:update()
   sash:update()
   dtb_update()
@@ -65,6 +76,8 @@ function _draw()
   dtb_draw()
   ion:draw()
 
-  -- spr(99, 70, 119)
-  -- print_outlined("swap blocks", 81, 120, 7, 0)
+  if _main_state == ":try_h_h" then
+    spr(99, 70, 119)
+    print_outlined("swap blocks", 81, 120, 7, 0)
+  end
 end

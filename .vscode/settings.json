@@ -109,7 +109,8 @@
     "ceil_rnd",
     "flip",
     "app_title",
-    "circ"
+    "circ",
+    "_main_state"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,
