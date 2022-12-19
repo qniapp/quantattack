@@ -5,7 +5,6 @@ require("title/game")
 
 demo_game = game()
 
-
 local cursor_class, high_score, menu_item, menu_class =
 require("lib/cursor"), require("lib/high_score"), require("title/menu_item"), require("title/menu")
 
@@ -17,13 +16,13 @@ local main_menu = menu_class({
   menu_item(unpack_split("quantattack_mission,32,48,16,16,,mission,clear 9 waves")),
   menu_item("quantattack_time_attack", 48, 48, 16, 16, nil, "time attack", "play for 2 minutes", high_score(0):get() * 10),
   menu_item("quantattack_endless", 64, 48, 16, 16, nil, "endless", "play as long as you can", high_score(1):get() * 10),
-  menu_item(":level_menu", 80, 48, 16, 16, nil, "vs qpu", "defeat the qpu"),
+  menu_item(unpack_split(":level_menu,80,48,16,16,,vs qpu,defeat the qpu")),
   menu_item(unpack_split("quantattack_qpu_vs_qpu,96,48,16,16,,qpu vs qpu,watch qpu vs qpu"))
 }, ":demo")
 local level_menu = menu_class({
-  menu_item("quantattack_vs_qpu", 48, 80, 19, 7, 3), -- easy
-  menu_item("quantattack_vs_qpu", 72, 80, 27, 7, 2), -- normal
-  menu_item("quantattack_vs_qpu", 104, 80, 19, 7, 1), -- hard
+  menu_item(unpack_split("quantattack_vs_qpu,48,80,19,7,3")), -- easy
+  menu_item(unpack_split("quantattack_vs_qpu,72,80,27,7,2")), -- normal
+  menu_item(unpack_split("quantattack_vs_qpu,104,80,19,7,1")), -- hard
 }, ":main_menu")
 
 -- :logo_slidein QuantumAttack のロゴ slide-in アニメーション
@@ -79,7 +78,6 @@ function _draw()
   render_plasma()
 
   if title_state == ":logo_slidein" then
-    -- sspr(0, 64, 128, 16, 0, tick)
     sspr(unpack_split("0,64,128,16,0"), tick)
 
     if tick > 24 then
@@ -109,10 +107,6 @@ function _draw()
       end
     else -- ":main_menu" or ":level_menu"
       -- メニューのウィンドウを表示
-      -- draw_rounded_box(7, 46, 118, 108, 0, 0) -- ふちどり
-      -- draw_rounded_box(8, 47, 117, 107, 12, 12) -- 枠線
-      -- draw_rounded_box(10, 49, 115, 105, 1, 1) -- 本体
-
       draw_rounded_box(unpack_split("7,46,118,108,0,0")) -- ふちどり
       draw_rounded_box(unpack_split("8,47,117,107,12,12")) -- 枠線
       draw_rounded_box(unpack_split("10,49,115,105,1,1")) -- 本体
@@ -123,8 +117,6 @@ function _draw()
       if title_state == ":level_menu" then
         level_menu:draw(27, 93)
       end
-
-      print_outlined("x select  c cancel", 27, 107, 1, 7)
     end
   end
 end
