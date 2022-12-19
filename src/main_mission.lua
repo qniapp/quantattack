@@ -149,16 +149,17 @@ function _update60()
       show_legends = true
       mission_game.move_cursor = true
       mission_game:raise_stack(board_data_s)
-      _next_state_after_clear = ":try_cnot_cnot"
+      _next_state_after_clear = ":try_cnot"
     end)
     _main_state = ":idle"
-  elseif _main_state == ":try_cnot_cnot" then
-    dtb_disp("some of the blocks are a bit odd.")
+  elseif _main_state == ":try_cnot" then
+    dtb_disp("some of the blocks are a bit odd.", function()
+      mission_game:raise_stack(board_data_cnot)
+      _next_state_after_clear = ":hoge"
+    end)
     dtb_disp("this is two connected blocks, and they're not easy to clear.", function()
       show_legends = true
       mission_game.move_cursor = true
-      mission_game:raise_stack(board_data_cnot)
-      _next_state_after_clear = ":hoge"
     end)
     _main_state = ":idle"
   end
