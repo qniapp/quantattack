@@ -30,6 +30,16 @@ function wait(wait_sec, callback)
 end
 
 function mission_game.reduce_callback(_score, x, y, _player, pattern, dx)
+  -- 消えてないブロックが残っていれば、コールバック本体を呼ばない
+  for y = 1, board.rows do
+    for x = 1, board.cols do
+      local gate_xy = board.gates[x][y]
+      if gate_xy:is_idle() and not (gate_xy.type == "i" or gate_xy.type == "placeholder") then
+        return
+      end
+    end
+  end
+
   wait(2, function()
     dtb_disp("awesome!")
     show_legends = false
@@ -53,9 +63,9 @@ local board_data_h = {
 }
 
 local board_data_x = {
-  { "x", "i", "i", "i", "i", "i" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "x", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "i", "y", "i", "i", "i", "y" },
+  { "placeholder", "placeholder", "x", "i", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "x", "placeholder", "placeholder" },
   { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
   { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
   { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },

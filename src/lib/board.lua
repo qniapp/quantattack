@@ -80,10 +80,6 @@ function board.reduce_gates(_ENV, game, player, other_board)
       if #reduction.to > 0 then
         local chain_id = reduction.chain_id
 
-        if player then
-          game.reduce_callback(reduction.score, x, y, player, reduction.pattern, reduction.dx)
-        end
-
         if _chain_count[chain_id] == nil then
           _chain_count[chain_id] = 0
         end
@@ -139,6 +135,10 @@ function board.reduce_gates(_ENV, game, player, other_board)
           end
 
           ::next_reduction::
+        end
+
+        if player then
+          game.reduce_callback(reduction.score, x, y, player, reduction.pattern, reduction.dx)
         end
       end
     end
