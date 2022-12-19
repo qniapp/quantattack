@@ -5,21 +5,22 @@ require("title/game")
 
 demo_game = game()
 
-local cursor_class = require("lib/cursor")
 
--- ハイスコア
-local high_score = require("lib/high_score")
+local cursor_class, high_score, menu_item, menu_class =
+  require("lib/cursor"), require("lib/high_score"), require("title/menu_item"), require("title/menu")
 
--- メニュー
-local menu_item = require("title/menu_item")
-local menu_class = require("title/menu")
+function unpack_split(...)
+  return unpack(split(...))
+end
 
 local main_menu = menu_class({
-  menu_item("mission", 'clear 9 waves', 32, 48, 16, 16, 'quantattack_mission'),
+  -- menu_item("mission", 'clear 9 waves', 32, 48, 16, 16, 'quantattack_mission'),
+  menu_item(unpack_split("mission,clear 9 waves,32,48,16,16,quantattack_mission")),
   menu_item("time attack", 'play for 2 minutes', 48, 48, 16, 16, 'quantattack_time_attack', high_score(0):get() * 10),
   menu_item("endless", 'play as long as you can', 64, 48, 16, 16, 'quantattack_endless', high_score(1):get() * 10),
   menu_item("vs qpu", 'defeat the qpu', 80, 48, 16, 16, function() title_state = ":level_menu" end),
-  menu_item("qpu vs qpu", 'watch qpu vs qpu', 96, 48, 16, 16, 'quantattack_qpu_vs_qpu')
+  menu_item(unpack_split("qpu vs qpu,watch qpu vs qpu,96,48,16,16,quantattack_qpu_vs_qpu"))
+  -- menu_item("qpu vs qpu", 'watch qpu vs qpu', 96, 48, 16, 16, 'quantattack_qpu_vs_qpu')
 }, ":demo")
 local level_menu = menu_class({
   menu_item(nil, nil, 48, 80, 19, 7, 'quantattack_vs_qpu', nil, 3), -- easy
@@ -34,9 +35,7 @@ local level_menu = menu_class({
 -- :level_menu QPU のレベル選択
 title_state = ":logo_slidein"
 
-local tick = 0
-
-local board_class = require("lib/board")
+local board_class, tick = require("lib/board"), 0
 
 function _init()
   local qpu_cursor = cursor_class()
@@ -62,7 +61,7 @@ function _update60()
     demo_game:update()
     update_title_logo_bounce()
 
-    if btnp(4) or btnp(5) then -- x または c でタイトルへ進む
+    if btnp(5) then -- x でタイトルへ進む
       sfx(15)
       title_state = ":main_menu"
     end
@@ -82,13 +81,14 @@ function _draw()
   render_plasma()
 
   if title_state == ":logo_slidein" then
-    sspr(0, 64, 128, 16, 0, tick)
+    -- sspr(0, 64, 128, 16, 0, tick)
+    sspr(unpack_split("0,64,128,16,0"), tick)
 
     if tick > 24 then
       title_state = ":board_fadein"
     end
   elseif title_state == ":board_fadein" then
-    sspr(0, 64, 128, 16, 0, 24)
+    sspr(unpack_split("0,64,128,16,0,24"))
 
     if tick <= 90 then
       fadein((tick - 26) / 3)
@@ -105,15 +105,19 @@ function _draw()
     demo_game:render()
 
     if title_state == ":demo" then
-      -- Z+X start を表示
+      -- X start を表示
       if tick % 60 < 30 then
-        print_outlined("x+c start", 50, 50, 1)
+        print_outlined("x start", 50, 50, 1)
       end
     else -- ":main_menu" or ":level_menu"
       -- メニューのウィンドウを表示
-      draw_rounded_box(7, 46, 118, 108, 0, 0) -- ふちどり
-      draw_rounded_box(8, 47, 117, 107, 12, 12) -- 枠線
-      draw_rounded_box(10, 49, 115, 105, 1, 1) -- 本体
+      -- draw_rounded_box(7, 46, 118, 108, 0, 0) -- ふちどり
+      -- draw_rounded_box(8, 47, 117, 107, 12, 12) -- 枠線
+      -- draw_rounded_box(10, 49, 115, 105, 1, 1) -- 本体
+
+      draw_rounded_box(unpack_split("7,46,118,108,0,0")) -- ふちどり
+      draw_rounded_box(unpack_split("8,47,117,107,12,12")) -- 枠線
+      draw_rounded_box(unpack_split("10,49,115,105,1,1")) -- 本体
 
       -- メニューを表示
       main_menu:draw(15, 72)
@@ -127,8 +131,6 @@ function _draw()
   end
 end
 
-local fadetable = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0|1,1,129,129,129,129,129,129,129,129,0,0,0,0,0|2,2,2,130,130,130,130,130,128,128,128,128,128,0,0|3,3,3,131,131,131,131,129,129,129,129,129,0,0,0|4,4,132,132,132,132,132,132,130,128,128,128,128,0,0|5,5,133,133,133,133,130,130,128,128,128,128,128,0,0|6,6,134,13,13,13,141,5,5,5,133,130,128,128,0|7,6,6,6,134,134,134,134,5,5,5,133,130,128,0|8,8,136,136,136,136,132,132,132,130,128,128,128,128,0|9,9,9,4,4,4,4,132,132,132,128,128,128,128,0|10,10,138,138,138,4,4,4,132,132,133,128,128,128,0|11,139,139,139,139,3,3,3,3,129,129,129,0,0,0|12,12,12,140,140,140,140,131,131,131,1,129,129,129,0|13,13,141,141,5,5,5,133,133,130,129,129,128,128,0|14,14,14,134,134,141,141,2,2,133,130,130,128,128,0|15,143,143,134,134,134,134,5,5,5,133,133,128,128,0"
-
 function fadein(i)
   local index = flr(15 - i)
 
@@ -136,7 +138,7 @@ function fadein(i)
     if index < 1 then
       pal(c, c)
     else
-      pal(c, split(split(fadetable, "|")[c + 1])[index])
+      pal(c, split(split("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0|1,1,129,129,129,129,129,129,129,129,0,0,0,0,0|2,2,2,130,130,130,130,130,128,128,128,128,128,0,0|3,3,3,131,131,131,131,129,129,129,129,129,0,0,0|4,4,132,132,132,132,132,132,130,128,128,128,128,0,0|5,5,133,133,133,133,130,130,128,128,128,128,128,0,0|6,6,134,13,13,13,141,5,5,5,133,130,128,128,0|7,6,6,6,134,134,134,134,5,5,5,133,130,128,0|8,8,136,136,136,136,132,132,132,130,128,128,128,128,0|9,9,9,4,4,4,4,132,132,132,128,128,128,128,0|10,10,138,138,138,4,4,4,132,132,133,128,128,128,0|11,139,139,139,139,3,3,3,3,129,129,129,0,0,0|12,12,12,140,140,140,140,131,131,131,1,129,129,129,0|13,13,141,141,5,5,5,133,133,130,129,129,128,128,0|14,14,14,134,134,141,141,2,2,133,130,130,128,128,0|15,143,143,134,134,134,134,5,5,5,133,133,128,128,0", "|")[c + 1])[index])
     end
   end
 end
