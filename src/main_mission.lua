@@ -63,6 +63,7 @@ function _update60()
     dtb_disp("so let's try it!", function ()
       _main_state = ":try_h_h"
     end)
+    _main_state = ":idle"
   end
 
   mission_game:update()

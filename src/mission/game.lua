@@ -15,6 +15,17 @@ function game._init(_ENV)
   show_board = false
 end
 
+local board_data = {
+  { "placeholder", "placeholder", "h", "i", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "h", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" }
+}
+
 function game.update(_ENV)
   if _state == ":initial" then
     -- NOP
@@ -28,7 +39,7 @@ function game.update(_ENV)
         board:shift_all_blocks_up()
 
         for x = 1, board.cols do
-          board:put(x, board.row_next_gates, gate("placeholder"))
+          board:put(x, board.row_next_gates, gate(board_data[_rows_raised][x]))
         end
 
         cursor:move_up()
