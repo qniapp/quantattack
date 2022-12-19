@@ -14,6 +14,7 @@ function ion.update(_ENV)
      if _tick == _max_tick then
         _state = ":idle"
         _appear_callback()
+        return
      end
 
      _dx, _dy = 0, 0

@@ -89,7 +89,7 @@ function dtb_update()
     local curlinelength = #dtb_dislines[dislineslength]
     local complete = curlinelength >= #curlines[dtb_curline]
     if complete and dtb_curline >= #curlines then
-      if btnp(4) then
+      if btnp(5) then
         _dtb_nexttext()
         return
       end
@@ -108,11 +108,11 @@ function dtb_update()
           end
           dtb_dislines[dislineslength] = dtb_dislines[dislineslength] .. curchar
         end
-        if btnp(4) then
+        if btnp(5) then
           dtb_dislines[dislineslength] = curlines[dtb_curline]
         end
       else
-        if btnp(4) then
+        if btnp(5) then
           _dtb_nextline()
         end
       end
@@ -133,7 +133,7 @@ function dtb_draw()
 
     -- 「次へ」ボタン
     if dtb_curline > 0 and #dtb_dislines[#dtb_dislines] == #dtb_queu[1][dtb_curline] then
-      spr(112, 115, 19)
+      spr(99, 115, 19)
     end
 
     for i = 1, dislineslength do

@@ -31,6 +31,8 @@ end
 function mission_game.reduce_callback(_score, x, y, _player, pattern, dx)
   wait(2, function()
     dtb_disp("awesome!")
+    show_legends = false
+    mission_game.move_cursor = false
     _main_state = _next_state_after_clear
   end)
 end
@@ -87,9 +89,8 @@ function _init()
   mission_game:_init()
 
   ion:appear(function()
-    dtb_disp("boom!")
-    dtb_disp("hi! my name is ion.", function()
-      ion:shake(function()
+    ion:shake(function()
+      dtb_disp("hi! my name is ion.", function()
         dtb_disp("let me introduce the rules of this game.", function()
           mission_game:raise_stack(board_data_h, function()
             _main_state = ":how_to_play"
@@ -117,6 +118,8 @@ function _update60()
     end
   elseif _main_state == ":try_xx" then
     dtb_disp("how about this then?", function()
+      show_legends = true
+      mission_game.move_cursor = true
       mission_game:raise_stack(board_data_x)
       _next_state_after_clear = ":try_cnot_cnot"
     end)
@@ -124,6 +127,8 @@ function _update60()
   elseif _main_state == ":try_cnot_cnot" then
     dtb_disp("some of the blocks are a bit odd.")
     dtb_disp("this is two connected blocks, and they're not easy to clear.", function()
+      show_legends = true
+      mission_game.move_cursor = true
       mission_game:raise_stack(board_data_cnot)
       _next_state_after_clear = ":hoge"
     end)
