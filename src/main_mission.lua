@@ -125,7 +125,7 @@ end
 function _update60()
   if _main_state == ":how_to_play" then
     dtb_disp("your mission is to clear these blocks so they do not top out.")
-    dtb_disp("first, let's clear the two h blocks.")
+    dtb_disp("first, let's clear the two red h blocks.")
     dtb_disp("try to line up these two h blocks vertically by swapping the blocks.", function()
       _main_state = ":try_h_h"
       show_legends = true
@@ -153,11 +153,12 @@ function _update60()
     end)
     _main_state = ":idle"
   elseif _main_state == ":try_cnot" then
-    dtb_disp("some of the blocks are a bit odd.", function()
+    dtb_disp("some of the blocks are a bit odd...", function()
       mission_game:raise_stack(board_data_cnot)
       _next_state_after_clear = ":hoge"
     end)
-    dtb_disp("this is two connected blocks, and they're not easy to clear.", function()
+    dtb_disp("this is two connected blocks, and they're not easy to clear.")
+    dtb_disp("can you clear them?", function()
       show_legends = true
       mission_game.move_cursor = true
     end)
