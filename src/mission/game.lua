@@ -13,18 +13,8 @@ local _state
 function game._init(_ENV)
   _state = ":initial"
   show_board = false
+  move_cursor = false
 end
-
-local board_data = {
-  { "placeholder", "placeholder", "h", "i", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "h", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" }
-}
 
 function game.update(_ENV)
   if _state == ":initial" then
@@ -39,7 +29,7 @@ function game.update(_ENV)
         board:shift_all_blocks_up()
 
         for x = 1, board.cols do
-          board:put(x, board.row_next_gates, gate(board_data[_rows_raised][x]))
+          board:put(x, board.row_next_gates, gate(_board_data[_rows_raised][x]))
         end
 
         cursor:move_up()
@@ -51,24 +41,26 @@ function game.update(_ENV)
   else
     player:update(board)
 
-    if player.left then
-      sfx(8)
-      cursor:move_left()
-    end
-    if player.right then
-      sfx(8)
-      cursor:move_right(board.cols)
-    end
-    if player.up then
-      sfx(8)
-      cursor:move_up()
-    end
-    if player.down then
-      sfx(8)
-      cursor:move_down(board.rows)
-    end
-    if player.x and board:swap(cursor.x, cursor.y) then
-      sfx(10)
+    if move_cursor then
+      if player.left then
+        sfx(8)
+        cursor:move_left()
+      end
+      if player.right then
+        sfx(8)
+        cursor:move_right(board.cols)
+      end
+      if player.up then
+        sfx(8)
+        cursor:move_up()
+      end
+      if player.down then
+        sfx(8)
+        cursor:move_down(board.rows)
+      end
+      if player.x and board:swap(cursor.x, cursor.y) then
+        sfx(10)
+      end
     end
   end
 
@@ -89,10 +81,17 @@ function game.render(_ENV)
   bubble:render_all()
 end
 
-function game.raise_stack(_ENV, callback)
+function game.raise_stack(_ENV, board_data, callback)
   _state = ":raise_stack"
   _rows_raised = 0
-  _raise_stack_callback = callback
+  _board_data = board_data
+  _raise_stack_callback = callback or function () end
+
+  for x = 1, board.cols do
+    for y = 1, board.row_next_gates do
+      board:put(x, y, gate("i"))
+    end
+  end
 end
 
 return game
