@@ -25,6 +25,8 @@ end
 _main_state = nil
 dtb_init()
 
+local show_legends = false
+
 function _init()
   _main_state = ":ion_appear"
 
@@ -55,8 +57,10 @@ end
 function _update60()
   if _main_state == ":how_to_play" then
     dtb_disp("your mission is to clear these blocks so they do not top out.")
-    dtb_disp("by swapping blocks with the cursor, two same blocks lined up vertically will be cleared.")
-    dtb_disp("try it!", function ()
+    dtb_disp("by swapping blocks with the cursor, two same blocks lined up vertically will be cleared.", function ()
+      show_legends = true
+    end)
+    dtb_disp("so let's try it!", function ()
       _main_state = ":try_h_h"
     end)
   end
@@ -76,7 +80,7 @@ function _draw()
   dtb_draw()
   ion:draw()
 
-  if _main_state == ":try_h_h" then
+  if show_legends then
     spr(99, 70, 119)
     print_outlined("swap blocks", 81, 120, 7, 0)
   end
