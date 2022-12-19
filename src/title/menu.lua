@@ -41,12 +41,12 @@ end
 function menu:confirm_selection()
   local selected_menu_item = self.items[self.selection_index]
 
-  if type(selected_menu_item.target_state) == "string" then
+  if sub(selected_menu_item.target_state, 1, 1) == ":" then
+    self.stale = true
+    title_state = selected_menu_item.target_state
+  else
     self.cart_to_load = selected_menu_item.target_state
     self.load_param = selected_menu_item.load_param
-  else
-    self.stale = true
-    selected_menu_item.target_state()
   end
 end
 

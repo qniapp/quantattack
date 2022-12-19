@@ -31,9 +31,9 @@ end
 
 function mission_game.reduce_callback(_score, x, y, _player, pattern, dx)
   -- 消えてないブロックが残っていれば、コールバック本体を呼ばない
-  for y = 1, board.rows do
-    for x = 1, board.cols do
-      local gate_xy = board.gates[x][y]
+  for _y = 1, board.rows do
+    for _x = 1, board.cols do
+      local gate_xy = board.gates[_x][_y]
       if gate_xy:is_idle() and not (gate_xy.type == "i" or gate_xy.type == "placeholder") then
         return
       end
@@ -41,7 +41,7 @@ function mission_game.reduce_callback(_score, x, y, _player, pattern, dx)
   end
 
   wait(2, function()
-    dtb_disp("awesome!")
+    dtb_disp(({ "awesome!", "great!", "nice!" })[flr(rnd(3)) + 1])
     show_legends = false
     mission_game.move_cursor = false
     _main_state = _next_state_after_clear
