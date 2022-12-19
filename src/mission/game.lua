@@ -2,6 +2,7 @@
 
 require("lib/helpers")
 
+local gate = require("lib/gate")
 local particle = require("lib/particle")
 local bubble = require("lib/bubble")
 local ripple = require("lib/ripple")
@@ -24,7 +25,12 @@ function game.update(_ENV)
       if board.raised_dots == 8 then
         _rows_raised = _rows_raised + 1
         board.raised_dots = 0
-        board:insert_gates_at_bottom(0)
+        board:shift_all_blocks_up()
+
+        for x = 1, board.cols do
+          board:put(x, board.row_next_gates, gate("placeholder"))
+        end
+
         cursor:move_up()
       end
     else

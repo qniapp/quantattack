@@ -403,13 +403,7 @@ function board.send_garbage(_ENV, chain_id, span, _height)
 end
 
 function board.insert_gates_at_bottom(_ENV, steps)
-  -- 各ゲートを 1 つ上にずらす
-  for y = 1, row_next_gates - 1 do
-    for x = 1, cols do
-      put(_ENV, x, y, gates[x][y + 1])
-      remove_gate(_ENV, x, y + 1)
-    end
-  end
+  shift_all_blocks_up(_ENV)
 
   -- local min_cnot_probability = 0.3
   -- local max_cnot_probability = 0.7
@@ -443,6 +437,15 @@ function board.insert_gates_at_bottom(_ENV, steps)
   end
 end
 
+function board.shift_all_blocks_up(_ENV)
+  for y = 1, row_next_gates - 1 do
+    for x = 1, cols do
+      put(_ENV, x, y, gates[x][y + 1])
+      remove_gate(_ENV, x, y + 1)
+    end
+  end
+end
+
 -------------------------------------------------------------------------------
 -- ユーザーによるゲート操作
 -------------------------------------------------------------------------------
@@ -452,6 +455,11 @@ end
 function board.swap(_ENV, x_left, y)
   local x_right = x_left + 1
   local left_gate, right_gate = gates[x_left][y], gates[x_right][y]
+
+  -- 左または右が placeholder ブロックの場合、入れ替えできない
+  if left_gate.type == "placeholder" or right_gate.type == "placeholder" then
+    return false
+  end
 
   if _is_part_of_garbage(_ENV, x_left, y) or _is_part_of_garbage(_ENV, x_right, y) or
       not (left_gate:is_idle() and right_gate:is_idle()) then
