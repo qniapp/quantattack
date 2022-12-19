@@ -21,7 +21,7 @@ function dtb_disp(txt, callback)
   local curword = ""
   local curchar = ""
   local upt = function()
-    if #curword + #currline > 29 then
+    if #curword + #currline > 27 then
       add(lines, currline)
       currline = ""
     end
@@ -33,7 +33,7 @@ function dtb_disp(txt, callback)
     curword = curword .. curchar
     if curchar == " " then
       upt()
-    elseif #curword > 28 then
+    elseif #curword > 26 then
       curword = curword .. "-"
       upt()
     end
@@ -129,15 +129,15 @@ function dtb_draw()
     end
 
     -- 背景のボックス
-    draw_rounded_box(3, 27 - dislineslength * 8, 124, 29, 7, 1)
+    draw_rounded_box(3, 27 - dislineslength * 8, 124, 33, 7, 1)
 
     -- 「次へ」ボタン
     if dtb_curline > 0 and #dtb_dislines[#dtb_dislines] == #dtb_queu[1][dtb_curline] then
-      spr(99, 115, 19)
+      spr(99, 113, 21)
     end
 
     for i = 1, dislineslength do
-      print(dtb_dislines[i], 6, i * 8 + 22 - (dislineslength + offset) * 8, 7)
+      print(dtb_dislines[i], 8, i * 8 + 24 - (dislineslength + offset) * 8, 7)
     end
   end
 end

@@ -42,6 +42,7 @@ function mission_game.reduce_callback(_score, x, y, _player, pattern, dx)
 
   wait(2, function()
     dtb_disp(({ "awesome!", "great!", "nice!" })[flr(rnd(3)) + 1])
+    ion:shake()
     show_legends = false
     mission_game.move_cursor = false
     _main_state = _next_state_after_clear
@@ -126,7 +127,7 @@ function _update60()
   if _main_state == ":how_to_play" then
     dtb_disp("your mission is to clear these blocks so they do not top out.")
     dtb_disp("first, let's clear the two red h blocks.")
-    dtb_disp("try to line up these two h blocks vertically by swapping the blocks.", function()
+    dtb_disp("line up these two h blocks vertically by swapping the blocks.", function()
       _main_state = ":try_h_h"
       show_legends = true
       mission_game.move_cursor = true
