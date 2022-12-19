@@ -20,6 +20,7 @@ local ion_class = require("mission/ion")
 local ion = ion_class()
 
 local _wait_sec, _wait_callback
+local show_legends = false
 
 function wait(wait_sec, callback)
   _main_state = ":wait"
@@ -39,8 +40,6 @@ end
 
 _main_state = nil
 dtb_init()
-
-local show_legends = false
 
 local board_data_h = {
   { "placeholder", "placeholder", "h", "i", "placeholder", "placeholder" },
@@ -132,10 +131,6 @@ function _update60()
       mission_game:raise_stack(board_data_cnot)
       _next_state_after_clear = ":hoge"
     end)
-    -- dtb_disp("how about this then?", function()
-    --   mission_game:raise_stack(board_data_xx)
-    --   _next_state_after_clear = ":hoge"
-    -- end)
     _main_state = ":idle"
   end
 
