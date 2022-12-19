@@ -62,10 +62,21 @@ local board_data_h = {
   { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" }
 }
 
-local board_data_x = {
+local board_data_xy = {
   { "i", "y", "i", "i", "i", "y" },
   { "placeholder", "placeholder", "x", "i", "placeholder", "placeholder" },
   { "placeholder", "placeholder", "placeholder", "x", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" }
+}
+
+local board_data_s = {
+  { "s", "s", "i", "i", "i", "s" },
+  { "placeholder", "placeholder", "placeholder", "i", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "s", "placeholder", "placeholder" },
   { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
   { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
   { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
@@ -103,7 +114,7 @@ function _init()
         dtb_disp("let me introduce the rules of this game.", function()
           mission_game:raise_stack(board_data_h, function()
             _main_state = ":how_to_play"
-            _next_state_after_clear = ":try_xx"
+            _next_state_after_clear = ":try_xy"
           end)
         end)
       end)
@@ -125,11 +136,19 @@ function _update60()
     if _wait_sec < t() - _time_wait_start then
       _wait_callback()
     end
-  elseif _main_state == ":try_xx" then
+  elseif _main_state == ":try_xy" then
     dtb_disp("how about this then?", function()
       show_legends = true
       mission_game.move_cursor = true
-      mission_game:raise_stack(board_data_x)
+      mission_game:raise_stack(board_data_xy)
+      _next_state_after_clear = ":try_s"
+    end)
+    _main_state = ":idle"
+  elseif _main_state == ":try_s" then
+    dtb_disp("some blocks change into other blocks!", function()
+      show_legends = true
+      mission_game.move_cursor = true
+      mission_game:raise_stack(board_data_s)
       _next_state_after_clear = ":try_cnot_cnot"
     end)
     _main_state = ":idle"
