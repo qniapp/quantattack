@@ -14,16 +14,16 @@ function unpack_split(...)
 end
 
 local main_menu = menu_class({
-  menu_item(unpack_split("quantattack_mission,mission,clear 9 waves,32,48,16,16")),
-  menu_item("quantattack_time_attack", "time attack", "play for 2 minutes", 48, 48, 16, 16, high_score(0):get() * 10),
-  menu_item("quantattack_endless", "endless", "play as long as you can", 64, 48, 16, 16, high_score(1):get() * 10),
-  menu_item(":level_menu", "vs qpu", "defeat the qpu", 80, 48, 16, 16),
-  menu_item(unpack_split("quantattack_qpu_vs_qpu,qpu vs qpu,watch qpu vs qpu,96,48,16,16"))
+  menu_item(unpack_split("quantattack_mission,32,48,16,16,,mission,clear 9 waves")),
+  menu_item("quantattack_time_attack", 48, 48, 16, 16, nil, "time attack", "play for 2 minutes", high_score(0):get() * 10),
+  menu_item("quantattack_endless", 64, 48, 16, 16, nil, "endless", "play as long as you can", high_score(1):get() * 10),
+  menu_item(":level_menu", 80, 48, 16, 16, nil, "vs qpu", "defeat the qpu"),
+  menu_item(unpack_split("quantattack_qpu_vs_qpu,96,48,16,16,,qpu vs qpu,watch qpu vs qpu"))
 }, ":demo")
 local level_menu = menu_class({
-  menu_item("quantattack_vs_qpu", nil, nil, 48, 80, 19, 7, nil, 3), -- easy
-  menu_item("quantattack_vs_qpu", nil, nil, 72, 80, 27, 7, nil, 2), -- normal
-  menu_item("quantattack_vs_qpu", nil, nil, 104, 80, 19, 7, nil, 1), -- hard
+  menu_item("quantattack_vs_qpu", 48, 80, 19, 7, 3), -- easy
+  menu_item("quantattack_vs_qpu", 72, 80, 27, 7, 2), -- normal
+  menu_item("quantattack_vs_qpu", 104, 80, 19, 7, 1), -- hard
 }, ":main_menu")
 
 -- :logo_slidein QuantumAttack のロゴ slide-in アニメーション
