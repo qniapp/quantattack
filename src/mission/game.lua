@@ -29,7 +29,10 @@ function game.update(_ENV)
         board:shift_all_blocks_up()
 
         for x = 1, board.cols do
-          board:put(x, board.row_next_gates, gate(_board_data[_rows_raised][x]))
+          local gate_type, other_x = unpack(split(_board_data[_rows_raised][x]))
+          local new_gate = gate(gate_type)
+          new_gate.other_x = other_x
+          board:put(x, board.row_next_gates, new_gate)
         end
 
         cursor:move_up()

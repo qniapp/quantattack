@@ -40,7 +40,7 @@ dtb_init()
 
 local show_legends = false
 
-local board_data_hh = {
+local board_data_h = {
   { "placeholder", "placeholder", "h", "i", "placeholder", "placeholder" },
   { "placeholder", "placeholder", "placeholder", "h", "placeholder", "placeholder" },
   { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
@@ -51,9 +51,20 @@ local board_data_hh = {
   { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" }
 }
 
-local board_data_xx = {
+local board_data_x = {
   { "x", "i", "i", "i", "i", "i" },
   { "placeholder", "placeholder", "placeholder", "placeholder", "x", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
+  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" }
+}
+
+local board_data_cnot = {
+  { "cnot_x,5", "i", "i", "i", "control,1", "i" },
+  { "i", "control,3", "cnot_x,2", "placeholder", "placeholder", "placeholder" },
   { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
   { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
   { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
@@ -80,7 +91,7 @@ function _init()
     dtb_disp("hi! my name is ion.", function()
       ion:shake(function()
         dtb_disp("let me introduce the rules of this game.", function()
-          mission_game:raise_stack(board_data_hh, function()
+          mission_game:raise_stack(board_data_h, function()
             _main_state = ":how_to_play"
             _next_state_after_clear = ":try_xx"
           end)
@@ -106,9 +117,20 @@ function _update60()
     end
   elseif _main_state == ":try_xx" then
     dtb_disp("how about this then?", function()
-      mission_game:raise_stack(board_data_xx)
+      mission_game:raise_stack(board_data_x)
+      _next_state_after_clear = ":try_cnot_cnot"
+    end)
+    _main_state = ":idle"
+  elseif _main_state == ":try_cnot_cnot" then
+    dtb_disp("some of the blocks are a bit odd.")
+    dtb_disp("this is two connected blocks, and they're not easy to clear.", function()
+      mission_game:raise_stack(board_data_cnot)
       _next_state_after_clear = ":hoge"
     end)
+    -- dtb_disp("how about this then?", function()
+    --   mission_game:raise_stack(board_data_xx)
+    --   _next_state_after_clear = ":hoge"
+    -- end)
     _main_state = ":idle"
   end
 
