@@ -5,24 +5,40 @@ require("title/game")
 
 demo_game = game()
 
-local cursor_class, high_score, menu_item, menu_class =
-require("lib/cursor"), require("lib/high_score"), require("title/menu_item"), require("title/menu")
+local cursor_class, menu_class =
+require("lib/cursor"), require("title/menu")
+
+menu_item = require("title/menu_item")
 
 function unpack_split(...)
   return unpack(split(...))
 end
 
+-- menu_item をグローバルにしない
+function mfunc(s)
+  local tokens, function_index, index, args = split(s), 1, 1, {}
+
+  while index <= #tokens do
+    index = index + 1
+    if _ENV[tokens[index]] ~= nil or index > #tokens then
+      return _ENV[tokens[function_index]](unpack(args))
+    else
+      add(args, tokens[index])
+    end
+  end
+end
+
 local main_menu = menu_class({
-  menu_item(unpack_split("quantattack_mission,32,48,16,16,,mission,clear 9 waves")),
-  menu_item("quantattack_time_attack", 48, 48, 16, 16, nil, "time attack", "play for 2 minutes", high_score(0):get() * 10),
-  menu_item("quantattack_endless", 64, 48, 16, 16, nil, "endless", "play as long as you can", high_score(1):get() * 10),
-  menu_item(unpack_split(":level_menu,80,48,16,16,,vs qpu,defeat the qpu")),
-  menu_item(unpack_split("quantattack_qpu_vs_qpu,96,48,16,16,,qpu vs qpu,watch qpu vs qpu"))
+  mfunc("menu_item,quantattack_mission,32,48,16,16,,mission,clear 9 waves"),
+  mfunc("menu_item,quantattack_time_attack,48,48,16,16,,time attack,play for 2 minutes,0"),
+  mfunc("menu_item,quantattack_endless,64,48,16,16,,endless,play as long as you can, 1"),
+  mfunc("menu_item,:level_menu,80,48,16,16,,vs qpu,defeat the qpu"),
+  mfunc("menu_item,quantattack_qpu_vs_qpu,96,48,16,16,,qpu vs qpu,watch qpu vs qpu"),
 }, ":demo")
 local level_menu = menu_class({
-  menu_item(unpack_split("quantattack_vs_qpu,48,80,19,7,3")), -- easy
-  menu_item(unpack_split("quantattack_vs_qpu,72,80,27,7,2")), -- normal
-  menu_item(unpack_split("quantattack_vs_qpu,104,80,19,7,1")), -- hard
+  mfunc("menu_item,quantattack_vs_qpu,48,80,19,7,3"), -- easy
+  mfunc("menu_item,quantattack_vs_qpu,72,80,27,7,2"), -- normal
+  mfunc("menu_item,quantattack_vs_qpu,104,80,19,7,1"), -- hard
 }, ":main_menu")
 
 -- :logo_slidein QuantumAttack のロゴ slide-in アニメーション
@@ -78,7 +94,7 @@ function _draw()
   render_plasma()
 
   if title_state == ":logo_slidein" then
-    sspr(unpack_split("0,64,128,16,0"), tick)
+    sspr(unpack_split("0,64,128,16,0," .. tick))
 
     if tick > 24 then
       title_state = ":board_fadein"
