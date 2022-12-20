@@ -28,6 +28,7 @@ function mfunc(s)
   end
 end
 
+-- TODO: menu_class に " ... | ... | ..." 形式の長い文字列を渡すようにする
 local main_menu = menu_class({
   mfunc("menu_item,quantattack_mission,32,48,16,16,,mission,clear 9 waves"),
   mfunc("menu_item,quantattack_time_attack,48,48,16,16,,time attack,play for 2 minutes,0"),
