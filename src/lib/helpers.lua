@@ -74,3 +74,7 @@ function jump(name, breadcrumb, param)
   load(name .. ".p8", breadcrumb, param)
   load("#" .. name, breadcrumb, param)
 end
+
+function unpack_split(...)
+  return unpack(split(...))
+end

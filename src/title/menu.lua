@@ -1,11 +1,46 @@
----@diagnostic disable: discard-returns
+---@diagnostic disable: discard-returns, lowercase-global
+
+local high_score_class = require("lib/high_score")
+
+--- @class menu_item
+--- @field target_state_or_cart string
+--- @field sx integer
+--- @field sy integer
+--- @field width integer
+--- @field height integer
+--- @field load_param string
+--- @field label string
+--- @field description string
+--- @field high_score integer
+local menu_item = new_class()
+
+--- @param _target_state_or_cart string
+--- @param _sx integer
+--- @param _sy integer
+--- @param _width integer
+--- @param _height integer
+--- @param _load_param string
+--- @param _label string
+--- @param _description string
+--- @param _high_score_slot integer
+function menu_item:_init(_target_state_or_cart, _sx, _sy, _width, _height, _load_param, _label, _description,
+                         _high_score_slot)
+  local _ENV = self
+
+  target_state_or_cart, sx, sy, width, height, load_param, label, description, high_score =
+  _target_state_or_cart, _sx, _sy, _width, _height, _load_param, _label, _description,
+      _high_score_slot and high_score_class(_high_score_slot):get() * 10
+end
 
 local menu = new_class()
 
-function menu:_init(items, previous_state)
-  self.items = items
-  self.selection_index = 1
-  self.previous_state = previous_state
+function menu:_init(items_string, previous_state)
+  self._items = {}
+  for index, each in pairs(split(items_string, "|")) do
+    self._items[index] = menu_item(unpack_split(each))
+  end
+  self._active_item_index = 1
+  self._previous_state = previous_state
 end
 
 function menu:update()
@@ -25,27 +60,27 @@ function menu:update()
       self:confirm_selection()
     elseif btnp(4) then -- c
       sfx(8)
-      title_state = self.previous_state
+      title_state = self._previous_state
     end
   end
 end
 
 function menu:select_previous()
-  self.selection_index = max(self.selection_index - 1, 1)
+  self._active_item_index = max(self._active_item_index - 1, 1)
 end
 
 function menu:select_next()
-  self.selection_index = min(self.selection_index + 1, #self.items)
+  self._active_item_index = min(self._active_item_index + 1, #self._items)
 end
 
 function menu:confirm_selection()
-  local selected_menu_item = self.items[self.selection_index]
+  local selected_menu_item = self._items[self._active_item_index]
 
-  if sub(selected_menu_item.target_state, 1, 1) == ":" then
+  if sub(selected_menu_item.target_state_or_cart, 1, 1) == ":" then
     self.stale = true
-    title_state = selected_menu_item.target_state
+    title_state = selected_menu_item.target_state_or_cart
   else
-    self.cart_to_load = selected_menu_item.target_state
+    self.cart_to_load = selected_menu_item.target_state_or_cart
     self.load_param = selected_menu_item.load_param
   end
 end
@@ -53,8 +88,8 @@ end
 function menu:draw(left, top)
   local sx = left
 
-  for i, each in pairs(self.items) do
-    if i == self.selection_index then
+  for i, each in pairs(self._items) do
+    if i == self._active_item_index then
       print_centered(each.label, 62, top - 16, 10)
       print_centered(each.description, 62, top - 8, 7)
 

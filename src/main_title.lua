@@ -8,39 +8,14 @@ demo_game = game()
 local cursor_class, menu_class =
 require("lib/cursor"), require("title/menu")
 
-menu_item = require("title/menu_item")
-
-function unpack_split(...)
-  return unpack(split(...))
-end
-
--- menu_item をグローバルにしない
-function mfunc(s)
-  local tokens, function_index, index, args = split(s), 1, 1, {}
-
-  while index <= #tokens do
-    index = index + 1
-    if _ENV[tokens[index]] ~= nil or index > #tokens then
-      return _ENV[tokens[function_index]](unpack(args))
-    else
-      add(args, tokens[index])
-    end
-  end
-end
-
--- TODO: menu_class に " ... | ... | ..." 形式の長い文字列を渡すようにする
-local main_menu = menu_class({
-  mfunc("menu_item,quantattack_mission,32,48,16,16,,mission,clear 9 waves"),
-  mfunc("menu_item,quantattack_time_attack,48,48,16,16,,time attack,play for 2 minutes,0"),
-  mfunc("menu_item,quantattack_endless,64,48,16,16,,endless,play as long as you can, 1"),
-  mfunc("menu_item,:level_menu,80,48,16,16,,vs qpu,defeat the qpu"),
-  mfunc("menu_item,quantattack_qpu_vs_qpu,96,48,16,16,,qpu vs qpu,watch qpu vs qpu"),
-}, ":demo")
-local level_menu = menu_class({
-  mfunc("menu_item,quantattack_vs_qpu,48,80,19,7,3"), -- easy
-  mfunc("menu_item,quantattack_vs_qpu,72,80,27,7,2"), -- normal
-  mfunc("menu_item,quantattack_vs_qpu,104,80,19,7,1"), -- hard
-}, ":main_menu")
+local main_menu = menu_class(
+  "quantattack_mission,32,48,16,16,,mission,clear 9 waves|quantattack_time_attack,48,48,16,16,,time attack,play for 2 minutes,0|quantattack_endless,64,48,16,16,,endless,play as long as you can, 1|:level_menu,80,48,16,16,,vs qpu,defeat the qpu|quantattack_qpu_vs_qpu,96,48,16,16,,qpu vs qpu,watch qpu vs qpu",
+  ":demo"
+)
+local level_menu = menu_class(
+  "quantattack_vs_qpu,48,80,19,7,3|quantattack_vs_qpu,72,80,27,7,2|quantattack_vs_qpu,104,80,19,7,1",
+  ":main_menu"
+)
 
 -- :logo_slidein QuantumAttack のロゴ slide-in アニメーション
 -- :board_fadein ボードの fade-in アニメーション

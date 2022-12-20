@@ -156,12 +156,20 @@ function _update60()
   elseif _main_state == ":try_cnot" then
     dtb_disp("some of the blocks are a bit odd...", function()
       mission_game:raise_stack(board_data_cnot)
-      _next_state_after_clear = ":hoge"
+      _next_state_after_clear = ":fin"
     end)
     dtb_disp("this is two connected blocks, and they're not easy to clear.")
     dtb_disp("can you clear them?", function()
       show_legends = true
       mission_game.move_cursor = true
+    end)
+    _main_state = ":idle"
+  elseif _main_state == ":fin" then
+    dtb_disp("wow. you are catching on fast!")
+    dtb_disp("i have given you all the basic rules.")
+    dtb_disp("there are many secret rules hidden in the game, so discover them.")
+    dtb_disp("well, see you then!", function()
+      jump("quantattack_title")
     end)
     _main_state = ":idle"
   end
