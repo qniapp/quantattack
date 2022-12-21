@@ -43,35 +43,35 @@ function menu:_init(items_string, previous_state)
   self._previous_state = previous_state
 end
 
-function menu:update()
-  if self.cart_to_load then
+function menu.update(_ENV)
+  if cart_to_load then
     if stat(16) == -1 then
-      jump(self.cart_to_load, nil, self.load_param)
+      jump(cart_to_load, nil, load_param)
     end
   else
     if btnp(0) then -- left
       sfx(8)
 
-      self._active_item_index = max(self._active_item_index - 1, 1)
+      _active_item_index = max(_active_item_index - 1, 1)
     elseif btnp(1) then -- right
       sfx(8)
 
-      self._active_item_index = min(self._active_item_index + 1, #self._items)
+      _active_item_index = min(_active_item_index + 1, #_items)
     elseif btnp(5) then -- x
       sfx(15)
 
-      local selected_menu_item = self._items[self._active_item_index]
+      local selected_menu_item = _items[_active_item_index]
       if selected_menu_item.target_state then
-        self.stale = true
+        stale = true
         return selected_menu_item.target_state
       else
-        self.cart_to_load = selected_menu_item.target_cart
-        self.load_param = selected_menu_item.load_param
+        cart_to_load = selected_menu_item.target_cart
+        load_param = selected_menu_item.load_param
       end
     elseif btnp(4) then -- c
       sfx(8)
 
-      return self._previous_state
+      return _previous_state
     end
   end
 end
