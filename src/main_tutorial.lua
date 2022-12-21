@@ -1,22 +1,22 @@
-require("mission/dtb")
+require("tutorial/dtb")
 
 local player_class = require("lib/player")
 local cursor_class = require("lib/cursor")
 local board_class = require("lib/board")
-local game_class = require("mission/game")
+local game_class = require("tutorial/game")
 
 local cursor = cursor_class()
 local board, player = board_class(cursor), player_class()
-local mission_game = game_class()
+local tutorial_game = game_class()
 
 local gamestate = require("lib/gamestate")
-local mission = derived_class(gamestate)
-mission.type = ':mission'
+local tutorial = derived_class(gamestate)
+tutorial.type = ':tutorial'
 
 local ripple = require("lib/ripple")
 local sash = require("lib/sash")
 
-local ion_class = require("mission/ion")
+local ion_class = require("tutorial/ion")
 local ion = ion_class()
 
 local _wait_sec, _wait_callback
@@ -29,7 +29,7 @@ function wait(wait_sec, callback)
   _wait_callback = callback
 end
 
-function mission_game.reduce_callback(_score, x, y, _player, pattern, dx)
+function tutorial_game.reduce_callback(_score, x, y, _player, pattern, dx)
   -- 消えてないブロックが残っていれば、コールバック本体を呼ばない
   for _y = 1, board.rows do
     for _x = 1, board.cols do
@@ -44,7 +44,7 @@ function mission_game.reduce_callback(_score, x, y, _player, pattern, dx)
     dtb_disp(({ "awesome!", "great!", "nice!" })[flr(rnd(3)) + 1])
     ion:shake()
     show_legends = false
-    mission_game.move_cursor = false
+    tutorial_game.move_cursor = false
     _main_state = _next_state_after_clear
   end)
 end
@@ -104,16 +104,16 @@ function _init()
 
   cursor:init()
 
-  mission_game.player = player
-  mission_game.cursor = cursor
-  mission_game.board = board
-  mission_game:_init()
+  tutorial_game.player = player
+  tutorial_game.cursor = cursor
+  tutorial_game.board = board
+  tutorial_game:_init()
 
   ion:appear(function()
     ion:shake(function()
       dtb_disp("hi! my name is ion.", function()
         dtb_disp("let me introduce the rules of this game.", function()
-          mission_game:raise_stack(board_data_h, function()
+          tutorial_game:raise_stack(board_data_h, function()
             _main_state = ":how_to_play"
             _next_state_after_clear = ":try_xy"
           end)
@@ -125,12 +125,12 @@ end
 
 function _update60()
   if _main_state == ":how_to_play" then
-    dtb_disp("your mission is to clear these blocks so they do not top out.")
+    dtb_disp("your tutorial is to clear these blocks so they do not top out.")
     dtb_disp("first, let's clear the two red h blocks.")
     dtb_disp("line up these two h blocks vertically by swapping the blocks.", function()
       _main_state = ":try_h_h"
       show_legends = true
-      mission_game.move_cursor = true
+      tutorial_game.move_cursor = true
     end)
     _main_state = ":idle"
   elseif _main_state == ":wait" then
@@ -140,28 +140,28 @@ function _update60()
   elseif _main_state == ":try_xy" then
     dtb_disp("how about this then?", function()
       show_legends = true
-      mission_game.move_cursor = true
-      mission_game:raise_stack(board_data_xy)
+      tutorial_game.move_cursor = true
+      tutorial_game:raise_stack(board_data_xy)
       _next_state_after_clear = ":try_s"
     end)
     _main_state = ":idle"
   elseif _main_state == ":try_s" then
     dtb_disp("some blocks change into other blocks!", function()
       show_legends = true
-      mission_game.move_cursor = true
-      mission_game:raise_stack(board_data_s)
+      tutorial_game.move_cursor = true
+      tutorial_game:raise_stack(board_data_s)
       _next_state_after_clear = ":try_cnot"
     end)
     _main_state = ":idle"
   elseif _main_state == ":try_cnot" then
     dtb_disp("some of the blocks are a bit odd...", function()
-      mission_game:raise_stack(board_data_cnot)
+      tutorial_game:raise_stack(board_data_cnot)
       _next_state_after_clear = ":fin"
     end)
     dtb_disp("this is two connected blocks, and they're not easy to clear.")
     dtb_disp("can you clear them?", function()
       show_legends = true
-      mission_game.move_cursor = true
+      tutorial_game.move_cursor = true
     end)
     _main_state = ":idle"
   elseif _main_state == ":fin" then
@@ -174,7 +174,7 @@ function _update60()
     _main_state = ":idle"
   end
 
-  mission_game:update()
+  tutorial_game:update()
   sash:update()
   dtb_update()
   ion:update()
@@ -184,7 +184,7 @@ function _draw()
   cls()
 
   ripple:render()
-  mission_game:render()
+  tutorial_game:render()
   sash:render()
   dtb_draw()
   ion:draw()
