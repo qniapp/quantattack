@@ -125,7 +125,7 @@ end
 
 function _update60()
   if _main_state == ":how_to_play" then
-    dtb_disp("your tutorial is to clear these blocks so they do not top out.")
+    dtb_disp("your tutorial is to clear these blocks so they do not reach the top.")
     dtb_disp("first, let's clear the two red h blocks.")
     dtb_disp("line up these two h blocks vertically by swapping the blocks.", function()
       _main_state = ":try_h_h"
@@ -168,7 +168,7 @@ function _update60()
     dtb_disp("wow. you are catching on fast!")
     dtb_disp("i have given you all the basic rules.")
     dtb_disp("there are many secret rules hidden in the game, so discover them.")
-    dtb_disp("well, see you then!", function()
+    dtb_disp("well, see you around!", function()
       jump("quantattack_title")
     end)
     _main_state = ":idle"
