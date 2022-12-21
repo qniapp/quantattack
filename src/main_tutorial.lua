@@ -34,7 +34,7 @@ function tutorial_game.reduce_callback(_score, x, y, _player, pattern, dx)
   for _y = 1, board.rows do
     for _x = 1, board.cols do
       local block_xy = board.blocks[_x][_y]
-      if block_xy:is_idle() and not (block_xy.type == "i" or block_xy.type == "placeholder") then
+      if block_xy:is_idle() and not (block_xy.type == "i" or block_xy.type == "#") then
         return
       end
     end
@@ -53,47 +53,47 @@ _main_state = nil
 dtb_init()
 
 local board_data_h = {
-  { "placeholder", "placeholder", "h", "i", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "h", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" }
+  { "#", "#", "h", "i", "#", "#" },
+  { "#", "#", "#", "h", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" }
 }
 
 local board_data_xy = {
   { "i", "y", "i", "i", "i", "y" },
-  { "placeholder", "placeholder", "x", "i", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "x", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" }
+  { "#", "#", "x", "i", "#", "#" },
+  { "#", "#", "#", "x", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" }
 }
 
 local board_data_s = {
   { "s", "s", "i", "i", "i", "s" },
-  { "placeholder", "placeholder", "placeholder", "i", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "s", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" }
+  { "#", "#", "#", "i", "#", "#" },
+  { "#", "#", "#", "s", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" }
 }
 
 local board_data_cnot = {
   { "cnot_x,5", "i", "i", "i", "control,1", "i" },
-  { "i", "control,3", "cnot_x,2", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" },
-  { "placeholder", "placeholder", "placeholder", "placeholder", "placeholder", "placeholder" }
+  { "i", "control,3", "cnot_x,2", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" },
+  { "#", "#", "#", "#", "#", "#" }
 }
 
 function _init()

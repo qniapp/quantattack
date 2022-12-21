@@ -456,8 +456,8 @@ function board.swap(_ENV, x_left, y)
   local x_right = x_left + 1
   local left_block, right_block = blocks[x_left][y], blocks[x_right][y]
 
-  -- 左または右が placeholder ブロックの場合、入れ替えできない
-  if left_block.type == "placeholder" or right_block.type == "placeholder" then
+  -- 左または右が # ブロックの場合、入れ替えできない
+  if left_block.type == "#" or right_block.type == "#" then
     return false
   end
 
