@@ -72,8 +72,6 @@ end
 function _draw()
   cls()
 
-  render_plasma()
-
   if title_state == ":logo_slidein" then
     sspr(unpack_split("0,64,128,16,0," .. tick))
 
@@ -117,6 +115,8 @@ function _draw()
       end
     end
   end
+
+  render_plasma()
 end
 
 function fadein(i)

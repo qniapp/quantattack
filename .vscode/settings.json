@@ -110,7 +110,8 @@
     "flip",
     "app_title",
     "circ",
-    "_main_state"
+    "_main_state",
+    "pget"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,
