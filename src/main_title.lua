@@ -22,8 +22,7 @@ local level_menu = menu_class(
 -- :demo デモプレイ
 -- :main_menu メニューを表示した状態
 -- :level_menu QPU のレベル選択
-title_state = ":logo_slidein"
-
+local title_state = ":logo_slidein"
 local board_class, tick = require("lib/board"), 0
 
 function _init()
@@ -60,10 +59,10 @@ function _update60()
     end
 
     main_menu.stale = false
-    main_menu:update()
+    title_state = main_menu:update() or title_state
   elseif title_state == ":level_menu" then
     level_menu.stale = false
-    level_menu:update()
+    title_state = level_menu:update() or title_state
   end
 
   tick = tick + 1

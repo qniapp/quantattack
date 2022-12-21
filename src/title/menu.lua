@@ -43,7 +43,6 @@ function menu:_init(items_string, previous_state)
   self._previous_state = previous_state
 end
 
--- TODO: self を省略 (_ENV)
 function menu:update()
   if self.cart_to_load then
     if stat(16) == -1 then
@@ -64,7 +63,7 @@ function menu:update()
       local selected_menu_item = self._items[self._active_item_index]
       if selected_menu_item.target_state then
         self.stale = true
-        title_state = selected_menu_item.target_state
+        return selected_menu_item.target_state
       else
         self.cart_to_load = selected_menu_item.target_cart
         self.load_param = selected_menu_item.load_param
@@ -72,7 +71,7 @@ function menu:update()
     elseif btnp(4) then -- c
       sfx(8)
 
-      title_state = self._previous_state
+      return self._previous_state
     end
   end
 end
