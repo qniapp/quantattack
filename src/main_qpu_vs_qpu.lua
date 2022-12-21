@@ -8,8 +8,8 @@ local board_class = require("lib/board")
 
 local qpu1_cursor, qpu2_cursor = cursor_class(), cursor_class()
 local qpu1_board, qpu2_board = board_class(qpu1_cursor, 3), board_class(qpu2_cursor, 78)
-qpu1_board.block_offset_target, qpu2_board.block_offset_target = { 3 + 24, 0 }, { 78 + 24, 0 }
-qpu1_board.attack_cube_target, qpu2_board.attack_cube_target = { 78 + 24, 0 }, { 3 + 24, 0 }
+qpu1_board.block_offset_target, qpu2_board.block_offset_target = { 3 + 24, 9 }, { 78 + 24, 9 }
+qpu1_board.attack_cube_target, qpu2_board.attack_cube_target = { 78 + 24, 9 }, { 3 + 24, 9 }
 local qpu1, qpu2 = create_qpu(qpu1_cursor, qpu1_board, 1), create_qpu(qpu2_cursor, qpu2_board, 1)
 
 function _init()
