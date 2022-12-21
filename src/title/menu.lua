@@ -8,7 +8,7 @@ local high_score_class = require("lib/high_score")
 --- @field sy integer
 --- @field width integer
 --- @field height integer
---- @field load_param string
+--- @field cart_load_param string
 --- @field label string
 --- @field description string
 --- @field high_score integer
@@ -19,14 +19,14 @@ local menu_item = new_class()
 --- @param _sy integer
 --- @param _width integer
 --- @param _height integer
---- @param _load_param string
+--- @param _cart_load_param string
 --- @param _label string
 --- @param _description string
 --- @param _high_score_slot integer
-function menu_item._init(_ENV, _target_cart, _target_state, _sx, _sy, _width, _height, _load_param, _label, _description,
+function menu_item._init(_ENV, _target_cart, _target_state, _sx, _sy, _width, _height, _cart_load_param, _label, _description,
                          _high_score_slot)
-  target_cart, target_state, sx, sy, width, height, load_param, label, description, high_score =
-  _target_cart, _target_state ~= "" and _target_state or nil, _sx, _sy, _width, _height, _load_param, _label, _description,
+  target_cart, target_state, sx, sy, width, height, cart_load_param, label, description, high_score =
+  _target_cart, _target_state ~= "" and _target_state or nil, _sx, _sy, _width, _height, _cart_load_param, _label, _description,
       _high_score_slot and high_score_class(_high_score_slot):get() * 10
 end
 
@@ -44,7 +44,7 @@ end
 function menu.update(_ENV)
   if cart_to_load then
     if stat(16) == -1 then
-      jump(cart_to_load, nil, load_param)
+      jump(cart_to_load, nil, cart_load_param)
     end
   else
     if btnp(0) then -- left
@@ -64,7 +64,7 @@ function menu.update(_ENV)
         return selected_menu_item.target_state
       else
         cart_to_load = selected_menu_item.target_cart
-        load_param = selected_menu_item.load_param
+        cart_load_param = selected_menu_item.cart_load_param
       end
     elseif btnp(4) then -- c
       sfx(8)
@@ -83,11 +83,11 @@ function menu.draw(_ENV, left, top)
       print_centered(each.description, 62, top - 8, 7)
 
       draw_rounded_box(sx - 2, top - 2, sx + each.width + 1, top + each.height + 1, stale and 6 or 12)
+      print_centered(each.high_score and 'hi score: ' .. each.high_score or nil, 62, top + 23, 7)
+
       if stale then
         pal(7, 6)
       end
-
-      print_centered(each.high_score and 'hi score: ' .. each.high_score or nil, 62, top + 23, 7)
     else
       pal(7, 13)
     end
