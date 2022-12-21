@@ -22,13 +22,13 @@ describe('chain', function()
     -- [X H]        H X
     --  H X  -----> H X ----->     ----->   Y
     --  Y Y         Y Y        Y Y        Y Y
-    board:put(2, 14, y_gate())
-    board:put(1, 15, x_gate())
-    board:put(2, 15, h_gate())
-    board:put(1, 16, h_gate())
-    board:put(2, 16, x_gate())
-    board:put(1, 17, y_gate())
-    board:put(2, 17, y_gate())
+    board:put(2, 14, y_block())
+    board:put(1, 15, x_block())
+    board:put(2, 15, h_block())
+    board:put(1, 16, h_block())
+    board:put(2, 16, x_block())
+    board:put(1, 17, y_block())
+    board:put(2, 17, y_block())
 
     board:swap(1, 15)
 

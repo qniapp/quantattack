@@ -38,7 +38,7 @@ end
 
 local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
-function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, other_board)
+function game.block_offset_callback(chain_id, chain_count, x, y, player, board, other_board)
   local offset_height = chain_count
 
   if offset_height > 2 then
@@ -50,7 +50,7 @@ function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, o
       player.score = player.score + (chain_bonus[chain_count] or 180)
 
       if other_board then
-        offset_height = board.pending_garbage_gates:offset(offset_height)
+        offset_height = board.pending_garbage_blocks:offset(offset_height)
       end
     end
 
@@ -59,7 +59,7 @@ function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, o
       board:screen_y(y),
       attack_cube_callback,
       9,
-      unpack(board.gate_offset_target)
+      unpack(board.block_offset_target)
     )
   end
 
@@ -185,7 +185,7 @@ function game:update()
       if each.x and not countdown and board:swap(cursor.x, cursor.y) then
         sfx(10)
       end
-      if each.o and not countdown and board.top_gate_y > 2 then
+      if each.o and not countdown and board.top_block_y > 2 then
         self:_raise(each)
       end
 
@@ -196,7 +196,7 @@ function game:update()
         self:_auto_raise(each)
       end
 
-      if board.contains_garbage_match_gate then
+      if board.contains_garbage_match_block then
         ripple.slow = true
       end
     end
@@ -248,7 +248,7 @@ function game:_raise(player)
 
   if board.raised_dots == 8 then
     board.raised_dots = 0
-    board:insert_gates_at_bottom(player.steps)
+    board:insert_blocks_at_bottom(player.steps)
     cursor:move_up()
     player.steps = player.steps + 1
   end

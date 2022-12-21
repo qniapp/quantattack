@@ -3,7 +3,7 @@
 require("lib/helpers")
 
 local attack_ion, particle, bubble =
-  require("lib/attack_ion"), require("lib/particle"), require("lib/bubble")
+require("lib/attack_ion"), require("lib/particle"), require("lib/bubble")
 
 title_logo_bounce_speed, title_logo_bounce_screen_dy = 0, 0
 
@@ -47,7 +47,7 @@ function game()
       )
     end,
 
-    gate_offset_callback = function(_chain_id, chain_count, _x, _y, _player, _board, _other_board)
+    block_offset_callback = function(_chain_id, chain_count, _x, _y, _player, _board, _other_board)
       return chain_count
     end,
 
@@ -99,7 +99,7 @@ function game()
         if each.x and board:swap(cursor.x, cursor.y) then
           sfx(10)
         end
-        if each.o and board.top_gate_y > 2 then
+        if each.o and board.top_block_y > 2 then
           _raise(_ENV, each)
         end
 
@@ -130,7 +130,7 @@ function game()
 
       if board.raised_dots == 8 then
         board.raised_dots = 0
-        board:insert_gates_at_bottom(player.steps)
+        board:insert_blocks_at_bottom(player.steps)
         cursor:move_up()
       end
     end

@@ -2,7 +2,7 @@
 
 require("lib/helpers")
 
-local gate = require("lib/gate")
+local block = require("lib/block")
 local particle = require("lib/particle")
 local bubble = require("lib/bubble")
 local ripple = require("lib/ripple")
@@ -29,10 +29,10 @@ function game.update(_ENV)
         board:shift_all_blocks_up()
 
         for x = 1, board.cols do
-          local gate_type, other_x = unpack(split(_board_data[_rows_raised][x]))
-          local new_gate = gate(gate_type)
-          new_gate.other_x = other_x
-          board:put(x, board.row_next_gates, new_gate)
+          local block_type, other_x = unpack(split(_board_data[_rows_raised][x]))
+          local new_block = block(block_type)
+          new_block.other_x = other_x
+          board:put(x, board.row_next_blocks, new_block)
         end
 
         cursor:move_up()
@@ -88,11 +88,11 @@ function game.raise_stack(_ENV, board_data, callback)
   _state = ":raise_stack"
   _rows_raised = 0
   _board_data = board_data
-  _raise_stack_callback = callback or function () end
+  _raise_stack_callback = callback or function() end
 
   for x = 1, board.cols do
-    for y = 1, board.row_next_gates do
-      board:put(x, y, gate("i"))
+    for y = 1, board.row_next_blocks do
+      board:put(x, y, block("i"))
     end
   end
 end

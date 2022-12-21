@@ -32,7 +32,7 @@ function _init()
   local qpu = create_qpu(qpu_cursor, qpu_board, 2)
 
   qpu:init()
-  qpu_board:put_random_gates()
+  qpu_board:put_random_blocks()
 
   qpu_board.show_wires = false
   qpu_board.show_top_line = false

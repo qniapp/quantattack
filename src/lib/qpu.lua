@@ -1,27 +1,27 @@
 ---@diagnostic disable: lowercase-global, global-in-nil-env
 
-local gate = require("lib/gate")
+local block = require("lib/block")
 
-local function _is_empty(board, gate_x, gate_y)
-  if gate_x < 1 or board.cols < gate_x then
+local function _is_empty(board, block_x, block_y)
+  if block_x < 1 or board.cols < block_x then
     return false
   end
 
-  return board.gates[gate_x][gate_y]:is_idle() and board:is_gate_empty(gate_x, gate_y)
+  return board.blocks[block_x][block_y]:is_idle() and board:is_block_empty(block_x, block_y)
 end
 
-local function _is_match(board, gate_x, gate_y, gate)
-  local other_gate = board.gates[gate_x][gate_y]
-  return other_gate.type == gate.type and other_gate:is_idle()
+local function _is_match(board, block_x, block_y, block)
+  local other_block = board.blocks[block_x][block_y]
+  return other_block.type == block.type and other_block:is_idle()
 end
 
-local function _is_swappable(board, gate_x, gate_y)
-  if gate_x < 1 or board.cols < gate_x then
+local function _is_swappable(board, block_x, block_y)
+  if block_x < 1 or board.cols < block_x then
     return false
   end
 
-  local gate = board.gates[gate_x][gate_y]
-  return gate:is_idle() and (board:is_gate_empty(gate_x, gate_y) or gate:is_single_gate())
+  local block = board.blocks[block_x][block_y]
+  return block:is_idle() and (board:is_block_empty(block_x, block_y) or block:is_single_block())
 end
 
 -- 新しい QPU プレーヤーを返す
@@ -45,30 +45,30 @@ function create_qpu(cursor, board, _level)
         del(commands, next_command)
         _ENV[next_command] = true
       else
-        if raise and board.top_gate_y > 10 then
+        if raise and board.top_block_y > 10 then
           add(commands, "o")
           add_sleep_command(_ENV, 3)
         else
-          if not for_all_reducible_gates(_ENV, _flatten_gate) then
-            if not board.contains_garbage_match_gate then
-              for_all_reducible_gates(_ENV, _reduce_cnot)
-              for_all_reducible_gates(_ENV, _reduce_single_gate)
+          if not for_all_reducible_blocks(_ENV, _flatten_block) then
+            if not board.contains_garbage_match_block then
+              for_all_reducible_blocks(_ENV, _reduce_cnot)
+              for_all_reducible_blocks(_ENV, _reduce_single_block)
             end
           end
         end
       end
     end,
 
-    _flatten_gate = function(_ENV, each, each_x, each_y)
-      if each_y < board.rows and each:is_single_gate() then
+    _flatten_block = function(_ENV, each, each_x, each_y)
+      if each_y < board.rows and each:is_single_block() then
         if find_left_and_right(_ENV, _is_empty, each, false, true) then
           return true
         end
       end
     end,
 
-    _reduce_single_gate = function(_ENV, each, each_x, each_y)
-      if each:is_single_gate() then
+    _reduce_single_block = function(_ENV, each, each_x, each_y)
+      if each:is_single_block() then
         if each_y < board.rows then
           if find_left_and_right(_ENV, _is_match, each) then
             return true
@@ -84,17 +84,17 @@ function create_qpu(cursor, board, _level)
     end,
 
     _reduce_cnot = function(_ENV, each, each_x, each_y)
-      local upper_gate = each_y > 1 and board:reducible_gate_at(each_x, each_y - 1) or gate("i")
-      local lower_gate = each_y < board.rows and board:reducible_gate_at(each_x, each_y + 1) or gate("i")
+      local upper_block = each_y > 1 and board:reducible_block_at(each_x, each_y - 1) or block("i")
+      local lower_block = each_y < board.rows and board:reducible_block_at(each_x, each_y + 1) or block("i")
 
-      if not each:is_single_gate() then
+      if not each:is_single_block() then
         -- d-2. 上の X-C を左にずらす
         --
         -- [X--]-C
         --  X-C  ■
         if each.type == "cnot_x" and each.other_x == each_x + 2 and
-            lower_gate.type == "cnot_x" and
-            lower_gate.other_x == each_x + 1 then
+            lower_block.type == "cnot_x" and
+            lower_block.other_x == each_x + 1 then
           move_and_swap(_ENV, each_x + 1, each_y)
           return true
         end
@@ -104,8 +104,8 @@ function create_qpu(cursor, board, _level)
         --  X-C  ■
         -- [X--]-C
         if each.type == "cnot_x" and each.other_x == each_x + 2 and
-            upper_gate.type == "cnot_x" and
-            upper_gate.other_x == each_x + 1 then
+            upper_block.type == "cnot_x" and
+            upper_block.other_x == each_x + 1 then
           move_and_swap(_ENV, each_x + 1, each_y)
           return true
         end
@@ -143,8 +143,8 @@ function create_qpu(cursor, board, _level)
         --  X-C  ■
         if each_x > 1 and each_y < board.rows and
             _is_empty(board, each_x - 1, each_y) and each.type == "cnot_x" and each.other_x == each_x + 1 and
-            lower_gate.type == "control" and
-            lower_gate.other_x == each_x - 1 then
+            lower_block.type == "control" and
+            lower_block.other_x == each_x - 1 then
           move_and_swap(_ENV, each_x - 1, each_y)
           return true
         end
@@ -155,16 +155,16 @@ function create_qpu(cursor, board, _level)
         -- [  X]-C
         if each_x > 1 and
             _is_empty(board, each_x - 1, each_y) and each.type == "cnot_x" and each.other_x == each_x + 1 and
-            upper_gate.type == "control" and
-            upper_gate.other_x == each_x - 1 then
+            upper_block.type == "control" and
+            upper_block.other_x == each_x - 1 then
           move_and_swap(_ENV, each_x - 1, each_y)
           return true
         end
       end
     end,
 
-    find_left_and_right = function(_ENV, f, gate, upper)
-      local gate_x, gate_y, other_row_gate_y = gate.x, gate.y, gate.y + (upper and -1 or 1)
+    find_left_and_right = function(_ENV, f, block, upper)
+      local block_x, block_y, other_row_block_y = block.x, block.y, block.y + (upper and -1 or 1)
       local find_left, find_right = true, true
 
       for dx = 1, board.cols - 1 do
@@ -173,9 +173,9 @@ function create_qpu(cursor, board, _level)
         end
 
         if find_left then
-          if _is_swappable(board, gate_x - dx, gate_y) then
-            if f(board, gate_x - dx, other_row_gate_y, gate) then
-              move_and_swap(_ENV, gate_x - 1, gate_y)
+          if _is_swappable(board, block_x - dx, block_y) then
+            if f(board, block_x - dx, other_row_block_y, block) then
+              move_and_swap(_ENV, block_x - 1, block_y)
               return true
             end
           else
@@ -184,9 +184,9 @@ function create_qpu(cursor, board, _level)
         end
 
         if find_right then
-          if _is_empty(board, gate_x + dx, gate_y) then
-            if f(board, gate_x + dx, other_row_gate_y, gate) then
-              move_and_swap(_ENV, gate_x, gate_y)
+          if _is_empty(board, block_x + dx, block_y) then
+            if f(board, block_x + dx, other_row_block_y, block) then
+              move_and_swap(_ENV, block_x, block_y)
               return true
             end
           else
@@ -198,9 +198,9 @@ function create_qpu(cursor, board, _level)
       return false
     end,
 
-    move_and_swap = function(_ENV, gate_x, gate_y)
-      add_move_command(_ENV, gate_x < cursor.x and "left" or "right", abs(cursor.x - gate_x))
-      add_move_command(_ENV, gate_y < cursor.y and "up" or "down", abs(cursor.y - gate_y))
+    move_and_swap = function(_ENV, block_x, block_y)
+      add_move_command(_ENV, block_x < cursor.x and "left" or "right", abs(cursor.x - block_x))
+      add_move_command(_ENV, block_y < cursor.y and "up" or "down", abs(cursor.y - block_y))
       add_swap_command(_ENV)
     end,
 
@@ -229,10 +229,10 @@ function create_qpu(cursor, board, _level)
       end
     end,
 
-    for_all_reducible_gates = function(_ENV, f)
+    for_all_reducible_blocks = function(_ENV, f)
       for each_y = 7, board.rows do
         for each_x = 1, board.cols do
-          local each = board.reducible_gates[each_x][each_y]
+          local each = board.reducible_blocks[each_x][each_y]
           if each then
             if f(_ENV, each, each_x, each_y) then
               return true

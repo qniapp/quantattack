@@ -33,7 +33,7 @@ function endless:on_enter()
 
   player:_init()
   board:init()
-  board:put_random_gates()
+  board:put_random_blocks()
   cursor:init()
 
   game:init()

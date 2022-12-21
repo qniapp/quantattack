@@ -33,8 +33,8 @@ function tutorial_game.reduce_callback(_score, x, y, _player, pattern, dx)
   -- 消えてないブロックが残っていれば、コールバック本体を呼ばない
   for _y = 1, board.rows do
     for _x = 1, board.cols do
-      local gate_xy = board.gates[_x][_y]
-      if gate_xy:is_idle() and not (gate_xy.type == "i" or gate_xy.type == "placeholder") then
+      local block_xy = board.blocks[_x][_y]
+      if block_xy:is_idle() and not (block_xy.type == "i" or block_xy.type == "placeholder") then
         return
       end
     end
