@@ -99,7 +99,7 @@ function game:is_game_over()
 end
 
 function game:_init()
-  self.auto_raise_frame_count = 30
+  self.auto_raise_frame_count = 10
 end
 
 function game:init()
