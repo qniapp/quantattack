@@ -2,14 +2,14 @@ require("engine/test/bustedhelper")
 require("engine/debug/dump")
 require("lib/test_helper")
 
-describe('swap_gate', function()
+describe('swap_block', function()
   local swap
 
   before_each(function()
-    swap = swap_gate(2)
+    swap = swap_block(2)
   end)
 
-  describe("gate type", function()
+  describe("block type", function()
     describe("is_i", function()
       it("should return false", function()
         assert.is_false(swap.type == "i")

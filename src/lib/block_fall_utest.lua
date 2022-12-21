@@ -12,34 +12,34 @@ describe('ゲートの落下', function()
   end)
 
   describe('ゲートが 1 つだけ落ちる', function()
-    local gate
+    local block
 
     before_each(function()
-      gate = h_gate()
+      block = h_block()
     end)
 
     it("状態が falling になる", function()
-      board:put(1, 15, gate)
+      board:put(1, 15, block)
 
       board:update()
 
-      assert.is_true(gate:is_falling())
+      assert.is_true(block:is_falling())
     end)
 
     it("4 フレームで 1 ゲートほど落下する", function()
-      board:put(1, 15, gate)
+      board:put(1, 15, block)
 
       board:update()
       board:update()
       board:update()
       board:update()
 
-      assert.is_true(gate:is_falling())
-      assert.are_equal(gate, board.gates[1][16])
+      assert.is_true(block:is_falling())
+      assert.are_equal(block, board.blocks[1][16])
     end)
 
     it("着地後 1 フレームで状態が idle になる", function()
-      board:put(1, 16, gate)
+      board:put(1, 16, block)
 
       board:update()
       board:update()
@@ -47,46 +47,46 @@ describe('ゲートの落下', function()
       board:update()
       board:update()
 
-      assert.is_true(gate:is_idle())
+      assert.is_true(block:is_idle())
     end)
   end)
 
   describe('ゲートが 2 つ積み重なったまま落ちる', function()
-    local gate1, gate2
+    local block1, block2
 
     before_each(function()
-      gate1 = h_gate()
-      gate2 = x_gate()
+      block1 = h_block()
+      block2 = x_block()
     end)
 
     it("状態が falling になる", function()
-      board:put(1, 14, gate1)
-      board:put(1, 15, gate2)
+      board:put(1, 14, block1)
+      board:put(1, 15, block2)
 
       board:update()
 
-      assert.is_true(gate1:is_falling())
-      assert.is_true(gate2:is_falling())
+      assert.is_true(block1:is_falling())
+      assert.is_true(block2:is_falling())
     end)
 
     it("4 フレームで 1 ゲートほど落下する", function()
-      board:put(1, 14, gate1)
-      board:put(1, 15, gate2)
+      board:put(1, 14, block1)
+      board:put(1, 15, block2)
 
       board:update()
       board:update()
       board:update()
       board:update()
 
-      assert.is_true(gate1:is_falling())
-      assert.is_true(gate2:is_falling())
-      assert.are_equal(gate1, board.gates[1][15])
-      assert.are_equal(gate2, board.gates[1][16])
+      assert.is_true(block1:is_falling())
+      assert.is_true(block2:is_falling())
+      assert.are_equal(block1, board.blocks[1][15])
+      assert.are_equal(block2, board.blocks[1][16])
     end)
 
     it("着地後 1 フレームで状態が idle になる", function()
-      board:put(1, 15, gate1)
-      board:put(1, 16, gate2)
+      board:put(1, 15, block1)
+      board:put(1, 16, block2)
 
       board:update()
       board:update()
@@ -94,8 +94,8 @@ describe('ゲートの落下', function()
       board:update()
       board:update()
 
-      assert.is_true(gate1:is_idle())
-      assert.is_true(gate2:is_idle())
+      assert.is_true(block1:is_idle())
+      assert.is_true(block2:is_idle())
     end)
   end)
 
@@ -104,8 +104,8 @@ describe('ゲートの落下', function()
 
     -- C-X
     before_each(function()
-      control = control_gate(2)
-      cnot_x = cnot_x_gate(1)
+      control = control_block(2)
+      cnot_x = cnot_x_block(1)
     end)
 
     it("状態が falling になる", function()
@@ -129,8 +129,8 @@ describe('ゲートの落下', function()
 
       assert.is_true(control:is_falling())
       assert.is_true(cnot_x:is_falling())
-      assert.are_equal(control, board.gates[1][16])
-      assert.are_equal(cnot_x, board.gates[2][16])
+      assert.are_equal(control, board.blocks[1][16])
+      assert.are_equal(cnot_x, board.blocks[2][16])
     end)
 
     it("着地後 1 フレームで状態が idle になる", function()
@@ -152,8 +152,8 @@ describe('ゲートの落下', function()
     local swap_left, swap_right
 
     before_each(function()
-      swap_left = swap_gate(2)
-      swap_right = swap_gate(1)
+      swap_left = swap_block(2)
+      swap_right = swap_block(1)
     end)
 
     it("状態が falling になる", function()
@@ -177,8 +177,8 @@ describe('ゲートの落下', function()
 
       assert.is_true(swap_left:is_falling())
       assert.is_true(swap_right:is_falling())
-      assert.are_equal(swap_left, board.gates[1][16])
-      assert.are_equal(swap_right, board.gates[2][16])
+      assert.are_equal(swap_left, board.blocks[1][16])
+      assert.are_equal(swap_right, board.blocks[2][16])
     end)
 
     it("着地後 1 フレームで状態が idle になる", function()
@@ -201,7 +201,7 @@ describe('ゲートの落下', function()
       --   H            H        S-S H
       board:put(1, 16, swap_left)
       board:put(2, 16, swap_right)
-      board:put(2, 17, h_gate())
+      board:put(2, 17, h_block())
 
       board:swap(2, 17)
 
@@ -218,8 +218,8 @@ describe('ゲートの落下', function()
       board:update()
       board:update()
 
-      assert.are_equal(swap_left, board.gates[1][17])
-      assert.are_equal(swap_right, board.gates[2][17])
+      assert.are_equal(swap_left, board.blocks[1][17])
+      assert.are_equal(swap_right, board.blocks[2][17])
       assert.is_true(swap_left:is_idle())
       assert.is_true(swap_right:is_idle())
     end)
@@ -229,7 +229,7 @@ describe('ゲートの落下', function()
     local garbage
 
     before_each(function()
-      garbage = garbage_gate(3)
+      garbage = garbage_block(3)
     end)
 
     it("状態が falling になる", function()
@@ -249,7 +249,7 @@ describe('ゲートの落下', function()
       board:update()
 
       assert.is_true(garbage:is_falling())
-      assert.are_equal(garbage, board.gates[1][16])
+      assert.are_equal(garbage, board.blocks[1][16])
     end)
 
     it("着地後 1 フレームで状態が idle になる", function()

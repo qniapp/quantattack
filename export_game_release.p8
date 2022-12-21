@@ -23,8 +23,8 @@ cd(export_folder)
   -- #cartridge (tagged to easily find what code to change when adding a new cartridge,
   -- and because this script cannot access external files like cartridges.txt)
   local additional_main_cartridges_list = {
-    "quantattack_mission.p8",
-    "quantattack_time_attack.p8",
+    "quantattack_tutorial.p8",
+    "quantattack_rush.p8",
     "quantattack_endless.p8",
     "quantattack_vs_qpu.p8",
     "quantattack_qpu_vs_qpu.p8",

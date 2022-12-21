@@ -1,5 +1,6 @@
+require("lib/helpers")
+
 local sash = require("lib/sash")
-local flow = require("lib/flow")
 
 -- ハイスコア関係
 local high_score_class = require("lib/high_score")
@@ -16,40 +17,40 @@ board.attack_cube_target = { 85, 30 }
 local player_class = require("lib/player")
 local player = player_class()
 
-local game_class = require("time_attack/game")
+local game_class = require("rush/game")
 local game = game_class()
 
 local gamestate = require("lib/gamestate")
-local time_attack = derived_class(gamestate)
+local rush = derived_class(gamestate)
 
-time_attack.type = ':time_attack'
+rush.type = ':rush'
 
-local last_steps = 0
+local last_steps = -1
 
-function time_attack:on_enter()
+function _init()
   current_high_score = high_score:get()
 
   player:_init()
   board:init()
-  board:put_random_gates()
+  board:put_random_blocks()
   cursor:init()
 
   game:init()
   game:add_player(player, cursor, board)
 end
 
-function time_attack:update()
+function _update60()
   game:update()
 
   if player.steps > last_steps then
-    -- 10 ステップごとに
-    --   * おじゃまゲートを降らせる (最大 10 段)
+    -- 5 ステップごとに
+    --   * おじゃまゲートを降らせる
     --   * ゲートをせり上げるスピードを上げる
-    if player.steps > 0 and player.steps % 10 == 0 then
+    if player.steps % 5 == 0 then
       if game.auto_raise_frame_count > 10 then
         game.auto_raise_frame_count = game.auto_raise_frame_count - 1
       end
-      board:send_garbage(nil, 6, player.steps / 10 < 11 and player.steps / 10 or 10)
+      board:send_garbage(nil, 6, (player.steps + 5) / 5)
     end
     last_steps = player.steps
   end
@@ -58,7 +59,7 @@ function time_attack:update()
     if t() - game.game_over_time > 2 then
       board.show_gameover_menu = true
       if btnp(5) then -- x でリプレイ
-        flow:query_gamestate_type(":time_attack")
+        _init()
       elseif btnp(4) then -- z でタイトルへ戻る
         jump('quantattack_title')
       end
@@ -80,14 +81,16 @@ function time_attack:update()
   sash:update()
 end
 
-function time_attack:render() -- override
+function _draw()
+  cls()
+
   game:render()
 
   local base_x = board.offset_x * 2 + board.width
 
   -- スコア表示
-  print_outlined("score " .. player.score .. (player.score == 0 and "" or "0"), base_x, 16, 7, 0)
-  print_outlined("hi-score " .. current_high_score * 10, base_x, 24, 7, 0)
+  print_outlined("score " .. score_string(player.score), base_x, 16, 7, 0)
+  print_outlined("hi-score " .. score_string(current_high_score), base_x, 24, 7, 0)
 
   -- 残り時間表示
   print_outlined("time left", base_x, 44, 7, 0)
@@ -102,5 +105,3 @@ function time_attack:render() -- override
 
   sash:render()
 end
-
-return time_attack

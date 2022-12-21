@@ -1,6 +1,6 @@
 ---@diagnostic disable: global-in-nil-env
 
-local gate = require("lib/gate")
+local block = require("lib/block")
 
 --                       span
 --          ██████████████████████████████
@@ -11,7 +11,7 @@ local gate = require("lib/gate")
 --          ██       inner border       ██
 --          ██████████████████████████████
 --
---- @class GarbageGate おじゃまゲート
+--- @class Garbageblock おじゃまゲート
 --- @field span 3 | 4 | 5 | 6 おじゃまゲートの幅
 --- @field height integer おじゃまゲートの高さ
 --- @field body_color 2 | 3 | 4 おじゃまゲートの色
@@ -19,21 +19,21 @@ local gate = require("lib/gate")
 --- @field first_drop boolean 最初の落下かどうか
 --- @field render function おじゃまゲートを描画
 
-local garbage_gate_colors = { 2, 3, 4 }
+local garbage_block_colors = { 2, 3, 4 }
 local inner_border_colors = { nil, 14, 11, 9 }
 
 -- 新しいおじゃまゲートを作る
 --- @param _span? 3 | 4 | 5 | 6 おじゃまゲートの幅
 --- @param _height? integer おじゃまゲートの高さ
 --- @param _color? 2 | 3 | 4 おじゃまゲートの色
---- @return GarbageGate
-function garbage_gate(_span, _height, _color)
+--- @return Garbageblock
+function garbage_block(_span, _height, _color)
   local garbage = setmetatable({
-    body_color = _color or garbage_gate_colors[ceil_rnd(#garbage_gate_colors)],
+    body_color = _color or garbage_block_colors[ceil_rnd(#garbage_block_colors)],
     first_drop = true,
     _render_box = draw_rounded_box,
 
-    --- @param _ENV GarbageGate
+    --- @param _ENV Garbageblock
     --- @param screen_x integer おじゃまゲート先頭ゲート (左下) の X 座標
     --- @param screen_y integer おじゃまゲート先頭ゲートの Y 座標
     render = function(_ENV, screen_x, screen_y)
@@ -46,7 +46,7 @@ function garbage_gate(_span, _height, _color)
       _render_box(screen_x, y0, x1, y1, _body_color, _body_color) -- 本体
       _render_box(screen_x + 1, y0 + 1, x1 - 1, y1 - 1, _state ~= "over" and inner_border_color or 1) -- 内側の線
     end
-  }, { __index = gate("g", _span or 6, _height) })
+  }, { __index = block("g", _span or 6, _height) })
 
   --#if assert
   assert(garbage.body_color == 2 or garbage.body_color == 3 or garbage.body_color == 4,
@@ -57,5 +57,5 @@ function garbage_gate(_span, _height, _color)
 
   garbage.inner_border_color = inner_border_colors[garbage.body_color]
 
-  return garbage --[[@as GarbageGate]]
+  return garbage --[[@as Garbageblock]]
 end

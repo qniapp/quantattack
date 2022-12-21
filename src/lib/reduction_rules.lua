@@ -395,21 +395,21 @@ local reduction_rules = {
   }
 }
 
-for first_gate, rules in pairs(reduction_rules) do
-  for i, each in pairs(reduction_rules[first_gate]) do
-    local pattern, reduce_to, gate_count, score = unpack(split(each, "|"))
+for first_block, rules in pairs(reduction_rules) do
+  for i, each in pairs(reduction_rules[first_block]) do
+    local pattern, reduce_to, block_count, score = unpack(split(each, "|"))
     ---@diagnostic disable-next-line: assign-type-mismatch
-    reduction_rules[first_gate][i] = {
+    reduction_rules[first_block][i] = {
       transform(split(pattern, "\n"), split),
       transform(split(reduce_to, "\n"), function(to)
         local attrs = split(to)
         return {
           dx = attrs[1] ~= "",
           dy = attrs[2] == "" and nil or tonum(attrs[2]),
-          gate_type = attrs[3] == "" and 'i' or attrs[3]
+          block_type = attrs[3] == "" and 'i' or attrs[3]
         }
       end),
-      tonum(gate_count),
+      tonum(block_count),
       tonum(score),
       each -- original string
     }

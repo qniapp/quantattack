@@ -16,10 +16,10 @@ describe('コンボ (同時消し) のコールバック', function()
   it("4-コンボ発生でコールバックが呼ばれる", function()
     -- [X H]         H X <- 4-combo
     --  H X  ----->  H X
-    board:put(1, 16, x_gate())
-    board:put(1, 17, h_gate())
-    board:put(2, 16, h_gate())
-    board:put(2, 17, x_gate())
+    board:put(1, 16, x_block())
+    board:put(1, 17, h_block())
+    board:put(2, 16, h_block())
+    board:put(2, 17, x_block())
 
     board:swap(1, 17)
     wait_swap_to_finish(board)
@@ -35,11 +35,11 @@ describe('コンボ (同時消し) のコールバック', function()
     --    S            S <- 5-combo
     -- [Z H]         H Z
     --  H S  ----->  H S
-    board:put(2, 15, s_gate())
-    board:put(1, 16, z_gate())
-    board:put(2, 16, h_gate())
-    board:put(1, 17, h_gate())
-    board:put(2, 17, s_gate())
+    board:put(2, 15, s_block())
+    board:put(1, 16, z_block())
+    board:put(2, 16, h_block())
+    board:put(1, 17, h_block())
+    board:put(2, 17, s_block())
 
     board:swap(1, 16)
     wait_swap_to_finish(board)
@@ -55,12 +55,12 @@ describe('コンボ (同時消し) のコールバック', function()
     -- [S H]        H S <- 6-combo
     --  X Z         Z X
     --  H S  -----> H S
-    board:put(1, 15, s_gate())
-    board:put(2, 15, h_gate())
-    board:put(1, 16, x_gate())
-    board:put(2, 16, z_gate())
-    board:put(1, 17, h_gate())
-    board:put(2, 17, s_gate())
+    board:put(1, 15, s_block())
+    board:put(2, 15, h_block())
+    board:put(1, 16, x_block())
+    board:put(2, 16, z_block())
+    board:put(1, 17, h_block())
+    board:put(2, 17, s_block())
 
     board:swap(1, 15)
     wait_swap_to_finish(board)
@@ -77,13 +77,13 @@ describe('コンボ (同時消し) のコールバック', function()
     --  H Z          H Z
     --  X S          X S
     -- [T H]  -----> H T
-    board:put(2, 14, t_gate())
-    board:put(1, 15, h_gate())
-    board:put(2, 15, z_gate())
-    board:put(1, 16, x_gate())
-    board:put(2, 16, s_gate())
-    board:put(1, 17, t_gate())
-    board:put(2, 17, h_gate())
+    board:put(2, 14, t_block())
+    board:put(1, 15, h_block())
+    board:put(2, 15, z_block())
+    board:put(1, 16, x_block())
+    board:put(2, 16, s_block())
+    board:put(1, 17, t_block())
+    board:put(2, 17, h_block())
 
     board:swap(1, 17)
     wait_swap_to_finish(board)

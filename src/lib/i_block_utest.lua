@@ -1,14 +1,14 @@
 require("engine/test/bustedhelper")
 require("lib/test_helper")
 
-describe('i_gate', function()
+describe('i_block', function()
   local i
 
   before_each(function()
-    i = i_gate()
+    i = i_block()
   end)
 
-  describe("gate type", function()
+  describe("block type", function()
     describe("is_garbage", function()
       it("should return false", function()
         assert.is_false(i.type == "g")

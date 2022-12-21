@@ -1,69 +1,95 @@
----@diagnostic disable: discard-returns
+---@diagnostic disable: discard-returns, lowercase-global, global-in-nil-env
+
+local high_score_class = require("lib/high_score")
+
+--- @class menu_item
+--- @field target_cart string
+--- @field sx integer
+--- @field sy integer
+--- @field width integer
+--- @field height integer
+--- @field cart_load_param string
+--- @field label string
+--- @field description string
+--- @field high_score integer
+local menu_item = new_class()
+
+--- @param _target_cart string
+--- @param _sx integer
+--- @param _sy integer
+--- @param _width integer
+--- @param _height integer
+--- @param _cart_load_param string
+--- @param _label string
+--- @param _description string
+--- @param _high_score_slot integer
+function menu_item._init(_ENV, _target_cart, _target_state, _sx, _sy, _width, _height, _cart_load_param, _label,
+                         _description,
+                         _high_score_slot)
+  target_cart, target_state, sx, sy, width, height, cart_load_param, label, description, high_score =
+  _target_cart, _target_state ~= "" and _target_state or nil, _sx, _sy, _width, _height, _cart_load_param, _label,
+      _description,
+      _high_score_slot and high_score_class(_high_score_slot):get()
+end
 
 local menu = new_class()
 
-function menu:_init(items, previous_state)
-  self.items = items
-  self.selection_index = 1
-  self.previous_state = previous_state
+function menu._init(_ENV, items_string, previous_state)
+  _items = {}
+  for index, each in pairs(split(items_string, "|")) do
+    _items[index] = menu_item(unpack_split(each))
+  end
+  _active_item_index = 1
+  _previous_state = previous_state
 end
 
-function menu:update()
-  if self.cart_to_load then
+function menu.update(_ENV)
+  if cart_to_load then
     if stat(16) == -1 then
-      jump(self.cart_to_load, nil, self.load_param)
+      jump(cart_to_load, nil, cart_load_param)
     end
   else
-    if btnp(0) then
+    if btnp(0) then -- left
       sfx(8)
-      self:select_previous()
-    elseif btnp(1) then
+
+      _active_item_index = max(_active_item_index - 1, 1)
+    elseif btnp(1) then -- right
       sfx(8)
-      self:select_next()
+
+      _active_item_index = min(_active_item_index + 1, #_items)
     elseif btnp(5) then -- x
       sfx(15)
-      self:confirm_selection()
+
+      local selected_menu_item = _items[_active_item_index]
+      if selected_menu_item.target_state then
+        stale = true
+        return selected_menu_item.target_state
+      else
+        cart_to_load = selected_menu_item.target_cart
+        cart_load_param = selected_menu_item.cart_load_param
+      end
     elseif btnp(4) then -- c
       sfx(8)
-      title_state = self.previous_state
+
+      return _previous_state
     end
   end
 end
 
-function menu:select_previous()
-  self.selection_index = max(self.selection_index - 1, 1)
-end
-
-function menu:select_next()
-  self.selection_index = min(self.selection_index + 1, #self.items)
-end
-
-function menu:confirm_selection()
-  local selected_menu_item = self.items[self.selection_index]
-
-  if type(selected_menu_item.target_state) == "string" then
-    self.cart_to_load = selected_menu_item.target_state
-    self.load_param = selected_menu_item.load_param
-  else
-    self.stale = true
-    selected_menu_item.target_state()
-  end
-end
-
-function menu:draw(left, top)
+function menu.draw(_ENV, left, top)
   local sx = left
 
-  for i, each in pairs(self.items) do
-    if i == self.selection_index then
+  for i, each in pairs(_items) do
+    if i == _active_item_index then
       print_centered(each.label, 62, top - 16, 10)
       print_centered(each.description, 62, top - 8, 7)
 
-      draw_rounded_box(sx - 2, top - 2, sx + each.width + 1, top + each.height + 1, self.stale and 6 or 12)
-      if self.stale then
+      draw_rounded_box(sx - 2, top - 2, sx + each.width + 1, top + each.height + 1, stale and 6 or 12)
+      print_centered(each.high_score and 'hi score: ' .. score_string(each.high_score), 62, top + 23, 7)
+
+      if stale then
         pal(7, 6)
       end
-
-      print_centered(each.high_score and 'hi score: ' .. each.high_score or nil, 62, top + 23, 7)
     else
       pal(7, 13)
     end

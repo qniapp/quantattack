@@ -3,7 +3,7 @@ require("engine/render/color")
 require("lib/test_helper")
 
 local board_class = require("lib/board")
-local gate = require("lib/gate")
+local block = require("lib/block")
 
 describe('連鎖 (chain)', function()
   local board
@@ -18,17 +18,17 @@ describe('連鎖 (chain)', function()
     -- X <-
     -- H
     -- H
-    board:put(1, 14, y_gate())
-    board:put(1, 15, x_gate())
-    board:put(1, 16, h_gate())
-    board:put(1, 17, h_gate())
+    board:put(1, 14, y_block())
+    board:put(1, 15, x_block())
+    board:put(1, 16, h_block())
+    board:put(1, 17, h_block())
 
     board:update()
 
-    assert.is_not_nil(board.gates[1][14].chain_id)
-    assert.is_not_nil(board.gates[1][15].chain_id)
-    assert.is_not_nil(board.gates[1][16].chain_id)
-    assert.is_not_nil(board.gates[1][17].chain_id)
+    assert.is_not_nil(board.blocks[1][14].chain_id)
+    assert.is_not_nil(board.blocks[1][15].chain_id)
+    assert.is_not_nil(board.blocks[1][16].chain_id)
+    assert.is_not_nil(board.blocks[1][17].chain_id)
   end)
 
   it("chain_id が付いたゲートは、着地すると chain_id が消える", function()
@@ -36,26 +36,26 @@ describe('連鎖 (chain)', function()
     -- X
     -- H ---> Y
     -- H      X
-    board:put(1, 14, y_gate())
-    board:put(1, 15, x_gate())
-    board:put(1, 16, h_gate())
-    board:put(1, 17, h_gate())
+    board:put(1, 14, y_block())
+    board:put(1, 15, x_block())
+    board:put(1, 16, h_block())
+    board:put(1, 17, h_block())
 
     repeat
       board:update()
-    until board.gates[1][17].type == "x" and board.gates[1][17]:is_idle()
+    until board.blocks[1][17].type == "x" and board.blocks[1][17]:is_idle()
 
     board:update()
 
-    assert.is_nil(board.gates[1][16].chain_id)
-    assert.is_nil(board.gates[1][17].chain_id)
+    assert.is_nil(board.blocks[1][16].chain_id)
+    assert.is_nil(board.blocks[1][17].chain_id)
   end)
 
   it("ゲートがマッチすると、board._chain_count が 1 になる", function()
     -- H
     -- H
-    board:put(1, 15, h_gate())
-    board:put(1, 16, h_gate())
+    board:put(1, 15, h_block())
+    board:put(1, 16, h_block())
 
     board:update()
 
@@ -67,10 +67,10 @@ describe('連鎖 (chain)', function()
     -- H
     -- H --> X
     -- X     X
-    board:put(1, 14, x_gate())
-    board:put(1, 15, h_gate())
-    board:put(1, 16, h_gate())
-    board:put(1, 17, x_gate())
+    board:put(1, 14, x_block())
+    board:put(1, 15, h_block())
+    board:put(1, 16, h_block())
+    board:put(1, 17, x_block())
 
     for i = 0, 83 do
       board:update()
@@ -83,9 +83,9 @@ describe('連鎖 (chain)', function()
     -- S
     -- T --> S
     -- T     S
-    board:put(1, 15, s_gate())
-    board:put(1, 16, t_gate())
-    board:put(1, 17, t_gate())
+    board:put(1, 15, s_block())
+    board:put(1, 16, t_block())
+    board:put(1, 17, t_block())
 
     for i = 0, 82 do
       board:update()
@@ -99,10 +99,10 @@ describe('連鎖 (chain)', function()
     -- S     Z
     -- T --> S --> Z
     -- T     S     Z
-    board:put(1, 14, z_gate())
-    board:put(1, 15, s_gate())
-    board:put(1, 16, t_gate())
-    board:put(1, 17, t_gate())
+    board:put(1, 14, z_block())
+    board:put(1, 15, s_block())
+    board:put(1, 16, t_block())
+    board:put(1, 17, t_block())
 
     for i = 0, 152 do
       board:update()
@@ -115,49 +115,49 @@ describe('連鎖 (chain)', function()
   -- H     --->       --->
   -- H Y          Y        X   Z
   it("おじゃまゲート 2 連鎖", function()
-    board:put(1, 15, garbage_gate(3))
-    board:put(1, 16, h_gate())
-    board:put(1, 17, h_gate())
-    board:put(2, 17, y_gate())
+    board:put(1, 15, garbage_block(3))
+    board:put(1, 16, h_block())
+    board:put(1, 17, h_block())
+    board:put(2, 17, y_block())
 
     -- HH とおじゃまゲートがマッチ
     board:update()
 
     -- おじゃまゲートの一番左が分解
-    for i = 1, gate.gate_match_animation_frame_count do
+    for i = 1, block.block_match_animation_frame_count do
       board:update()
     end
-    assert.is_true(board.gates[1][15]:is_freeze())
+    assert.is_true(board.blocks[1][15]:is_freeze())
 
     -- おじゃまゲートの真ん中が分解
-    for i = 1, gate.gate_match_delay_per_gate do
+    for i = 1, block.block_match_delay_per_block do
       board:update()
     end
-    assert.is_true(board.gates[2][15]:is_freeze())
+    assert.is_true(board.blocks[2][15]:is_freeze())
 
     -- おじゃまゲートの一番右が分解
-    for i = 1, gate.gate_match_delay_per_gate do
+    for i = 1, block.block_match_delay_per_block do
       board:update()
     end
-    assert.is_true(board.gates[3][15]:is_freeze())
+    assert.is_true(board.blocks[3][15]:is_freeze())
 
     -- 分解してできたゲートすべてのフリーズ解除
-    for i = 1, gate.gate_match_delay_per_gate do
+    for i = 1, block.block_match_delay_per_block do
       board:update()
     end
     board:update()
 
-    assert.is_false(board.gates[1][15]:is_freeze())
-    assert.is_false(board.gates[2][15]:is_freeze())
-    assert.is_false(board.gates[3][15]:is_freeze())
+    assert.is_false(board.blocks[1][15]:is_freeze())
+    assert.is_false(board.blocks[2][15]:is_freeze())
+    assert.is_false(board.blocks[3][15]:is_freeze())
 
-    assert.are_equal("1,16", board.gates[1][15].chain_id)
-    assert.are_equal("1,16", board.gates[2][15].chain_id)
-    assert.are_equal("1,16", board.gates[3][15].chain_id)
+    assert.are_equal("1,16", board.blocks[1][15].chain_id)
+    assert.are_equal("1,16", board.blocks[2][15].chain_id)
+    assert.are_equal("1,16", board.blocks[3][15].chain_id)
 
     -- 下の Y とマッチするように
     -- おじゃまゲート真ん中が分解してできたゲートを Y にする
-    board.gates[2][15].type = "y"
+    board.blocks[2][15].type = "y"
 
     -- 1 マス落下
     for i = 1, 4 do
@@ -169,8 +169,8 @@ describe('連鎖 (chain)', function()
 
     -- YY がマッチ
     board:update()
-    assert.is_true(board.gates[2][16]:is_match())
-    assert.is_true(board.gates[2][17]:is_match())
+    assert.is_true(board.blocks[2][16]:is_match())
+    assert.is_true(board.blocks[2][17]:is_match())
 
     -- 全部で 2 連鎖
     assert.are_equal(2, board._chain_count["1,16"])
@@ -180,15 +180,15 @@ describe('連鎖 (chain)', function()
     -- X
     -- H  -->
     -- H      X
-    board:put(1, 14, x_gate())
-    board:put(1, 15, h_gate())
-    board:put(1, 16, h_gate())
-    board:put(1, 17, t_gate())
+    board:put(1, 14, x_block())
+    board:put(1, 15, h_block())
+    board:put(1, 16, h_block())
+    board:put(1, 17, t_block())
 
     for i = 1, 84 do
       board:update()
     end
 
-    assert.is_nil(board.gates[1][17].chain_id)
+    assert.is_nil(board.blocks[1][17].chain_id)
   end)
 end)

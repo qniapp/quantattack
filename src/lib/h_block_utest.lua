@@ -2,17 +2,17 @@ require("engine/test/bustedhelper")
 require("engine/debug/dump")
 require("lib/test_helper")
 
-describe('h_gate', function()
+describe('h_block', function()
   local h
 
   before_each(function()
-    h = h_gate()
+    h = h_block()
   end)
 
-  describe("gate type", function()
-    describe("is_single_gate", function()
+  describe("block type", function()
+    describe("is_single_block", function()
       it("should return true", function()
-        assert.is_true(h:is_single_gate())
+        assert.is_true(h:is_single_block())
       end)
     end)
 

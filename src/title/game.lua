@@ -1,10 +1,9 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
-local attack_bubble = require("lib/attack_bubble")
-local particle = require("lib/particle")
-local bubble = require("lib/bubble")
-
 require("lib/helpers")
+
+local attack_ion, particle, bubble =
+require("lib/attack_ion"), require("lib/particle"), require("lib/bubble")
 
 title_logo_bounce_speed, title_logo_bounce_screen_dy = 0, 0
 
@@ -38,7 +37,7 @@ function game()
     end,
 
     combo_callback = function(_combo_count, x, y, _player, board, _other_board)
-      attack_bubble:create(
+      attack_ion:create(
         board:screen_x(x),
         board:screen_y(y),
         attack_cube_callback,
@@ -48,12 +47,12 @@ function game()
       )
     end,
 
-    gate_offset_callback = function(_chain_id, chain_count, _x, _y, _player, _board, _other_board)
+    block_offset_callback = function(_chain_id, chain_count, _x, _y, _player, _board, _other_board)
       return chain_count
     end,
 
     chain_callback = function(_chain_id, _chain_count, x, y, _player, board, _other_board)
-      attack_bubble:create(
+      attack_ion:create(
         board:screen_x(x),
         board:screen_y(y),
         attack_cube_callback,
@@ -100,7 +99,7 @@ function game()
         if each.x and board:swap(cursor.x, cursor.y) then
           sfx(10)
         end
-        if each.o and board.top_gate_y > 2 then
+        if each.o and board.top_block_y > 2 then
           _raise(_ENV, each)
         end
 
@@ -110,7 +109,7 @@ function game()
 
       particle:update_all()
       bubble:update_all()
-      attack_bubble:update_all()
+      attack_ion:update_all()
     end,
 
     render = function(_ENV)
@@ -120,7 +119,7 @@ function game()
 
       particle:render_all()
       bubble:render_all()
-      attack_bubble:render_all()
+      attack_ion:render_all()
     end,
 
     -- ゲートをせりあげる
@@ -131,7 +130,7 @@ function game()
 
       if board.raised_dots == 8 then
         board.raised_dots = 0
-        board:insert_gates_at_bottom(player.steps)
+        board:insert_blocks_at_bottom(player.steps)
         cursor:move_up()
       end
     end

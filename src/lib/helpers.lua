@@ -63,14 +63,15 @@ function derived_class(base_class)
   return class
 end
 
-function singleton(init)
-  local s = {}
-  s.init = init
-  s:init()
-  return s
-end
-
 function jump(name, breadcrumb, param)
   load(name .. ".p8", breadcrumb, param)
   load("#" .. name, breadcrumb, param)
+end
+
+function unpack_split(...)
+  return unpack(split(...))
+end
+
+function score_string(score)
+  return score .. (score == 0 and "" or "0")
 end

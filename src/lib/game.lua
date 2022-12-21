@@ -1,7 +1,7 @@
 require("lib/helpers")
 
 local game = new_class()
-local attack_bubble = require("lib/attack_bubble")
+local attack_ion = require("lib/attack_ion")
 local particle = require("lib/particle")
 local bubble = require("lib/bubble")
 local ripple = require("lib/ripple")
@@ -27,7 +27,7 @@ function game.combo_callback(combo_count, x, y, player, board, other_board)
   end
 
   bubble:create("combo", combo_count, board:screen_x(x), board:screen_y(y))
-  attack_bubble:create(
+  attack_ion:create(
     board:screen_x(x), board:screen_y(y),
     attack_cube_callback,
     12,
@@ -37,7 +37,7 @@ end
 
 local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
-function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, other_board)
+function game.block_offset_callback(chain_id, chain_count, x, y, player, board, other_board)
   local offset_height = chain_count
 
   if offset_height > 2 then
@@ -49,15 +49,15 @@ function game.gate_offset_callback(chain_id, chain_count, x, y, player, board, o
       player.score = player.score + (chain_bonus[chain_count] or 180)
 
       if other_board then
-        offset_height = board.pending_garbage_gates:offset(offset_height)
+        offset_height = board.pending_garbage_blocks:offset(offset_height)
       end
     end
 
-    attack_bubble:create(
+    attack_ion:create(
       board:screen_x(x), board:screen_y(y),
       attack_cube_callback,
       9,
-      unpack(board.gate_offset_target)
+      unpack(board.block_offset_target)
     )
   end
 
@@ -80,7 +80,7 @@ function game.chain_callback(chain_id, chain_count, x, y, player, board, other_b
     end
 
     bubble:create("chain", chain_count, board:screen_x(x), board:screen_y(y))
-    attack_bubble:create(
+    attack_ion:create(
       board:screen_x(x), board:screen_y(y),
       attack_cube_callback,
       12,
@@ -100,7 +100,7 @@ function game:_init()
 end
 
 function game:init()
-  attack_bubble.slow = false
+  attack_ion.slow = false
   particle.slow = false
 
   all_players = {}
@@ -181,7 +181,7 @@ function game:update()
       if each.x and not countdown and board:swap(cursor.x, cursor.y) then
         sfx(10)
       end
-      if each.o and not countdown and board.top_gate_y > 2 then
+      if each.o and not countdown and board.top_block_y > 2 then
         self:_raise(each)
       end
 
@@ -192,7 +192,7 @@ function game:update()
         self:_auto_raise(each)
       end
 
-      if board.contains_garbage_match_gate then
+      if board.contains_garbage_match_block then
         ripple.slow = true
       end
     end
@@ -200,7 +200,7 @@ function game:update()
 
   particle:update_all()
   bubble:update_all()
-  attack_bubble:update_all()
+  attack_ion:update_all()
 
   if self:is_game_over() then
     particle.slow = true
@@ -249,7 +249,7 @@ function game:render() -- override
 
   particle:render_all()
   bubble:render_all()
-  attack_bubble:render_all()
+  attack_ion:render_all()
 end
 
 -- ゲートをせりあげる
@@ -260,7 +260,7 @@ function game:_raise(player)
 
   if board.raised_dots == 8 then
     board.raised_dots = 0
-    board:insert_gates_at_bottom(player.steps)
+    board:insert_blocks_at_bottom(player.steps)
     cursor:move_up()
     player.steps = player.steps + 1
   end
