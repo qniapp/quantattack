@@ -1,6 +1,5 @@
 require("lib/board")
 
-local flow = require("lib/flow")
 local sash = require("lib/sash")
 
 -- ハイスコア関係
