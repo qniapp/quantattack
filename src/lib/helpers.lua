@@ -78,3 +78,7 @@ end
 function unpack_split(...)
   return unpack(split(...))
 end
+
+function score_string(score)
+  return score .. (score == 0 and "" or "0")
+end

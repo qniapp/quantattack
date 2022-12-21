@@ -23,11 +23,13 @@ local menu_item = new_class()
 --- @param _label string
 --- @param _description string
 --- @param _high_score_slot integer
-function menu_item._init(_ENV, _target_cart, _target_state, _sx, _sy, _width, _height, _cart_load_param, _label, _description,
+function menu_item._init(_ENV, _target_cart, _target_state, _sx, _sy, _width, _height, _cart_load_param, _label,
+                         _description,
                          _high_score_slot)
   target_cart, target_state, sx, sy, width, height, cart_load_param, label, description, high_score =
-  _target_cart, _target_state ~= "" and _target_state or nil, _sx, _sy, _width, _height, _cart_load_param, _label, _description,
-      _high_score_slot and high_score_class(_high_score_slot):get() * 10
+  _target_cart, _target_state ~= "" and _target_state or nil, _sx, _sy, _width, _height, _cart_load_param, _label,
+      _description,
+      _high_score_slot and high_score_class(_high_score_slot):get()
 end
 
 local menu = new_class()
@@ -83,7 +85,7 @@ function menu.draw(_ENV, left, top)
       print_centered(each.description, 62, top - 8, 7)
 
       draw_rounded_box(sx - 2, top - 2, sx + each.width + 1, top + each.height + 1, stale and 6 or 12)
-      print_centered(each.high_score and 'hi score: ' .. each.high_score or nil, 62, top + 23, 7)
+      print_centered(each.high_score and 'hi score: ' .. score_string(each.high_score), 62, top + 23, 7)
 
       if stale then
         pal(7, 6)
