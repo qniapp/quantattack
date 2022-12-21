@@ -9,7 +9,7 @@ local cursor_class, menu_class =
 require("lib/cursor"), require("title/menu")
 
 local main_menu = menu_class(
-  "quantattack_endless,,64,48,16,16,,endless,play as long as you can, 1|quantattack_rush,,48,48,16,16,,rush,play for 2 minutes,0|,:level_menu,80,48,16,16,,vs qpu,defeat the qpu|quantattack_qpu_vs_qpu,,96,48,16,16,,qpu vs qpu,watch qpu vs qpu|quantattack_tutorial,,32,48,16,16,,tutorial,learn how to play"
+  "quantattack_tutorial,,32,48,16,16,,tutorial,learn how to play|quantattack_endless,,64,48,16,16,,endless,play as long as you can, 1|quantattack_rush,,48,48,16,16,,rush,play for 2 minutes,0|,:level_menu,80,48,16,16,,vs qpu,defeat the qpu|quantattack_qpu_vs_qpu,,96,48,16,16,,qpu vs qpu,watch qpu vs qpu"
   ,
   ":demo"
 )
@@ -55,7 +55,7 @@ function _update60()
       title_state = ":main_menu"
     end
   elseif title_state == ":main_menu" then
-    if main_menu._active_item_index == 3 then
+    if main_menu._active_item_index == 4 then
       level_menu.stale = true
     end
 
@@ -110,7 +110,7 @@ function _draw()
       main_menu:draw(15, 72)
 
       -- レベル選択メニューを表示
-      if main_menu._active_item_index == 3 or title_state == ":level_menu" then
+      if main_menu._active_item_index == 4 or title_state == ":level_menu" then
         level_menu:draw(27, 93)
       end
     end
