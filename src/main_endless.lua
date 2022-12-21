@@ -1,4 +1,4 @@
-require("lib/board")
+require("lib/helpers")
 
 local sash = require("lib/sash")
 
