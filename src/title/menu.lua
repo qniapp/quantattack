@@ -1,4 +1,4 @@
----@diagnostic disable: discard-returns, lowercase-global
+---@diagnostic disable: discard-returns, lowercase-global, global-in-nil-env
 
 local high_score_class = require("lib/high_score")
 
