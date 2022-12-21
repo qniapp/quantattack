@@ -16,17 +16,17 @@ board.attack_cube_target = { 85, 30 }
 local player_class = require("lib/player")
 local player = player_class()
 
-local game_class = require("time_attack/game")
+local game_class = require("rush/game")
 local game = game_class()
 
 local gamestate = require("lib/gamestate")
-local time_attack = derived_class(gamestate)
+local rush = derived_class(gamestate)
 
-time_attack.type = ':time_attack'
+rush.type = ':rush'
 
 local last_steps = 0
 
-function time_attack:on_enter()
+function rush:on_enter()
   current_high_score = high_score:get()
 
   player:_init()
@@ -38,7 +38,7 @@ function time_attack:on_enter()
   game:add_player(player, cursor, board)
 end
 
-function time_attack:update()
+function rush:update()
   game:update()
 
   if player.steps > last_steps then
@@ -58,7 +58,7 @@ function time_attack:update()
     if t() - game.game_over_time > 2 then
       board.show_gameover_menu = true
       if btnp(5) then -- x でリプレイ
-        flow:query_gamestate_type(":time_attack")
+        flow:query_gamestate_type(":rush")
       elseif btnp(4) then -- z でタイトルへ戻る
         jump('quantattack_title')
       end
@@ -80,7 +80,7 @@ function time_attack:update()
   sash:update()
 end
 
-function time_attack:render() -- override
+function rush:render() -- override
   game:render()
 
   local base_x = board.offset_x * 2 + board.width
@@ -103,4 +103,4 @@ function time_attack:render() -- override
   sash:render()
 end
 
-return time_attack
+return rush

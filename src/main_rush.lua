@@ -1,9 +1,9 @@
 local flow = require("lib/flow")
-local time_attack = require("time_attack/time_attack")
+local rush = require("rush/rush")
 
 function _init()
-  flow:add_gamestate(time_attack())
-  flow:query_gamestate_type(":time_attack")
+  flow:add_gamestate(rush())
+  flow:query_gamestate_type(":rush")
 end
 
 function _update60()

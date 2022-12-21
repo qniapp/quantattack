@@ -1,6 +1,6 @@
 title
 mission
-time_attack
+rush
 endless
 vs_qpu
 qpu_vs_qpu
