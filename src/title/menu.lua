@@ -23,10 +23,8 @@ local menu_item = new_class()
 --- @param _label string
 --- @param _description string
 --- @param _high_score_slot integer
-function menu_item:_init(_target_cart, _target_state, _sx, _sy, _width, _height, _load_param, _label, _description,
+function menu_item._init(_ENV, _target_cart, _target_state, _sx, _sy, _width, _height, _load_param, _label, _description,
                          _high_score_slot)
-  local _ENV = self
-
   target_cart, target_state, sx, sy, width, height, load_param, label, description, high_score =
   _target_cart, _target_state ~= "" and _target_state or nil, _sx, _sy, _width, _height, _load_param, _label, _description,
       _high_score_slot and high_score_class(_high_score_slot):get() * 10
@@ -34,13 +32,13 @@ end
 
 local menu = new_class()
 
-function menu:_init(items_string, previous_state)
-  self._items = {}
+function menu._init(_ENV, items_string, previous_state)
+  _items = {}
   for index, each in pairs(split(items_string, "|")) do
-    self._items[index] = menu_item(unpack_split(each))
+    _items[index] = menu_item(unpack_split(each))
   end
-  self._active_item_index = 1
-  self._previous_state = previous_state
+  _active_item_index = 1
+  _previous_state = previous_state
 end
 
 function menu.update(_ENV)
@@ -76,16 +74,16 @@ function menu.update(_ENV)
   end
 end
 
-function menu:draw(left, top)
+function menu.draw(_ENV, left, top)
   local sx = left
 
-  for i, each in pairs(self._items) do
-    if i == self._active_item_index then
+  for i, each in pairs(_items) do
+    if i == _active_item_index then
       print_centered(each.label, 62, top - 16, 10)
       print_centered(each.description, 62, top - 8, 7)
 
-      draw_rounded_box(sx - 2, top - 2, sx + each.width + 1, top + each.height + 1, self.stale and 6 or 12)
-      if self.stale then
+      draw_rounded_box(sx - 2, top - 2, sx + each.width + 1, top + each.height + 1, stale and 6 or 12)
+      if stale then
         pal(7, 6)
       end
 
