@@ -254,6 +254,8 @@ function game:render() -- override
 end
 
 -- ゲートをせりあげる
+--
+-- TODO: player.steps → board.steps に変更し、ローカル変数 player をなくす
 function game:_raise(player_info)
   local player, board = player_info.player, player_info.board
 
