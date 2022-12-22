@@ -10,7 +10,7 @@ local qpu1_cursor, qpu2_cursor = cursor_class(), cursor_class()
 local qpu1_board, qpu2_board = board_class(qpu1_cursor, 3), board_class(qpu2_cursor, 78)
 qpu1_board.block_offset_target, qpu2_board.block_offset_target = { 3 + 24, 9 }, { 78 + 24, 9 }
 qpu1_board.attack_cube_target, qpu2_board.attack_cube_target = { 78 + 24, 9 }, { 3 + 24, 9 }
-local qpu1, qpu2 = create_qpu(qpu1_cursor, qpu1_board, 1), create_qpu(qpu2_cursor, qpu2_board, 1)
+local qpu1, qpu2 = create_qpu(qpu1_board, 1), create_qpu(qpu2_board, 1)
 
 function _init()
   qpu1:init()
@@ -24,8 +24,8 @@ function _init()
   qpu2_cursor:init()
 
   game:init()
-  game:add_player(qpu1, qpu1_cursor, qpu1_board, qpu2_board)
-  game:add_player(qpu2, qpu2_cursor, qpu2_board, qpu1_board)
+  game:add_player(qpu1, qpu1_board, qpu2_board)
+  game:add_player(qpu2, qpu2_board, qpu1_board)
 end
 
 function _update60()

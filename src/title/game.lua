@@ -63,47 +63,47 @@ function game()
     end,
 
     init = function(_ENV)
-      all_players = {}
+      all_players_info = {}
     end,
 
     add_player = function(_ENV, player, board)
-      player.cursor = board.cursor
-      player.board = board
-      player.tick = 0
-
-      add(all_players, player)
+      add(all_players_info, {
+        player = player,
+        board = board,
+        tick = 0
+      })
     end,
 
     update = function(_ENV)
-      for _, each in pairs(all_players) do
-        local cursor, board = each.cursor, each.board
+      for _, each in pairs(all_players_info) do
+        local player, board, cursor = each.player, each.board, each.board.cursor
 
-        each:update(board)
+        player:update(board)
 
-        if each.left then
+        if player.left then
           sfx(8)
           cursor:move_left()
         end
-        if each.right then
+        if player.right then
           sfx(8)
           cursor:move_right(board.cols)
         end
-        if each.up then
+        if player.up then
           sfx(8)
           cursor:move_up()
         end
-        if each.down then
+        if player.down then
           sfx(8)
           cursor:move_down(board.rows)
         end
-        if each.x and board:swap(cursor.x, cursor.y) then
+        if player.x and board:swap(cursor.x, cursor.y) then
           sfx(10)
         end
-        if each.o and board.top_block_y > 2 then
+        if player.o and board.top_block_y > 2 then
           _raise(_ENV, each)
         end
 
-        board:update(_ENV, each)
+        board:update(_ENV, player)
         cursor:update()
       end
 
@@ -113,7 +113,7 @@ function game()
     end,
 
     render = function(_ENV)
-      for _, each in pairs(all_players) do
+      for _, each in pairs(all_players_info) do
         each.board:render()
       end
 
@@ -123,15 +123,15 @@ function game()
     end,
 
     -- ゲートをせりあげる
-    _raise = function(_ENV, player)
-      local board, cursor = player.board, player.cursor
+    _raise = function(_ENV, player_info)
+      local player, board = player_info.player, player_info.board
 
       board.raised_dots = board.raised_dots + 1
 
       if board.raised_dots == 8 then
         board.raised_dots = 0
         board:insert_blocks_at_bottom(player.steps)
-        cursor:move_up()
+        board.cursor:move_up()
       end
     end
   }, { __index = _ENV })

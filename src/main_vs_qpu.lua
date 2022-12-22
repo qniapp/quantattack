@@ -5,13 +5,13 @@ local game = game_class()
 local qpu_level = stat(6) -- 3: easy, 2: normal, 1: hard
 
 local player_class, cursor_class, board_class =
-  require("lib/player"), require("lib/cursor"), require("lib/board")
+require("lib/player"), require("lib/cursor"), require("lib/board")
 
 local player_cursor, qpu_cursor = cursor_class(), cursor_class()
 local board, qpu_board = board_class(player_cursor, 3), board_class(qpu_cursor, 78)
 board.block_offset_target, qpu_board.block_offset_target = { 3 + 24, 9 }, { 78 + 24, 9 }
 board.attack_cube_target, qpu_board.attack_cube_target = { 78 + 24, 9 }, { 3 + 24, 9 }
-local player, qpu = player_class(), create_qpu(qpu_cursor, qpu_board, qpu_level)
+local player, qpu = player_class(), create_qpu(qpu_board, qpu_level)
 
 function _init()
   player:_init()
@@ -25,8 +25,8 @@ function _init()
   qpu_cursor:init()
 
   game:init()
-  game:add_player(player, player_cursor, board, qpu_board)
-  game:add_player(qpu, qpu_cursor, qpu_board, board)
+  game:add_player(player, board, qpu_board)
+  game:add_player(qpu, qpu_board, board)
 end
 
 function _update60()

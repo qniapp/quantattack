@@ -35,9 +35,9 @@ describe('qpu', function()
     local qpu
 
     before_each(function()
-      board = board_class()
-      cursor = cursor_class(board)
-      qpu = create_qpu(cursor, board)
+      cursor = cursor_class()
+      board = board_class(cursor)
+      qpu = create_qpu(board)
       qpu.sleep = false
       qpu.raise = false
     end)

@@ -6,7 +6,7 @@ local particle = require("lib/particle")
 local bubble = require("lib/bubble")
 local ripple = require("lib/ripple")
 
-local all_players, countdown
+local all_players_info, countdown
 
 function game.reduce_callback(score, _x, _y, player)
   player.score = player.score + score
@@ -106,20 +106,20 @@ function game:init()
   attack_ion.slow = false
   particle.slow = false
 
-  all_players = {}
+  all_players_info = {}
   countdown = 240
   self.start_time = t()
   self.game_over_time = nil
   self.time_left = nil
 end
 
-function game:add_player(player, cursor, board, other_board)
-  player.cursor = cursor
-  player.board = board
-  player.other_board = other_board
-  player.tick = 0
-
-  add(all_players, player)
+function game:add_player(player, board, other_board)
+  add(all_players_info, {
+    player = player,
+    board = board,
+    other_board = other_board,
+    tick = 0
+  })
 end
 
 function game:update()
@@ -133,7 +133,7 @@ function game:update()
       self.start_time = t()
 
       if countdown_number < 4 then
-        for _, each in pairs(all_players) do
+        for _, each in pairs(all_players_info) do
           each.board.countdown = countdown_number
         end
       end
@@ -144,7 +144,7 @@ function game:update()
     elseif countdown == 0 then
       countdown = nil
 
-      for _, each in pairs(all_players) do
+      for _, each in pairs(all_players_info) do
         each.board.countdown = nil
       end
 
@@ -155,41 +155,42 @@ function game:update()
   -- もしどちらかの board でおじゃまゲートを分解中だった場合 "slow" にする
   ripple.slow = false
 
-  for index, each in pairs(all_players) do
-    local cursor = each.cursor
+  for index, each in pairs(all_players_info) do
+    local player = each.player
     local board = each.board
+    local cursor = board.cursor
     local other_board = each.other_board
 
     if self:is_game_over() then
       board:update()
       ripple.slow = false
     else
-      each:update(board)
+      player:update(board)
 
-      if each.left then
+      if player.left then
         sfx(8)
         cursor:move_left()
       end
-      if each.right then
+      if player.right then
         sfx(8)
         cursor:move_right(board.cols)
       end
-      if each.up then
+      if player.up then
         sfx(8)
         cursor:move_up()
       end
-      if each.down then
+      if player.down then
         sfx(8)
         cursor:move_down(board.rows)
       end
-      if each.x and not countdown and board:swap(cursor.x, cursor.y) then
+      if player.x and not countdown and board:swap(cursor.x, cursor.y) then
         sfx(10)
       end
-      if each.o and not countdown and board.top_block_y > 2 then
+      if player.o and not countdown and board.top_block_y > 2 then
         self:_raise(each)
       end
 
-      board:update(self, each, other_board)
+      board:update(self, player, other_board)
       cursor:update()
 
       if not countdown then
@@ -212,7 +213,7 @@ function game:update()
     -- ゲーム中だけ time_left を更新
     game.time_left = 120 - (t() - self.start_time)
 
-    if all_players[1].board:is_game_over() then
+    if all_players_info[1].board:is_game_over() then
       self.game_over_time = t()
     end
   end
@@ -221,7 +222,7 @@ end
 function game:render() -- override
   ripple:render()
 
-  for _, each in pairs(all_players) do
+  for _, each in pairs(all_players_info) do
     local board = each.board
 
     board:render()
@@ -241,30 +242,30 @@ function game:render() -- override
 end
 
 -- ゲートをせりあげる
-function game:_raise(player)
-  local board, cursor = player.board, player.cursor
+function game:_raise(player_info)
+  local player, board = player_info.player, player_info.board
 
   board.raised_dots = board.raised_dots + 1
 
   if board.raised_dots == 8 then
     board.raised_dots = 0
     board:insert_blocks_at_bottom(player.steps)
-    cursor:move_up()
+    board.cursor:move_up()
     player.steps = player.steps + 1
   end
 end
 
 -- 可能な場合ゲートを自動的にせりあげる
-function game:_auto_raise(player)
-  if player.board:is_busy() then
+function game:_auto_raise(player_info)
+  if player_info.board:is_busy() then
     return
   end
 
-  player.tick = player.tick + 1
+  player_info.tick = player_info.tick + 1
 
-  if player.tick > self.auto_raise_frame_count then
-    self:_raise(player)
-    player.tick = 0
+  if player_info.tick > self.auto_raise_frame_count then
+    self:_raise(player_info)
+    player_info.tick = 0
   end
 end
 

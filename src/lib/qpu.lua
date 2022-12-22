@@ -25,10 +25,10 @@ local function _is_swappable(board, block_x, block_y)
 end
 
 -- 新しい QPU プレーヤーを返す
-function create_qpu(cursor, board, _level)
+function create_qpu(board, _level)
   local qpu = setmetatable({
-    cursor = cursor,
     board = board,
+    cursor = board and board.cursor or nil,
     level = _level or 2,
 
     init = function(_ENV)

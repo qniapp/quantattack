@@ -36,7 +36,7 @@ function _init()
   cursor:init()
 
   game:init()
-  game:add_player(player, cursor, board)
+  game:add_player(player, board)
 end
 
 function _update60()
