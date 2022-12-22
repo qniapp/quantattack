@@ -46,7 +46,7 @@ function board.init(_ENV, _cols)
   -- 各種ゲートの取得
   blocks, reducible_blocks, _garbage_blocks, contains_garbage_match_block = {}, {}, {}, false
 
-  tick = 0
+  tick, steps = 0, 0
 
   for x = 1, cols do
     blocks[x], reducible_blocks[x] = {}, {}
@@ -402,7 +402,7 @@ function board.send_garbage(_ENV, chain_id, span, _height)
   pending_garbage_blocks:add_garbage(span, _height, chain_id)
 end
 
-function board.insert_blocks_at_bottom(_ENV, steps)
+function board.insert_blocks_at_bottom(_ENV)
   shift_all_blocks_up(_ENV)
 
   -- local min_cnot_probability = 0.3
@@ -435,6 +435,8 @@ function board.insert_blocks_at_bottom(_ENV, steps)
       until #reduce(_ENV, x, rows, true).to == 0
     end
   end
+
+  steps = steps + 1
 end
 
 function board.shift_all_blocks_up(_ENV)

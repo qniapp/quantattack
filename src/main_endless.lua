@@ -42,17 +42,17 @@ end
 function _update60()
   game:update()
 
-  if player.steps > last_steps then
+  if board.steps > last_steps then
     -- 10 ステップごとに
     --   * おじゃまゲートを降らせる (最大 10 段)
     --   * ゲートをせり上げるスピードを上げる
-    if player.steps > 0 and player.steps % 10 == 0 then
+    if board.steps > 0 and board.steps % 10 == 0 then
       if game.auto_raise_frame_count > 10 then
         game.auto_raise_frame_count = game.auto_raise_frame_count - 1
       end
-      board:send_garbage(nil, 6, player.steps / 10 < 11 and player.steps / 10 or 10)
+      board:send_garbage(nil, 6, board.steps / 10 < 11 and board.steps / 10 or 10)
     end
-    last_steps = player.steps
+    last_steps = board.steps
   end
 
   if game:is_game_over() then
@@ -86,7 +86,7 @@ function _draw()
   -- スコア表示
   print_outlined("score " .. score_string(player.score), base_x, 16, 7, 0)
   print_outlined("hi-score " .. score_string(current_high_score), base_x, 24, 7, 0)
-  print_outlined(player.steps .. " steps", base_x, 38, 7, 0)
+  print_outlined(board.steps .. " steps", base_x, 38, 7, 0)
 
   if not game:is_game_over() then
     spr(99, base_x, 109)

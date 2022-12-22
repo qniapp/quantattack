@@ -124,13 +124,13 @@ function game()
 
     -- ゲートをせりあげる
     _raise = function(_ENV, player_info)
-      local player, board = player_info.player, player_info.board
+      local board = player_info.board
 
       board.raised_dots = board.raised_dots + 1
 
       if board.raised_dots == 8 then
         board.raised_dots = 0
-        board:insert_blocks_at_bottom(player.steps)
+        board:insert_blocks_at_bottom()
         board.cursor:move_up()
       end
     end

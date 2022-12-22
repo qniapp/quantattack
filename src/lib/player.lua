@@ -3,7 +3,7 @@
 local player = new_class()
 
 function player._init(_ENV)
-  steps, score = 0, 0
+  score = 0
 end
 
 function player.update(_ENV)

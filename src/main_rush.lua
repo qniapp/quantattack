@@ -42,17 +42,17 @@ end
 function _update60()
   game:update()
 
-  if player.steps > last_steps then
+  if board.steps > last_steps then
     -- 5 ステップごとに
     --   * おじゃまゲートを降らせる
     --   * ゲートをせり上げるスピードを上げる
-    if player.steps % 5 == 0 then
+    if board.steps % 5 == 0 then
       if game.auto_raise_frame_count > 10 then
         game.auto_raise_frame_count = game.auto_raise_frame_count - 1
       end
-      board:send_garbage(nil, 6, (player.steps + 5) / 5)
+      board:send_garbage(nil, 6, (board.steps + 5) / 5)
     end
-    last_steps = player.steps
+    last_steps = board.steps
   end
 
   if game:is_game_over() then

@@ -254,18 +254,15 @@ function game:render() -- override
 end
 
 -- ゲートをせりあげる
---
--- TODO: player.steps → board.steps に変更し、ローカル変数 player をなくす
 function game:_raise(player_info)
-  local player, board = player_info.player, player_info.board
+  local board = player_info.board
 
   board.raised_dots = board.raised_dots + 1
 
   if board.raised_dots == 8 then
     board.raised_dots = 0
-    board:insert_blocks_at_bottom(player.steps)
+    board:insert_blocks_at_bottom()
     board.cursor:move_up()
-    player.steps = player.steps + 1
   end
 end
 
