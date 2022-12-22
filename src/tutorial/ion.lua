@@ -5,7 +5,7 @@ local ion = new_class()
 
 function ion._init(_ENV)
   _x = 84
-  _y = 46
+  _y = 36
   _dx = 0
   _dy = 0
 end
@@ -20,7 +20,7 @@ function ion.update(_ENV)
 
     _dx, _dy = 0, 0
     _x, _y =
-    _quadratic_bezier(_ENV, 64, 128, 84), _quadratic_bezier(_ENV, 128, 64, 46)
+    _quadratic_bezier(_ENV, 64, 128, 84), _quadratic_bezier(_ENV, 128, 64, 36)
   elseif _state == ":shake" then
     if _tick == _max_tick then
       _state = ":idle"

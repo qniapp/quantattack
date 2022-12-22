@@ -128,16 +128,13 @@ function dtb_draw()
       offset = dislineslength - dtb_curline
     end
 
-    -- 背景のボックス
-    draw_rounded_box(3, 27 - dislineslength * 8, 124, 33, 7, 1)
-
     -- 「次へ」ボタン
     if dtb_curline > 0 and #dtb_dislines[#dtb_dislines] == #dtb_queu[1][dtb_curline] then
       spr(99, 113, 21)
     end
 
     for i = 1, dislineslength do
-      print(dtb_dislines[i], 8, i * 8 + 24 - (dislineslength + offset) * 8, 7)
+      print_outlined(dtb_dislines[i], 8, i * 8 + 24 - (dislineslength + offset) * 8, 7, 0)
     end
   end
 end
