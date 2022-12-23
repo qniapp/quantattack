@@ -54,9 +54,9 @@ function create_qpu(board, _level)
           add_sleep_command(_ENV, 3)
         else
           return for_all_reducible_blocks(_ENV, _reduce_cnot) or
-              board.contains_garbage_match_block or
-              for_all_reducible_blocks(_ENV, _flatten_block) or
-              for_all_reducible_blocks(_ENV, _reduce_single_block)
+            for_all_reducible_blocks(_ENV, _flatten_block) or
+            board.contains_garbage_match_block or
+            for_all_reducible_blocks(_ENV, _reduce_single_block)
         end
       end
     end,
