@@ -3,7 +3,7 @@
 local block = require("lib/block")
 
 local function _is_empty(board, block_x, block_y)
-  if block_x < 1 or board.cols < block_x then
+  if block_x < 1 or board.cols < block_x or board.rows < block_y then
     return false
   end
 
@@ -11,6 +11,10 @@ local function _is_empty(board, block_x, block_y)
 end
 
 local function _is_match(board, block_x, block_y, block)
+  if board.rows < block_y then
+    return false
+  end
+
   local other_block = board.blocks[block_x][block_y]
   return other_block.type == block.type and other_block:is_idle()
 end
