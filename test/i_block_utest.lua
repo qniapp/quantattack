@@ -1,5 +1,4 @@
 require("engine/test/bustedhelper")
-require("lib/test_helper")
 
 local block = require("lib/block")
 
