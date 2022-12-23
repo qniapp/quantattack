@@ -1,6 +1,7 @@
 require("engine/test/bustedhelper")
 require("lib/test_helper")
 
+local block = require("lib/block")
 local board_class = require("lib/board")
 local match = require("luassert.match")
 local game = require("lib/game")

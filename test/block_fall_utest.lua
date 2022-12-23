@@ -2,6 +2,7 @@ require("engine/test/bustedhelper")
 require("engine/render/color")
 require("lib/test_helper")
 
+local block_class = require("lib/block")
 local board_class = require("lib/board")
 
 describe('ブロックの落下', function()
@@ -15,7 +16,7 @@ describe('ブロックの落下', function()
     local block
 
     before_each(function()
-      block = block("h")
+      block = block_class("h")
     end)
 
     it("状態が falling になる", function()
@@ -55,8 +56,8 @@ describe('ブロックの落下', function()
     local block1, block2
 
     before_each(function()
-      block1 = block("h")
-      block2 = block("x")
+      block1 = block_class("h")
+      block2 = block_class("x")
     end)
 
     it("状態が falling になる", function()
@@ -201,7 +202,7 @@ describe('ブロックの落下', function()
       --   H            H        S-S H
       board:put(1, 16, swap_left)
       board:put(2, 16, swap_right)
-      board:put(2, 17, block("h"))
+      board:put(2, 17, block_class("h"))
 
       board:swap(2, 17)
 

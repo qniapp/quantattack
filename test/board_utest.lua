@@ -3,6 +3,7 @@ require("engine/debug/dump")
 require("engine/render/color")
 require("lib/test_helper")
 
+local block = require("lib/block")
 local board_class = require("lib/board")
 local cursor_class = require("lib/cursor")
 
