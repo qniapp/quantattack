@@ -14,7 +14,7 @@ board.attack_cube_target, qpu_board.attack_cube_target = { 78 + 24, 9 }, { 3 + 2
 local player, qpu = player_class(), create_qpu(qpu_board, qpu_level)
 
 function _init()
-  player:_init()
+  player:init()
   board:init()
   board:put_random_blocks()
   player_cursor:init()

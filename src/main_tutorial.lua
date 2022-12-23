@@ -99,7 +99,7 @@ local board_data_cnot = {
 function _init()
   _main_state = ":ion_appear"
 
-  player:_init()
+  player:init()
   board:init()
 
   cursor:init()

@@ -30,7 +30,7 @@ local last_steps = 0
 function _init()
   current_high_score = high_score:get()
 
-  player:_init()
+  player:init()
   board:init()
   board:put_random_blocks()
   cursor:init()
