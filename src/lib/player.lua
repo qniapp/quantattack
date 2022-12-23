@@ -3,6 +3,10 @@
 local player = new_class()
 
 function player._init(_ENV)
+  init(_ENV)
+end
+
+function player.init(_ENV)
   score = 0
 end
 

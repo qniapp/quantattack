@@ -43,7 +43,7 @@ function board.init(_ENV, _cols)
 
   pending_garbage_blocks = create_pending_garbage_blocks()
 
-  -- 各種ゲートの取得
+  -- 各種ブロックの取得
   blocks, reducible_blocks, _garbage_blocks, contains_garbage_match_block = {}, {}, {}, false
 
   tick, steps = 0, 0
@@ -123,7 +123,7 @@ function board.reduce_blocks(_ENV, game, player, other_board)
 
           blocks[x + dx][y + dy]:replace_with(new_block, index, chain_id)
 
-          -- ゲートが消える、または変化するとき、その上にあるゲートすべてに chain_id をセット
+          -- ブロックが消える、または変化するとき、その上にあるブロックすべてに chain_id をセット
           for chainable_y = y + dy - 1, 1, -1 do
             local block_to_fall = blocks[x + dx][chainable_y]
             if block_to_fall.type ~= "i" then
@@ -144,7 +144,7 @@ function board.reduce_blocks(_ENV, game, player, other_board)
     end
   end
 
-  -- おじゃまゲートのマッチ
+  -- おじゃまブロックのマッチ
   repeat
     local matched_garbage_block_count = 0
 
@@ -169,9 +169,9 @@ function board.reduce_blocks(_ENV, game, player, other_board)
           return false
         end
 
-        -- あるおじゃまゲートの上下左右にマッチ中のゲート、
-        -- または同じ色の ? ゲートがあれば、おじゃまゲートに chain_id をセットして
-        -- ? ゲートに分解 & 一列ちぢめる。
+        -- あるおじゃまブロックの上下左右にマッチ中のブロック、
+        -- または同じ色の ? ブロックがあれば、おじゃまブロックに chain_id をセットして
+        -- ? ブロックに分解 & 一列ちぢめる。
 
         -- 下と上
         for gx = x, x + garbage_span - 1 do
@@ -202,10 +202,10 @@ function board.reduce_blocks(_ENV, game, player, other_board)
 
             local new_block
             if j == 0 then
-              -- 一行目にはランダムなゲートを入れる
+              -- 一行目にはランダムなブロックを入れる
               new_block = _random_single_block(_ENV)
             elseif j == 1 and i == 0 then
-              -- 二行目の先頭にはおじゃまゲート
+              -- 二行目の先頭にはおじゃまブロック
               new_block = garbage_block(garbage_span, garbage_height - 1, each.body_color)
             else
               new_block = block("i")
@@ -251,7 +251,7 @@ function board._reduce_nocache(_ENV, x, y, include_next_blocks)
     end
 
     for i, block_types in pairs(block_pattern_rows) do
-      -- other_x と dx を決める際に、パターンにマッチしないゲートがあれば
+      -- other_x と dx を決める際に、パターンにマッチしないブロックがあれば
       -- 先にここではじいておく
       if block_types[1] ~= "?" then
         if reducible_block_at(_ENV, x, y + i - 1).type ~= block_types[1] then
@@ -275,7 +275,7 @@ function board._reduce_nocache(_ENV, x, y, include_next_blocks)
     end
 
     ::check_match::
-    -- chainable フラグがついたブロックがマッチしたゲートの中に 1 個でも含まれていたら連鎖
+    -- chainable フラグがついたブロックがマッチしたブロックの中に 1 個でも含まれていたら連鎖
     local chain_id = x .. "," .. y
 
     -- マッチするかチェック
@@ -369,7 +369,7 @@ function board.put(_ENV, x, y, block)
   --#if assert
   assert(1 <= x and x <= cols, "x = " .. x)
 
-  -- 上段のおじゃまゲートをマッチさせると
+  -- 上段のおじゃまブロックをマッチさせると
   -- garbage match block を y < 0 な領域に作るので、
   -- 0 < y はチェックしない。
   assert(y <= row_next_blocks, "y = " .. y)
@@ -377,14 +377,14 @@ function board.put(_ENV, x, y, block)
 
   block.x, block.y = x, y
 
-  -- おじゃまゲートを分解する時 (= garbage_match ゲートと置き換える時)、
-  -- おじゃまゲートキャッシュから消す
+  -- おじゃまブロックを分解する時 (= garbage_match ブロックと置き換える時)、
+  -- おじゃまブロックキャッシュから消す
   if blocks[x] and blocks[x][y] and blocks[x][y].type == "g" then
     del(_garbage_blocks, blocks[x][y])
   end
 
-  -- 新たにおじゃまゲートを置く場合
-  -- おじゃまゲートキャッシュに追加する
+  -- 新たにおじゃまブロックを置く場合
+  -- おじゃまブロックキャッシュに追加する
   if block.type == "g" then
     add(_garbage_blocks, block)
   end
@@ -427,7 +427,7 @@ function board.insert_blocks_at_bottom(_ENV)
     put(_ENV, cnot_x_x, row_next_blocks, cnot_x_block)
   end
 
-  -- 最下段の空いている部分に新しいゲートを置く
+  -- 最下段の空いている部分に新しいブロックを置く
   for x = 1, cols do
     if is_block_empty(_ENV, x, row_next_blocks) then
       repeat
@@ -449,10 +449,10 @@ function board.shift_all_blocks_up(_ENV)
 end
 
 -------------------------------------------------------------------------------
--- ユーザーによるゲート操作
+-- ユーザーによるブロック操作
 -------------------------------------------------------------------------------
 
--- (x_left, y) と (x_left + 1, y) のゲートを入れ替える
+-- (x_left, y) と (x_left + 1, y) のブロックを入れ替える
 -- 入れ替えできた場合は true を、そうでない場合は false を返す
 function board.swap(_ENV, x_left, y)
   local x_right = x_left + 1
@@ -480,7 +480,7 @@ function board.swap(_ENV, x_left, y)
     return false
   end
 
-  -- left_block の上、または right_block の上のゲートが落下中である場合も
+  -- left_block の上、または right_block の上のブロックが落下中である場合も
   -- 入れ替えできない
   if y > 1 and
       (blocks[x_left][y - 1]:is_falling() or blocks[x_right][y - 1]:is_falling()) then
@@ -547,7 +547,7 @@ function board.render(_ENV)
     end
   end
 
-  -- ゲートの描画
+  -- ブロックの描画
   --
   -- 1 行目は画面に表示しないバッファとして使うので、
   -- 2 行目以降を表示する
@@ -611,7 +611,7 @@ function board.render(_ENV)
     -- end
   end
 
-  -- 待機中のおじゃまゲート
+  -- 待機中のおじゃまブロック
   pending_garbage_blocks:render(_ENV)
 
   -- カーソル
@@ -664,10 +664,10 @@ function board._update_game(_ENV, game, player, other_board)
     _changed = false
   end
 
-  -- 落下と更新処理をすべてのゲートに対して行う。
+  -- 落下と更新処理をすべてのブロックに対して行う。
   -- あわせて top_block_y も更新
   --
-  -- swap などのペアとなるゲートを正しく落とすために、
+  -- swap などのペアとなるブロックを正しく落とすために、
   -- 一番下の行から上に向かって順に処理
   top_block_y = row_next_blocks
   contains_garbage_match_block = false
@@ -680,7 +680,7 @@ function board._update_game(_ENV, game, player, other_board)
         contains_garbage_match_block = true
       end
 
-      -- 落下できるゲートを落とす
+      -- 落下できるブロックを落とす
       if not block:is_falling() and is_block_fallable(_ENV, x, y) then
         if block.other_x then
           local other_block = blocks[block.other_x][y]
@@ -759,13 +759,13 @@ function board._update_game(_ENV, game, player, other_board)
         end
       end
 
-      -- ゲートを更新
+      -- ブロックを更新
       block:update()
     end
   end
 
   for chain_id, _ in pairs(_chain_count) do
-    -- 連鎖可能フラグ (chain_id) の立ったゲートが 1 つもなかった場合、
+    -- 連鎖可能フラグ (chain_id) の立ったブロックが 1 つもなかった場合、
     -- _chain_count をリセット
     for x = 1, cols do
       for y = 1, rows do
@@ -801,11 +801,11 @@ function board._update_bounce(_ENV)
 end
 
 -------------------------------------------------------------------------------
--- ゲートの種類判定
+-- ブロックの種類判定
 -------------------------------------------------------------------------------
 
 -- x, y が空かどうかを返す
--- おじゃまユニタリと SWAP, CNOT ゲートも考慮する
+-- おじゃまユニタリと SWAP, CNOT ブロックも考慮する
 function board.is_block_empty(_ENV, x, y)
   --#if assert
   assert(0 < x and x <= cols, "x = " .. x)
@@ -818,7 +818,7 @@ function board.is_block_empty(_ENV, x, y)
           _is_part_of_swap(_ENV, x, y))
 end
 
--- x, y がおじゃまゲートの一部であるかどうかを返す
+-- x, y がおじゃまブロックの一部であるかどうかを返す
 function board._is_part_of_garbage(_ENV, x, y)
   return _garbage_head_block(_ENV, x, y) ~= nil
 end
@@ -830,8 +830,8 @@ function board._block_or_its_head_block(_ENV, x, y)
       blocks[x][y]
 end
 
--- x, y がおじゃまゲートの一部であった場合、
--- おじゃまゲート先頭のゲートを返す
+-- x, y がおじゃまブロックの一部であった場合、
+-- おじゃまブロック先頭のブロックを返す
 -- 一部でない場合は nil を返す
 function board._garbage_head_block(_ENV, x, y)
   for _, each in pairs(_garbage_blocks) do
@@ -851,7 +851,7 @@ function board._is_part_of_cnot(_ENV, x, y)
 end
 
 -- x, y が CNOT の一部であった場合、
--- CNOT 左端のゲート (control または cnot_x) を返す
+-- CNOT 左端のブロック (control または cnot_x) を返す
 -- 一部でない場合は nil を返す
 function board._cnot_head_block(_ENV, x, y)
   for tmp_x = 1, x - 1 do
@@ -872,7 +872,7 @@ function board._is_part_of_swap(_ENV, x, y)
 end
 
 -- x, y が SWAP ペアの一部であった場合、
--- SWAP ペア左端のゲートを返す
+-- SWAP ペア左端のブロックを返す
 -- 一部でない場合は nil を返す
 function board._swap_head_block(_ENV, x, y)
   for tmp_x = 1, x - 1 do
@@ -888,15 +888,15 @@ function board._swap_head_block(_ENV, x, y)
 end
 
 -------------------------------------------------------------------------------
--- ゲートの状態
+-- ブロックの状態
 -------------------------------------------------------------------------------
 
--- ゲート x, y が x, y + 1 に落とせるかどうかを返す (メモ化)。
+-- ブロック x, y が x, y + 1 に落とせるかどうかを返す (メモ化)。
 function board.is_block_fallable(_ENV, x, y)
   return _memoize(_ENV, _is_block_fallable_nocache, _is_block_fallable_cache, x, y)
 end
 
--- ゲート x, y が x, y + 1 に落とせるかどうかを返す。
+-- ブロック x, y が x, y + 1 に落とせるかどうかを返す。
 function board._is_block_fallable_nocache(_ENV, x, y)
   local block = blocks[x][y]
 
@@ -918,7 +918,7 @@ function board._is_block_fallable_nocache(_ENV, x, y)
   return true
 end
 
--- ボード内にあるいずれかのゲートが更新された場合に呼ばれる。
+-- ボード内にあるいずれかのブロックが更新された場合に呼ばれる。
 -- _changed フラグを立て各種キャッシュも更新・クリアする。
 function board.observable_update(_ENV, block, old_state)
   local x, y = block.x, block.y

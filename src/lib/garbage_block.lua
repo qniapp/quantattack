@@ -11,21 +11,21 @@ local block = require("lib/block")
 --          ██       inner border       ██
 --          ██████████████████████████████
 --
---- @class Garbageblock おじゃまゲート
---- @field span 3 | 4 | 5 | 6 おじゃまゲートの幅
---- @field height integer おじゃまゲートの高さ
---- @field body_color 2 | 3 | 4 おじゃまゲートの色
---- @field inner_border_color 14 | 11 | 9 おじゃまゲート内側の枠線の色
+--- @class Garbageblock おじゃまブロック
+--- @field span 3 | 4 | 5 | 6 おじゃまブロックの幅
+--- @field height integer おじゃまブロックの高さ
+--- @field body_color 2 | 3 | 4 おじゃまブロックの色
+--- @field inner_border_color 14 | 11 | 9 おじゃまブロック内側の枠線の色
 --- @field first_drop boolean 最初の落下かどうか
---- @field render function おじゃまゲートを描画
+--- @field render function おじゃまブロックを描画
 
 local garbage_block_colors = { 2, 3, 4 }
 local inner_border_colors = { nil, 14, 11, 9 }
 
--- 新しいおじゃまゲートを作る
---- @param _span? 3 | 4 | 5 | 6 おじゃまゲートの幅
---- @param _height? integer おじゃまゲートの高さ
---- @param _color? 2 | 3 | 4 おじゃまゲートの色
+-- 新しいおじゃまブロックを作る
+--- @param _span? 3 | 4 | 5 | 6 おじゃまブロックの幅
+--- @param _height? integer おじゃまブロックの高さ
+--- @param _color? 2 | 3 | 4 おじゃまブロックの色
 --- @return Garbageblock
 function garbage_block(_span, _height, _color)
   local garbage = setmetatable({
@@ -34,8 +34,8 @@ function garbage_block(_span, _height, _color)
     _render_box = draw_rounded_box,
 
     --- @param _ENV Garbageblock
-    --- @param screen_x integer おじゃまゲート先頭ゲート (左下) の X 座標
-    --- @param screen_y integer おじゃまゲート先頭ゲートの Y 座標
+    --- @param screen_x integer おじゃまブロック先頭ブロック (左下) の X 座標
+    --- @param screen_y integer おじゃまブロック先頭ブロックの Y 座標
     render = function(_ENV, screen_x, screen_y)
       local y0, x1, y1, _body_color = screen_y + (1 - height) * tile_size + _fall_screen_dy,
           screen_x + span * tile_size - 2,

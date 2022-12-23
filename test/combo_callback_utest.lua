@@ -1,6 +1,7 @@
 require("engine/test/bustedhelper")
 require("lib/test_helper")
 
+local block = require("lib/block")
 local board_class = require("lib/board")
 local match = require("luassert.match")
 local game = require("lib/game")
@@ -16,10 +17,10 @@ describe('コンボ (同時消し) のコールバック', function()
   it("4-コンボ発生でコールバックが呼ばれる", function()
     -- [X H]         H X <- 4-combo
     --  H X  ----->  H X
-    board:put(1, 16, x_block())
-    board:put(1, 17, h_block())
-    board:put(2, 16, h_block())
-    board:put(2, 17, x_block())
+    board:put(1, 16, block("x"))
+    board:put(1, 17, block("h"))
+    board:put(2, 16, block("h"))
+    board:put(2, 17, block("x"))
 
     board:swap(1, 17)
     wait_swap_to_finish(board)
@@ -35,11 +36,11 @@ describe('コンボ (同時消し) のコールバック', function()
     --    S            S <- 5-combo
     -- [Z H]         H Z
     --  H S  ----->  H S
-    board:put(2, 15, s_block())
-    board:put(1, 16, z_block())
-    board:put(2, 16, h_block())
-    board:put(1, 17, h_block())
-    board:put(2, 17, s_block())
+    board:put(2, 15, block("s"))
+    board:put(1, 16, block("z"))
+    board:put(2, 16, block("h"))
+    board:put(1, 17, block("h"))
+    board:put(2, 17, block("s"))
 
     board:swap(1, 16)
     wait_swap_to_finish(board)
@@ -55,12 +56,12 @@ describe('コンボ (同時消し) のコールバック', function()
     -- [S H]        H S <- 6-combo
     --  X Z         Z X
     --  H S  -----> H S
-    board:put(1, 15, s_block())
-    board:put(2, 15, h_block())
-    board:put(1, 16, x_block())
-    board:put(2, 16, z_block())
-    board:put(1, 17, h_block())
-    board:put(2, 17, s_block())
+    board:put(1, 15, block("s"))
+    board:put(2, 15, block("h"))
+    board:put(1, 16, block("x"))
+    board:put(2, 16, block("z"))
+    board:put(1, 17, block("h"))
+    board:put(2, 17, block("s"))
 
     board:swap(1, 15)
     wait_swap_to_finish(board)
@@ -77,13 +78,13 @@ describe('コンボ (同時消し) のコールバック', function()
     --  H Z          H Z
     --  X S          X S
     -- [T H]  -----> H T
-    board:put(2, 14, t_block())
-    board:put(1, 15, h_block())
-    board:put(2, 15, z_block())
-    board:put(1, 16, x_block())
-    board:put(2, 16, s_block())
-    board:put(1, 17, t_block())
-    board:put(2, 17, h_block())
+    board:put(2, 14, block("t"))
+    board:put(1, 15, block("h"))
+    board:put(2, 15, block("z"))
+    board:put(1, 16, block("x"))
+    board:put(2, 16, block("s"))
+    board:put(1, 17, block("t"))
+    board:put(2, 17, block("h"))
 
     board:swap(1, 17)
     wait_swap_to_finish(board)

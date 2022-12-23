@@ -30,7 +30,7 @@ local last_steps = -1
 function _init()
   current_high_score = high_score:get()
 
-  player:_init()
+  player:init()
   board:init()
   board:put_random_blocks()
   cursor:init()
@@ -44,8 +44,8 @@ function _update60()
 
   if board.steps > last_steps then
     -- 5 ステップごとに
-    --   * おじゃまゲートを降らせる
-    --   * ゲートをせり上げるスピードを上げる
+    --   * おじゃまブロックを降らせる
+    --   * ブロックをせり上げるスピードを上げる
     if board.steps % 5 == 0 then
       if game.auto_raise_frame_count > 10 then
         game.auto_raise_frame_count = game.auto_raise_frame_count - 1

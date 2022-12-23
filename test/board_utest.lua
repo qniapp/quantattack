@@ -3,6 +3,7 @@ require("engine/debug/dump")
 require("engine/render/color")
 require("lib/test_helper")
 
+local block = require("lib/block")
 local board_class = require("lib/board")
 local cursor_class = require("lib/cursor")
 
@@ -15,8 +16,8 @@ describe('board', function()
 
   describe('swap', function()
     it('should swap blocks next to each other', function()
-      board:put(1, 16, h_block())
-      board:put(2, 16, x_block())
+      board:put(1, 16, block("h"))
+      board:put(2, 16, block("x"))
 
       local swapped = board:swap(1, 16)
 
@@ -28,9 +29,9 @@ describe('board', function()
     end)
 
     it('should not swap blocks if the left block is in swap', function()
-      board:put(2, 16, h_block())
+      board:put(2, 16, block("h"))
       board.blocks[2][16]:swap_with("left")
-      board:put(3, 16, x_block())
+      board:put(3, 16, block("x"))
 
       local swapped = board:swap(2, 16)
 
@@ -40,8 +41,8 @@ describe('board', function()
     end)
 
     it('should not swap blocks if the right block is in swap', function()
-      board:put(1, 16, h_block())
-      board:put(2, 16, x_block())
+      board:put(1, 16, block("h"))
+      board:put(2, 16, block("x"))
       board.blocks[2][16]:swap_with("right")
 
       local swapped = board:swap(1, 16)
@@ -84,14 +85,14 @@ describe('board', function()
     it('おじゃまユニタリが左側にある場合、入れ替えできない', function()
       -- !!!x__
       board:put(1, 16, garbage_block(3))
-      board:put(4, 16, x_block())
+      board:put(4, 16, block("x"))
 
       assert.is_false(board:swap(3, 16))
     end)
 
     it('おじゃまユニタリが右側にある場合、入れ替えできない', function()
       -- __x!!!
-      board:put(3, 16, x_block())
+      board:put(3, 16, block("x"))
       board:put(4, 16, garbage_block(3))
 
       assert.is_false(board:swap(3, 16))
@@ -104,8 +105,8 @@ describe('board', function()
     --           -
     --           X (next blocks)
     it('should not reduce when y is the last and include_next_blocks = true', function()
-      board:put(1, board.rows, h_block())
-      board:put(1, board.row_next_blocks, x_block())
+      board:put(1, board.rows, block("h"))
+      board:put(1, board.row_next_blocks, block("x"))
 
       local reduction = board:reduce(1, board.rows, true)
 
@@ -117,8 +118,8 @@ describe('board', function()
     --           -
     --           X (next blocks)
     it('should not reduce when y is the last and include_next_blocks = true', function()
-      board:put(1, board.rows, h_block())
-      board:put(1, board.row_next_blocks, x_block())
+      board:put(1, board.rows, block("h"))
+      board:put(1, board.row_next_blocks, block("x"))
 
       local reduction = board:reduce(1, board.rows, true)
 
@@ -134,10 +135,10 @@ describe('board', function()
     end)
   end)
 
-  describe('おじゃまゲート', function()
-    it('おじゃまゲートの左に隣接するゲートがマッチした時、おじゃまゲートが分解される'
+  describe('おじゃまブロック', function()
+    it('おじゃまブロックの左に隣接するブロックがマッチした時、おじゃまブロックが分解される'
       , function()
-      local h = h_block()
+      local h = block("h")
 
       board:put(1, 16, h)
       board:put(2, 16, garbage_block(3))
@@ -148,9 +149,9 @@ describe('board', function()
       assert.are_equal("?", board.blocks[2][16].type)
     end)
 
-    it('おじゃまゲートの右に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
+    it('おじゃまブロックの右に隣接するブロックがマッチした時、おじゃまブロックが破壊される'
       , function()
-      local h = h_block()
+      local h = block("h")
 
       board:put(4, 16, h)
       board:put(1, 16, garbage_block(3))
@@ -161,9 +162,9 @@ describe('board', function()
       assert.are_equal("?", board.blocks[1][16].type)
     end)
 
-    it('おじゃまゲートの上に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
+    it('おじゃまブロックの上に隣接するブロックがマッチした時、おじゃまブロックが破壊される'
       , function()
-      local h = h_block()
+      local h = block("h")
 
       board:put(1, 15, h)
       board:put(1, 16, garbage_block(3))
@@ -174,9 +175,9 @@ describe('board', function()
       assert.are_equal("?", board.blocks[1][16].type)
     end)
 
-    it('おじゃまゲートの下に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
+    it('おじゃまブロックの下に隣接するブロックがマッチした時、おじゃまブロックが破壊される'
       , function()
-      local h = h_block()
+      local h = block("h")
 
       board:put(1, 15, garbage_block(3))
       board:put(1, 16, h)
@@ -198,18 +199,18 @@ describe('board', function()
     it('swap ペアの真ん中が消えた時に正しく落ちる', function()
       board:put(1, 6, swap_block(3))
       board:put(3, 6, swap_block(1))
-      board:put(2, 7, x_block())
-      board:put(2, 8, y_block())
-      board:put(2, 9, h_block())
-      board:put(2, 10, x_block())
-      board:put(2, 11, y_block())
-      board:put(2, 12, h_block())
-      board:put(2, 13, x_block())
-      board:put(2, 14, y_block())
-      board:put(2, 15, h_block())
-      board:put(2, 16, x_block())
-      board:put(2, 17, y_block())
-      board:put(1, 17, x_block())
+      board:put(2, 7, block("x"))
+      board:put(2, 8, block("y"))
+      board:put(2, 9, block("h"))
+      board:put(2, 10, block("x"))
+      board:put(2, 11, block("y"))
+      board:put(2, 12, block("h"))
+      board:put(2, 13, block("x"))
+      board:put(2, 14, block("y"))
+      board:put(2, 15, block("h"))
+      board:put(2, 16, block("x"))
+      board:put(2, 17, block("y"))
+      board:put(1, 17, block("x"))
 
       board:swap(1, 17)
 
@@ -232,18 +233,18 @@ describe('board', function()
 
       board:put(1, 6, swap_block(3))
       board:put(3, 6, swap_block(1))
-      board:put(2, 7, x_block())
-      board:put(2, 8, y_block())
-      board:put(2, 9, h_block())
-      board:put(2, 10, x_block())
-      board:put(2, 11, y_block())
-      board:put(2, 12, h_block())
-      board:put(2, 13, x_block())
-      board:put(2, 14, y_block())
-      board:put(2, 15, h_block())
-      board:put(2, 16, x_block())
-      board:put(2, 17, y_block())
-      board:put(1, 17, x_block())
+      board:put(2, 7, block("x"))
+      board:put(2, 8, block("y"))
+      board:put(2, 9, block("h"))
+      board:put(2, 10, block("x"))
+      board:put(2, 11, block("y"))
+      board:put(2, 12, block("h"))
+      board:put(2, 13, block("x"))
+      board:put(2, 14, block("y"))
+      board:put(2, 15, block("h"))
+      board:put(2, 16, block("x"))
+      board:put(2, 17, block("y"))
+      board:put(1, 17, block("x"))
 
       board:swap(1, 17)
 
@@ -255,17 +256,17 @@ describe('board', function()
       assert.are_equal("swap", board.blocks[3][8].type)
     end)
 
-    it('CNOT 下のゲートを入れ替えて落としたときに消えない', function()
+    it('CNOT 下のブロックを入れ替えて落としたときに消えない', function()
       board:put(5, 9, control_block(6))
       board:put(6, 9, cnot_x_block(5))
-      board:put(6, 10, s_block())
-      board:put(6, 11, z_block())
-      board:put(6, 12, t_block())
-      board:put(6, 13, x_block())
-      board:put(6, 14, t_block())
-      board:put(6, 15, x_block())
-      board:put(6, 16, t_block())
-      board:put(6, 17, x_block())
+      board:put(6, 10, block("s"))
+      board:put(6, 11, block("z"))
+      board:put(6, 12, block("t"))
+      board:put(6, 13, block("x"))
+      board:put(6, 14, block("t"))
+      board:put(6, 15, block("x"))
+      board:put(6, 16, block("t"))
+      board:put(6, 17, block("x"))
 
       board:swap(5, 10)
 
@@ -284,7 +285,7 @@ describe('board', function()
   end)
 
   describe('is_block_fallable', function()
-    it('SWAP ゲートの下にゲートが無い場合 true を返す', function()
+    it('SWAP ブロックの下にブロックが無い場合 true を返す', function()
       board:put(1, 1, swap_block(2))
       board:put(2, 1, swap_block(1))
 
@@ -294,10 +295,10 @@ describe('board', function()
 
     -- S-S
     -- H
-    it('SWAP ゲートが下に落とせない場合 false を返す (左端下にゲート)', function()
+    it('SWAP ブロックが下に落とせない場合 false を返す (左端下にブロック)', function()
       board:put(1, 15, swap_block(3))
       board:put(3, 15, swap_block(1))
-      board:put(1, 16, h_block())
+      board:put(1, 16, block("h"))
 
       assert.is_false(board:is_block_fallable(1, 15))
       assert.is_false(board:is_block_fallable(3, 15))
@@ -305,10 +306,10 @@ describe('board', function()
 
     -- S-S
     --  H
-    it('SWAP ゲートが下に落とせない場合 false を返す (真ん中下にゲート)', function()
+    it('SWAP ブロックが下に落とせない場合 false を返す (真ん中下にブロック)', function()
       board:put(1, 15, swap_block(3))
       board:put(3, 15, swap_block(1))
-      board:put(2, 16, h_block())
+      board:put(2, 16, block("h"))
 
       assert.is_false(board:is_block_fallable(1, 15))
       assert.is_false(board:is_block_fallable(3, 15))
@@ -316,10 +317,10 @@ describe('board', function()
 
     -- S-S
     --   H
-    it('SWAP ゲートが下に落とせない場合 false を返す (右端下にゲート)', function()
+    it('SWAP ブロックが下に落とせない場合 false を返す (右端下にブロック)', function()
       board:put(1, 15, swap_block(3))
       board:put(3, 15, swap_block(1))
-      board:put(3, 16, h_block())
+      board:put(3, 16, block("h"))
 
       assert.is_false(board:is_block_fallable(1, 15))
       assert.is_false(board:is_block_fallable(3, 15))
@@ -327,8 +328,8 @@ describe('board', function()
 
     -- S-S
     -- H (falling)
-    it('SWAP ゲートの下にゲートがあるが落下中の場合 true を返す', function()
-      local h = h_block()
+    it('SWAP ブロックの下にブロックがあるが落下中の場合 true を返す', function()
+      local h = block("h")
       h._state = "falling"
 
       board:put(1, 15, swap_block(3))

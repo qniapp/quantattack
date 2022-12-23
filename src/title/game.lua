@@ -122,7 +122,7 @@ function game()
       attack_ion:render_all()
     end,
 
-    -- ゲートをせりあげる
+    -- ブロックをせりあげる
     _raise = function(_ENV, player_info)
       local board = player_info.board
 

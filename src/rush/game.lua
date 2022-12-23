@@ -20,7 +20,7 @@ function game.combo_callback(combo_count, x, y, player, board, other_board)
 
     player.score = player.score + combo_count
 
-    -- 対戦相手がいる時、おじゃまゲートを送る
+    -- 対戦相手がいる時、おじゃまブロックを送る
     if other_board then
       other_board:send_garbage(nil, combo_count > 6 and 6 or combo_count - 1, 1)
     end
@@ -75,7 +75,7 @@ function game.chain_callback(chain_id, chain_count, x, y, player, board, other_b
 
       player.score = player.score + (chain_bonus[chain_count] or 180)
 
-      -- 対戦相手がいる時、おじゃまゲートを送る
+      -- 対戦相手がいる時、おじゃまブロックを送る
       if other_board then
         other_board:send_garbage(chain_id, 6, chain_count - 1 < 6 and chain_count - 1 or 5)
       end
@@ -152,7 +152,7 @@ function game:update()
     end
   end
 
-  -- もしどちらかの board でおじゃまゲートを分解中だった場合 "slow" にする
+  -- もしどちらかの board でおじゃまブロックを分解中だった場合 "slow" にする
   ripple.slow = false
 
   for index, each in pairs(all_players_info) do
@@ -241,7 +241,7 @@ function game:render() -- override
   attack_ion:render_all()
 end
 
--- ゲートをせりあげる
+-- ブロックをせりあげる
 function game:_raise(player_info)
   local board = player_info.board
 
@@ -254,7 +254,7 @@ function game:_raise(player_info)
   end
 end
 
--- 可能な場合ゲートを自動的にせりあげる
+-- 可能な場合ブロックを自動的にせりあげる
 function game:_auto_raise(player_info)
   if player_info.board:is_busy() then
     return

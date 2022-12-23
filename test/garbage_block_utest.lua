@@ -62,7 +62,7 @@ describe('garbage_block', function()
   end)
 
   describe('render', function()
-    it('おじゃまゲートの本体、影、内側の枠線を描画', function()
+    it('おじゃまブロックの本体、影、内側の枠線を描画', function()
       local garbage = garbage_block(6, 1, 2)
       spy.on(garbage, "_render_box")
 
@@ -78,7 +78,7 @@ end)
 
 describe("board", function()
   describe("_is_part_of_garbage", function()
-    it("指定した座標がおじゃまゲートに含まれるかどうかを判定", function()
+    it("指定した座標がおじゃまブロックに含まれるかどうかを判定", function()
       local board = board_class()
 
       -- 行

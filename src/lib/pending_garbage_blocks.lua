@@ -10,14 +10,14 @@ function create_pending_garbage_blocks()
     end,
 
     add_garbage = function(_ENV, span, height, chain_id)
-      -- 同じ chain_id のおじゃまゲートをまとめる
+      -- 同じ chain_id のおじゃまブロックをまとめる
       for _, each in pairs(all) do
         if each.chain_id == chain_id and each.span == 6 then
           if each.height <= height then
-            -- 同じ chain_id でより低いおじゃまゲートがすでにプールに入っている場合、消す
+            -- 同じ chain_id でより低いおじゃまブロックがすでにプールに入っている場合、消す
             del(all, each)
           else
-            -- 同じ chain_id でより高いおじゃまゲートがすでにプールに入っている場合、何もしない
+            -- 同じ chain_id でより高いおじゃまブロックがすでにプールに入っている場合、何もしない
             return
           end
         end
@@ -72,7 +72,7 @@ function create_pending_garbage_blocks()
           if first_garbage_block.span == board.cols then
             x = 1
           else
-            -- おじゃまゲートの x 座標
+            -- おじゃまブロックの x 座標
             -- x + span - 1 <= board.cols を満たす x をランダムに決める
             --
             -- x = ceil_rnd(6 - 3 + 1)

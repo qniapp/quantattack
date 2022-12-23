@@ -1,6 +1,7 @@
 require("engine/test/bustedhelper")
 require("lib/test_helper")
 
+local block = require("lib/block")
 local board_class = require("lib/board")
 local match = require("luassert.match")
 local game = require("lib/game")
@@ -22,13 +23,13 @@ describe('chain', function()
     -- [X H]        H X
     --  H X  -----> H X ----->     ----->   Y
     --  Y Y         Y Y        Y Y        Y Y
-    board:put(2, 14, y_block())
-    board:put(1, 15, x_block())
-    board:put(2, 15, h_block())
-    board:put(1, 16, h_block())
-    board:put(2, 16, x_block())
-    board:put(1, 17, y_block())
-    board:put(2, 17, y_block())
+    board:put(2, 14, block("y"))
+    board:put(1, 15, block("x"))
+    board:put(2, 15, block("h"))
+    board:put(1, 16, block("h"))
+    board:put(2, 16, block("x"))
+    board:put(1, 17, block("y"))
+    board:put(2, 17, block("y"))
 
     board:swap(1, 15)
 
