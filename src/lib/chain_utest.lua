@@ -18,7 +18,7 @@ describe('連鎖 (chain)', function()
     -- X <-
     -- H
     -- H
-    board:put(1, 14, y_block())
+    board:put(1, 14, block("y"))
     board:put(1, 15, block("x"))
     board:put(1, 16, block("h"))
     board:put(1, 17, block("h"))
@@ -36,7 +36,7 @@ describe('連鎖 (chain)', function()
     -- X
     -- H ---> Y
     -- H      X
-    board:put(1, 14, y_block())
+    board:put(1, 14, block("y"))
     board:put(1, 15, block("x"))
     board:put(1, 16, block("h"))
     board:put(1, 17, block("h"))
@@ -118,7 +118,7 @@ describe('連鎖 (chain)', function()
     board:put(1, 15, garbage_block(3))
     board:put(1, 16, block("h"))
     board:put(1, 17, block("h"))
-    board:put(2, 17, y_block())
+    board:put(2, 17, block("y"))
 
     -- HH とおじゃまブロックがマッチ
     board:update()

@@ -141,8 +141,8 @@ describe('ブロックの簡約ルール', function()
   end)
 
   it('should reduce YY', function()
-    board:put(1, 11, y_block())
-    board:put(1, 12, y_block())
+    board:put(1, 11, block("y"))
+    board:put(1, 12, block("y"))
 
     board:reduce_blocks()
 
@@ -615,10 +615,10 @@ describe('ブロックの簡約ルール', function()
   --  S-S  ----->  S-S
   --    Y            I
   it('should reduce Y S-S Y', function()
-    board:put(1, 10, y_block())
+    board:put(1, 10, block("y"))
     board:put(1, 11, swap_block(3))
     board:put(3, 11, swap_block(1))
-    board:put(3, 12, y_block())
+    board:put(3, 12, block("y"))
 
     board:reduce_blocks()
 

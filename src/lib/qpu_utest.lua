@@ -47,7 +47,7 @@ describe('qpu', function()
     it("左に落とす", function()
       board:put(2, 12, t_block())
       board:put(2, 13, block("x"))
-      board:put(3, 13, y_block())
+      board:put(3, 13, block("y"))
       cursor.x = 2
       cursor.y = 12
 
@@ -70,7 +70,7 @@ describe('qpu', function()
     it("右に落とす", function()
       board:put(2, 16, t_block())
       board:put(1, 17, block("x"))
-      board:put(2, 17, y_block())
+      board:put(2, 17, block("y"))
       cursor.x = 2
       cursor.y = 16
 
@@ -114,7 +114,7 @@ describe('qpu', function()
       board:put(5, 16, t_block())
       board:put(4, 17, t_block())
       board:put(5, 17, block("x"))
-      board:put(6, 17, y_block())
+      board:put(6, 17, block("y"))
       cursor.x = 5
       cursor.y = 16
 
@@ -139,10 +139,10 @@ describe('qpu', function()
       board:put(2, 16, t_block())
       board:put(1, 17, t_block())
       board:put(2, 17, block("x"))
-      board:put(3, 17, y_block())
-      board:put(4, 17, y_block())
-      board:put(5, 17, y_block())
-      board:put(6, 17, y_block())
+      board:put(3, 17, block("y"))
+      board:put(4, 17, block("y"))
+      board:put(5, 17, block("y"))
+      board:put(6, 17, block("y"))
       cursor.x = 2
       cursor.y = 16
 
@@ -165,7 +165,7 @@ describe('qpu', function()
     it("右に動かしてマッチ", function()
       board:put(2, 16, t_block())
       board:put(1, 17, block("x"))
-      board:put(2, 17, y_block())
+      board:put(2, 17, block("y"))
       board:put(3, 17, t_block())
       cursor.x = 2
       cursor.y = 16
@@ -192,7 +192,7 @@ describe('qpu', function()
       board:put(2, 17, block("x"))
       board:put(3, 17, block("x"))
       board:put(4, 17, block("x"))
-      board:put(5, 17, y_block())
+      board:put(5, 17, block("y"))
       board:put(6, 17, t_block())
       cursor.x = 5
       cursor.y = 16
