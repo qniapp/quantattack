@@ -1,11 +1,12 @@
 require("lib/qpu")
+require("lib/player")
 
 local game_class = require("lib/game")
 local game = game_class()
 local qpu_level = stat(6) -- 3: easy, 2: normal, 1: hard
 
-local player_class, cursor_class, board_class =
-require("lib/player"), require("lib/cursor"), require("lib/board")
+local cursor_class, board_class =
+require("lib/cursor"), require("lib/board")
 
 local player_cursor, qpu_cursor = cursor_class(), cursor_class()
 local board, qpu_board = board_class(player_cursor, 3), board_class(qpu_cursor, 78)

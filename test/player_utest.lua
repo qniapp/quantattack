@@ -1,6 +1,5 @@
 require("engine/test/bustedhelper")
-
-local player_class = require("lib/player")
+require("lib/player")
 
 describe('player', function()
   local player
