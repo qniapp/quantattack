@@ -23,10 +23,10 @@ describe('chain', function()
     --  H X  -----> H X ----->     ----->   Y
     --  Y Y         Y Y        Y Y        Y Y
     board:put(2, 14, y_block())
-    board:put(1, 15, x_block())
+    board:put(1, 15, block("x"))
     board:put(2, 15, block("h"))
     board:put(1, 16, block("h"))
-    board:put(2, 16, x_block())
+    board:put(2, 16, block("x"))
     board:put(1, 17, y_block())
     board:put(2, 17, y_block())
 

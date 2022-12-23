@@ -13,7 +13,7 @@ describe('ブロックの入れ替え', function()
   describe('フレーム数', function()
     it("入れ替えると状態が swapping になる", function()
       board:put(1, 16, block("h"))
-      board:put(2, 16, x_block())
+      board:put(2, 16, block("x"))
 
       board:swap(1, 16)
 
@@ -22,7 +22,7 @@ describe('ブロックの入れ替え', function()
 
     it("4 フレームで入れ替わる", function()
       board:put(1, 17, block("h"))
-      board:put(2, 17, x_block())
+      board:put(2, 17, block("x"))
 
       -- swap 開始フレーム
       board:swap(1, 17)

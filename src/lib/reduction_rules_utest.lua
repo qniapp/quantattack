@@ -131,8 +131,8 @@ describe('ブロックの簡約ルール', function()
   end)
 
   it('should reduce XX', function()
-    board:put(1, 11, x_block())
-    board:put(1, 12, x_block())
+    board:put(1, 11, block("x"))
+    board:put(1, 12, block("x"))
 
     board:reduce_blocks()
 
@@ -181,7 +181,7 @@ describe('ブロックの簡約ルール', function()
   end)
 
   it('should reduce XZ', function()
-    board:put(1, 11, x_block())
+    board:put(1, 11, block("x"))
     board:put(1, 12, z_block())
 
     board:reduce_blocks()
@@ -192,7 +192,7 @@ describe('ブロックの簡約ルール', function()
 
   it('should reduce ZX', function()
     board:put(1, 11, z_block())
-    board:put(1, 12, x_block())
+    board:put(1, 12, block("x"))
 
     board:reduce_blocks()
 
@@ -202,7 +202,7 @@ describe('ブロックの簡約ルール', function()
 
   it('should reduce HXH', function()
     board:put(1, 10, block("h"))
-    board:put(1, 11, x_block())
+    board:put(1, 11, block("x"))
     board:put(1, 12, block("h"))
 
     board:reduce_blocks()
@@ -409,11 +409,11 @@ describe('ブロックの簡約ルール', function()
   end)
 
   it('should reduce XX C-X X', function()
-    board:put(1, 10, x_block())
-    board:put(3, 10, x_block())
+    board:put(1, 10, block("x"))
+    board:put(3, 10, block("x"))
     board:put(1, 11, control_block(3))
     board:put(3, 11, cnot_x_block(1))
-    board:put(1, 12, x_block())
+    board:put(1, 12, block("x"))
 
     board:reduce_blocks()
 
@@ -425,11 +425,11 @@ describe('ブロックの簡約ルール', function()
   end)
 
   it('should reduce XX X-C X', function()
-    board:put(1, 10, x_block())
-    board:put(3, 10, x_block())
+    board:put(1, 10, block("x"))
+    board:put(3, 10, block("x"))
     board:put(1, 11, cnot_x_block(3))
     board:put(3, 11, control_block(1))
-    board:put(3, 12, x_block())
+    board:put(3, 12, block("x"))
 
     board:reduce_blocks()
 
@@ -473,10 +473,10 @@ describe('ブロックの簡約ルール', function()
   end)
 
   it('should reduce X C-X X', function()
-    board:put(3, 10, x_block())
+    board:put(3, 10, block("x"))
     board:put(1, 11, control_block(3))
     board:put(3, 11, cnot_x_block(1))
-    board:put(3, 12, x_block())
+    board:put(3, 12, block("x"))
 
     board:reduce_blocks()
 
@@ -487,10 +487,10 @@ describe('ブロックの簡約ルール', function()
   end)
 
   it('should reduce X X-C X', function()
-    board:put(1, 10, x_block())
+    board:put(1, 10, block("x"))
     board:put(1, 11, cnot_x_block(3))
     board:put(3, 11, control_block(1))
-    board:put(1, 12, x_block())
+    board:put(1, 12, block("x"))
 
     board:reduce_blocks()
 
@@ -549,7 +549,7 @@ describe('ブロックの簡約ルール', function()
     board:put(1, 10, block("h"))
     board:put(1, 11, swap_block(3))
     board:put(3, 11, swap_block(1))
-    board:put(1, 12, x_block()) -- 適当なゴミを置いとく
+    board:put(1, 12, block("x")) -- 適当なゴミを置いとく
     board:put(3, 12, block("h"))
 
     board:reduce_blocks()
@@ -581,10 +581,10 @@ describe('ブロックの簡約ルール', function()
   --  S-S  ----->  S-S
   --    X            I
   it('X S-S X を簡約する', function()
-    board:put(1, 10, x_block())
+    board:put(1, 10, block("x"))
     board:put(1, 11, swap_block(3))
     board:put(3, 11, swap_block(1))
-    board:put(3, 12, x_block())
+    board:put(3, 12, block("x"))
 
     board:reduce_blocks()
 
@@ -598,10 +598,10 @@ describe('ブロックの簡約ルール', function()
   --  S-S  ----->  S-S
   --  X            I
   it('X S-S X を簡約する (反対側)', function()
-    board:put(3, 10, x_block())
+    board:put(3, 10, block("x"))
     board:put(1, 11, swap_block(3))
     board:put(3, 11, swap_block(1))
-    board:put(1, 12, x_block())
+    board:put(1, 12, block("x"))
 
     board:reduce_blocks()
 
@@ -684,7 +684,7 @@ describe('ブロックの簡約ルール', function()
   --  S-S  ----->  S-S
   --    Z            I
   it('should reduce X S-S Z', function()
-    board:put(1, 10, x_block())
+    board:put(1, 10, block("x"))
     board:put(1, 11, swap_block(3))
     board:put(3, 11, swap_block(1))
     board:put(3, 12, z_block())
@@ -703,7 +703,7 @@ describe('ブロックの簡約ルール', function()
   --    H            I
   it('should reduce HX S-S H', function()
     board:put(1, 9, block("h"))
-    board:put(1, 10, x_block())
+    board:put(1, 10, block("x"))
     board:put(1, 11, swap_block(3))
     board:put(3, 11, swap_block(1))
     board:put(3, 12, block("h"))
@@ -725,7 +725,7 @@ describe('ブロックの簡約ルール', function()
     board:put(1, 9, block("h"))
     board:put(1, 10, swap_block(3))
     board:put(3, 10, swap_block(1))
-    board:put(3, 11, x_block())
+    board:put(3, 11, block("x"))
     board:put(3, 12, block("h"))
 
     board:reduce_blocks()
@@ -910,11 +910,11 @@ describe('ブロックの簡約ルール', function()
   it('should reduce Z HX X-C HX', function()
     board:put(1, 9, z_block())
     board:put(1, 10, block("h"))
-    board:put(3, 10, x_block())
+    board:put(3, 10, block("x"))
     board:put(1, 11, cnot_x_block(3))
     board:put(3, 11, control_block(1))
     board:put(1, 12, block("h"))
-    board:put(3, 12, x_block())
+    board:put(3, 12, block("x"))
 
     board:reduce_blocks()
 
@@ -933,13 +933,13 @@ describe('ブロックの簡約ルール', function()
   --  H            H
   --  X            I
   it('should reduce X HZ X-C H X', function()
-    board:put(1, 8, x_block())
+    board:put(1, 8, block("x"))
     board:put(1, 9, block("h"))
     board:put(3, 9, z_block())
     board:put(1, 10, cnot_x_block(3))
     board:put(3, 10, control_block(1))
     board:put(1, 11, block("h"))
-    board:put(1, 12, x_block())
+    board:put(1, 12, block("x"))
 
     board:reduce_blocks()
 

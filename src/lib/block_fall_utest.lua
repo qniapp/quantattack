@@ -56,7 +56,7 @@ describe('ブロックの落下', function()
 
     before_each(function()
       block1 = block("h")
-      block2 = x_block()
+      block2 = block("x")
     end)
 
     it("状態が falling になる", function()

@@ -125,7 +125,7 @@ describe('block', function()
   it('should replace with other block', function()
     local board = board_class()
     local block = block("h")
-    local other_block = x_block()
+    local other_block = block("x")
     board:put(1, 1, block)
 
     block:replace_with(other_block)
