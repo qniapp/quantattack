@@ -1,5 +1,5 @@
 require("engine/test/bustedhelper")
-require("lib/test_helper")
+require("test/test_helper")
 
 describe('swap_block', function()
   local swap

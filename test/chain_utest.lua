@@ -1,6 +1,6 @@
 require("engine/test/bustedhelper")
 require("engine/render/color")
-require("lib/test_helper")
+require("test/test_helper")
 
 local board_class = require("lib/board")
 local block = require("lib/block")

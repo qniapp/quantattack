@@ -1,6 +1,6 @@
 require("engine/test/bustedhelper")
 require("engine/render/color")
-require("lib/test_helper")
+require("test/test_helper")
 require("lib/qpu")
 
 local block = require("lib/block")

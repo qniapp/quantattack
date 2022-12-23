@@ -1,5 +1,5 @@
 require("engine/test/bustedhelper")
-require("lib/test_helper")
+require("test/test_helper")
 
 local board_class = require("lib/board")
 local block_class = require("lib/block")
