@@ -43,4 +43,4 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-"$picoboots_scripts_path/test_scripts.sh" "$game_src_path" --lua-root src $@
+"$picoboots_scripts_path/test_scripts.sh" test --lua-root "$game_src_path" $@
