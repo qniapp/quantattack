@@ -134,8 +134,8 @@ describe('board', function()
     end)
   end)
 
-  describe('おじゃまゲート', function()
-    it('おじゃまゲートの左に隣接するゲートがマッチした時、おじゃまゲートが分解される'
+  describe('おじゃまブロック', function()
+    it('おじゃまブロックの左に隣接するブロックがマッチした時、おじゃまブロックが分解される'
       , function()
       local h = h_block()
 
@@ -148,7 +148,7 @@ describe('board', function()
       assert.are_equal("?", board.blocks[2][16].type)
     end)
 
-    it('おじゃまゲートの右に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
+    it('おじゃまブロックの右に隣接するブロックがマッチした時、おじゃまブロックが破壊される'
       , function()
       local h = h_block()
 
@@ -161,7 +161,7 @@ describe('board', function()
       assert.are_equal("?", board.blocks[1][16].type)
     end)
 
-    it('おじゃまゲートの上に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
+    it('おじゃまブロックの上に隣接するブロックがマッチした時、おじゃまブロックが破壊される'
       , function()
       local h = h_block()
 
@@ -174,7 +174,7 @@ describe('board', function()
       assert.are_equal("?", board.blocks[1][16].type)
     end)
 
-    it('おじゃまゲートの下に隣接するゲートがマッチした時、おじゃまゲートが破壊される'
+    it('おじゃまブロックの下に隣接するブロックがマッチした時、おじゃまブロックが破壊される'
       , function()
       local h = h_block()
 
@@ -255,7 +255,7 @@ describe('board', function()
       assert.are_equal("swap", board.blocks[3][8].type)
     end)
 
-    it('CNOT 下のゲートを入れ替えて落としたときに消えない', function()
+    it('CNOT 下のブロックを入れ替えて落としたときに消えない', function()
       board:put(5, 9, control_block(6))
       board:put(6, 9, cnot_x_block(5))
       board:put(6, 10, s_block())
@@ -284,7 +284,7 @@ describe('board', function()
   end)
 
   describe('is_block_fallable', function()
-    it('SWAP ゲートの下にゲートが無い場合 true を返す', function()
+    it('SWAP ブロックの下にブロックが無い場合 true を返す', function()
       board:put(1, 1, swap_block(2))
       board:put(2, 1, swap_block(1))
 
@@ -294,7 +294,7 @@ describe('board', function()
 
     -- S-S
     -- H
-    it('SWAP ゲートが下に落とせない場合 false を返す (左端下にゲート)', function()
+    it('SWAP ブロックが下に落とせない場合 false を返す (左端下にブロック)', function()
       board:put(1, 15, swap_block(3))
       board:put(3, 15, swap_block(1))
       board:put(1, 16, h_block())
@@ -305,7 +305,7 @@ describe('board', function()
 
     -- S-S
     --  H
-    it('SWAP ゲートが下に落とせない場合 false を返す (真ん中下にゲート)', function()
+    it('SWAP ブロックが下に落とせない場合 false を返す (真ん中下にブロック)', function()
       board:put(1, 15, swap_block(3))
       board:put(3, 15, swap_block(1))
       board:put(2, 16, h_block())
@@ -316,7 +316,7 @@ describe('board', function()
 
     -- S-S
     --   H
-    it('SWAP ゲートが下に落とせない場合 false を返す (右端下にゲート)', function()
+    it('SWAP ブロックが下に落とせない場合 false を返す (右端下にブロック)', function()
       board:put(1, 15, swap_block(3))
       board:put(3, 15, swap_block(1))
       board:put(3, 16, h_block())
@@ -327,7 +327,7 @@ describe('board', function()
 
     -- S-S
     -- H (falling)
-    it('SWAP ゲートの下にゲートがあるが落下中の場合 true を返す', function()
+    it('SWAP ブロックの下にブロックがあるが落下中の場合 true を返す', function()
       local h = h_block()
       h._state = "falling"
 

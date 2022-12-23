@@ -3,7 +3,7 @@ require("lib/test_helper")
 
 local board_class = require("lib/board")
 
-describe('ゲートの入れ替え', function()
+describe('ブロックの入れ替え', function()
   local board
 
   before_each(function()
@@ -49,10 +49,10 @@ describe('ゲートの入れ替え', function()
     end)
   end)
 
-  describe('I ゲートとの入れ替え', function()
+  describe('I ブロックとの入れ替え', function()
     --
     -- [H ] (H と I を入れ換え)
-    it("入れ替え中の I ゲートは empty でない", function()
+    it("入れ替え中の I ブロックは empty でない", function()
       board:put(1, 16, h_block())
 
       board:swap(1, 16)

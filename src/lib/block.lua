@@ -48,7 +48,7 @@ function block._init(_ENV, _type, _span, _height)
 end
 
 -------------------------------------------------------------------------------
--- ゲートの種類と状態
+-- ブロックの種類と状態
 -------------------------------------------------------------------------------
 
 function block:is_idle()
@@ -67,12 +67,11 @@ function block.is_reducible(_ENV)
   return type ~= "i" and type ~= "?" and is_idle(_ENV)
 end
 
--- マッチ状態である場合 true を返す
 function block:is_match()
   return self._state == "match"
 end
 
--- おじゃまユニタリがゲートに変化した後の硬直中
+-- おじゃまブロックが小さいブロックに分解した後の硬直中かどうか
 function block:is_freeze()
   return self._state == "freeze"
 end
@@ -100,7 +99,7 @@ function block.is_single_block(_ENV)
 end
 
 -------------------------------------------------------------------------------
--- ゲート操作
+-- ブロック操作
 -------------------------------------------------------------------------------
 
 --- @param direction "left" | "right"

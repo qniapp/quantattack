@@ -89,7 +89,7 @@ describe('qpu', function()
     --
     -- [T  ]
     --  X
-    it("左壁ぎわのゲートを右に落とす", function()
+    it("左壁ぎわのブロックを右に落とす", function()
       board:put(1, 16, t_block())
       board:put(1, 17, x_block())
       cursor.x = 1
@@ -134,7 +134,7 @@ describe('qpu', function()
     --
     --  H[T  ]
     --  T X Y Y Y Y
-    it("左に動かしてマッチ (他のゲートとの入れ替えあり)", function()
+    it("左に動かしてマッチ (他のブロックとの入れ替えあり)", function()
       board:put(1, 16, h_block())
       board:put(2, 16, t_block())
       board:put(1, 17, t_block())

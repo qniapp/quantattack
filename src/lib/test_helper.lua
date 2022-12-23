@@ -6,10 +6,6 @@ function wait_swap_to_finish(board)
   end
 end
 
-function i_block()
-  return block("i")
-end
-
 function h_block()
   return block("h")
 end

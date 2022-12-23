@@ -4,14 +4,14 @@ require("lib/test_helper")
 
 local board_class = require("lib/board")
 
-describe('ゲートの落下', function()
+describe('ブロックの落下', function()
   local board
 
   before_each(function()
     board = board_class()
   end)
 
-  describe('ゲートが 1 つだけ落ちる', function()
+  describe('ブロックが 1 つだけ落ちる', function()
     local block
 
     before_each(function()
@@ -26,7 +26,7 @@ describe('ゲートの落下', function()
       assert.is_true(block:is_falling())
     end)
 
-    it("4 フレームで 1 ゲートほど落下する", function()
+    it("4 フレームで 1 ブロックほど落下する", function()
       board:put(1, 15, block)
 
       board:update()
@@ -51,7 +51,7 @@ describe('ゲートの落下', function()
     end)
   end)
 
-  describe('ゲートが 2 つ積み重なったまま落ちる', function()
+  describe('ブロックが 2 つ積み重なったまま落ちる', function()
     local block1, block2
 
     before_each(function()
@@ -69,7 +69,7 @@ describe('ゲートの落下', function()
       assert.is_true(block2:is_falling())
     end)
 
-    it("4 フレームで 1 ゲートほど落下する", function()
+    it("4 フレームで 1 ブロックほど落下する", function()
       board:put(1, 14, block1)
       board:put(1, 15, block2)
 
@@ -118,7 +118,7 @@ describe('ゲートの落下', function()
       assert.is_true(cnot_x:is_falling())
     end)
 
-    it("4 フレームで 1 ゲートほど落下する", function()
+    it("4 フレームで 1 ブロックほど落下する", function()
       board:put(1, 15, control)
       board:put(2, 15, cnot_x)
 
@@ -148,7 +148,7 @@ describe('ゲートの落下', function()
     end)
   end)
 
-  describe('SWAP ゲートが落ちる', function()
+  describe('SWAP ブロックが落ちる', function()
     local swap_left, swap_right
 
     before_each(function()
@@ -166,7 +166,7 @@ describe('ゲートの落下', function()
       assert.is_true(swap_right:is_falling())
     end)
 
-    it("4 フレームで 1 ゲートほど落下する", function()
+    it("4 フレームで 1 ブロックほど落下する", function()
       board:put(1, 15, swap_left)
       board:put(2, 15, swap_right)
 
@@ -195,7 +195,7 @@ describe('ゲートの落下', function()
       assert.is_true(swap_right:is_idle())
     end)
 
-    it('下のゲートをずらして落とす', function()
+    it('下のブロックをずらして落とす', function()
       --
       -- S-S  --->  S-S    --->
       --   H            H        S-S H
@@ -225,7 +225,7 @@ describe('ゲートの落下', function()
     end)
   end)
 
-  describe('おじゃまゲートが落ちる', function()
+  describe('おじゃまブロックが落ちる', function()
     local garbage
 
     before_each(function()
@@ -240,7 +240,7 @@ describe('ゲートの落下', function()
       assert.is_true(garbage:is_falling())
     end)
 
-    it("4 フレームで 1 ゲートほど落下する", function()
+    it("4 フレームで 1 ブロックほど落下する", function()
       board:put(1, 15, garbage)
 
       board:update()

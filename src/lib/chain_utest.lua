@@ -12,7 +12,7 @@ describe('連鎖 (chain)', function()
     board = board_class()
   end)
 
-  it("ゲートがマッチすると、マッチしたゲートとその上にあるゲートすべてに chain_id が付く"
+  it("ブロックがマッチすると、マッチしたブロックとその上にあるブロックすべてに chain_id が付く"
     , function()
     -- Y <-
     -- X <-
@@ -31,7 +31,7 @@ describe('連鎖 (chain)', function()
     assert.is_not_nil(board.blocks[1][17].chain_id)
   end)
 
-  it("chain_id が付いたゲートは、着地すると chain_id が消える", function()
+  it("chain_id が付いたブロックは、着地すると chain_id が消える", function()
     -- Y
     -- X
     -- H ---> Y
@@ -51,7 +51,7 @@ describe('連鎖 (chain)', function()
     assert.is_nil(board.blocks[1][17].chain_id)
   end)
 
-  it("ゲートがマッチすると、board._chain_count が 1 になる", function()
+  it("ブロックがマッチすると、board._chain_count が 1 になる", function()
     -- H
     -- H
     board:put(1, 15, h_block())
@@ -79,7 +79,7 @@ describe('連鎖 (chain)', function()
     assert.are_equal(2, board._chain_count["1,15"])
   end)
 
-  it("2 連鎖 (ほかのゲートに変化したものとさらにマッチ)", function()
+  it("2 連鎖 (ほかのブロックに変化したものとさらにマッチ)", function()
     -- S
     -- T --> S
     -- T     S
@@ -94,7 +94,7 @@ describe('連鎖 (chain)', function()
     assert.are_equal(2, board._chain_count["1,16"])
   end)
 
-  it("3 連鎖 (ほかのゲートに変化したものとさらにマッチ)", function()
+  it("3 連鎖 (ほかのブロックに変化したものとさらにマッチ)", function()
     -- Z
     -- S     Z
     -- T --> S --> Z
@@ -114,34 +114,34 @@ describe('連鎖 (chain)', function()
   -- G G G      X Y Z
   -- H     --->       --->
   -- H Y          Y        X   Z
-  it("おじゃまゲート 2 連鎖", function()
+  it("おじゃまブロック 2 連鎖", function()
     board:put(1, 15, garbage_block(3))
     board:put(1, 16, h_block())
     board:put(1, 17, h_block())
     board:put(2, 17, y_block())
 
-    -- HH とおじゃまゲートがマッチ
+    -- HH とおじゃまブロックがマッチ
     board:update()
 
-    -- おじゃまゲートの一番左が分解
+    -- おじゃまブロックの一番左が分解
     for i = 1, block.block_match_animation_frame_count do
       board:update()
     end
     assert.is_true(board.blocks[1][15]:is_freeze())
 
-    -- おじゃまゲートの真ん中が分解
+    -- おじゃまブロックの真ん中が分解
     for i = 1, block.block_match_delay_per_block do
       board:update()
     end
     assert.is_true(board.blocks[2][15]:is_freeze())
 
-    -- おじゃまゲートの一番右が分解
+    -- おじゃまブロックの一番右が分解
     for i = 1, block.block_match_delay_per_block do
       board:update()
     end
     assert.is_true(board.blocks[3][15]:is_freeze())
 
-    -- 分解してできたゲートすべてのフリーズ解除
+    -- 分解してできたブロックすべてのフリーズ解除
     for i = 1, block.block_match_delay_per_block do
       board:update()
     end
@@ -156,7 +156,7 @@ describe('連鎖 (chain)', function()
     assert.are_equal("1,16", board.blocks[3][15].chain_id)
 
     -- 下の Y とマッチするように
-    -- おじゃまゲート真ん中が分解してできたゲートを Y にする
+    -- おじゃまブロック真ん中が分解してできたブロックを Y にする
     board.blocks[2][15].type = "y"
 
     -- 1 マス落下
@@ -176,7 +176,7 @@ describe('連鎖 (chain)', function()
     assert.are_equal(2, board._chain_count["1,16"])
   end)
 
-  it("chaina_id を持つゲートが接地すると chain_id が消える", function()
+  it("chaina_id を持つブロックが接地すると chain_id が消える", function()
     -- X
     -- H  -->
     -- H      X

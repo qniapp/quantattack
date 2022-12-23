@@ -216,7 +216,7 @@ function create_qpu(board, _level)
 
     add_swap_command = function(_ENV)
       add(commands, "x")
-      -- NOTE: ゲートの入れ替えコマンドを送った後は、
+      -- NOTE: ブロックの入れ替えコマンドを送った後は、
       -- 必ず次のように入れ替え完了するまで sleep する。
       -- これをしないと「左に連続して移動して落とす」などの
       -- 操作がうまく行かない。

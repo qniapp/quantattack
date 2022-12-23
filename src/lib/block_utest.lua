@@ -12,7 +12,7 @@ describe('block', function()
       assert.are_equal("i", g.type)
     end)
 
-    it("すべての type のゲートを作る", function()
+    it("すべての type のブロックを作る", function()
       assert.has_no.errors(function() block("i") end)
       assert.has_no.errors(function() block("h") end)
       assert.has_no.errors(function() block("x") end)
