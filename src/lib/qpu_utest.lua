@@ -135,7 +135,7 @@ describe('qpu', function()
     --  H[T  ]
     --  T X Y Y Y Y
     it("左に動かしてマッチ (他のブロックとの入れ替えあり)", function()
-      board:put(1, 16, h_block())
+      board:put(1, 16, block("h"))
       board:put(2, 16, t_block())
       board:put(1, 17, t_block())
       board:put(2, 17, x_block())
@@ -187,7 +187,7 @@ describe('qpu', function()
     --  _ _ _ X Y T
     it("右に動かしてマッチ (入れ替えあり)", function()
       board:put(5, 16, t_block())
-      board:put(6, 17, h_block())
+      board:put(6, 17, block("h"))
       board:put(1, 17, x_block())
       board:put(2, 17, x_block())
       board:put(3, 17, x_block())
@@ -213,7 +213,7 @@ describe('qpu', function()
     --   [  H]
     --    T T T T T
     it("左に 1 マス動かす", function()
-      board:put(3, 16, h_block())
+      board:put(3, 16, block("h"))
       board:put(2, 17, t_block())
       board:put(3, 17, t_block())
       board:put(4, 17, t_block())
@@ -238,8 +238,8 @@ describe('qpu', function()
     --   [  H]
     --  H T T T T T
     it("左に 1 マス動かす", function()
-      board:put(3, 16, h_block())
-      board:put(1, 17, h_block())
+      board:put(3, 16, block("h"))
+      board:put(1, 17, block("h"))
       board:put(2, 17, t_block())
       board:put(3, 17, t_block())
       board:put(4, 17, t_block())
@@ -264,9 +264,9 @@ describe('qpu', function()
     --  H g g g g g
     -- [  H]
     it("左に 1 マス動かしてマッチ", function()
-      board:put(1, 12, h_block())
+      board:put(1, 12, block("h"))
       board:put(2, 12, garbage_block(5, 1))
-      board:put(2, 13, h_block())
+      board:put(2, 13, block("h"))
       cursor.x = 1
       cursor.y = 13
 

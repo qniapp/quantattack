@@ -51,7 +51,7 @@ describe('block', function()
   describe('render', function()
     it('should render without errors', function()
       local board = board_class()
-      local block = h_block()
+      local block = block("h")
 
       board:put(1, 1, block)
 
@@ -64,7 +64,7 @@ describe('block', function()
 
     before_each(function()
       local board = board_class()
-      block = h_block()
+      block = block("h")
 
       board:put(2, 1, block)
     end)
@@ -85,7 +85,7 @@ describe('block', function()
 
     before_each(function()
       local board = board_class()
-      block = h_block()
+      block = block("h")
 
       board:put(1, 1, block)
     end)
@@ -106,7 +106,7 @@ describe('block', function()
 
     before_each(function()
       local board = board_class()
-      block = h_block()
+      block = block("h")
 
       board:put(1, 1, block)
     end)
@@ -124,7 +124,7 @@ describe('block', function()
 
   it('should replace with other block', function()
     local board = board_class()
-    local block = h_block()
+    local block = block("h")
     local other_block = x_block()
     board:put(1, 1, block)
 

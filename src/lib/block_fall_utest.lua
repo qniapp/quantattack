@@ -15,7 +15,7 @@ describe('ブロックの落下', function()
     local block
 
     before_each(function()
-      block = h_block()
+      block = block("h")
     end)
 
     it("状態が falling になる", function()
@@ -55,7 +55,7 @@ describe('ブロックの落下', function()
     local block1, block2
 
     before_each(function()
-      block1 = h_block()
+      block1 = block("h")
       block2 = x_block()
     end)
 
@@ -201,7 +201,7 @@ describe('ブロックの落下', function()
       --   H            H        S-S H
       board:put(1, 16, swap_left)
       board:put(2, 16, swap_right)
-      board:put(2, 17, h_block())
+      board:put(2, 17, block("h"))
 
       board:swap(2, 17)
 

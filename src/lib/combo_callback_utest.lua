@@ -17,8 +17,8 @@ describe('コンボ (同時消し) のコールバック', function()
     -- [X H]         H X <- 4-combo
     --  H X  ----->  H X
     board:put(1, 16, x_block())
-    board:put(1, 17, h_block())
-    board:put(2, 16, h_block())
+    board:put(1, 17, block("h"))
+    board:put(2, 16, block("h"))
     board:put(2, 17, x_block())
 
     board:swap(1, 17)
@@ -37,8 +37,8 @@ describe('コンボ (同時消し) のコールバック', function()
     --  H S  ----->  H S
     board:put(2, 15, s_block())
     board:put(1, 16, z_block())
-    board:put(2, 16, h_block())
-    board:put(1, 17, h_block())
+    board:put(2, 16, block("h"))
+    board:put(1, 17, block("h"))
     board:put(2, 17, s_block())
 
     board:swap(1, 16)
@@ -56,10 +56,10 @@ describe('コンボ (同時消し) のコールバック', function()
     --  X Z         Z X
     --  H S  -----> H S
     board:put(1, 15, s_block())
-    board:put(2, 15, h_block())
+    board:put(2, 15, block("h"))
     board:put(1, 16, x_block())
     board:put(2, 16, z_block())
-    board:put(1, 17, h_block())
+    board:put(1, 17, block("h"))
     board:put(2, 17, s_block())
 
     board:swap(1, 15)
@@ -78,12 +78,12 @@ describe('コンボ (同時消し) のコールバック', function()
     --  X S          X S
     -- [T H]  -----> H T
     board:put(2, 14, t_block())
-    board:put(1, 15, h_block())
+    board:put(1, 15, block("h"))
     board:put(2, 15, z_block())
     board:put(1, 16, x_block())
     board:put(2, 16, s_block())
     board:put(1, 17, t_block())
-    board:put(2, 17, h_block())
+    board:put(2, 17, block("h"))
 
     board:swap(1, 17)
     wait_swap_to_finish(board)

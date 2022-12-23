@@ -20,8 +20,8 @@ describe('連鎖 (chain)', function()
     -- H
     board:put(1, 14, y_block())
     board:put(1, 15, x_block())
-    board:put(1, 16, h_block())
-    board:put(1, 17, h_block())
+    board:put(1, 16, block("h"))
+    board:put(1, 17, block("h"))
 
     board:update()
 
@@ -38,8 +38,8 @@ describe('連鎖 (chain)', function()
     -- H      X
     board:put(1, 14, y_block())
     board:put(1, 15, x_block())
-    board:put(1, 16, h_block())
-    board:put(1, 17, h_block())
+    board:put(1, 16, block("h"))
+    board:put(1, 17, block("h"))
 
     repeat
       board:update()
@@ -54,8 +54,8 @@ describe('連鎖 (chain)', function()
   it("ブロックがマッチすると、board._chain_count が 1 になる", function()
     -- H
     -- H
-    board:put(1, 15, h_block())
-    board:put(1, 16, h_block())
+    board:put(1, 15, block("h"))
+    board:put(1, 16, block("h"))
 
     board:update()
 
@@ -68,8 +68,8 @@ describe('連鎖 (chain)', function()
     -- H --> X
     -- X     X
     board:put(1, 14, x_block())
-    board:put(1, 15, h_block())
-    board:put(1, 16, h_block())
+    board:put(1, 15, block("h"))
+    board:put(1, 16, block("h"))
     board:put(1, 17, x_block())
 
     for i = 0, 83 do
@@ -116,8 +116,8 @@ describe('連鎖 (chain)', function()
   -- H Y          Y        X   Z
   it("おじゃまブロック 2 連鎖", function()
     board:put(1, 15, garbage_block(3))
-    board:put(1, 16, h_block())
-    board:put(1, 17, h_block())
+    board:put(1, 16, block("h"))
+    board:put(1, 17, block("h"))
     board:put(2, 17, y_block())
 
     -- HH とおじゃまブロックがマッチ
@@ -181,8 +181,8 @@ describe('連鎖 (chain)', function()
     -- H  -->
     -- H      X
     board:put(1, 14, x_block())
-    board:put(1, 15, h_block())
-    board:put(1, 16, h_block())
+    board:put(1, 15, block("h"))
+    board:put(1, 16, block("h"))
     board:put(1, 17, t_block())
 
     for i = 1, 84 do
