@@ -29,7 +29,7 @@ local board_class, tick = require("lib/board"), 0
 function _init()
   local qpu_cursor = cursor_class()
   local qpu_board = board_class(qpu_cursor, 0, 16)
-  local qpu = create_qpu(qpu_board, 2)
+  local qpu = create_qpu(qpu_board, 1)
 
   qpu:init()
   qpu_board:put_random_blocks()
