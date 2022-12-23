@@ -99,7 +99,7 @@ describe('連鎖 (chain)', function()
     -- S     Z
     -- T --> S --> Z
     -- T     S     Z
-    board:put(1, 14, z_block())
+    board:put(1, 14, block("z"))
     board:put(1, 15, s_block())
     board:put(1, 16, t_block())
     board:put(1, 17, t_block())
