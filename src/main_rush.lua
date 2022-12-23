@@ -14,7 +14,7 @@ local board_class = require("lib/board")
 local board = board_class(cursor)
 board.attack_cube_target = { 85, 30 }
 
-local player_class = require("lib/player")
+require("lib/player")
 local player = player_class()
 
 local game_class = require("rush/game")
