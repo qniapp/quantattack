@@ -77,12 +77,12 @@ describe('コンボ (同時消し) のコールバック', function()
     --  H Z          H Z
     --  X S          X S
     -- [T H]  -----> H T
-    board:put(2, 14, t_block())
+    board:put(2, 14, block("t"))
     board:put(1, 15, block("h"))
     board:put(2, 15, block("z"))
     board:put(1, 16, block("x"))
     board:put(2, 16, block("s"))
-    board:put(1, 17, t_block())
+    board:put(1, 17, block("t"))
     board:put(2, 17, block("h"))
 
     board:swap(1, 17)

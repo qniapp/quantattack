@@ -171,8 +171,8 @@ describe('ブロックの簡約ルール', function()
   end)
 
   it('should reduce TT', function()
-    board:put(1, 11, t_block())
-    board:put(1, 12, t_block())
+    board:put(1, 11, block("t"))
+    board:put(1, 12, block("t"))
 
     board:reduce_blocks()
 
@@ -237,9 +237,9 @@ describe('ブロックの簡約ルール', function()
   end)
 
   it('should reduce TST', function()
-    board:put(1, 10, t_block())
+    board:put(1, 10, block("t"))
     board:put(1, 11, block("s"))
-    board:put(1, 12, t_block())
+    board:put(1, 12, block("t"))
 
     board:reduce_blocks()
 
@@ -249,10 +249,10 @@ describe('ブロックの簡約ルール', function()
   end)
 
   it('should reduce TZST', function()
-    board:put(1, 9, t_block())
+    board:put(1, 9, block("t"))
     board:put(1, 10, block("z"))
     board:put(1, 11, block("s"))
-    board:put(1, 12, t_block())
+    board:put(1, 12, block("t"))
 
     board:reduce_blocks()
 
@@ -263,10 +263,10 @@ describe('ブロックの簡約ルール', function()
   end)
 
   it('should reduce TSZT', function()
-    board:put(1, 9, t_block())
+    board:put(1, 9, block("t"))
     board:put(1, 10, block("s"))
     board:put(1, 11, block("z"))
-    board:put(1, 12, t_block())
+    board:put(1, 12, block("t"))
 
     board:reduce_blocks()
 
@@ -667,10 +667,10 @@ describe('ブロックの簡約ルール', function()
   --  S-S  ----->  S-S
   --    T            I
   it('should reduce T S-S T', function()
-    board:put(1, 10, t_block())
+    board:put(1, 10, block("t"))
     board:put(1, 11, swap_block(3))
     board:put(3, 11, swap_block(1))
-    board:put(3, 12, t_block())
+    board:put(3, 12, block("t"))
 
     board:reduce_blocks()
 
@@ -822,11 +822,11 @@ describe('ブロックの簡約ルール', function()
   --  S-S  ----->  S-S
   --    T            I
   it('should reduce TS S-S T', function()
-    board:put(1, 9, t_block())
+    board:put(1, 9, block("t"))
     board:put(1, 10, block("s"))
     board:put(1, 11, swap_block(3))
     board:put(3, 11, swap_block(1))
-    board:put(3, 12, t_block())
+    board:put(3, 12, block("t"))
 
     board:reduce_blocks()
 
@@ -842,11 +842,11 @@ describe('ブロックの簡約ルール', function()
   --    S            I
   --    T            I
   it('should reduce T S-S ST', function()
-    board:put(1, 9, t_block())
+    board:put(1, 9, block("t"))
     board:put(1, 10, swap_block(3))
     board:put(3, 10, swap_block(1))
     board:put(3, 11, block("s"))
-    board:put(3, 12, t_block())
+    board:put(3, 12, block("t"))
 
     board:reduce_blocks()
 
@@ -863,12 +863,12 @@ describe('ブロックの簡約ルール', function()
   --    S            I
   --    T            I
   it('should reduce T S-S ZST', function()
-    board:put(1, 8, t_block())
+    board:put(1, 8, block("t"))
     board:put(1, 9, swap_block(3))
     board:put(3, 9, swap_block(1))
     board:put(3, 10, block("z"))
     board:put(3, 11, block("s"))
-    board:put(3, 12, t_block())
+    board:put(3, 12, block("t"))
 
     board:reduce_blocks()
 
@@ -886,12 +886,12 @@ describe('ブロックの簡約ルール', function()
   --    Z            I
   --    T            I
   it('should reduce T S-S SZT', function()
-    board:put(1, 8, t_block())
+    board:put(1, 8, block("t"))
     board:put(1, 9, swap_block(3))
     board:put(3, 9, swap_block(1))
     board:put(3, 10, block("s"))
     board:put(3, 11, block("z"))
-    board:put(3, 12, t_block())
+    board:put(3, 12, block("t"))
 
     board:reduce_blocks()
 

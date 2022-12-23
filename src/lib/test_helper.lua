@@ -6,10 +6,6 @@ function wait_swap_to_finish(board)
   end
 end
 
-function t_block()
-  return block("t")
-end
-
 function control_block(other_x)
   local control = block('control')
   control.other_x = other_x

@@ -84,8 +84,8 @@ describe('連鎖 (chain)', function()
     -- T --> S
     -- T     S
     board:put(1, 15, block("s"))
-    board:put(1, 16, t_block())
-    board:put(1, 17, t_block())
+    board:put(1, 16, block("t"))
+    board:put(1, 17, block("t"))
 
     for i = 0, 82 do
       board:update()
@@ -101,8 +101,8 @@ describe('連鎖 (chain)', function()
     -- T     S     Z
     board:put(1, 14, block("z"))
     board:put(1, 15, block("s"))
-    board:put(1, 16, t_block())
-    board:put(1, 17, t_block())
+    board:put(1, 16, block("t"))
+    board:put(1, 17, block("t"))
 
     for i = 0, 152 do
       board:update()
@@ -183,7 +183,7 @@ describe('連鎖 (chain)', function()
     board:put(1, 14, block("x"))
     board:put(1, 15, block("h"))
     board:put(1, 16, block("h"))
-    board:put(1, 17, t_block())
+    board:put(1, 17, block("t"))
 
     for i = 1, 84 do
       board:update()
