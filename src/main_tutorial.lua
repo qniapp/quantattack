@@ -2,6 +2,7 @@ require("lib/cursor")
 require("lib/player")
 require("tutorial/dtb")
 require("lib/board")
+require("lib/ripple")
 
 local game_class = require("tutorial/game")
 
@@ -13,7 +14,6 @@ local gamestate = require("lib/gamestate")
 local tutorial = derived_class(gamestate)
 tutorial.type = ':tutorial'
 
-local ripple = require("lib/ripple")
 local sash = require("lib/sash")
 
 local ion_class = require("tutorial/ion")

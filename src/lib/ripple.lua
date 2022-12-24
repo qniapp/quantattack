@@ -1,18 +1,16 @@
-local ripple = new_class()
+local ripple_class = new_class()
 
-function ripple:_init()
-  self.t1, self.t2, self.tick, self.slow = 0, 0, 0, false
+function ripple_class._init(_ENV)
+  t1, t2, tick, slow = 0, 0, 0, false
 end
 
-function ripple:update()
-  local _ENV = self
-
+function ripple_class.update(_ENV)
   tick = tick + 1
   t1 = t1 - 1 / (slow and 3000 or 1500)
   t2 = t2 - 1 / (slow and 300 or 150)
 end
 
-function ripple:render()
+function ripple_class:render()
   for i = -5, 5 do
     for j = -5, 5 do
       local ang = atan2(i, j)
@@ -25,4 +23,5 @@ function ripple:render()
   end
 end
 
-return ripple()
+-- singleton
+ripple = ripple_class()
