@@ -1,8 +1,7 @@
 require("engine/test/bustedhelper")
 require("test/test_helper")
 require("lib/board")
-
-local block_class = require("lib/block")
+require("lib/block")
 
 describe('block', function()
   describe('type', function()

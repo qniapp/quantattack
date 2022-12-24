@@ -1,8 +1,8 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
 require("lib/helpers")
+require("lib/block")
 
-local block = require("lib/block")
 local particle = require("lib/particle")
 local bubble = require("lib/bubble")
 local ripple = require("lib/ripple")
@@ -92,7 +92,7 @@ function game.raise_stack(_ENV, board_data, callback)
 
   for x = 1, board.cols do
     for y = 1, board.row_next_blocks do
-      board:put(x, y, block("i"))
+      board:put(x, y, block_class("i"))
     end
   end
 end

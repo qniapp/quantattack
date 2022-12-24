@@ -3,8 +3,8 @@ require("test/test_helper")
 require("lib/player")
 require("lib/game")
 require("lib/board")
+require("lib/block")
 
-local block = require("lib/block")
 local match = require("luassert.match")
 
 describe('chain', function()
@@ -23,13 +23,13 @@ describe('chain', function()
     -- [X H]        H X
     --  H X  -----> H X ----->     ----->   Y
     --  Y Y         Y Y        Y Y        Y Y
-    board:put(2, 14, block("y"))
-    board:put(1, 15, block("x"))
-    board:put(2, 15, block("h"))
-    board:put(1, 16, block("h"))
-    board:put(2, 16, block("x"))
-    board:put(1, 17, block("y"))
-    board:put(2, 17, block("y"))
+    board:put(2, 14, block_class("y"))
+    board:put(1, 15, block_class("x"))
+    board:put(2, 15, block_class("h"))
+    board:put(1, 16, block_class("h"))
+    board:put(2, 16, block_class("x"))
+    board:put(1, 17, block_class("y"))
+    board:put(2, 17, block_class("y"))
 
     board:swap(1, 15)
 

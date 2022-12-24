@@ -1,6 +1,6 @@
 ---@diagnostic disable: global-in-nil-env
 
-local block = require("lib/block")
+require("lib/block")
 
 --                       span
 --          ██████████████████████████████
@@ -46,7 +46,7 @@ function garbage_block(_span, _height, _color)
       _render_box(screen_x, y0, x1, y1, _body_color, _body_color) -- 本体
       _render_box(screen_x + 1, y0 + 1, x1 - 1, y1 - 1, _state ~= "over" and inner_border_color or 1) -- 内側の線
     end
-  }, { __index = block("g", _span or 6, _height) })
+  }, { __index = block_class("g", _span or 6, _height) })
 
   --#if assert
   assert(garbage.body_color == 2 or garbage.body_color == 3 or garbage.body_color == 4,

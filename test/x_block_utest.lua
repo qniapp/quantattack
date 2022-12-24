@@ -1,12 +1,11 @@
 require("engine/test/bustedhelper")
-
-local block = require("lib/block")
+require("lib/block")
 
 describe('x_block', function()
   local x
 
   before_each(function()
-    x = block("x")
+    x = block_class("x")
   end)
 
   describe(":is_i", function()

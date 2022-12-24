@@ -2,7 +2,7 @@
 
 require("lib/helpers")
 
---- @class block
+--- @class block_class
 --- @field type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "?" block type
 --- @field span 1 | 2 | 3 | 4 | 5 | 6 span of the block
 --- @field height integer height of the block
@@ -10,11 +10,11 @@ require("lib/helpers")
 --- @field replace_with function
 --- @field new_block block
 --- @field change_state function
-local block = new_class()
-block.block_match_animation_frame_count = 45
-block.block_match_delay_per_block = 8
-block.block_swap_animation_frame_count = 4
-block.sprites = {
+block_class = new_class()
+block_class.block_match_animation_frame_count = 45
+block_class.block_match_delay_per_block = 8
+block_class.block_swap_animation_frame_count = 4
+block_class.sprites = {
   -- default|landed|match|bouncing
   h = "0|1,1,1,1,3,3,2,2,2,1,1,1|24,24,24,25,25,25,24,24,24,26,26,26,0,0,0,27|0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,2,2,2,2",
   x = "16|17,17,17,17,19,19,18,18,18,17,17,17|40,40,40,41,41,41,40,40,40,42,42,42,16,16,16,43|16,16,16,16,16,16,16,16,17,17,17,17,18,18,18,18,19,19,19,19,18,18,18,18",
@@ -29,10 +29,10 @@ block.sprites = {
   ["#"] = "113|113,113,113,113,113,113,113,113,113,113,113,113|113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113|113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113"
 }
 
-for key, each in pairs(block.sprites) do
+for key, each in pairs(block_class.sprites) do
   local default, landed, match, bouncing = unpack(split(each, "|"))
   ---@diagnostic disable-next-line: assign-type-mismatch
-  block.sprites[key] = {
+  block_class.sprites[key] = {
     default = default,
     landed = split(landed),
     match = split(match),
@@ -43,7 +43,7 @@ end
 --- @param _type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "?" block type
 --- @param _span? 1 | 2 | 3 | 4 | 5 | 6 span of the block
 --- @param _height? integer height of the block
-function block._init(_ENV, _type, _span, _height)
+function block_class._init(_ENV, _type, _span, _height)
   type, sprite_set, span, height, _state, _fall_screen_dy = _type, sprites[_type], _span or 1, _height or 1, "idle", 0
 end
 
@@ -51,50 +51,50 @@ end
 -- ブロックの種類と状態
 -------------------------------------------------------------------------------
 
-function block:is_idle()
+function block_class:is_idle()
   return self._state == "idle"
 end
 
-function block.is_fallable(_ENV)
+function block_class.is_fallable(_ENV)
   return not (type == "i" or type == "?" or is_swapping(_ENV) or is_freeze(_ENV))
 end
 
-function block:is_falling()
+function block_class:is_falling()
   return self._state == "falling"
 end
 
-function block.is_reducible(_ENV)
+function block_class.is_reducible(_ENV)
   return type ~= "i" and type ~= "?" and is_idle(_ENV)
 end
 
-function block:is_match()
+function block_class:is_match()
   return self._state == "match"
 end
 
 -- おじゃまブロックが小さいブロックに分解した後の硬直中かどうか
-function block:is_freeze()
+function block_class:is_freeze()
   return self._state == "freeze"
 end
 
-function block:is_swapping()
+function block_class:is_swapping()
   return self:_is_swapping_with_right() or self:_is_swapping_with_left()
 end
 
 --- @private
-function block:_is_swapping_with_left()
+function block_class:_is_swapping_with_left()
   return self._state == "swapping_with_left"
 end
 
 --- @private
-function block:_is_swapping_with_right()
+function block_class:_is_swapping_with_right()
   return self._state == "swapping_with_right"
 end
 
-function block:is_empty()
+function block_class:is_empty()
   return self.type == "i" and not self:is_swapping()
 end
 
-function block.is_single_block(_ENV)
+function block_class.is_single_block(_ENV)
   return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
 end
 
@@ -103,12 +103,12 @@ end
 -------------------------------------------------------------------------------
 
 --- @param direction "left" | "right"
-function block:swap_with(direction)
+function block_class:swap_with(direction)
   self.chain_id = nil
   self:change_state("swapping_with_" .. direction)
 end
 
-function block:fall()
+function block_class:fall()
   --#if assert
   assert(self:is_fallable(), "block " .. self.type .. "(" .. self.x .. ", " .. self.y .. ")")
   --#endif
@@ -122,12 +122,12 @@ function block:fall()
   self:change_state("falling")
 end
 
---- @param other block
+--- @param other block_class
 --- @param match_index integer
 --- @param _chain_id string
 --- @param garbage_span? integer
 --- @param garbage_height? integer
-function block.replace_with(_ENV, other, match_index, _chain_id, garbage_span, garbage_height)
+function block_class.replace_with(_ENV, other, match_index, _chain_id, garbage_span, garbage_height)
   new_block, _match_index, _tick_match, chain_id, other.chain_id, _garbage_span, _garbage_height =
   other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height
 
@@ -138,7 +138,7 @@ end
 -- update and render
 -------------------------------------------------------------------------------
 
-function block.update(_ENV)
+function block_class.update(_ENV)
   if is_idle(_ENV) then
     if _tick_landed then
       _tick_landed = _tick_landed + 1
@@ -179,7 +179,7 @@ end
 
 --- @param screen_x integer x position of the screen
 --- @param screen_y integer y position of the screen
-function block:render(screen_x, screen_y)
+function block_class:render(screen_x, screen_y)
   local shake_dx, shake_dy, swap_screen_dx, sprite = 0, 0
 
   do
@@ -232,12 +232,12 @@ end
 -------------------------------------------------------------------------------
 
 --- @param observer table
-function block:attach(observer)
+function block_class:attach(observer)
   self.observer = observer
 end
 
 --- @param new_state string
-function block.change_state(_ENV, new_state)
+function block_class.change_state(_ENV, new_state)
   _tick_swap = 0
 
   local old_state = _state
@@ -266,10 +266,8 @@ local state_string = {
   freeze = "f",
 }
 
-function block:_tostring()
+function block_class:_tostring()
   return (type_string[self.type] or self.type) .. state_string[self._state]
 end
 
 --#endif
-
-return block

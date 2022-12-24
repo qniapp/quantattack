@@ -1,8 +1,7 @@
 require("engine/test/bustedhelper")
 require("test/test_helper")
 require("lib/board")
-
-local block = require("lib/block")
+require("lib/block")
 
 describe('ブロックの入れ替え', function()
   local board
@@ -13,8 +12,8 @@ describe('ブロックの入れ替え', function()
 
   describe('フレーム数', function()
     it("入れ替えると状態が swapping になる", function()
-      board:put(1, 16, block("h"))
-      board:put(2, 16, block("x"))
+      board:put(1, 16, block_class("h"))
+      board:put(2, 16, block_class("x"))
 
       board:swap(1, 16)
 
@@ -22,8 +21,8 @@ describe('ブロックの入れ替え', function()
     end)
 
     it("4 フレームで入れ替わる", function()
-      board:put(1, 17, block("h"))
-      board:put(2, 17, block("x"))
+      board:put(1, 17, block_class("h"))
+      board:put(2, 17, block_class("x"))
 
       -- swap 開始フレーム
       board:swap(1, 17)
@@ -54,7 +53,7 @@ describe('ブロックの入れ替え', function()
     --
     -- [H ] (H と I を入れ換え)
     it("入れ替え中の I ブロックは empty でない", function()
-      board:put(1, 16, block("h"))
+      board:put(1, 16, block_class("h"))
 
       board:swap(1, 16)
 

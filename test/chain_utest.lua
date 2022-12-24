@@ -2,8 +2,7 @@ require("engine/test/bustedhelper")
 require("engine/render/color")
 require("test/test_helper")
 require("lib/board")
-
-local block = require("lib/block")
+require("lib/block")
 
 describe('連鎖 (chain)', function()
   local board
@@ -18,10 +17,10 @@ describe('連鎖 (chain)', function()
     -- X <-
     -- H
     -- H
-    board:put(1, 14, block("y"))
-    board:put(1, 15, block("x"))
-    board:put(1, 16, block("h"))
-    board:put(1, 17, block("h"))
+    board:put(1, 14, block_class("y"))
+    board:put(1, 15, block_class("x"))
+    board:put(1, 16, block_class("h"))
+    board:put(1, 17, block_class("h"))
 
     board:update()
 
@@ -36,10 +35,10 @@ describe('連鎖 (chain)', function()
     -- X
     -- H ---> Y
     -- H      X
-    board:put(1, 14, block("y"))
-    board:put(1, 15, block("x"))
-    board:put(1, 16, block("h"))
-    board:put(1, 17, block("h"))
+    board:put(1, 14, block_class("y"))
+    board:put(1, 15, block_class("x"))
+    board:put(1, 16, block_class("h"))
+    board:put(1, 17, block_class("h"))
 
     repeat
       board:update()
@@ -54,8 +53,8 @@ describe('連鎖 (chain)', function()
   it("ブロックがマッチすると、board._chain_count が 1 になる", function()
     -- H
     -- H
-    board:put(1, 15, block("h"))
-    board:put(1, 16, block("h"))
+    board:put(1, 15, block_class("h"))
+    board:put(1, 16, block_class("h"))
 
     board:update()
 
@@ -67,10 +66,10 @@ describe('連鎖 (chain)', function()
     -- H
     -- H --> X
     -- X     X
-    board:put(1, 14, block("x"))
-    board:put(1, 15, block("h"))
-    board:put(1, 16, block("h"))
-    board:put(1, 17, block("x"))
+    board:put(1, 14, block_class("x"))
+    board:put(1, 15, block_class("h"))
+    board:put(1, 16, block_class("h"))
+    board:put(1, 17, block_class("x"))
 
     for i = 0, 83 do
       board:update()
@@ -83,9 +82,9 @@ describe('連鎖 (chain)', function()
     -- S
     -- T --> S
     -- T     S
-    board:put(1, 15, block("s"))
-    board:put(1, 16, block("t"))
-    board:put(1, 17, block("t"))
+    board:put(1, 15, block_class("s"))
+    board:put(1, 16, block_class("t"))
+    board:put(1, 17, block_class("t"))
 
     for i = 0, 82 do
       board:update()
@@ -99,10 +98,10 @@ describe('連鎖 (chain)', function()
     -- S     Z
     -- T --> S --> Z
     -- T     S     Z
-    board:put(1, 14, block("z"))
-    board:put(1, 15, block("s"))
-    board:put(1, 16, block("t"))
-    board:put(1, 17, block("t"))
+    board:put(1, 14, block_class("z"))
+    board:put(1, 15, block_class("s"))
+    board:put(1, 16, block_class("t"))
+    board:put(1, 17, block_class("t"))
 
     for i = 0, 152 do
       board:update()
@@ -116,33 +115,33 @@ describe('連鎖 (chain)', function()
   -- H Y          Y        X   Z
   it("おじゃまブロック 2 連鎖", function()
     board:put(1, 15, garbage_block(3))
-    board:put(1, 16, block("h"))
-    board:put(1, 17, block("h"))
-    board:put(2, 17, block("y"))
+    board:put(1, 16, block_class("h"))
+    board:put(1, 17, block_class("h"))
+    board:put(2, 17, block_class("y"))
 
     -- HH とおじゃまブロックがマッチ
     board:update()
 
     -- おじゃまブロックの一番左が分解
-    for i = 1, block.block_match_animation_frame_count do
+    for i = 1, block_class.block_match_animation_frame_count do
       board:update()
     end
     assert.is_true(board.blocks[1][15]:is_freeze())
 
     -- おじゃまブロックの真ん中が分解
-    for i = 1, block.block_match_delay_per_block do
+    for i = 1, block_class.block_match_delay_per_block do
       board:update()
     end
     assert.is_true(board.blocks[2][15]:is_freeze())
 
     -- おじゃまブロックの一番右が分解
-    for i = 1, block.block_match_delay_per_block do
+    for i = 1, block_class.block_match_delay_per_block do
       board:update()
     end
     assert.is_true(board.blocks[3][15]:is_freeze())
 
     -- 分解してできたブロックすべてのフリーズ解除
-    for i = 1, block.block_match_delay_per_block do
+    for i = 1, block_class.block_match_delay_per_block do
       board:update()
     end
     board:update()
@@ -180,10 +179,10 @@ describe('連鎖 (chain)', function()
     -- X
     -- H  -->
     -- H      X
-    board:put(1, 14, block("x"))
-    board:put(1, 15, block("h"))
-    board:put(1, 16, block("h"))
-    board:put(1, 17, block("t"))
+    board:put(1, 14, block_class("x"))
+    board:put(1, 15, block_class("h"))
+    board:put(1, 16, block_class("h"))
+    board:put(1, 17, block_class("t"))
 
     for i = 1, 84 do
       board:update()
