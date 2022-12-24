@@ -1,8 +1,8 @@
 require("engine/test/bustedhelper")
 require("engine/render/color")
 require("test/test_helper")
+require("lib/board")
 
-local board_class = require("lib/board")
 local block = require("lib/block")
 
 describe('連鎖 (chain)', function()

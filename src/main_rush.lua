@@ -1,6 +1,7 @@
 require("lib/helpers")
 require("lib/cursor")
 require("lib/player")
+require("lib/board")
 
 local sash = require("lib/sash")
 
@@ -11,7 +12,6 @@ local current_high_score
 
 local cursor = cursor_class()
 
-local board_class = require("lib/board")
 local board = board_class(cursor)
 board.attack_cube_target = { 85, 30 }
 

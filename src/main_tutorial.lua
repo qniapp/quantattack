@@ -1,8 +1,8 @@
 require("lib/cursor")
 require("lib/player")
 require("tutorial/dtb")
+require("lib/board")
 
-local board_class = require("lib/board")
 local game_class = require("tutorial/game")
 
 local cursor = cursor_class()

@@ -3,9 +3,9 @@ require("engine/render/color")
 require("test/test_helper")
 require("lib/cursor")
 require("lib/qpu")
+require("lib/board")
 
 local block = require("lib/block")
-local board_class = require("lib/board")
 
 describe('qpu', function()
   describe('create_qpu', function()

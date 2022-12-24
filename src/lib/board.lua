@@ -7,10 +7,10 @@ require("lib/helpers")
 local particle, block, reduction_rules =
 require("lib/particle"), require("lib/block"), require("lib/reduction_rules")
 
-local board = new_class()
+board_class = new_class()
 local block_fall_speed = 2
 
-function board._init(_ENV, _cursor, __offset_x, _cols)
+function board_class._init(_ENV, _cursor, __offset_x, _cols)
   cursor = _cursor
   _offset_x = __offset_x
   show_wires = true
@@ -18,7 +18,7 @@ function board._init(_ENV, _cursor, __offset_x, _cols)
   init(_ENV, _cols)
 end
 
-function board.init(_ENV, _cols)
+function board_class.init(_ENV, _cols)
   -- サイズ関係
   cols, rows, row_next_blocks =
   _cols or 6, 17, 18
@@ -56,7 +56,7 @@ function board.init(_ENV, _cols)
   end
 end
 
-function board.put_random_blocks(_ENV)
+function board_class.put_random_blocks(_ENV)
   for y = row_next_blocks, 10, -1 do
     for x = 1, cols do
       if y >= rows - 2 or
@@ -69,7 +69,7 @@ function board.put_random_blocks(_ENV)
   end
 end
 
-function board.reduce_blocks(_ENV, game, player, other_board)
+function board_class.reduce_blocks(_ENV, game, player, other_board)
   local chain_id_callbacked, combo_count = {}
 
   for x, col in pairs(reducible_blocks) do
@@ -227,7 +227,7 @@ function board.reduce_blocks(_ENV, game, player, other_board)
   until matched_garbage_block_count == 0
 end
 
-function board.reduce(_ENV, x, y, include_next_blocks)
+function board_class.reduce(_ENV, x, y, include_next_blocks)
   if include_next_blocks then
     return _reduce_nocache(_ENV, x, y, true)
   else
@@ -235,7 +235,7 @@ function board.reduce(_ENV, x, y, include_next_blocks)
   end
 end
 
-function board._reduce_nocache(_ENV, x, y, include_next_blocks)
+function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
   local reduction, block = { to = {}, score = 0 }, blocks[x][y]
   local rules = reduction_rules[block.type]
 
@@ -319,17 +319,17 @@ function board._reduce_nocache(_ENV, x, y, include_next_blocks)
 end
 
 -- ボード上の X 座標を画面上の X 座標に変換
-function board.screen_x(_ENV, x)
+function board_class.screen_x(_ENV, x)
   return offset_x + (x - 1) * 8
 end
 
 -- ボード上の Y 座標を画面上の Y 座標に変換
 -- 一行目は表示しないことに注意
-function board.screen_y(_ENV, y)
+function board_class.screen_y(_ENV, y)
   return offset_y + (y - 2) * 8 - raised_dots + _bounce_screen_dy
 end
 
-function board._random_single_block(_ENV)
+function board_class._random_single_block(_ENV)
   local single_block_types = split('h,x,y,z,s,t')
   local block_type = single_block_types[ceil_rnd(#single_block_types)]
 
@@ -340,7 +340,7 @@ end
 -- board の状態
 -------------------------------------------------------------------------------
 
-function board.is_busy(_ENV)
+function board_class.is_busy(_ENV)
   for x = 1, cols do
     for y = 1, row_next_blocks do
       local block = blocks[x][y]
@@ -353,7 +353,7 @@ function board.is_busy(_ENV)
   return false
 end
 
-function board.is_game_over(_ENV)
+function board_class.is_game_over(_ENV)
   return state == "over"
 end
 
@@ -361,11 +361,11 @@ end
 -- board の操作
 -------------------------------------------------------------------------------
 
-function board.reducible_block_at(_ENV, x, y)
+function board_class.reducible_block_at(_ENV, x, y)
   return reducible_blocks[x][y] or block("i")
 end
 
-function board.put(_ENV, x, y, block)
+function board_class.put(_ENV, x, y, block)
   --#if assert
   assert(1 <= x and x <= cols, "x = " .. x)
 
@@ -394,15 +394,15 @@ function board.put(_ENV, x, y, block)
   observable_update(_ENV, block)
 end
 
-function board.remove_block(_ENV, x, y)
+function board_class.remove_block(_ENV, x, y)
   put(_ENV, x, y, block("i"))
 end
 
-function board.send_garbage(_ENV, chain_id, span, _height)
+function board_class.send_garbage(_ENV, chain_id, span, _height)
   pending_garbage_blocks:add_garbage(span, _height, chain_id)
 end
 
-function board.insert_blocks_at_bottom(_ENV)
+function board_class.insert_blocks_at_bottom(_ENV)
   shift_all_blocks_up(_ENV)
 
   -- local min_cnot_probability = 0.3
@@ -439,7 +439,7 @@ function board.insert_blocks_at_bottom(_ENV)
   steps = steps + 1
 end
 
-function board.shift_all_blocks_up(_ENV)
+function board_class.shift_all_blocks_up(_ENV)
   for y = 1, row_next_blocks - 1 do
     for x = 1, cols do
       put(_ENV, x, y, blocks[x][y + 1])
@@ -454,7 +454,7 @@ end
 
 -- (x_left, y) と (x_left + 1, y) のブロックを入れ替える
 -- 入れ替えできた場合は true を、そうでない場合は false を返す
-function board.swap(_ENV, x_left, y)
+function board_class.swap(_ENV, x_left, y)
   local x_right = x_left + 1
   local left_block, right_block = blocks[x_left][y], blocks[x_right][y]
 
@@ -497,7 +497,7 @@ end
 -- update, render
 -------------------------------------------------------------------------------
 
-function board.update(_ENV, game, player, other_board)
+function board_class.update(_ENV, game, player, other_board)
   pending_garbage_blocks:update(_ENV)
   _update_bounce(_ENV)
   top_line_start_x = (top_line_start_x + 4) % 96
@@ -536,7 +536,7 @@ function board.update(_ENV, game, player, other_board)
   tick = tick + 1
 end
 
-function board.render(_ENV)
+function board_class.render(_ENV)
   if show_wires then
     for x = 1, cols do
       -- draw wires
@@ -642,11 +642,11 @@ function board.render(_ENV)
   end
 end
 
-function board._is_topped_out(_ENV)
+function board_class._is_topped_out(_ENV)
   return screen_y(_ENV, top_block_y) - _bounce_screen_dy <= 40
 end
 
-function board._update_game(_ENV, game, player, other_board)
+function board_class._update_game(_ENV, game, player, other_board)
   if _is_topped_out(_ENV) then
     if not is_busy(_ENV) then
       _topped_out_frame_count = _topped_out_frame_count + 1
@@ -785,11 +785,11 @@ end
 -------------------------------------------------------------------------------
 
 -- bounce エフェクトを開始
-function board.bounce(_ENV)
+function board_class.bounce(_ENV)
   _bounce_screen_dy, _bounce_speed = 0, -4
 end
 
-function board._update_bounce(_ENV)
+function board_class._update_bounce(_ENV)
   if _bounce_speed ~= 0 then
     _bounce_speed = _bounce_speed + 0.9
     _bounce_screen_dy = _bounce_screen_dy + _bounce_speed
@@ -806,7 +806,7 @@ end
 
 -- x, y が空かどうかを返す
 -- おじゃまユニタリと SWAP, CNOT ブロックも考慮する
-function board.is_block_empty(_ENV, x, y)
+function board_class.is_block_empty(_ENV, x, y)
   --#if assert
   assert(0 < x and x <= cols, "x = " .. x)
   assert(y <= row_next_blocks, "y = " .. y)
@@ -819,11 +819,11 @@ function board.is_block_empty(_ENV, x, y)
 end
 
 -- x, y がおじゃまブロックの一部であるかどうかを返す
-function board._is_part_of_garbage(_ENV, x, y)
+function board_class._is_part_of_garbage(_ENV, x, y)
   return _garbage_head_block(_ENV, x, y) ~= nil
 end
 
-function board._block_or_its_head_block(_ENV, x, y)
+function board_class._block_or_its_head_block(_ENV, x, y)
   return _garbage_head_block(_ENV, x, y) or
       _cnot_head_block(_ENV, x, y) or
       _swap_head_block(_ENV, x, y) or
@@ -833,7 +833,7 @@ end
 -- x, y がおじゃまブロックの一部であった場合、
 -- おじゃまブロック先頭のブロックを返す
 -- 一部でない場合は nil を返す
-function board._garbage_head_block(_ENV, x, y)
+function board_class._garbage_head_block(_ENV, x, y)
   for _, each in pairs(_garbage_blocks) do
     local garbage_x, garbage_y = each.x, each.y
     if garbage_x <= x and x <= garbage_x + each.span - 1 and -- 幅に x が含まれる
@@ -846,14 +846,14 @@ function board._garbage_head_block(_ENV, x, y)
 end
 
 -- x, y が CNOT の一部であるかどうかを返す
-function board._is_part_of_cnot(_ENV, x, y)
+function board_class._is_part_of_cnot(_ENV, x, y)
   return _cnot_head_block(_ENV, x, y) ~= nil
 end
 
 -- x, y が CNOT の一部であった場合、
 -- CNOT 左端のブロック (control または cnot_x) を返す
 -- 一部でない場合は nil を返す
-function board._cnot_head_block(_ENV, x, y)
+function board_class._cnot_head_block(_ENV, x, y)
   for tmp_x = 1, x - 1 do
     local block = blocks[tmp_x][y]
 
@@ -867,14 +867,14 @@ function board._cnot_head_block(_ENV, x, y)
 end
 
 -- x, y が SWAP ペアの一部であるかどうかを返す
-function board._is_part_of_swap(_ENV, x, y)
+function board_class._is_part_of_swap(_ENV, x, y)
   return _swap_head_block(_ENV, x, y) ~= nil
 end
 
 -- x, y が SWAP ペアの一部であった場合、
 -- SWAP ペア左端のブロックを返す
 -- 一部でない場合は nil を返す
-function board._swap_head_block(_ENV, x, y)
+function board_class._swap_head_block(_ENV, x, y)
   for tmp_x = 1, x - 1 do
     local block = blocks[tmp_x][y]
 
@@ -892,12 +892,12 @@ end
 -------------------------------------------------------------------------------
 
 -- ブロック x, y が x, y + 1 に落とせるかどうかを返す (メモ化)。
-function board.is_block_fallable(_ENV, x, y)
+function board_class.is_block_fallable(_ENV, x, y)
   return _memoize(_ENV, _is_block_fallable_nocache, _is_block_fallable_cache, x, y)
 end
 
 -- ブロック x, y が x, y + 1 に落とせるかどうかを返す。
-function board._is_block_fallable_nocache(_ENV, x, y)
+function board_class._is_block_fallable_nocache(_ENV, x, y)
   local block = blocks[x][y]
 
   if y >= rows or not block:is_fallable() then
@@ -920,7 +920,7 @@ end
 
 -- ボード内にあるいずれかのブロックが更新された場合に呼ばれる。
 -- _changed フラグを立て各種キャッシュも更新・クリアする。
-function board.observable_update(_ENV, block, old_state)
+function board_class.observable_update(_ENV, block, old_state)
   local x, y = block.x, block.y
 
   if old_state == "swapping_with_right" and block:is_idle() then
@@ -990,7 +990,7 @@ end
 -------------------------------------------------------------------------------
 
 -- 引数 x, y を取る関数 func をメモ化した関数を返す
-function board._memoize(_ENV, f, cache, x, y)
+function board_class._memoize(_ENV, f, cache, x, y)
   if cache[y] == nil then
     cache[y] = {}
   end
@@ -1010,7 +1010,7 @@ end
 -------------------------------------------------------------------------------
 
 --#if debug
-function board._tostring(_ENV)
+function board_class._tostring(_ENV)
   local str = ''
 
   for y = 1, row_next_blocks do
@@ -1034,5 +1034,3 @@ function board._tostring(_ENV)
 end
 
 --#endif
-
-return board

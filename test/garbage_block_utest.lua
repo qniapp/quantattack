@@ -1,7 +1,6 @@
 require("engine/test/bustedhelper")
 require("lib/garbage_block")
-
-local board_class = require("lib/board")
+require("lib/board")
 
 describe('garbage_block', function()
   describe('span', function()

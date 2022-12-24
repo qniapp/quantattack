@@ -4,6 +4,7 @@ require("lib/cursor")
 require("lib/qpu")
 require("title/game")
 require("title/plasma")
+require("lib/board")
 
 demo_game = game()
 
@@ -25,7 +26,7 @@ local level_menu = menu_class(
 -- :main_menu メニューを表示した状態
 -- :level_menu QPU のレベル選択
 local title_state = ":logo_slidein"
-local board_class, tick = require("lib/board"), 0
+local tick = 0
 
 function _init()
   local qpu_cursor = cursor_class()
