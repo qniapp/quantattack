@@ -1,5 +1,6 @@
 require("lib/helpers")
 require("lib/player")
+require("lib/game")
 
 local sash = require("lib/sash")
 
@@ -16,8 +17,6 @@ local board = board_class(cursor)
 board.attack_cube_target = { 85, 30 }
 
 local player = player_class()
-
-local game_class = require("lib/game")
 local game = game_class()
 
 local gamestate = require("lib/gamestate")
