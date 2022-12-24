@@ -2,9 +2,9 @@ require("engine/test/bustedhelper")
 require("test/test_helper")
 require("lib/player")
 require("lib/game")
+require("lib/board")
 
 local block = require("lib/block")
-local board_class = require("lib/board")
 local match = require("luassert.match")
 
 describe('chain', function()

@@ -1,9 +1,9 @@
 require("engine/test/bustedhelper")
 require("engine/render/color")
 require("test/test_helper")
+require("lib/board")
 
 local block_class = require("lib/block")
-local board_class = require("lib/board")
 
 describe('ブロックの落下', function()
   local board

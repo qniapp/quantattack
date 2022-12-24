@@ -2,8 +2,8 @@ require("engine/test/bustedhelper")
 require("lib/cursor")
 require("lib/qpu")
 require("lib/game")
+require("lib/board")
 
-local board_class = require("lib/board")
 local profiler = require("lib/profiler")
 
 describe('パフォーマンス', function()

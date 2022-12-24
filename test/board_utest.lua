@@ -1,9 +1,9 @@
 require("engine/test/bustedhelper")
 require("test/test_helper")
 require("lib/cursor")
+require("lib/board")
 
 local block = require("lib/block")
-local board_class = require("lib/board")
 
 describe('board', function()
   local board

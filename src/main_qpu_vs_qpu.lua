@@ -1,10 +1,9 @@
 require("lib/cursor")
 require("lib/qpu")
 require("lib/game")
+require("lib/board")
 
 local game = game_class()
-local board_class = require("lib/board")
-
 local qpu1_cursor, qpu2_cursor = cursor_class(), cursor_class()
 local qpu1_board, qpu2_board = board_class(qpu1_cursor, 3), board_class(qpu2_cursor, 78)
 qpu1_board.block_offset_target, qpu2_board.block_offset_target = { 3 + 24, 9 }, { 78 + 24, 9 }
