@@ -1,17 +1,17 @@
 require("engine/test/bustedhelper")
 require("test/test_helper")
+require("lib/game")
 
 local block = require("lib/block")
 local board_class = require("lib/board")
 local match = require("luassert.match")
-local game = require("lib/game")
 
 describe('コンボ (同時消し) のコールバック', function()
   local board
 
   before_each(function()
     board = board_class()
-    stub(game, "combo_callback")
+    stub(game_class, "combo_callback")
   end)
 
   it("4-コンボ発生でコールバックが呼ばれる", function()
@@ -25,8 +25,8 @@ describe('コンボ (同時消し) のコールバック', function()
     board:swap(1, 17)
     wait_swap_to_finish(board)
 
-    local combo_callback = assert.spy(game.combo_callback)
-    board:update(game)
+    local combo_callback = assert.spy(game_class.combo_callback)
+    board:update(game_class)
 
     combo_callback.was_called(1)
     combo_callback.was_called_with(4, 2, 16, match._, match._, match._)
@@ -45,8 +45,8 @@ describe('コンボ (同時消し) のコールバック', function()
     board:swap(1, 16)
     wait_swap_to_finish(board)
 
-    local combo_callback = assert.spy(game.combo_callback)
-    board:update(game)
+    local combo_callback = assert.spy(game_class.combo_callback)
+    board:update(game_class)
 
     combo_callback.was_called(1)
     combo_callback.was_called_with(5, 2, 15, match._, match._, match._)
@@ -66,8 +66,8 @@ describe('コンボ (同時消し) のコールバック', function()
     board:swap(1, 15)
     wait_swap_to_finish(board)
 
-    local combo_callback = assert.spy(game.combo_callback)
-    board:update(game)
+    local combo_callback = assert.spy(game_class.combo_callback)
+    board:update(game_class)
 
     combo_callback.was_called(1)
     combo_callback.was_called_with(6, 2, 15, match._, match._, match._)
@@ -89,8 +89,8 @@ describe('コンボ (同時消し) のコールバック', function()
     board:swap(1, 17)
     wait_swap_to_finish(board)
 
-    local combo_callback = assert.spy(game.combo_callback)
-    board:update(game)
+    local combo_callback = assert.spy(game_class.combo_callback)
+    board:update(game_class)
 
     combo_callback.was_called(1)
     combo_callback.was_called_with(7, 2, 14, match._, match._, match._)

@@ -1,8 +1,8 @@
 require("lib/cursor")
 require("lib/player")
 require("lib/qpu")
+require("lib/game")
 
-local game_class = require("lib/game")
 local game = game_class()
 local qpu_level = stat(6) -- 3: easy, 2: normal, 1: hard
 

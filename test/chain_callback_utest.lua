@@ -1,18 +1,18 @@
 require("engine/test/bustedhelper")
 require("test/test_helper")
 require("lib/player")
+require("lib/game")
 
 local block = require("lib/block")
 local board_class = require("lib/board")
 local match = require("luassert.match")
-local game = require("lib/game")
 
 describe('chain', function()
   local board
   local player
 
   before_each(function()
-    stub(game, "chain_callback")
+    stub(game_class, "chain_callback")
     board = board_class()
     board.attack_cube_target = { 85, 30 }
     player = player_class()
@@ -33,12 +33,12 @@ describe('chain', function()
 
     board:swap(1, 15)
 
-    local chain_callback = assert.spy(game.chain_callback)
+    local chain_callback = assert.spy(game_class.chain_callback)
 
     wait_swap_to_finish(board)
     -- TODO: update 回数を式として書く
     for _i = 1, 81 do
-      board:update(game, player)
+      board:update(game_class, player)
     end
 
     chain_callback.was_called(1)

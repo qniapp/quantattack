@@ -1,18 +1,19 @@
 require("lib/helpers")
 
-local game = new_class()
 local attack_ion = require("lib/attack_ion")
 local particle = require("lib/particle")
 local bubble = require("lib/bubble")
 local ripple = require("lib/ripple")
 
+game_class = new_class()
+
 local all_players_info, countdown
 
-function game.reduce_callback(score, _x, _y, player)
+function game_class.reduce_callback(score, _x, _y, player)
   player.score = player.score + score
 end
 
-function game.combo_callback(combo_count, x, y, player, board, other_board)
+function game_class.combo_callback(combo_count, x, y, player, board, other_board)
   local attack_cube_callback = function(target_x, target_y)
     sfx(21)
     particle:create_chunk(target_x, target_y,
@@ -37,7 +38,7 @@ end
 
 local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
-function game.block_offset_callback(chain_id, chain_count, x, y, player, board, other_board)
+function game_class.block_offset_callback(chain_id, chain_count, x, y, player, board, other_board)
   local offset_height = chain_count
 
   if offset_height > 2 then
@@ -64,7 +65,7 @@ function game.block_offset_callback(chain_id, chain_count, x, y, player, board, 
   return offset_height
 end
 
-function game.chain_callback(chain_id, chain_count, x, y, player, board, other_board)
+function game_class.chain_callback(chain_id, chain_count, x, y, player, board, other_board)
   if chain_count > 2 then
     local attack_cube_callback = function(target_x, target_y)
       sfx(21)
@@ -91,15 +92,15 @@ function game.chain_callback(chain_id, chain_count, x, y, player, board, other_b
   end
 end
 
-function game:is_game_over()
+function game_class:is_game_over()
   return self.game_over_time ~= nil
 end
 
-function game:_init()
+function game_class:_init()
   self.auto_raise_frame_count = 30
 end
 
-function game:init()
+function game_class:init()
   attack_ion.slow = false
   particle.slow = false
 
@@ -109,7 +110,7 @@ function game:init()
   self.game_over_time = nil
 end
 
-function game:add_player(player, board, other_board)
+function game_class:add_player(player, board, other_board)
   add(all_players_info, {
     player = player,
     board = board,
@@ -118,7 +119,7 @@ function game:add_player(player, board, other_board)
   })
 end
 
-function game:update()
+function game_class:update()
   ripple:update()
 
   if countdown then
@@ -207,7 +208,7 @@ function game:update()
     particle.slow = true
   else
     -- ゲーム中だけ elapsed_time を更新
-    game.elapsed_time = t() - self.start_time
+    game_class.elapsed_time = t() - self.start_time
 
     -- プレーヤーが 2 人であれば、勝ったほうの board に win = true をセット
     if #all_players_info == 1 then
@@ -231,7 +232,7 @@ function game:update()
   end
 end
 
-function game:render() -- override
+function game_class:render() -- override
   ripple:render()
 
   for _, each in pairs(all_players_info) do
@@ -254,7 +255,7 @@ function game:render() -- override
 end
 
 -- ブロックをせりあげる
-function game:_raise(player_info)
+function game_class:_raise(player_info)
   local board = player_info.board
 
   board.raised_dots = board.raised_dots + 1
@@ -267,7 +268,7 @@ function game:_raise(player_info)
 end
 
 -- 可能な場合ブロックを自動的にせりあげる
-function game:_auto_raise(player_info)
+function game_class:_auto_raise(player_info)
   if player_info.board:is_busy() then
     return
   end
@@ -281,7 +282,7 @@ function game:_auto_raise(player_info)
 end
 
 -- ゲーム経過時間を文字列で返す (e.g., "01:23")
-function game:elapsed_time_string()
+function game_class:elapsed_time_string()
   return length2_number_string_0filled(flr(self.elapsed_time / 60)) ..
       ":" ..
       length2_number_string_0filled(flr(self.elapsed_time) % 60)
@@ -290,5 +291,3 @@ end
 function length2_number_string_0filled(num)
   return (num < 10) and "0" .. num or num
 end
-
-return game
