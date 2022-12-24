@@ -4,8 +4,9 @@ require("lib/garbage_block")
 require("lib/pending_garbage_blocks")
 require("lib/helpers")
 require("lib/block")
+require("lib/particle")
 
-local particle, reduction_rules = require("lib/particle"), require("lib/reduction_rules")
+local reduction_rules = require("lib/reduction_rules")
 
 board_class = new_class()
 local block_fall_speed = 2
