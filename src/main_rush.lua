@@ -1,4 +1,5 @@
 require("lib/helpers")
+require("lib/cursor")
 require("lib/player")
 
 local sash = require("lib/sash")
@@ -8,7 +9,6 @@ local high_score_class = require("lib/high_score")
 local high_score = high_score_class(0)
 local current_high_score
 
-local cursor_class = require("lib/cursor")
 local cursor = cursor_class()
 
 local board_class = require("lib/board")
