@@ -2,7 +2,9 @@
 
 local effect_set = require("lib/effect_set")
 local bubble_class = derived_class(effect_set)
-local bubble = bubble_class()
+
+-- singleton
+bubble = bubble_class()
 
 function bubble:create(bubble_type, count, x, y)
   self:_add(function(_ENV)
@@ -47,5 +49,3 @@ function bubble:post_render_all()
     flip()
   end
 end
-
-return bubble
