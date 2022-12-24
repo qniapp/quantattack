@@ -111,7 +111,8 @@
     "app_title",
     "circ",
     "_main_state",
-    "pget"
+    "pget",
+    "game_class"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,

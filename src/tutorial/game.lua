@@ -2,10 +2,10 @@
 
 require("lib/helpers")
 require("lib/block")
+require("lib/ripple")
 
 local particle = require("lib/particle")
 local bubble = require("lib/bubble")
-local ripple = require("lib/ripple")
 
 local game = new_class()
 local _state
