@@ -2,7 +2,8 @@
 
 local effect_set = require("lib/effect_set")
 local attack_ion_class = derived_class(effect_set)
-local attack_ion = attack_ion_class()
+
+attack_ion = attack_ion_class()
 
 function attack_ion:create(x, y, callback, clr, target_x, target_y)
   self:_add(function(_ENV)
@@ -43,5 +44,3 @@ function attack_ion._render(_ENV, self)
     flip()
   end
 end
-
-return attack_ion
