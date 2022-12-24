@@ -1,6 +1,5 @@
 require("engine/test/bustedhelper")
-
-local cursor_class = require("lib/cursor")
+require("lib/cursor")
 
 describe('cursor', function()
   local cursor

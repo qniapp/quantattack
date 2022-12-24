@@ -1,11 +1,9 @@
 require("engine/test/bustedhelper")
-require("engine/debug/dump")
-require("engine/render/color")
 require("test/test_helper")
+require("lib/cursor")
 
 local block = require("lib/block")
 local board_class = require("lib/board")
-local cursor_class = require("lib/cursor")
 
 describe('board', function()
   local board

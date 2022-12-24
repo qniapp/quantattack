@@ -1,9 +1,9 @@
+require("lib/cursor")
 require("lib/qpu")
 
 local game_class = require("lib/game")
 local game = game_class()
 
-local cursor_class = require("lib/cursor")
 local board_class = require("lib/board")
 
 local qpu1_cursor, qpu2_cursor = cursor_class(), cursor_class()

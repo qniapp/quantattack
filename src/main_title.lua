@@ -1,12 +1,13 @@
 ---@diagnostic disable: lowercase-global
+
+require("lib/cursor")
 require("lib/qpu")
-require("title/plasma")
 require("title/game")
+require("title/plasma")
 
 demo_game = game()
 
-local cursor_class, menu_class =
-require("lib/cursor"), require("title/menu")
+local menu_class = require("title/menu")
 
 local main_menu = menu_class(
   "quantattack_tutorial,,32,48,16,16,,tutorial,learn how to play|quantattack_endless,,64,48,16,16,,endless,play as long as you can, 1|quantattack_rush,,48,48,16,16,,rush,play for 2 minutes,0|,:level_menu,80,48,16,16,,vs qpu,defeat the qpu|quantattack_qpu_vs_qpu,,96,48,16,16,,qpu vs qpu,watch qpu vs qpu"
