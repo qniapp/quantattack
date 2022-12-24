@@ -2,7 +2,9 @@
 
 local effect_set = require("lib/effect_set")
 local particle_class = derived_class(effect_set)
-local particle = particle_class()
+
+-- singleton
+particle = particle_class()
 
 function particle:create_chunk(x, y, data)
   for _, each in pairs(split(data, "|")) do
@@ -53,5 +55,3 @@ function particle:post_render_all()
     flip()
   end
 end
-
-return particle

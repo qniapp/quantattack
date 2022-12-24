@@ -1,9 +1,9 @@
 require("lib/helpers")
 require("lib/attack_ion")
 require("lib/ripple")
+require("lib/particle")
 
 local game = new_class()
-local particle = require("lib/particle")
 local bubble = require("lib/bubble")
 
 local all_players_info, countdown

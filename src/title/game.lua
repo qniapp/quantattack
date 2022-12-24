@@ -2,8 +2,9 @@
 
 require("lib/helpers")
 require("lib/attack_ion")
+require("lib/particle")
 
-local particle, bubble = require("lib/particle"), require("lib/bubble")
+local bubble = require("lib/bubble")
 
 title_logo_bounce_speed, title_logo_bounce_screen_dy = 0, 0
 
