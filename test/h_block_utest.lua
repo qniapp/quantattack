@@ -1,12 +1,11 @@
 require("engine/test/bustedhelper")
-
-local block = require("lib/block")
+require("lib/block")
 
 describe('h_block', function()
   local h
 
   before_each(function()
-    h = block("h")
+    h = block_class("h")
   end)
 
   describe("is_single_block", function()

@@ -3,9 +3,9 @@
 require("lib/garbage_block")
 require("lib/pending_garbage_blocks")
 require("lib/helpers")
+require("lib/block")
 
-local particle, block, reduction_rules =
-require("lib/particle"), require("lib/block"), require("lib/reduction_rules")
+local particle, reduction_rules = require("lib/particle"), require("lib/reduction_rules")
 
 board_class = new_class()
 local block_fall_speed = 2
@@ -51,7 +51,7 @@ function board_class.init(_ENV, _cols)
   for x = 1, cols do
     blocks[x], reducible_blocks[x] = {}, {}
     for y = 1, row_next_blocks do
-      put(_ENV, x, y, block("i"))
+      put(_ENV, x, y, block_class("i"))
     end
   end
 end
@@ -115,7 +115,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         end
 
         for index, r in pairs(reduction.to) do
-          local dx, dy, new_block = r.dx and reduction.dx or 0, r.dy or 0, block(r.block_type)
+          local dx, dy, new_block = r.dx and reduction.dx or 0, r.dy or 0, block_class(r.block_type)
 
           if new_block.type == "swap" or new_block.type == "cnot_x" or new_block.type == "control" then
             new_block.other_x = x + (r.dx and 0 or reduction.dx)
@@ -196,7 +196,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         ::matched::
         for i = 0, garbage_span - 1 do
           for j = 0, garbage_height - 1 do
-            garbage_match_block = block("?")
+            garbage_match_block = block_class("?")
             garbage_match_block.body_color = each.body_color
             put(_ENV, x + i, y - j, garbage_match_block)
 
@@ -208,7 +208,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
               -- 二行目の先頭にはおじゃまブロック
               new_block = garbage_block(garbage_span, garbage_height - 1, each.body_color)
             else
-              new_block = block("i")
+              new_block = block_class("i")
             end
 
             blocks[x + i][y - j]:replace_with(
@@ -333,7 +333,7 @@ function board_class._random_single_block(_ENV)
   local single_block_types = split('h,x,y,z,s,t')
   local block_type = single_block_types[ceil_rnd(#single_block_types)]
 
-  return block(block_type)
+  return block_class(block_type)
 end
 
 -------------------------------------------------------------------------------
@@ -362,7 +362,7 @@ end
 -------------------------------------------------------------------------------
 
 function board_class.reducible_block_at(_ENV, x, y)
-  return reducible_blocks[x][y] or block("i")
+  return reducible_blocks[x][y] or block_class("i")
 end
 
 function board_class.put(_ENV, x, y, block)
@@ -395,7 +395,7 @@ function board_class.put(_ENV, x, y, block)
 end
 
 function board_class.remove_block(_ENV, x, y)
-  put(_ENV, x, y, block("i"))
+  put(_ENV, x, y, block_class("i"))
 end
 
 function board_class.send_garbage(_ENV, chain_id, span, _height)
@@ -417,10 +417,10 @@ function board_class.insert_blocks_at_bottom(_ENV)
       control_x, cnot_x_x = ceil_rnd(cols), ceil_rnd(cols)
     until control_x ~= cnot_x_x
 
-    local control_block = block("control")
+    local control_block = block_class("control")
     control_block.other_x = cnot_x_x
 
-    local cnot_x_block = block("cnot_x")
+    local cnot_x_block = block_class("cnot_x")
     cnot_x_block.other_x = control_x
 
     put(_ENV, control_x, row_next_blocks, control_block)
@@ -522,7 +522,7 @@ function board_class.update(_ENV, game, player, other_board)
           if tick_over == 0 then
             blocks[x][y]._state = "over"
           elseif tick_over == 20 then
-            blocks[x][y] = block("i")
+            blocks[x][y] = block_class("i")
             particle:create_chunk(screen_x(_ENV, x), screen_y(_ENV, y),
               "5,5,9,7,random,random,-0.03,-0.03,40|5,5,9,7,random,random,-0.03,-0.03,40|4,4,9,7,random,random,-0.03,-0.03,40|4,4,2,5,random,random,-0.03,-0.03,40|4,4,6,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|0,0,2,5,random,random,-0.03,-0.03,40")
           end

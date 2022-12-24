@@ -1,6 +1,6 @@
 ---@diagnostic disable: lowercase-global, global-in-nil-env
 
-local block = require("lib/block")
+require("lib/block")
 
 local function _is_empty(board, block_x, block_y)
   if block_x < 1 or board.cols < block_x or board.rows < block_y then
@@ -86,8 +86,8 @@ function create_qpu(board, _level)
     end,
 
     _reduce_cnot = function(_ENV, each, each_x, each_y)
-      local upper_block = each_y > 1 and board:reducible_block_at(each_x, each_y - 1) or block("i")
-      local lower_block = each_y < board.rows and board:reducible_block_at(each_x, each_y + 1) or block("i")
+      local upper_block = each_y > 1 and board:reducible_block_at(each_x, each_y - 1) or block_class("i")
+      local lower_block = each_y < board.rows and board:reducible_block_at(each_x, each_y + 1) or block_class("i")
 
       if not each:is_single_block() then
         -- d-2. 上の X-C を左にずらす
