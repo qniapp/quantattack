@@ -10,15 +10,15 @@ function ripple_class.update(_ENV)
   t2 = t2 - 1 / (slow and 300 or 150)
 end
 
-function ripple_class:render()
+function ripple_class.render(_ENV)
   for i = -5, 5 do
     for j = -5, 5 do
       local ang = atan2(i, j)
       local d = sqrt(i * i + j * j)
-      local r = 2 + 2 * sin(d / 4 + self.t2)
+      local r = 2 + 2 * sin(d / 4 + t2)
       local h = 3 * r
-      local clr = (self.slow and r > 3 and self.tick % 2 == 0) and 13 or 1
-      circfill(64 + 12 * d * cos(ang + self.t1), 64 + 12 * d * sin(ang + self.t1) - h, r, clr)
+      local clr = (slow and r > 3 and tick % 2 == 0) and 13 or 1
+      circfill(64 + 12 * d * cos(ang + t1), 64 + 12 * d * sin(ang + t1) - h, r, clr)
     end
   end
 end
