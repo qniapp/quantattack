@@ -4,8 +4,7 @@ require("lib/helpers")
 require("lib/block")
 require("lib/ripple")
 require("lib/particle")
-
-local bubble = require("lib/bubble")
+require("lib/bubble")
 
 local game = new_class()
 local _state
@@ -30,7 +29,7 @@ function game.update(_ENV)
 
         for x = 1, board.cols do
           local block_type, other_x = unpack(split(_board_data[_rows_raised][x]))
-          local new_block = block(block_type)
+          local new_block = block_class(block_type)
           new_block.other_x = other_x
           board:put(x, board.row_next_blocks, new_block)
         end

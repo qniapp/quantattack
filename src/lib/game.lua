@@ -2,8 +2,7 @@ require("lib/helpers")
 require("lib/attack_ion")
 require("lib/ripple")
 require("lib/particle")
-
-local bubble = require("lib/bubble")
+require("lib/bubble")
 
 game_class = new_class()
 
