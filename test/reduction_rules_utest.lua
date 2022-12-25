@@ -1,7 +1,8 @@
 require("engine/test/bustedhelper")
 require("test/test_helper")
-require("lib/board")
 require("lib/block")
+require("lib/board")
+require("lib/cursor")
 
 -- https://github.com/lunarmodules/say
 local say = require("say")

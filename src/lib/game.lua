@@ -31,7 +31,7 @@ function game_class.combo_callback(combo_count, x, y, player, board, other_board
     board:screen_x(x), board:screen_y(y),
     attack_cube_callback,
     12,
-    unpack(board.attack_cube_target)
+    unpack(board.attack_ion_target)
   )
 end
 
@@ -84,7 +84,7 @@ function game_class.chain_callback(chain_id, chain_count, x, y, player, board, o
       board:screen_x(x), board:screen_y(y),
       attack_cube_callback,
       12,
-      unpack(board.attack_cube_target)
+      unpack(board.attack_ion_target)
     )
   else
     player.score = player.score + (chain_bonus[chain_count])
@@ -96,6 +96,7 @@ function game_class:is_game_over()
 end
 
 function game_class:_init()
+  all_players_info = {}
   self.auto_raise_frame_count = 30
 end
 
@@ -103,10 +104,15 @@ function game_class:init()
   attack_ion.slow = false
   particle.slow = false
 
-  all_players_info = {}
   countdown = 240
   self.start_time = t()
   self.game_over_time = nil
+
+  for _, each in pairs(all_players_info) do
+    each.player:init()
+    each.board:init()
+    each.board:put_random_blocks()
+  end
 end
 
 function game_class:add_player(player, board, other_board)

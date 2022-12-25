@@ -2,6 +2,7 @@ require("lib/helpers")
 require("lib/player")
 require("lib/game")
 require("lib/board")
+require("lib/cursor")
 
 local sash = require("lib/sash")
 
@@ -10,11 +11,8 @@ local high_score_class = require("lib/high_score")
 local high_score = high_score_class(1)
 local current_high_score
 
-require("lib/cursor")
-local cursor = cursor_class()
-
-local board = board_class(cursor)
-board.attack_cube_target = { 85, 30 }
+local board = board_class()
+board.attack_ion_target = { 85, 30 }
 
 local player = player_class()
 local game = game_class()
@@ -26,16 +24,11 @@ endless.type = ':endless'
 
 local last_steps = 0
 
+game:add_player(player, board)
+
 function _init()
   current_high_score = high_score:get()
-
-  player:init()
-  board:init()
-  board:put_random_blocks()
-  cursor:init()
-
   game:init()
-  game:add_player(player, board)
 end
 
 function _update60()
@@ -65,7 +58,8 @@ function _update60()
 
       board.show_gameover_menu = true
       if btnp(5) then -- x でリプレイ
-        _init()
+        current_high_score = high_score:get()
+        game:init()
       elseif btnp(4) then -- c でタイトルへ戻る
         jump('quantattack_title')
       end

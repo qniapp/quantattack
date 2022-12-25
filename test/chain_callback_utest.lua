@@ -4,6 +4,7 @@ require("lib/player")
 require("lib/game")
 require("lib/board")
 require("lib/block")
+require("lib/cursor")
 
 local match = require("luassert.match")
 
@@ -14,7 +15,7 @@ describe('chain', function()
   before_each(function()
     stub(game_class, "chain_callback")
     board = board_class()
-    board.attack_cube_target = { 85, 30 }
+    board.attack_ion_target = { 85, 30 }
     player = player_class()
   end)
 

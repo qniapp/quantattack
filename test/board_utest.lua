@@ -8,7 +8,7 @@ describe('board', function()
   local board
 
   before_each(function()
-    board = board_class(cursor_class())
+    board = board_class()
   end)
 
   describe('swap', function()

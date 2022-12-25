@@ -19,13 +19,13 @@ describe('パフォーマンス', function()
     qpu1:init()
     qpu1_board:put_random_blocks()
     qpu1_board.block_offset_target = { 48, 15 }
-    qpu1_board.attack_cube_target = { 78, 15 }
+    qpu1_board.attack_ion_target = { 78, 15 }
     qpu1_cursor:init()
 
     qpu2:init()
     qpu2_board:put_random_blocks()
     qpu2_board.block_offset_target = { 78, 15 }
-    qpu2_board.attack_cube_target = { 48, 15 }
+    qpu2_board.attack_ion_target = { 48, 15 }
     qpu2_cursor:init()
 
     game:init()

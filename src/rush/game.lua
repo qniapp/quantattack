@@ -32,7 +32,7 @@ function game.combo_callback(combo_count, x, y, player, board, other_board)
     board:screen_y(y),
     attack_cube_callback,
     12,
-    unpack(board.attack_cube_target)
+    unpack(board.attack_ion_target)
   )
 end
 
@@ -87,7 +87,7 @@ function game.chain_callback(chain_id, chain_count, x, y, player, board, other_b
       board:screen_y(y),
       attack_cube_callback,
       12,
-      unpack(board.attack_cube_target)
+      unpack(board.attack_ion_target)
     )
   else
     player.score = player.score + (chain_bonus[chain_count])

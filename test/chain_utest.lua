@@ -3,6 +3,7 @@ require("engine/render/color")
 require("test/test_helper")
 require("lib/board")
 require("lib/block")
+require("lib/cursor")
 
 describe('連鎖 (chain)', function()
   local board

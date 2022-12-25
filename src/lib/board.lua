@@ -1,10 +1,11 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
-require("lib/garbage_block")
-require("lib/pending_garbage_blocks")
-require("lib/helpers")
 require("lib/block")
+require("lib/cursor")
+require("lib/garbage_block")
+require("lib/helpers")
 require("lib/particle")
+require("lib/pending_garbage_blocks")
 
 local reduction_rules = require("lib/reduction_rules")
 
@@ -12,7 +13,7 @@ board_class = new_class()
 local block_fall_speed = 2
 
 function board_class._init(_ENV, _cursor, __offset_x, _cols)
-  cursor = _cursor
+  cursor = _cursor or cursor_class()
   _offset_x = __offset_x
   show_wires = true
   show_top_line = true
@@ -55,6 +56,8 @@ function board_class.init(_ENV, _cols)
       put(_ENV, x, y, block_class("i"))
     end
   end
+
+  cursor:init()
 end
 
 function board_class.put_random_blocks(_ENV)

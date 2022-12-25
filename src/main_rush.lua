@@ -13,7 +13,7 @@ local current_high_score
 local cursor = cursor_class()
 
 local board = board_class(cursor)
-board.attack_cube_target = { 85, 30 }
+board.attack_ion_target = { 85, 30 }
 
 local player = player_class()
 

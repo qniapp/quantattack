@@ -3,6 +3,7 @@ require("test/test_helper")
 require("lib/game")
 require("lib/board")
 require("lib/block")
+require("lib/cursor")
 
 local match = require("luassert.match")
 
