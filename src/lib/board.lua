@@ -517,7 +517,7 @@ function board_class.update(_ENV, game, player, other_board)
     end
   elseif state == "over" then
     if lose then
-      if tick_over == 20 then
+      if tick_over == 20 and not done_over_fx then
         sfx(18)
       end
 
@@ -525,7 +525,7 @@ function board_class.update(_ENV, game, player, other_board)
         for y = 1, row_next_blocks do
           if tick_over == 0 then
             blocks[x][y]._state = "over"
-          elseif tick_over == 20 then
+          elseif tick_over == 20 and not done_over_fx then
             blocks[x][y] = block_class("i")
             particle:create_chunk(screen_x(_ENV, x), screen_y(_ENV, y),
               "5,5,9,7,random,random,-0.03,-0.03,40|5,5,9,7,random,random,-0.03,-0.03,40|4,4,9,7,random,random,-0.03,-0.03,40|4,4,2,5,random,random,-0.03,-0.03,40|4,4,6,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|0,0,2,5,random,random,-0.03,-0.03,40")
@@ -535,6 +535,10 @@ function board_class.update(_ENV, game, player, other_board)
     end
 
     tick_over = tick_over + 1
+
+    if tick_over > 20 then
+      done_over_fx = true
+    end
   end
 
   tick = tick + 1
