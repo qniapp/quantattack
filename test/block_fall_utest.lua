@@ -27,12 +27,9 @@ describe('ブロックの落下', function()
       assert.is_true(block:is_falling())
     end)
 
-    it("4 フレームで 1 ブロックほど落下する", function()
+    it("1 フレームで 1 ブロック落下する", function()
       board:put(1, 15, block)
 
-      board:update()
-      board:update()
-      board:update()
       board:update()
 
       assert.is_true(block:is_falling())
@@ -42,9 +39,6 @@ describe('ブロックの落下', function()
     it("着地後 1 フレームで状態が idle になる", function()
       board:put(1, 16, block)
 
-      board:update()
-      board:update()
-      board:update()
       board:update()
       board:update()
 
@@ -70,13 +64,10 @@ describe('ブロックの落下', function()
       assert.is_true(block2:is_falling())
     end)
 
-    it("4 フレームで 1 ブロックほど落下する", function()
+    it("1 フレームで 1 ブロック落下する", function()
       board:put(1, 14, block1)
       board:put(1, 15, block2)
 
-      board:update()
-      board:update()
-      board:update()
       board:update()
 
       assert.is_true(block1:is_falling())
@@ -89,9 +80,6 @@ describe('ブロックの落下', function()
       board:put(1, 15, block1)
       board:put(1, 16, block2)
 
-      board:update()
-      board:update()
-      board:update()
       board:update()
       board:update()
 
@@ -119,13 +107,10 @@ describe('ブロックの落下', function()
       assert.is_true(cnot_x:is_falling())
     end)
 
-    it("4 フレームで 1 ブロックほど落下する", function()
+    it("1 フレームで 1 ブロック落下する", function()
       board:put(1, 15, control)
       board:put(2, 15, cnot_x)
 
-      board:update()
-      board:update()
-      board:update()
       board:update()
 
       assert.is_true(control:is_falling())
@@ -138,9 +123,6 @@ describe('ブロックの落下', function()
       board:put(1, 16, control)
       board:put(2, 16, cnot_x)
 
-      board:update()
-      board:update()
-      board:update()
       board:update()
       board:update()
 
@@ -167,13 +149,10 @@ describe('ブロックの落下', function()
       assert.is_true(swap_right:is_falling())
     end)
 
-    it("4 フレームで 1 ブロックほど落下する", function()
+    it("1 フレームで 1 ブロック落下する", function()
       board:put(1, 15, swap_left)
       board:put(2, 15, swap_right)
 
-      board:update()
-      board:update()
-      board:update()
       board:update()
 
       assert.is_true(swap_left:is_falling())
@@ -186,9 +165,6 @@ describe('ブロックの落下', function()
       board:put(1, 16, swap_left)
       board:put(2, 16, swap_right)
 
-      board:update()
-      board:update()
-      board:update()
       board:update()
       board:update()
 
@@ -212,10 +188,7 @@ describe('ブロックの落下', function()
       board:update()
       board:update()
 
-      -- 4 フレームでひとつ下に落ち idle 状態に
-      board:update()
-      board:update()
-      board:update()
+      -- 1 フレームでひとつ下に落ち idle 状態に
       board:update()
       board:update()
 
@@ -241,12 +214,9 @@ describe('ブロックの落下', function()
       assert.is_true(garbage:is_falling())
     end)
 
-    it("4 フレームで 1 ブロックほど落下する", function()
+    it("1 フレームで 1 ブロック落下する", function()
       board:put(1, 15, garbage)
 
-      board:update()
-      board:update()
-      board:update()
       board:update()
 
       assert.is_true(garbage:is_falling())
@@ -256,9 +226,6 @@ describe('ブロックの落下', function()
     it("着地後 1 フレームで状態が idle になる", function()
       board:put(1, 16, garbage)
 
-      board:update()
-      board:update()
-      board:update()
       board:update()
       board:update()
 

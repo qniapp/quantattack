@@ -726,43 +726,23 @@ function board_class._update_game(_ENV, game, player, other_board)
             sfx(12)
           end
 
-          block._fall_screen_dy = 0
           block._tick_landed = 1
-
           block:change_state("idle")
 
           if block.other_x and x < block.other_x then
             local other_block = blocks[block.other_x][y]
             other_block._tick_landed = 1
-            other_block._fall_screen_dy = 0
-
             other_block:change_state("idle")
           end
         else
-          block._fall_screen_dy = block._fall_screen_dy + block_fall_speed
+          -- 落下中のブロックをひとつ下に移動
+          remove_block(_ENV, x, y)
+          put(_ENV, x, y + 1, block)
 
-          local new_y = y
-
-          if block._fall_screen_dy >= 8 then
-            new_y = new_y + 1
-          end
-
-          if new_y == y then
-            -- 同じ場所にとどまっている場合、何もしない
-          elseif is_block_fallable(_ENV, x, y) then
-            local orig_y = y
-
-            -- 一個下が空いている場合、そこに移動する
-            remove_block(_ENV, x, y)
-            put(_ENV, x, new_y, block)
-            block._fall_screen_dy = block._fall_screen_dy - 8
-
-            if block.other_x and x < block.other_x then
-              local other_block = blocks[block.other_x][orig_y]
-              remove_block(_ENV, block.other_x, orig_y)
-              put(_ENV, block.other_x, new_y, other_block)
-              other_block._fall_screen_dy = block._fall_screen_dy
-            end
+          if block.other_x and x < block.other_x then
+            local other_block = blocks[block.other_x][y]
+            remove_block(_ENV, block.other_x, y)
+            put(_ENV, block.other_x, y + 1, other_block)
           end
         end
       end

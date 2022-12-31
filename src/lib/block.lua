@@ -44,7 +44,7 @@ end
 --- @param _span? 1 | 2 | 3 | 4 | 5 | 6 span of the block
 --- @param _height? integer height of the block
 function block_class._init(_ENV, _type, _span, _height)
-  type, sprite_set, span, height, _state, _fall_screen_dy = _type, sprites[_type], _span or 1, _height or 1, "idle", 0
+  type, sprite_set, span, height, _state = _type, sprites[_type], _span or 1, _height or 1, "idle"
 end
 
 -------------------------------------------------------------------------------
@@ -116,8 +116,6 @@ function block_class:fall()
   if self:is_falling() then
     return
   end
-
-  self._fall_screen_dy = 0
 
   self:change_state("falling")
 end
@@ -219,7 +217,7 @@ function block_class:render(screen_x, screen_y)
     pal(7, 1)
   end
 
-  spr(sprite, screen_x + swap_screen_dx + shake_dx, screen_y + self._fall_screen_dy + shake_dy)
+  spr(sprite, screen_x + swap_screen_dx + shake_dx, screen_y + shake_dy)
 
   palt(0, true)
   pal(13, 13)

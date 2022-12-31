@@ -37,9 +37,10 @@ function garbage_block(_span, _height, _color)
     --- @param screen_x integer おじゃまブロック先頭ブロック (左下) の X 座標
     --- @param screen_y integer おじゃまブロック先頭ブロックの Y 座標
     render = function(_ENV, screen_x, screen_y)
-      local y0, x1, y1, _body_color = screen_y + (1 - height) * tile_size + _fall_screen_dy,
+      local y0, x1, y1, _body_color =
+      screen_y + (1 - height) * tile_size,
           screen_x + span * tile_size - 2,
-          screen_y + 6 + _fall_screen_dy,
+          screen_y + 6,
           _state ~= "over" and body_color or 9
 
       _render_box(screen_x, y0 + 1, x1, y1 + 1, 5) -- 影
