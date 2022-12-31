@@ -582,7 +582,7 @@ function board_class.render(_ENV)
   end
 
   -- 残り時間ゲージの描画
-  if _is_topped_out(_ENV) then
+  if is_topped_out(_ENV) then
     local time_left_height = (_topped_out_delay_frame_count - _topped_out_frame_count) /
         _topped_out_delay_frame_count * 128
     local gauge_x = offset_x < 64 and offset_x + 50 or offset_x - 4
@@ -609,13 +609,13 @@ function board_class.render(_ENV)
     if top_line_start_x < 73 then
       line(max(offset_x - 1, offset_x + top_line_start_x - 25), 40,
         min(offset_x + 48, offset_x + top_line_start_x + 5), 40,
-        _is_topped_out(_ENV) and 8 or 1)
+        is_topped_out(_ENV) and 8 or 1)
     end
 
     -- if offset_x - 1 + (top_line_start_x - 24) < offset_x + 48 then
     --   line(max(offset_x - 1, offset_x - 1 + top_line_start_x - 24), 40,
     --     min(offset_x + 48, offset_x - 1 + top_line_start_x - 24 + 30), 40,
-    --     _is_topped_out(_ENV) and 8 or 1)
+    --     is_topped_out(_ENV) and 8 or 1)
     -- end
   end
 
@@ -650,12 +650,12 @@ function board_class.render(_ENV)
   end
 end
 
-function board_class._is_topped_out(_ENV)
+function board_class.is_topped_out(_ENV)
   return screen_y(_ENV, top_block_y) - _bounce_screen_dy <= 40
 end
 
 function board_class._update_game(_ENV, game, player, other_board)
-  if _is_topped_out(_ENV) then
+  if is_topped_out(_ENV) then
     if not is_busy(_ENV) then
       _topped_out_frame_count = _topped_out_frame_count + 1
 

@@ -35,7 +35,7 @@ function game_class.combo_callback(combo_count, x, y, player, board, other_board
   )
 end
 
-local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
+local chain_bonus = split("0,5,8,15,30,40,50,70,90,110,130,150,180")
 
 function game_class.block_offset_callback(chain_id, chain_count, x, y, player, board, other_board)
   local offset_height = chain_count
@@ -155,9 +155,22 @@ function game_class:update()
   end
 
   if not countdown and -- カウントダウン終了
-    stat(46) == -1 and -- カウントダウンの sfx が鳴り終わっている
-    stat(54) == -1 then -- BGM がまだ始まっていない
+      stat(46) == -1 and -- カウントダウンの sfx が鳴り終わっている
+      stat(54) == -1 then -- BGM がまだ始まっていない
     music(0)
+  end
+
+  local music_pattern_id = stat(54)
+  if music_pattern_id then
+    if all_players_info[1].board:is_topped_out() then
+      if 0 <= music_pattern_id and music_pattern_id <= 7 then
+        music(16)
+      end
+    else
+      if 16 <= music_pattern_id and music_pattern_id <= 19 then
+        music(0)
+      end
+    end
   end
 
   -- もしどちらかの board でおじゃまブロックを分解中だった場合 "slow" にする
