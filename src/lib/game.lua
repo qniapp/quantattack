@@ -154,6 +154,12 @@ function game_class:update()
     end
   end
 
+  if not countdown and -- カウントダウン終了
+    stat(46) == -1 and -- カウントダウンの sfx が鳴り終わっている
+    stat(54) == -1 then -- BGM がまだ始まっていない
+    music(0)
+  end
+
   -- もしどちらかの board でおじゃまブロックを分解中だった場合 "slow" にする
   ripple.slow = false
 

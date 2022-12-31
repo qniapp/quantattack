@@ -1,6 +1,6 @@
 ---@diagnostic disable: lowercase-global
 
-require ("lib/helpers")
+require("lib/helpers")
 
 -- call this before you start using dtb.
 -- optional parameter is the number of lines that are displayed. default is 3.
@@ -101,7 +101,7 @@ function dtb_update()
           local curchar = sub(curlines[dtb_curline], curchari, curchari)
           dtb_ltime = 1
           if curchar ~= " " then
-            sfx(25)
+            sfx(24)
           end
           if curchar == "." then
             dtb_ltime = 6
