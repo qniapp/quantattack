@@ -112,11 +112,10 @@
     "circ",
     "_main_state",
     "pget",
-    "game_class"
+    "game_class",
+    "music"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,
-  "Lua.diagnostics.disable": [
-    "deprecated"
-  ]
+  "Lua.diagnostics.disable": ["deprecated"]
 }
