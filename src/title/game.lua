@@ -1,6 +1,5 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
-require("lib/helpers")
 require("lib/attack_ion")
 require("lib/bubble")
 require("lib/particle")

@@ -3,7 +3,6 @@
 require("lib/block")
 require("lib/cursor")
 require("lib/garbage_block")
-require("lib/helpers")
 require("lib/particle")
 require("lib/pending_garbage_blocks")
 

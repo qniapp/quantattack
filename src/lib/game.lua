@@ -1,4 +1,3 @@
-require("lib/helpers")
 require("lib/attack_ion")
 require("lib/ripple")
 require("lib/particle")

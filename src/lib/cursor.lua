@@ -1,7 +1,5 @@
 ---@diagnostic disable: lowercase-global, global-in-nil-env
 
-require("lib/helpers")
-
 cursor_class = new_class()
 
 function cursor_class._init(_ENV)

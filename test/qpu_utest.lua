@@ -1,6 +1,7 @@
 require("engine/test/bustedhelper")
 require("engine/render/color")
 require("test/test_helper")
+require("lib/helpers")
 require("lib/cursor")
 require("lib/qpu")
 require("lib/board")

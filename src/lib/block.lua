@@ -1,7 +1,5 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments, undefined-field, undefined-global
 
-require("lib/helpers")
-
 --- @class block_class
 --- @field type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "?" block type
 --- @field span 1 | 2 | 3 | 4 | 5 | 6 span of the block
