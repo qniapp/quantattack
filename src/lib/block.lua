@@ -11,7 +11,7 @@
 block_class = new_class()
 block_class.block_match_animation_frame_count = 45
 block_class.block_match_delay_per_block = 8
-block_class.block_swap_animation_frame_count = 4
+block_class.block_swap_animation_frame_count = 3
 block_class.sprites = {
   -- default|landed|match|bouncing
   h = "0|1,1,1,1,3,3,2,2,2,1,1,1|24,24,24,25,25,25,24,24,24,26,26,26,0,0,0,27|0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,2,2,2,2",
@@ -90,6 +90,10 @@ end
 --- @private
 function block_class:_is_swapping_with_right()
   return self._state == "swapping_with_right"
+end
+
+function block_class:is_swappable_state()
+  return self:is_idle() or self:is_falling()
 end
 
 function block_class:is_empty()

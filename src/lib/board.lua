@@ -451,47 +451,30 @@ function board_class.shift_all_blocks_up(_ENV)
 end
 
 -------------------------------------------------------------------------------
--- ユーザーによるブロック操作
+-- プレイヤーによるブロック操作
 -------------------------------------------------------------------------------
 
 -- (x_left, y) と (x_left + 1, y) のブロックを入れ替える
--- 入れ替えできた場合は true を、そうでない場合は false を返す
+-- 入れ替えできる場合は true を、そうでない場合は false を返す
 function board_class.swap(_ENV, x_left, y)
   local x_right = x_left + 1
   local left_block, right_block = blocks[x_left][y], blocks[x_right][y]
 
-  -- 左または右が # ブロックの場合、入れ替えできない
-  if left_block.type == "#" or right_block.type == "#" then
-    return false
-  end
-
-  if _is_part_of_garbage(_ENV, x_left, y) or _is_part_of_garbage(_ENV, x_right, y) or
-      not (left_block:is_idle() and right_block:is_idle()) then
-    return false
-  end
-
-  -- 回路が A--[A?] のようになっている場合
-  -- [A?] は入れ替えできない。
-  if left_block.other_x and left_block.other_x < x_left and not is_block_empty(_ENV, x_right, y) then
-    return false
-  end
-
-  -- 回路が [?A]--A のようになっている場合も、
-  -- [?A] は入れ替えできない。
-  if not is_block_empty(_ENV, x_left, y) and right_block.other_x and x_right < right_block.other_x then
-    return false
-  end
-
-  -- left_block の上、または right_block の上のブロックが落下中である場合も
-  -- 入れ替えできない
-  if y > 1 and
-      (blocks[x_left][y - 1]:is_falling() or blocks[x_right][y - 1]:is_falling()) then
+  -- 入れ替えできない場合
+  --  1. 左または右の状態が idle や falling でない
+  --  2. 左または右が # ブロック
+  --  3. 左または右がおじゃまブロックの一部
+  --  4. CNOT または SWAP の一部と単一ブロックを入れ替えようとしている場合
+  if not (left_block:is_swappable_state() and right_block:is_swappable_state()) or
+      (left_block.type == "#" or right_block.type == "#") or
+      (_is_part_of_garbage(_ENV, x_left, y) or _is_part_of_garbage(_ENV, x_right, y)) or
+      (left_block.other_x and left_block.other_x < x_left and not is_block_empty(_ENV, x_right, y)) or
+      (not is_block_empty(_ENV, x_left, y) and right_block.other_x and x_right < right_block.other_x) then
     return false
   end
 
   left_block:swap_with("right")
   right_block:swap_with("left")
-
   return true
 end
 
