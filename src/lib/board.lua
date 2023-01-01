@@ -10,7 +10,6 @@ require("lib/pending_garbage_blocks")
 local reduction_rules = require("lib/reduction_rules")
 
 board_class = new_class()
-local block_fall_speed = 2
 
 function board_class._init(_ENV, _cursor, __offset_x, _cols)
   cursor = _cursor or cursor_class()
@@ -684,20 +683,27 @@ function board_class._update_game(_ENV, game, player, other_board)
     for x = 1, cols do
       local block = blocks[x][y]
 
+      -- ブロックを更新
+      block:update()
+
       if block.type == "?" then
         contains_garbage_match_block = true
       end
 
-      -- 落下できるブロックを落とす
-      if not block:is_falling() and is_block_fallable(_ENV, x, y) then
-        if block.other_x then
-          local other_block = blocks[block.other_x][y]
-          if x < block.other_x and is_block_fallable(_ENV, block.other_x, y) then
-            block:fall()
-            other_block:fall()
+      -- 落下できるブロックをホバー状態にする
+      if not block:is_falling() and
+          not block:is_hover() and
+          is_block_fallable(_ENV, x, y) then
+        if not block.other_x then -- 単体ブロック
+          block:hover()
+          if y < rows and blocks[x][y + 1]:is_hover() then
+            block.timer = blocks[x][y + 1].timer
           end
-        else
-          block:fall()
+        else -- CNOT などの複合ブロック
+          if x < block.other_x and is_block_fallable(_ENV, block.other_x, y) then
+            block:hover()
+            blocks[block.other_x][y]:hover()
+          end
         end
       end
 
@@ -735,20 +741,24 @@ function board_class._update_game(_ENV, game, player, other_board)
             other_block:change_state("idle")
           end
         else
-          -- 落下中のブロックをひとつ下に移動
-          remove_block(_ENV, x, y)
-          put(_ENV, x, y + 1, block)
+          if is_block_empty(_ENV, x, y + 1) then
+            -- 落下中のブロックをひとつ下に移動
+            if not block.other_x then
+              remove_block(_ENV, x, y)
+              put(_ENV, x, y + 1, block)
+            end
 
-          if block.other_x and x < block.other_x then
-            local other_block = blocks[block.other_x][y]
-            remove_block(_ENV, block.other_x, y)
-            put(_ENV, block.other_x, y + 1, other_block)
+            if block.other_x and x < block.other_x then
+              remove_block(_ENV, x, y)
+              put(_ENV, x, y + 1, block)
+
+              local other_block = blocks[block.other_x][y]
+              remove_block(_ENV, block.other_x, y)
+              put(_ENV, block.other_x, y + 1, other_block)
+            end
           end
         end
       end
-
-      -- ブロックを更新
-      block:update()
     end
   end
 
@@ -898,7 +908,10 @@ function board_class._is_block_fallable_nocache(_ENV, x, y)
   end
 
   for i = start_x, end_x do
-    if not (is_block_empty(_ENV, i, y + 1) or _block_or_its_head_block(_ENV, i, y + 1):is_falling()) then
+    if not
+        (
+        is_block_empty(_ENV, i, y + 1) or blocks[i][y + 1]:is_hover() or
+            _block_or_its_head_block(_ENV, i, y + 1):is_falling()) then
       return false
     end
   end
@@ -944,6 +957,12 @@ function board_class.observable_update(_ENV, block, old_state)
     right_block:change_state("idle")
 
     return
+  end
+
+  -- hover が完了して下のブロックが空または falling の場合、
+  -- パネルの状態を ":falling" にする
+  if old_state == "hover" and is_block_fallable(_ENV, x, y) then
+    block:fall()
   end
 
   if old_state == "match" and block:is_idle() then

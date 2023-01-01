@@ -223,7 +223,7 @@ describe('board', function()
     -- S-S
     --  ?
     --  ?
-    --  ? ←
+    --  ?
     --  ? ← ここを消した時に S-S が正しく落ちる
     it('swap ペアの真ん中が消えた時に正しく落ちる (raised_dots > 0)', function()
       board.raised_dots = 3

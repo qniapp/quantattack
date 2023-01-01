@@ -55,6 +55,10 @@ function block_class:is_idle()
   return self._state == "idle"
 end
 
+function block_class:is_hover()
+  return self._state == "hover"
+end
+
 function block_class.is_fallable(_ENV)
   return not (type == "i" or type == "?" or is_swapping(_ENV) or is_freeze(_ENV))
 end
@@ -108,6 +112,11 @@ function block_class:swap_with(direction)
   self:change_state("swapping_with_" .. direction)
 end
 
+function block_class:hover()
+  self.timer = 12
+  self:change_state("hover")
+end
+
 function block_class:fall()
   --#if assert
   assert(self:is_fallable(), "block " .. self.type .. "(" .. self.x .. ", " .. self.y .. ")")
@@ -152,8 +161,12 @@ function block_class.update(_ENV)
       chain_id = nil
       change_state(_ENV, "idle")
     end
-  elseif is_falling(_ENV) then
-    -- NOP
+  elseif is_hover(_ENV) then
+    if timer > 0 then
+      timer = timer - 1
+    else
+      change_state(_ENV, "idle")
+    end
   elseif is_match(_ENV) then
     if _tick_match <= block_match_animation_frame_count + _match_index * block_match_delay_per_block then
       _tick_match = _tick_match + 1
