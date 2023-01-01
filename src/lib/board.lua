@@ -665,7 +665,6 @@ function board_class._update_game(_ENV, game, player, other_board)
     for x = 1, cols do
       local block = blocks[x][y]
 
-      -- ブロックを更新
       block:update()
 
       if block.type == "?" then
@@ -681,15 +680,15 @@ function board_class._update_game(_ENV, game, player, other_board)
           if y < rows and blocks[x][y + 1]:is_hover() then
             block.timer = blocks[x][y + 1].timer
           end
-        else -- CNOT などの複合ブロック
+        else -- CNOT または SWAP
           if x < block.other_x and is_block_fallable(_ENV, block.other_x, y) then
             block:hover()
-            blocks[block.other_x][y]:hover()
+            blocks[block.other_x][y]:hover(block.timer + 1)
           end
         end
       end
 
-      -- ここで top_block_y を更新
+      -- top_block_y を更新
       if block.type ~= "i" then
         if block.type == "g" then
           if not block.first_drop and top_block_y > y - block.height + 1 then
@@ -728,13 +727,12 @@ function board_class._update_game(_ENV, game, player, other_board)
             if not block.other_x then
               remove_block(_ENV, x, y)
               put(_ENV, x, y + 1, block)
-            end
-
-            if block.other_x and x < block.other_x then
+            elseif x < block.other_x then
               remove_block(_ENV, x, y)
               put(_ENV, x, y + 1, block)
 
               local other_block = blocks[block.other_x][y]
+              other_block._state = "falling"
               remove_block(_ENV, block.other_x, y)
               put(_ENV, block.other_x, y + 1, other_block)
             end

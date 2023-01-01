@@ -4,7 +4,7 @@ require("lib/block")
 require("lib/board")
 require("lib/garbage_block")
 
-describe('ブロックの入れ替え #solo', function()
+describe('ブロックの入れ替え', function()
   describe('board', function()
     local board
 

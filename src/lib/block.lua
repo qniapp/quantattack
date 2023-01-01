@@ -114,8 +114,8 @@ function block_class:swap_with(direction)
   self:change_state("swapping_with_" .. direction)
 end
 
-function block_class:hover()
-  self.timer = 12
+function block_class:hover(timer)
+  self.timer = timer or 12
   self:change_state("hover")
 end
 
