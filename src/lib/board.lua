@@ -889,8 +889,8 @@ function board_class._is_block_fallable_nocache(_ENV, x, y)
 
   for i = start_x, end_x do
     if not
-        (
-        is_block_empty(_ENV, i, y + 1) or blocks[i][y + 1]:is_hover() or
+        (is_block_empty(_ENV, i, y + 1) or
+            _block_or_its_head_block(_ENV, i, y + 1):is_hover() or
             _block_or_its_head_block(_ENV, i, y + 1):is_falling()) then
       return false
     end

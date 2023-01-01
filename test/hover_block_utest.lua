@@ -4,7 +4,7 @@ require("test/test_helper")
 require("lib/board")
 require("lib/block")
 
-describe('ブロックの hover 状態 #solo', function()
+describe('ブロックの hover 状態', function()
   local board
 
   before_each(function()
@@ -144,7 +144,7 @@ describe('ブロックの hover 状態 #solo', function()
       assert.is_true(swap_right:is_hover())
     end)
 
-    it("hover 状態は 12 フレーム継続する #solo", function()
+    it("hover 状態は 12 フレーム継続する", function()
       board:put(1, 15, swap_left)
       board:put(2, 15, swap_right)
 
@@ -195,6 +195,43 @@ describe('ブロックの hover 状態 #solo', function()
       board:update()
 
       assert.is_true(garbage:is_falling())
+    end)
+  end)
+
+  describe('2 つ積み重なったおじゃまブロックの下が空の場合', function()
+    local garbage1, garbage2
+
+    before_each(function()
+      garbage1 = garbage_block(3)
+      garbage2 = garbage_block(3)
+    end)
+
+    it("両方のおじゃまブロックとも状態が hover になる", function()
+      board:put(1, 15, garbage1)
+      board:put(1, 16, garbage2)
+
+      board:update()
+
+      assert.is_true(garbage1:is_hover())
+      assert.is_true(garbage2:is_hover())
+    end)
+
+    it("hover 状態は 12 フレーム継続する", function()
+      board:put(1, 15, garbage1)
+      board:put(1, 16, garbage2)
+
+      -- hover 状態に遷移
+      board:update()
+
+      for i = 1, 12 do
+        board:update()
+      end
+
+      -- falling 状態に遷移
+      board:update()
+
+      assert.is_true(garbage1:is_falling())
+      assert.is_true(garbage2:is_falling())
     end)
   end)
 end)
