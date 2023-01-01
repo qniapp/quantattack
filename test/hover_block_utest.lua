@@ -166,55 +166,35 @@ describe('ブロックの hover 状態 #solo', function()
     end)
   end)
 
-  -- describe('おじゃまブロックが落ちる', function()
-  --   local garbage
+  describe('おじゃまブロックの下が空の場合', function()
+    local garbage
 
-  --   before_each(function()
-  --     garbage = garbage_block(3)
-  --   end)
+    before_each(function()
+      garbage = garbage_block(3)
+    end)
 
-  --   it("状態が falling になる", function()
-  --     board:put(1, 15, garbage)
+    it("状態が falling になる", function()
+      board:put(1, 16, garbage)
 
-  --     board:update()
+      board:update()
 
-  --     for i = 1, 12 do
-  --       board:update()
-  --     end
+      assert.is_true(garbage:is_hover())
+    end)
 
-  --     board:update()
+    it("hover 状態は 12 フレーム継続する", function()
+      board:put(1, 16, garbage)
 
-  --     assert.is_true(garbage:is_falling())
-  --   end)
+      -- hover 状態に遷移
+      board:update()
 
-  --   it("1 フレームで 1 ブロック落下する", function()
-  --     board:put(1, 15, garbage)
+      for i = 1, 12 do
+        board:update()
+      end
 
-  --     board:update()
+      -- falling 状態に遷移
+      board:update()
 
-  --     for i = 1, 12 do
-  --       board:update()
-  --     end
-
-  --     board:update()
-
-  --     assert.is_true(garbage:is_falling())
-  --     assert.are_equal(garbage, board.blocks[1][16])
-  --   end)
-
-  --   it("着地後 1 フレームで状態が idle になる", function()
-  --     board:put(1, 16, garbage)
-
-  --     board:update()
-
-  --     for i = 1, 12 do
-  --       board:update()
-  --     end
-
-  --     board:update()
-  --     board:update()
-
-  --     assert.is_true(garbage:is_idle())
-  --   end)
-  -- end)
+      assert.is_true(garbage:is_falling())
+    end)
+  end)
 end)
