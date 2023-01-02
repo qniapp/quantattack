@@ -274,6 +274,7 @@ local state_string = {
   idle = " ",
   swapping_with_left = "<",
   swapping_with_right = ">",
+  hover = "^",
   falling = "|",
   match = "*",
   freeze = "f",

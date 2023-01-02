@@ -234,4 +234,26 @@ describe('ブロックの hover 状態', function()
       assert.is_true(garbage2:is_falling())
     end)
   end)
+
+  describe('ホバー中のブロックにおじゃまブロックが落ちてきた場合 #solo', function()
+    local hover_block
+    local garbage
+
+    before_each(function()
+      hover_block = block_class("h")
+      garbage = garbage_block(3)
+    end)
+
+    it("ホバー中のブロックのタイマーがおじゃまブロックに伝搬する", function()
+      board:put(1, 14, garbage)
+      board:put(2, 16, hover_block)
+      hover_block:hover()
+      garbage:fall()
+
+      board:update()
+      board:update()
+
+      assert.are_equal(10, garbage.timer)
+    end)
+  end)
 end)
