@@ -48,14 +48,25 @@ function board_class.init(_ENV, _cols)
 
   tick, steps = 0, 0
 
-  for x = 1, cols do
-    blocks[x], reducible_blocks[x] = {}, {}
-    for y = 1, row_next_blocks do
+  -- for x = 1, cols do
+  --   blocks[x], reducible_blocks[x] = {}, {}
+  --   for y = 1, row_next_blocks do
+  --     put(_ENV, x, y, block_class("i"))
+  --   end
+  -- end
+
+  for y = 1, rows do
+    blocks[y] = {}
+    for x = 1, cols do
       put(_ENV, x, y, block_class("i"))
     end
   end
 
   cursor:init()
+end
+
+function board_class.block_at(_ENV, x, y)
+  return blocks[y][x]
 end
 
 function board_class.put_random_blocks(_ENV)
@@ -238,7 +249,7 @@ function board_class.reduce(_ENV, x, y, include_next_blocks)
 end
 
 function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
-  local reduction, block = { to = {}, score = 0 }, blocks[x][y]
+  local reduction, block = { to = {}, score = 0 }, blocks[y][x]
   local rules = reduction_rules[block.type]
 
   if not rules then return reduction end
@@ -391,7 +402,7 @@ function board_class.put(_ENV, x, y, block)
     add(_garbage_blocks, block)
   end
 
-  blocks[x][y] = block
+  blocks[y][x] = block
   block:attach(_ENV)
   observable_update(_ENV, block)
 end
@@ -458,7 +469,8 @@ end
 -- 入れ替えできる場合は true を、そうでない場合は false を返す
 function board_class.swap(_ENV, x_left, y)
   local x_right = x_left + 1
-  local left_block, right_block = blocks[x_left][y], blocks[x_right][y]
+  local left_block, right_block = blocks[y][x_left], blocks[y][x_right]
+  -- local left_block, right_block = blocks[x_left][y], blocks[x_right][y]
 
   -- 入れ替えできない場合
   --  1. 左または右の状態が idle や falling でない
@@ -636,17 +648,19 @@ function board_class.is_topped_out(_ENV)
 end
 
 function board_class._update_game(_ENV, game, player, other_board)
-  if is_topped_out(_ENV) then
-    if not is_busy(_ENV) then
-      _topped_out_frame_count = _topped_out_frame_count + 1
+  -- FIXME: swap のテストのために、一時的に無効
+  --
+  -- if is_topped_out(_ENV) then
+  --   if not is_busy(_ENV) then
+  --     _topped_out_frame_count = _topped_out_frame_count + 1
 
-      if _topped_out_frame_count >= _topped_out_delay_frame_count then
-        lose = true
-      end
-    end
-  else
-    _topped_out_frame_count = 0
-  end
+  --     if _topped_out_frame_count >= _topped_out_delay_frame_count then
+  --       lose = true
+  --     end
+  --   end
+  -- else
+  --   _topped_out_frame_count = 0
+  -- end
 
   if _changed then
     reduce_blocks(_ENV, game, player, other_board)
@@ -661,9 +675,9 @@ function board_class._update_game(_ENV, game, player, other_board)
   top_block_y = row_next_blocks
   contains_garbage_match_block = false
 
-  for y = row_next_blocks, 1, -1 do
+  for y = 1, rows do
     for x = 1, cols do
-      local block = blocks[x][y]
+      local block = blocks[y][x]
 
       block:update()
 
@@ -672,36 +686,42 @@ function board_class._update_game(_ENV, game, player, other_board)
       end
 
       -- 落下できるブロックをホバー状態にする
-      if not block:is_falling() and
-          not block:is_hover() and
-          is_block_fallable(_ENV, x, y) then
-        if not block.other_x then -- 単体ブロックとおじゃまゲート
-          block:hover()
-          if y < rows and blocks[x][y + 1]:is_hover() then
-            block.timer = blocks[x][y + 1].timer
-          end
-        else -- CNOT または SWAP
-          if x < block.other_x and is_block_fallable(_ENV, block.other_x, y) then
-            block:hover()
-            blocks[block.other_x][y]:hover(block.timer + 1)
-          end
-        end
-      end
+      --
+      -- FIXME: swap のテストのために、一時的に無効
+      --
+      -- if not block:is_falling() and
+      --     not block:is_hover() and
+      --     is_block_fallable(_ENV, x, y) then
+      --   if not block.other_x then -- 単体ブロックとおじゃまゲート
+      --     block:hover()
+      --     if y < rows and blocks[x][y + 1]:is_hover() then
+      --       block.timer = blocks[x][y + 1].timer
+      --     end
+      --   else -- CNOT または SWAP
+      --     if x < block.other_x and is_block_fallable(_ENV, block.other_x, y) then
+      --       block:hover()
+      --       blocks[block.other_x][y]:hover(block.timer + 1)
+      --     end
+      --   end
+      -- end
 
       -- ホバー中のブロックに乗ったブロックをホバー状態にする
-      if not block:is_hover() then
-        local hover_timer = will_block_hover(_ENV, x, y)
-        if hover_timer then
-          if not block.other_x then -- 単体ブロックとおじゃまゲート
-            block:hover(hover_timer)
-          else -- CNOT または SWAP
-            if x < block.other_x then
-              block:hover(hover_timer)
-              blocks[block.other_x][y]:hover(hover_timer + 1)
-            end
-          end
-        end
-      end
+      --
+      -- FIXME: swap のテストのために、一時的に無効
+      --
+      -- if not block:is_hover() then
+      --   local hover_timer = will_block_hover(_ENV, x, y)
+      --   if hover_timer then
+      --     if not block.other_x then -- 単体ブロックとおじゃまゲート
+      --       block:hover(hover_timer)
+      --     else -- CNOT または SWAP
+      --       if x < block.other_x then
+      --         block:hover(hover_timer)
+      --         blocks[block.other_x][y]:hover(hover_timer + 1)
+      --       end
+      --     end
+      --   end
+      -- end
 
       -- top_block_y を更新
       if block.type ~= "i" then
@@ -718,42 +738,42 @@ function board_class._update_game(_ENV, game, player, other_board)
         block.chain_id = nil
       end
 
-      if block:is_falling() then
-        if not is_block_fallable(_ENV, x, y) then
-          if block.type == "g" then
-            bounce(_ENV)
-            sfx(9)
-            block.first_drop = false
-          else
-            sfx(12)
-          end
+      -- if block:is_falling() then
+      --   if not is_block_fallable(_ENV, x, y) then
+      --     if block.type == "g" then
+      --       bounce(_ENV)
+      --       sfx(9)
+      --       block.first_drop = false
+      --     else
+      --       sfx(12)
+      --     end
 
-          block._tick_landed = 1
-          block:change_state("idle")
+      --     block._tick_landed = 1
+      --     block:change_state("idle")
 
-          if block.other_x and x < block.other_x then
-            local other_block = blocks[block.other_x][y]
-            other_block._tick_landed = 1
-            other_block:change_state("idle")
-          end
-        else
-          if is_block_empty(_ENV, x, y + 1) then
-            -- 落下中のブロックをひとつ下に移動
-            if not block.other_x then
-              remove_block(_ENV, x, y)
-              put(_ENV, x, y + 1, block)
-            elseif x < block.other_x then
-              remove_block(_ENV, x, y)
-              put(_ENV, x, y + 1, block)
+      --     if block.other_x and x < block.other_x then
+      --       local other_block = blocks[block.other_x][y]
+      --       other_block._tick_landed = 1
+      --       other_block:change_state("idle")
+      --     end
+      --   else
+      --     if is_block_empty(_ENV, x, y + 1) then
+      --       -- 落下中のブロックをひとつ下に移動
+      --       if not block.other_x then
+      --         remove_block(_ENV, x, y)
+      --         put(_ENV, x, y + 1, block)
+      --       elseif x < block.other_x then
+      --         remove_block(_ENV, x, y)
+      --         put(_ENV, x, y + 1, block)
 
-              local other_block = blocks[block.other_x][y]
-              other_block._state = "falling"
-              remove_block(_ENV, block.other_x, y)
-              put(_ENV, block.other_x, y + 1, other_block)
-            end
-          end
-        end
-      end
+      --         local other_block = blocks[block.other_x][y]
+      --         other_block._state = "falling"
+      --         remove_block(_ENV, block.other_x, y)
+      --         put(_ENV, block.other_x, y + 1, other_block)
+      --       end
+      --     end
+      --   end
+      -- end
     end
   end
 
@@ -802,10 +822,10 @@ end
 function board_class.is_block_empty(_ENV, x, y)
   --#if assert
   assert(0 < x and x <= cols, "x = " .. x)
-  assert(y <= row_next_blocks, "y = " .. y)
+  assert(y <= rows, "y = " .. y)
   --#endif
 
-  return blocks[x][y]:is_empty() and
+  return blocks[y][x]:is_empty() and
       not (_is_part_of_garbage(_ENV, x, y) or
           _is_part_of_cnot(_ENV, x, y) or
           _is_part_of_swap(_ENV, x, y))
@@ -820,7 +840,7 @@ function board_class._block_or_its_head_block(_ENV, x, y)
   return _garbage_head_block(_ENV, x, y) or
       _cnot_head_block(_ENV, x, y) or
       _swap_head_block(_ENV, x, y) or
-      blocks[x][y]
+      blocks[y][x]
 end
 
 -- x, y がおじゃまブロックの一部であった場合、
@@ -848,14 +868,14 @@ end
 -- 一部でない場合は nil を返す
 function board_class._cnot_head_block(_ENV, x, y)
   for tmp_x = 1, x - 1 do
-    local block = blocks[tmp_x][y]
+    local block = blocks[y][tmp_x]
 
     if (block.type == "cnot_x" or block.type == "control") and x < block.other_x then
       return block
     end
   end
 
-  local block = blocks[x][y]
+  local block = blocks[y][x]
   return (block.type == "cnot_x" or block.type == "control") and block or nil
 end
 
@@ -869,14 +889,14 @@ end
 -- 一部でない場合は nil を返す
 function board_class._swap_head_block(_ENV, x, y)
   for tmp_x = 1, x - 1 do
-    local block = blocks[tmp_x][y]
+    local block = blocks[y][tmp_x]
 
     if block.type == "swap" and x < block.other_x then
       return block
     end
   end
 
-  local block = blocks[x][y]
+  local block = blocks[y][x]
   return block.type == "swap" and block or nil
 end
 
@@ -923,19 +943,16 @@ function board_class.will_block_hover(_ENV, x, y)
   end
 end
 
--- ブロック x, y が x, y + 1 に落とせるかどうかを返す (メモ化)。
+-- ブロック x, y が x, y - 1 に落とせるかどうかを返す (メモ化)。
 function board_class.is_block_fallable(_ENV, x, y)
   return _memoize(_ENV, _is_block_fallable_nocache, _is_block_fallable_cache, x, y)
 end
 
--- ブロック x, y が x, y + 1 に落とせるかどうかを返す。
---
--- FIXME: y + 1 のブロックがホバー中は y にあるブロックを y + 1 に移動できないので、
--- それを判断するための別関数 is_block_hoverable を追加する
+-- ブロック x, y が x, y - 1 に落とせるかどうかを返す。
 function board_class._is_block_fallable_nocache(_ENV, x, y)
-  local block = blocks[x][y]
+  local block = blocks[y][x]
 
-  if y >= rows or not block:is_fallable() then
+  if y < 2 or not block:is_fallable() then
     return false
   end
 
@@ -946,8 +963,8 @@ function board_class._is_block_fallable_nocache(_ENV, x, y)
 
   for i = start_x, end_x do
     if not
-        (is_block_empty(_ENV, i, y + 1) or
-            _block_or_its_head_block(_ENV, i, y + 1):is_falling()) then
+        (is_block_empty(_ENV, i, y - 1) or
+            _block_or_its_head_block(_ENV, i, y - 1):is_falling()) then
       return false
     end
   end
@@ -962,7 +979,7 @@ function board_class.observable_update(_ENV, block, old_state)
 
   if old_state == "swapping_with_right" and block:is_idle() then
     local new_x = x + 1
-    local right_block = blocks[new_x][y]
+    local right_block = blocks[y][new_x]
 
     --#if assert
     assert(right_block:_is_swapping_with_left(), right_block._state)
@@ -1009,11 +1026,12 @@ function board_class.observable_update(_ENV, block, old_state)
     return
   end
 
-  if block:is_reducible() then
-    reducible_blocks[x][y] = block
-  else
-    reducible_blocks[x][y] = nil
-  end
+  -- FIXME: 一時的にコメントアウト
+  -- if block:is_reducible() then
+  --   reducible_blocks[x][y] = block
+  -- else
+  --   reducible_blocks[x][y] = nil
+  -- end
 
   _changed = true
 
@@ -1056,18 +1074,18 @@ end
 function board_class._tostring(_ENV)
   local str = ''
 
-  for y = 1, row_next_blocks do
+  for y = rows, 1, -1 do
     for x = 1, cols do
-      local block = blocks[x][y]
+      local block = blocks[y][x]
 
       if block.type == "i" then
         if _is_part_of_garbage(_ENV, x, y) then
           str = str .. "g " .. " "
         else
-          str = str .. blocks[x][y]:_tostring() .. " "
+          str = str .. blocks[y][x]:_tostring() .. " "
         end
       else
-        str = str .. blocks[x][y]:_tostring() .. " "
+        str = str .. blocks[y][x]:_tostring() .. " "
       end
     end
     str = str .. "\n"

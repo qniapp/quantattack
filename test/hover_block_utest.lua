@@ -235,7 +235,7 @@ describe('ブロックの hover 状態', function()
     end)
   end)
 
-  describe('ホバー中のブロックにおじゃまブロックが落ちてきた場合 #solo', function()
+  describe('ホバー中のブロックにおじゃまブロックが落ちてきた場合', function()
     local hover_block
     local garbage
 
