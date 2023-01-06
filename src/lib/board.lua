@@ -32,7 +32,7 @@ function board_class.init(_ENV, _cols)
   "play", false, false, false, row_next_blocks, false, false
 
   -- 各種キャッシュ
-  _reduce_cache, _is_block_fallable_cache = {}, {}
+  _reduce_cache = {}
 
   -- ゲームオーバーの線
   top_line_start_x = 0
@@ -703,42 +703,37 @@ function board_class._update_game(_ENV, game, player, other_board)
       end
 
       -- 落下できるブロックをホバー状態にする
-      --
-      -- FIXME: swap のテストのために、一時的に無効
-      --
-      -- if not block:is_falling() and
-      --     not block:is_hover() and
-      --     is_block_fallable(_ENV, x, y) then
-      --   if not block.other_x then -- 単体ブロックとおじゃまゲート
-      --     block:hover()
-      --     if y < rows and blocks[x][y + 1]:is_hover() then
-      --       block.timer = blocks[x][y + 1].timer
-      --     end
-      --   else -- CNOT または SWAP
-      --     if x < block.other_x and is_block_fallable(_ENV, block.other_x, y) then
-      --       block:hover()
-      --       blocks[block.other_x][y]:hover(block.timer + 1)
-      --     end
-      --   end
-      -- end
+      if not block:is_falling() and
+          not block:is_hover() and
+          is_block_fallable(_ENV, x, y) then
+        if not block.other_x then -- 単体ブロックとおじゃまゲート
+          block:hover()
+          if y > 1 and blocks[y - 1][x]:is_hover() then
+            block.timer = blocks[y - 1][x].timer
+          end
+        else -- CNOT または SWAP
+          if x < block.other_x and is_block_fallable(_ENV, block.other_x, y) then
+            block:hover()
+            blocks[y][block.other_x]:hover(block.timer + 1)
+          end
+        end
+      end
 
       -- ホバー中のブロックに乗ったブロックをホバー状態にする
       --
-      -- FIXME: swap のテストのために、一時的に無効
-      --
-      -- if not block:is_hover() then
-      --   local hover_timer = will_block_hover(_ENV, x, y)
-      --   if hover_timer then
-      --     if not block.other_x then -- 単体ブロックとおじゃまゲート
-      --       block:hover(hover_timer)
-      --     else -- CNOT または SWAP
-      --       if x < block.other_x then
-      --         block:hover(hover_timer)
-      --         blocks[block.other_x][y]:hover(hover_timer + 1)
-      --       end
-      --     end
-      --   end
-      -- end
+      if not block:is_hover() then
+        local hover_timer = will_block_hover(_ENV, x, y)
+        if hover_timer then
+          if not block.other_x then -- 単体ブロックとおじゃまゲート
+            block:hover(hover_timer)
+          else -- CNOT または SWAP
+            if x < block.other_x then
+              block:hover(hover_timer)
+              blocks[y][block.other_x]:hover(hover_timer + 1)
+            end
+          end
+        end
+      end
 
       -- top_block_y を更新
       if block.type ~= "i" then
@@ -751,46 +746,46 @@ function board_class._update_game(_ENV, game, player, other_board)
         end
       end
 
-      if block:is_idle() and block.chain_id and blocks[x][y + 1].chain_id == nil then
+      if block:is_idle() and block.chain_id and blocks[y + 1][x].chain_id == nil then
         block.chain_id = nil
       end
 
-      -- if block:is_falling() then
-      --   if not is_block_fallable(_ENV, x, y) then
-      --     if block.type == "g" then
-      --       bounce(_ENV)
-      --       sfx(9)
-      --       block.first_drop = false
-      --     else
-      --       sfx(12)
-      --     end
+      if block:is_falling() then
+        if not is_block_fallable(_ENV, x, y) then
+          if block.type == "g" then
+            bounce(_ENV)
+            sfx(9)
+            block.first_drop = false
+          else
+            sfx(12)
+          end
 
-      --     block._tick_landed = 1
-      --     block:change_state("idle")
+          block._tick_landed = 1
+          block:change_state("idle")
 
-      --     if block.other_x and x < block.other_x then
-      --       local other_block = blocks[block.other_x][y]
-      --       other_block._tick_landed = 1
-      --       other_block:change_state("idle")
-      --     end
-      --   else
-      --     if is_block_empty(_ENV, x, y + 1) then
-      --       -- 落下中のブロックをひとつ下に移動
-      --       if not block.other_x then
-      --         remove_block(_ENV, x, y)
-      --         put(_ENV, x, y + 1, block)
-      --       elseif x < block.other_x then
-      --         remove_block(_ENV, x, y)
-      --         put(_ENV, x, y + 1, block)
+          if block.other_x and x < block.other_x then
+            local other_block = blocks[y][block.other_x]
+            other_block._tick_landed = 1
+            other_block:change_state("idle")
+          end
+        else
+          if is_block_empty(_ENV, x, y - 1) then
+            -- 落下中のブロックをひとつ下に移動
+            if not block.other_x then
+              remove_block(_ENV, x, y)
+              put(_ENV, x, y - 1, block)
+            elseif x < block.other_x then
+              remove_block(_ENV, x, y)
+              put(_ENV, x, y - 1, block)
 
-      --         local other_block = blocks[block.other_x][y]
-      --         other_block._state = "falling"
-      --         remove_block(_ENV, block.other_x, y)
-      --         put(_ENV, block.other_x, y + 1, other_block)
-      --       end
-      --     end
-      --   end
-      -- end
+              local other_block = blocks[y][block.other_x]
+              other_block._state = "falling"
+              remove_block(_ENV, block.other_x, y)
+              put(_ENV, block.other_x, y - 1, other_block)
+            end
+          end
+        end
+      end
     end
   end
 
@@ -924,7 +919,7 @@ end
 -- ブロック x, y がホバー状態になるかどうかを返す
 -- x, y は単一ブロックだけでなく、CNOT, SWAP, おじゃまゲートもあり。
 function board_class.will_block_hover(_ENV, x, y)
-  local block = blocks[x][y]
+  local block = blocks[y][x]
   local hover_timer = 0
 
   if y >= rows or not block:is_fallable() then
@@ -937,11 +932,11 @@ function board_class.will_block_hover(_ENV, x, y)
   end
 
   for i = start_x, end_x do
-    if is_block_empty(_ENV, i, y + 1) then
+    if is_block_empty(_ENV, i, y - 1) then
       goto continue
     end
 
-    local block_below = _block_or_its_head_block(_ENV, i, y + 1)
+    local block_below = _block_or_its_head_block(_ENV, i, y - 1)
     if block_below:is_idle() then
       return nil
     elseif block_below:is_hover() then
@@ -960,13 +955,9 @@ function board_class.will_block_hover(_ENV, x, y)
   end
 end
 
--- ブロック x, y が x, y - 1 に落とせるかどうかを返す (メモ化)。
+-- ブロック x, y が x, y - 1 に落とせるかどうかを返す
 function board_class.is_block_fallable(_ENV, x, y)
-  return _memoize(_ENV, _is_block_fallable_nocache, _is_block_fallable_cache, x, y)
-end
-
--- ブロック x, y が x, y - 1 に落とせるかどうかを返す。
-function board_class._is_block_fallable_nocache(_ENV, x, y)
+-- function board_class._is_block_fallable_nocache(_ENV, x, y)
   local block = blocks[y][x]
 
   if y < 2 or not block:is_fallable() then
@@ -1053,12 +1044,6 @@ function board_class.observable_update(_ENV, block, old_state)
 
   if block:is_reducible() then
     _reduce_cache = {}
-  end
-
-  if not (block:is_swapping() or block:is_match()) then
-    for i = 1, y do
-      _is_block_fallable_cache[i] = {}
-    end
   end
 end
 

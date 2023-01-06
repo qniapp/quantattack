@@ -4,7 +4,7 @@ require("test/test_helper")
 require("lib/board")
 require("lib/block")
 
-describe('ブロックの hover 状態', function()
+describe('ブロックの hover 状態 #solo', function()
   local board
 
   before_each(function()
@@ -19,7 +19,7 @@ describe('ブロックの hover 状態', function()
     end)
 
     it("状態が hover になる", function()
-      board:put(1, 16, block)
+      board:put(1, 2, block)
 
       board:update()
 
@@ -27,7 +27,7 @@ describe('ブロックの hover 状態', function()
     end)
 
     it("hover 状態は 12 フレーム継続する", function()
-      board:put(1, 16, block)
+      board:put(1, 2, block)
 
       -- hover 状態に遷移
       board:update()
@@ -54,8 +54,8 @@ describe('ブロックの hover 状態', function()
     end)
 
     it("状態が hover になる", function()
-      board:put(1, 15, block1)
-      board:put(1, 16, block2)
+      board:put(1, 3, block1)
+      board:put(1, 2, block2)
 
       board:update()
 
@@ -64,8 +64,8 @@ describe('ブロックの hover 状態', function()
     end)
 
     it("hover 状態は 12 フレーム継続する", function()
-      board:put(1, 14, block1)
-      board:put(1, 15, block2)
+      board:put(1, 3, block1)
+      board:put(1, 2, block2)
 
       -- hover 状態に遷移
       board:update()
@@ -74,15 +74,15 @@ describe('ブロックの hover 状態', function()
       for i = 1, 12 do
         board:update()
 
-        assert.is_true(board.blocks[1][14]:is_hover())
-        assert.is_true(board.blocks[1][15]:is_hover())
+        assert.is_true(board:block_at(1, 3):is_hover())
+        assert.is_true(board:block_at(1, 2):is_hover())
       end
 
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(board.blocks[1][15]:is_falling())
-      assert.is_true(board.blocks[1][16]:is_falling())
+      assert.is_true(board:block_at(1, 2):is_falling())
+      assert.is_true(board:block_at(1, 1):is_falling())
     end)
   end)
 
@@ -95,8 +95,8 @@ describe('ブロックの hover 状態', function()
     end)
 
     it("状態が hover になる", function()
-      board:put(1, 15, control)
-      board:put(2, 15, cnot_x)
+      board:put(1, 2, control)
+      board:put(2, 2, cnot_x)
 
       board:update()
 
@@ -105,8 +105,8 @@ describe('ブロックの hover 状態', function()
     end)
 
     it("hover 状態は 12 フレーム継続する", function()
-      board:put(1, 15, control)
-      board:put(2, 15, cnot_x)
+      board:put(1, 2, control)
+      board:put(2, 2, cnot_x)
 
       -- hover 状態に遷移
       board:update()
@@ -135,8 +135,8 @@ describe('ブロックの hover 状態', function()
     end)
 
     it("状態が hover になる", function()
-      board:put(1, 15, swap_left)
-      board:put(2, 15, swap_right)
+      board:put(1, 2, swap_left)
+      board:put(2, 2, swap_right)
 
       board:update()
 
@@ -145,8 +145,8 @@ describe('ブロックの hover 状態', function()
     end)
 
     it("hover 状態は 12 フレーム継続する", function()
-      board:put(1, 15, swap_left)
-      board:put(2, 15, swap_right)
+      board:put(1, 2, swap_left)
+      board:put(2, 2, swap_right)
 
       -- hover 状態に遷移
       board:update()
@@ -174,7 +174,7 @@ describe('ブロックの hover 状態', function()
     end)
 
     it("状態が falling になる", function()
-      board:put(1, 16, garbage)
+      board:put(1, 2, garbage)
 
       board:update()
 
@@ -182,7 +182,7 @@ describe('ブロックの hover 状態', function()
     end)
 
     it("hover 状態は 12 フレーム継続する", function()
-      board:put(1, 16, garbage)
+      board:put(1, 2, garbage)
 
       -- hover 状態に遷移
       board:update()
@@ -207,8 +207,8 @@ describe('ブロックの hover 状態', function()
     end)
 
     it("両方のおじゃまブロックとも状態が hover になる", function()
-      board:put(1, 15, garbage1)
-      board:put(1, 16, garbage2)
+      board:put(1, 3, garbage1)
+      board:put(1, 2, garbage2)
 
       board:update()
 
@@ -217,8 +217,8 @@ describe('ブロックの hover 状態', function()
     end)
 
     it("hover 状態は 12 フレーム継続する", function()
-      board:put(1, 15, garbage1)
-      board:put(1, 16, garbage2)
+      board:put(1, 3, garbage1)
+      board:put(1, 2, garbage2)
 
       -- hover 状態に遷移
       board:update()
@@ -245,8 +245,8 @@ describe('ブロックの hover 状態', function()
     end)
 
     it("ホバー中のブロックのタイマーがおじゃまブロックに伝搬する", function()
-      board:put(1, 14, garbage)
-      board:put(2, 16, hover_block)
+      board:put(1, 4, garbage)
+      board:put(2, 2, hover_block)
       hover_block:hover()
       garbage:fall()
 

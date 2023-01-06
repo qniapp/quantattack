@@ -266,8 +266,8 @@ end
 local type_string = {
   i = '_',
   control = 'C',
-  cnot_x = 'X',
-  swap = 'S'
+  cnot_x = '+',
+  swap = 'X'
 }
 
 local state_string = {
@@ -281,7 +281,7 @@ local state_string = {
 }
 
 function block_class:_tostring()
-  return (type_string[self.type] or self.type) .. state_string[self._state]
+  return (type_string[self.type] or self.type:upper()) .. state_string[self._state]
 end
 
 --#endif
