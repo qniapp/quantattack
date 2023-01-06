@@ -188,7 +188,7 @@ describe('qpu #solo', function()
     --  _ _ _ X Y T
     it("右に動かしてマッチ (入れ替えあり)", function()
       board:put(5, 2, block_class("t"))
-      board:put(6, 1, block_class("h"))
+      board:put(6, 2, block_class("h"))
       board:put(1, 1, block_class("x"))
       board:put(2, 1, block_class("x"))
       board:put(3, 1, block_class("x"))

@@ -307,6 +307,10 @@ function board_class.reduce(_ENV, x, y, include_next_blocks)
     for i, block_types in pairs(block_pattern_rows) do
       local current_y = y - i + 1
 
+      if current_y < 0 then
+        goto next_rule
+      end
+
       if block_types[1] ~= "?" then
         local block1 = reducible_block_at(_ENV, x, current_y)
         if block1.type ~= block_types[1] or
@@ -374,8 +378,8 @@ end
 
 function board_class.is_busy(_ENV)
   for x = 1, cols do
-    for y = 1, row_next_blocks do
-      local block = blocks[x][y]
+    for y = 1, rows do
+      local block = blocks[y][x]
       if not (block:is_idle() or block:is_swapping()) then
         return true
       end
@@ -838,7 +842,7 @@ end
 function board_class.is_block_empty(_ENV, x, y)
   --#if assert
   assert(0 < x and x <= cols, "x = " .. x)
-  assert(y <= rows, "y = " .. y)
+  assert(0 <= y and y <= rows, "y = " .. y)
   --#endif
 
   return blocks[y][x]:is_empty() and

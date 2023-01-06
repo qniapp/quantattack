@@ -7,6 +7,9 @@ local function _is_empty(board, block_x, block_y)
     return false
   end
 
+  -- local result = board.blocks[block_y][block_x]:is_idle() and board:is_block_empty(block_x, block_y)
+  -- printh("_is_empty(" .. block_x .. ", " .. block_y .. ")" .. "=" .. (result and "true" or "false"))
+
   return board.blocks[block_y][block_x]:is_idle() and board:is_block_empty(block_x, block_y)
 end
 
@@ -14,6 +17,9 @@ local function _is_match(board, block_x, block_y, block)
   if board.rows < block_y then
     return false
   end
+
+  -- printh("is_match block.x, block.y = " .. block.x .. ", " .. block.y)
+  -- printh("block_x, block_y = " .. block_x .. ", " .. block_y)
 
   local other_block = board.blocks[block_y][block_x]
   return other_block.type == block.type and other_block:is_idle()
@@ -24,7 +30,7 @@ local function _is_swappable(board, block_x, block_y)
     return false
   end
 
-  local block = board.blocks[block_x][block_y]
+  local block = board.blocks[block_y][block_x]
   return block:is_idle() and (board:is_block_empty(block_x, block_y) or block:is_single_block())
 end
 
@@ -56,9 +62,9 @@ function create_qpu(board, _level)
           add_sleep_command(_ENV, 3)
         else
           return for_all_reducible_blocks(_ENV, _reduce_cnot) or
-            for_all_reducible_blocks(_ENV, _flatten_block) or
-            board.contains_garbage_match_block or
-            for_all_reducible_blocks(_ENV, _reduce_single_block)
+              for_all_reducible_blocks(_ENV, _flatten_block) or
+              board.contains_garbage_match_block or
+              for_all_reducible_blocks(_ENV, _reduce_single_block)
         end
       end
     end,
@@ -72,15 +78,24 @@ function create_qpu(board, _level)
     end,
 
     _reduce_single_block = function(_ENV, each, each_x, each_y)
+      -- printh("_reduce_single_block: each_x, each_y = " .. each_x .. ", " .. each_y)
+
       if each:is_single_block() then
         -- 下の行とマッチするか走査
-        if find_left_and_right(_ENV, _is_match, each) then
-          return true
+        if each_y > 1 then
+          if find_left_and_right(_ENV, _is_match, each) then
+            -- printh("下マッチ")
+            return true
+          end
         end
 
         -- 上の行とマッチするか走査
-        if find_left_and_right(_ENV, _is_match, each, true) then
-          return true
+        if each_y < board.rows then
+          if find_left_and_right(_ENV, _is_match, each, true) then
+            -- printh(each.type)
+            -- printh("上マッチ")
+            return true
+          end
         end
       end
     end,
@@ -174,6 +189,11 @@ function create_qpu(board, _level)
           return false
         end
 
+        -- printh("dx = " .. dx)
+
+        -- printh("x = " .. block_x - dx)
+        -- printh("other_row_block_y = " .. other_row_block_y)
+
         if find_left then
           if _is_swappable(board, block_x - dx, block_y) then
             if f(board, block_x - dx, other_row_block_y, block) then
@@ -181,17 +201,20 @@ function create_qpu(board, _level)
               return true
             end
           else
+            -- printh("FIND_LEFT = false")
             find_left = false
           end
         end
 
         if find_right then
-          if _is_empty(board, block_x + dx, block_y) then
+          if _is_swappable(board, block_x + dx, block_y) then
+            -- if _is_empty(board, block_x + dx, block_y) then
             if f(board, block_x + dx, other_row_block_y, block) then
               move_and_swap(_ENV, block_x, block_y)
               return true
             end
           else
+            -- printh("FIND_RIGHT = false")
             find_right = false
           end
         end
@@ -232,7 +255,7 @@ function create_qpu(board, _level)
     end,
 
     for_all_reducible_blocks = function(_ENV, f)
-      for each_y = 1, 12 do
+      for each_y = 12, 1, -1 do
         for each_x = 1, board.cols do
           local each = board.blocks[each_y][each_x]
           -- local each = board.reducible_blocks[each_y][each_x]
