@@ -232,7 +232,7 @@ function create_qpu(board, _level)
     end,
 
     for_all_reducible_blocks = function(_ENV, f)
-      for each_y = 1, 7 do
+      for each_y = 1, 12 do
         for each_x = 1, board.cols do
           local each = board.blocks[each_y][each_x]
           -- local each = board.reducible_blocks[each_y][each_x]

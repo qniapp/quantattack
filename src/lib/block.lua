@@ -265,7 +265,7 @@ end
 --#if debug
 local type_string = {
   i = '_',
-  control = 'C',
+  control = '@',
   cnot_x = '+',
   swap = 'X'
 }
