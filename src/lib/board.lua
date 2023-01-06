@@ -246,15 +246,16 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
   -- until matched_garbage_block_count == 0
 end
 
-function board_class.reduce(_ENV, x, y, include_next_blocks)
-  if include_next_blocks then
-    return _reduce_nocache(_ENV, x, y, true)
-  else
-    return _memoize(_ENV, _reduce_nocache, _reduce_cache, x, y)
-  end
-end
+-- function board_class.reduce(_ENV, x, y, include_next_blocks)
+--   if include_next_blocks then
+--     return _reduce_nocache(_ENV, x, y, true)
+--   else
+--     return _memoize(_ENV, _reduce_nocache, _reduce_cache, x, y)
+--   end
+-- end
 
-function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
+function board_class.reduce(_ENV, x, y, include_next_blocks)
+  -- function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
   local reduction, block = { to = {}, score = 0 }, blocks[y][x]
   local rules = reduction_rules[block.type]
 
@@ -270,6 +271,10 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
     end
 
     for i, block_types in pairs(block_pattern_rows) do
+      if y - i + 1 < 0 then
+        goto next_rule
+      end
+
       -- other_x と dx を決める際に、パターンにマッチしないブロックがあれば
       -- 先にここではじいておく
       if block_types[1] ~= "?" then
@@ -295,7 +300,6 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
     end
 
     ::check_match::
-
     -- chainable フラグがついたブロックがマッチしたブロックの中に 1 個でも含まれていたら連鎖
     local chain_id = x .. "," .. y
 
@@ -392,7 +396,7 @@ end
 function board_class.reducible_block_at(_ENV, x, y)
   --#if assert
   assert(1 <= x and x <= cols, "x = " .. x)
-  assert(0 <= y, "y = " .. y)
+  assert(0 <= y and y <= rows, "y = " .. y)
   --#endif
 
   local block = blocks[y][x]
@@ -957,7 +961,7 @@ end
 
 -- ブロック x, y が x, y - 1 に落とせるかどうかを返す
 function board_class.is_block_fallable(_ENV, x, y)
--- function board_class._is_block_fallable_nocache(_ENV, x, y)
+  -- function board_class._is_block_fallable_nocache(_ENV, x, y)
   local block = blocks[y][x]
 
   if y < 2 or not block:is_fallable() then
