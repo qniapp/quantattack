@@ -7,7 +7,7 @@ local function _is_empty(board, block_x, block_y)
     return false
   end
 
-  return board.blocks[block_x][block_y]:is_idle() and board:is_block_empty(block_x, block_y)
+  return board.blocks[block_y][block_x]:is_idle() and board:is_block_empty(block_x, block_y)
 end
 
 local function _is_match(board, block_x, block_y, block)
@@ -15,7 +15,7 @@ local function _is_match(board, block_x, block_y, block)
     return false
   end
 
-  local other_block = board.blocks[block_x][block_y]
+  local other_block = board.blocks[block_y][block_x]
   return other_block.type == block.type and other_block:is_idle()
 end
 
@@ -64,7 +64,7 @@ function create_qpu(board, _level)
     end,
 
     _flatten_block = function(_ENV, each, each_x, each_y)
-      if each_y < board.rows and each:is_single_block() then
+      if 1 < each_y and each:is_single_block() then
         if find_left_and_right(_ENV, _is_empty, each, false, true) then
           return true
         end
@@ -73,16 +73,14 @@ function create_qpu(board, _level)
 
     _reduce_single_block = function(_ENV, each, each_x, each_y)
       if each:is_single_block() then
-        if each_y < board.rows then
-          if find_left_and_right(_ENV, _is_match, each) then
-            return true
-          end
+        -- 下の行とマッチするか走査
+        if find_left_and_right(_ENV, _is_match, each) then
+          return true
         end
 
-        if 1 < each_y then
-          if find_left_and_right(_ENV, _is_match, each) then
-            return true
-          end
+        -- 上の行とマッチするか走査
+        if find_left_and_right(_ENV, _is_match, each, true) then
+          return true
         end
       end
     end,
@@ -168,7 +166,7 @@ function create_qpu(board, _level)
     end,
 
     find_left_and_right = function(_ENV, f, block, upper)
-      local block_x, block_y, other_row_block_y = block.x, block.y, block.y + (upper and -1 or 1)
+      local block_x, block_y, other_row_block_y = block.x, block.y, block.y + (upper and 1 or -1)
       local find_left, find_right = true, true
 
       for dx = 1, board.cols - 1 do
