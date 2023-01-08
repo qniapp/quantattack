@@ -55,21 +55,21 @@ describe('cursor #solo', function()
 
   describe('move_up', function()
     it("should move up", function()
-      cursor:move_up()
+      cursor:move_up(12)
 
       assert.are_equal(3, cursor.x)
       assert.are_equal(7, cursor.y)
     end)
 
     it("should not move any upper when reaching the dead line", function()
-      cursor:move_up() -- y = 7
-      cursor:move_up() -- y = 8
-      cursor:move_up() -- y = 9
-      cursor:move_up() -- y = 10
-      cursor:move_up() -- y = 11
-      cursor:move_up() -- y = 12
+      cursor:move_up(12) -- y = 7
+      cursor:move_up(12) -- y = 8
+      cursor:move_up(12) -- y = 9
+      cursor:move_up(12) -- y = 10
+      cursor:move_up(12) -- y = 11
+      cursor:move_up(12) -- y = 12
 
-      cursor:move_up()
+      cursor:move_up(12)
 
       assert.are_equal(3, cursor.x)
       assert.are_equal(12, cursor.y)

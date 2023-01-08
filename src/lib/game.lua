@@ -197,7 +197,7 @@ function game_class:update()
       end
       if player.up then
         sfx(8)
-        cursor:move_up()
+        cursor:move_up(board.rows)
       end
       if player.down then
         sfx(8)
@@ -286,7 +286,7 @@ function game_class:_raise(player_info)
   if board.raised_dots == 8 then
     board.raised_dots = 0
     board:insert_blocks_at_bottom()
-    board.cursor:move_up()
+    board.cursor:move_up(board.rows)
   end
 end
 

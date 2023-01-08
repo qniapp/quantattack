@@ -22,9 +22,8 @@ function cursor_class.move_right(_ENV, cols)
   end
 end
 
--- FIXME: 引数に rows を与えられるようにする
-function cursor_class.move_up(_ENV)
-  if y < 12 then
+function cursor_class.move_up(_ENV, rows)
+  if y < rows then
     y = y + 1
   end
 end
