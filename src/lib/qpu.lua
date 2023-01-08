@@ -57,19 +57,25 @@ function create_qpu(board, _level)
         del(commands, next_command)
         _ENV[next_command] = true
       else
-        if raise and board.top_block_y > 10 then
+        if raise and board.top_block_y < 5 then
           add(commands, "o")
           add_sleep_command(_ENV, 3)
         else
-          return for_all_reducible_blocks(_ENV, _reduce_cnot) or
-              for_all_reducible_blocks(_ENV, _flatten_block) or
-              board.contains_garbage_match_block or
+          return for_all_reducible_blocks(_ENV, _flatten_block) or
               for_all_reducible_blocks(_ENV, _reduce_single_block)
+          --     board.contains_garbage_match_block or
+          --     for_all_reducible_blocks(_ENV, _reduce_single_block)
+
+          -- return for_all_reducible_blocks(_ENV, _reduce_cnot) or
+          --     for_all_reducible_blocks(_ENV, _flatten_block) or
+          --     board.contains_garbage_match_block or
+          --     for_all_reducible_blocks(_ENV, _reduce_single_block)
         end
       end
     end,
 
     _flatten_block = function(_ENV, each, each_x, each_y)
+      -- 二列目より上のブロックについて、空のブロックがあればそこに落とす
       if 1 < each_y and each:is_single_block() then
         if find_left_and_right(_ENV, _is_empty, each, false, true) then
           return true
@@ -189,11 +195,6 @@ function create_qpu(board, _level)
           return false
         end
 
-        -- printh("dx = " .. dx)
-
-        -- printh("x = " .. block_x - dx)
-        -- printh("other_row_block_y = " .. other_row_block_y)
-
         if find_left then
           if _is_swappable(board, block_x - dx, block_y) then
             if f(board, block_x - dx, other_row_block_y, block) then
@@ -201,20 +202,17 @@ function create_qpu(board, _level)
               return true
             end
           else
-            -- printh("FIND_LEFT = false")
             find_left = false
           end
         end
 
         if find_right then
-          if _is_swappable(board, block_x + dx, block_y) then
-            -- if _is_empty(board, block_x + dx, block_y) then
+          if _is_empty(board, block_x + dx, block_y) then
             if f(board, block_x + dx, other_row_block_y, block) then
               move_and_swap(_ENV, block_x, block_y)
               return true
             end
           else
-            -- printh("FIND_RIGHT = false")
             find_right = false
           end
         end
@@ -225,7 +223,7 @@ function create_qpu(board, _level)
 
     move_and_swap = function(_ENV, block_x, block_y)
       add_move_command(_ENV, block_x < cursor.x and "left" or "right", abs(cursor.x - block_x))
-      add_move_command(_ENV, block_y < cursor.y and "up" or "down", abs(cursor.y - block_y))
+      add_move_command(_ENV, block_y < cursor.y and "down" or "up", abs(cursor.y - block_y))
       add_swap_command(_ENV)
     end,
 

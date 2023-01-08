@@ -29,7 +29,7 @@ function board_class.init(_ENV, _cols)
 
   -- board の状態
   state, win, lose, timeup, top_block_y, _changed, show_gameover_menu =
-  "play", false, false, false, row_next_blocks, false, false
+  "play", false, false, false, 0, false, false
 
   -- 各種キャッシュ
   _reduce_cache = {}
@@ -72,9 +72,17 @@ end
 function board_class.put_random_blocks(_ENV)
   for y = 0, 10 do
     for x = 1, cols do
-      put(_ENV, x, y, _random_single_block(_ENV))
-      -- if y >= rows - 2 or
-      --     (y < rows - 2 and rnd(1) > (y - 15) * -0.1 and (not is_block_empty(_ENV, x, y - 1))) then
+      -- y = 0 (次のブロック) と、y = 1 .. 4 (下から 4 行) はブロックで埋める
+      -- y >= 5 の行は確率でブロックを置く
+
+      if y < 5 then
+        repeat
+          put(_ENV, x, y, _random_single_block(_ENV))
+        until #reduce(_ENV, x, y, true).to == 0
+      end
+
+      -- if y < 5 or
+      --     (rnd(1) > 0.2 and (not is_block_empty(_ENV, x, y - 1))) then
       --   repeat
       --     put(_ENV, x, y, _random_single_block(_ENV))
       --   until #reduce(_ENV, x, y, true).to == 0
@@ -361,7 +369,8 @@ end
 -- ボード上の Y 座標を画面上の Y 座標に変換
 -- 一行目は表示しないことに注意
 function board_class.screen_y(_ENV, y)
-  return offset_y + (rows - y) * 8 -- raised_dots + _bounce_screen_dy
+  return offset_y + 128 - y * 8 - raised_dots
+  -- return offset_y + (rows - y) * 8 -- raised_dots + _bounce_screen_dy
   -- return offset_y + (y - 2) * 8 - raised_dots + _bounce_screen_dy
 end
 
@@ -412,6 +421,7 @@ function board_class.put(_ENV, x, y, block)
   --#if assert
   assert(1 <= x and x <= cols, "x = " .. x)
   assert(0 <= y, "y = " .. y)
+  assert(block ~= nil, "block is nil")
   --#endif
 
   block.x, block.y = x, y
@@ -481,10 +491,12 @@ function board_class.insert_blocks_at_bottom(_ENV)
 end
 
 function board_class.shift_all_blocks_up(_ENV)
-  for y = #blocks, 1, -1 do
+  for y = #blocks, 0, -1 do
     for x = 1, cols do
-      put(_ENV, x, y - 1, blocks[y][x])
-      remove_block(_ENV, x, y)
+      if not is_block_empty(_ENV, x, y) then
+        put(_ENV, x, y + 1, blocks[y][x])
+        remove_block(_ENV, x, y)
+      end
     end
   end
 end
@@ -567,12 +579,15 @@ end
 
 function board_class.render(_ENV)
   -- ワイヤの描画
+  -- show_wires == true の場合のみ、ワイヤを描画する
   if show_wires then
     for x = 1, cols do
       local line_x = screen_x(_ENV, x) + 3
-      line(line_x, offset_y,
+      line(
+        line_x, offset_y,
         line_x, offset_y + height,
-        5)
+        5
+      )
     end
   end
 
@@ -697,7 +712,7 @@ function board_class._update_game(_ENV, game, player, other_board)
   --
   -- swap などのペアとなるブロックを正しく落とすために、
   -- 一番下の行から上に向かって順に処理
-  top_block_y = row_next_blocks
+  top_block_y = 0
   contains_garbage_match_block = false
 
   for y = 1, rows do
@@ -749,7 +764,7 @@ function board_class._update_game(_ENV, game, player, other_board)
           if not block.first_drop and top_block_y > y - block.height + 1 then
             top_block_y = y - block.height + 1
           end
-        elseif top_block_y > y then
+        elseif top_block_y < y then
           top_block_y = y
         end
       end

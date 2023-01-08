@@ -98,7 +98,7 @@ function game()
         if player.x and board:swap(cursor.x, cursor.y) then
           sfx(10)
         end
-        if player.o and board.top_block_y > 2 then
+        if player.o then
           _raise(_ENV, each)
         end
 

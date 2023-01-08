@@ -23,14 +23,15 @@ function cursor_class.move_right(_ENV, cols)
 end
 
 function cursor_class.move_up(_ENV)
-  if y > 7 then
-    y = y - 1
+  if y < 12 then
+    y = y + 1
   end
 end
 
+-- FIXME: rows の引数を消す
 function cursor_class.move_down(_ENV, rows)
-  if y < rows then
-    y = y + 1
+  if y > 1 then
+    y = y - 1
   end
 end
 
