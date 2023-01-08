@@ -70,23 +70,16 @@ function board_class.block_at(_ENV, x, y)
 end
 
 function board_class.put_random_blocks(_ENV)
-  for y = 0, 10 do
+  for y = 0, 8 do
     for x = 1, cols do
       -- y = 0 (次のブロック) と、y = 1 .. 4 (下から 4 行) はブロックで埋める
-      -- y >= 5 の行は確率でブロックを置く
-
-      if y < 5 then
+      -- y >= 5 の行は確率的にブロックを置く
+      if y < 5 or
+          (rnd(1) > 0.2 and (not is_block_empty(_ENV, x, y - 1))) then
         repeat
           put(_ENV, x, y, _random_single_block(_ENV))
         until #reduce(_ENV, x, y, true).to == 0
       end
-
-      -- if y < 5 or
-      --     (rnd(1) > 0.2 and (not is_block_empty(_ENV, x, y - 1))) then
-      --   repeat
-      --     put(_ENV, x, y, _random_single_block(_ENV))
-      --   until #reduce(_ENV, x, y, true).to == 0
-      -- end
     end
   end
 end
