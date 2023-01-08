@@ -601,7 +601,7 @@ function board_class.render(_ENV)
       block:render(scr_x, scr_y)
 
       -- 一番下のマスクを描画
-      if y == row_next_blocks and not is_game_over(_ENV) then
+      if y == 0 and not is_game_over(_ENV) then
         spr(97, scr_x, scr_y)
       end
     end
