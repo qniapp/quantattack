@@ -736,9 +736,8 @@ function board_class._update_game(_ENV, game, player, other_board)
       end
 
       -- ホバー中のブロックに乗ったブロックをホバー状態にする
-      --
       if not block:is_hover() then
-        local hover_timer = will_block_hover(_ENV, x, y)
+        local hover_timer = propagatable_hover_timer(_ENV, x, y)
         if hover_timer then
           if not block.other_x then -- 単体ブロックとおじゃまゲート
             block:hover(hover_timer)
@@ -932,13 +931,14 @@ end
 -- ブロックの状態
 -------------------------------------------------------------------------------
 
--- ブロック x, y がホバー状態になるかどうかを返す
+-- ブロック x, y の直下のブロックでホバー状態にあるものから、
+-- timer の最大値を取得する。直下のブロックがなかった場合は nil を返す。
 -- x, y は単一ブロックだけでなく、CNOT, SWAP, おじゃまゲートもあり。
-function board_class.will_block_hover(_ENV, x, y)
+function board_class.propagatable_hover_timer(_ENV, x, y)
   local block = blocks[y][x]
   local hover_timer = 0
 
-  if y >= rows or not block:is_fallable() then
+  if y < 2 or not block:is_fallable() then
     return nil
   end
 
@@ -964,11 +964,7 @@ function board_class.will_block_hover(_ENV, x, y)
     ::continue::
   end
 
-  if hover_timer > 0 then
-    return hover_timer
-  else
-    return nil
-  end
+  return hover_timer > 0 and hover_timer or nil
 end
 
 -- ブロック x, y が x, y - 1 に落とせるかどうかを返す
