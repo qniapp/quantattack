@@ -593,9 +593,13 @@ function board_class.render(_ENV)
       -- TODO: block 側で描画する。
       if block.other_x and x < block.other_x then
         local connection_y = scr_y + 3
-        line(scr_x + 3, connection_y,
-          screen_x(_ENV, block.other_x) + 3, connection_y,
-          block:is_match() and 13 or (lose and 5 or 10))
+        line(
+          scr_x + 3,
+          connection_y,
+          screen_x(_ENV, block.other_x) + 3,
+          connection_y,
+          block:is_match() and 13 or (lose and 5 or 10)
+        )
       end
 
       block:render(scr_x, scr_y)

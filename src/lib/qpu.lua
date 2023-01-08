@@ -61,7 +61,8 @@ function create_qpu(board, _level)
           add(commands, "o")
           add_sleep_command(_ENV, 3)
         else
-          return for_all_reducible_blocks(_ENV, _flatten_block) or
+          return for_all_reducible_blocks(_ENV, _reduce_cnot) or
+              for_all_reducible_blocks(_ENV, _flatten_block) or
               for_all_reducible_blocks(_ENV, _reduce_single_block)
           --     board.contains_garbage_match_block or
           --     for_all_reducible_blocks(_ENV, _reduce_single_block)
@@ -107,8 +108,8 @@ function create_qpu(board, _level)
     end,
 
     _reduce_cnot = function(_ENV, each, each_x, each_y)
-      local upper_block = each_y > 1 and board:reducible_block_at(each_x, each_y - 1) or block_class("i")
-      local lower_block = each_y < board.rows and board:reducible_block_at(each_x, each_y + 1) or block_class("i")
+      local upper_block = each_y < board.rows and board:reducible_block_at(each_x, each_y + 1) or block_class("i")
+      local lower_block = each_y > 1 and board:reducible_block_at(each_x, each_y - 1) or block_class("i")
 
       if not each:is_single_block() then
         -- d-2. 上の X-C を左にずらす
@@ -164,7 +165,7 @@ function create_qpu(board, _level)
         --
         -- [  X]-C
         --  X-C  ■
-        if each_x > 1 and each_y < board.rows and
+        if each_x > 1 and each_y > 1 and
             _is_empty(board, each_x - 1, each_y) and each.type == "cnot_x" and each.other_x == each_x + 1 and
             lower_block.type == "control" and
             lower_block.other_x == each_x - 1 then

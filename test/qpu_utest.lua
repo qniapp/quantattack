@@ -40,6 +40,161 @@ describe('qpu #solo', function()
       qpu.raise = false
     end)
 
+    describe("CNOT を消す", function()
+      -- [X-]-C
+      it("CNOT を X 側から縮める", function()
+        board:put(1, 1, cnot_x_block(3))
+        board:put(3, 1, control_block(1))
+        cursor.x = 1
+        cursor.y = 1
+
+        qpu:update()
+
+        assert.are_equal(5, #qpu.commands)
+        assert.are_equal("x", qpu.commands[1])
+        assert.are_equal("sleep", qpu.commands[2])
+        assert.are_equal("sleep", qpu.commands[3])
+        assert.are_equal("sleep", qpu.commands[4])
+        assert.are_equal("sleep", qpu.commands[5])
+      end)
+
+      -- [C-]-X
+      it("CNOT を C 側から縮める", function()
+        board:put(1, 1, control_block(3))
+        board:put(3, 1, cnot_x_block(1))
+        cursor.x = 1
+        cursor.y = 1
+
+        qpu:update()
+
+        assert.are_equal(5, #qpu.commands)
+        assert.are_equal("x", qpu.commands[1])
+        assert.are_equal("sleep", qpu.commands[2])
+        assert.are_equal("sleep", qpu.commands[3])
+        assert.are_equal("sleep", qpu.commands[4])
+        assert.are_equal("sleep", qpu.commands[5])
+      end)
+
+      -- [C-X]
+      it("CNOT を同じ方向 (右が C) にそろえる", function()
+        board:put(1, 1, control_block(2))
+        board:put(2, 1, cnot_x_block(1))
+        cursor.x = 1
+        cursor.y = 1
+
+        qpu:update()
+
+        assert.are_equal(5, #qpu.commands)
+        assert.are_equal("x", qpu.commands[1])
+        assert.are_equal("sleep", qpu.commands[2])
+        assert.are_equal("sleep", qpu.commands[3])
+        assert.are_equal("sleep", qpu.commands[4])
+        assert.are_equal("sleep", qpu.commands[5])
+      end)
+
+      -- X-[C ]
+      it("CNOT を右に移動", function()
+        board:put(1, 1, cnot_x_block(2))
+        board:put(2, 1, control_block(1))
+        cursor.x = 2
+        cursor.y = 1
+
+        qpu:update()
+
+        assert.are_equal(5, #qpu.commands)
+        assert.are_equal("x", qpu.commands[1])
+        assert.are_equal("sleep", qpu.commands[2])
+        assert.are_equal("sleep", qpu.commands[3])
+        assert.are_equal("sleep", qpu.commands[4])
+        assert.are_equal("sleep", qpu.commands[5])
+      end)
+
+
+      -- [  X]-C
+      --  X-C  ■
+      it("上の X-C を左にずらす (step 1)", function()
+        board:put(5, 2, cnot_x_block(6))
+        board:put(6, 2, control_block(5))
+        board:put(4, 1, cnot_x_block(5))
+        board:put(5, 1, control_block(4))
+        board:put(6, 1, block_class("t"))
+        cursor.x = 4
+        cursor.y = 2
+
+        qpu:update()
+
+        assert.are_equal(5, #qpu.commands)
+        assert.are_equal("x", qpu.commands[1])
+        assert.are_equal("sleep", qpu.commands[2])
+        assert.are_equal("sleep", qpu.commands[3])
+        assert.are_equal("sleep", qpu.commands[4])
+        assert.are_equal("sleep", qpu.commands[5])
+      end)
+
+      --  X[--C]
+      --  X-C ■
+      it("上の X-C を左にずらす (step 2)", function()
+        board:put(4, 2, cnot_x_block(6))
+        board:put(6, 2, control_block(4))
+        board:put(4, 1, cnot_x_block(5))
+        board:put(5, 1, control_block(4))
+        board:put(6, 1, block_class("t"))
+        cursor.x = 5
+        cursor.y = 2
+
+        qpu:update()
+
+        assert.are_equal(5, #qpu.commands)
+        assert.are_equal("x", qpu.commands[1])
+        assert.are_equal("sleep", qpu.commands[2])
+        assert.are_equal("sleep", qpu.commands[3])
+        assert.are_equal("sleep", qpu.commands[4])
+        assert.are_equal("sleep", qpu.commands[5])
+      end)
+
+      --  X-C  ■
+      -- [  X]-C
+      it("下の X-C を左にずらす (step 1)", function()
+        board:put(4, 2, cnot_x_block(5))
+        board:put(5, 2, control_block(4))
+        board:put(6, 2, block_class("t"))
+        board:put(5, 1, cnot_x_block(6))
+        board:put(6, 1, control_block(5))
+        cursor.x = 4
+        cursor.y = 1
+
+        qpu:update()
+
+        assert.are_equal(5, #qpu.commands)
+        assert.are_equal("x", qpu.commands[1])
+        assert.are_equal("sleep", qpu.commands[2])
+        assert.are_equal("sleep", qpu.commands[3])
+        assert.are_equal("sleep", qpu.commands[4])
+        assert.are_equal("sleep", qpu.commands[5])
+      end)
+
+      --  X-C ■
+      --  X[--C]
+      it("下の X-C を左にずらす (step 2)", function()
+        board:put(4, 2, cnot_x_block(5))
+        board:put(5, 2, control_block(4))
+        board:put(6, 2, block_class("t"))
+        board:put(4, 1, cnot_x_block(6))
+        board:put(6, 1, control_block(4))
+        cursor.x = 5
+        cursor.y = 1
+
+        qpu:update()
+
+        assert.are_equal(5, #qpu.commands)
+        assert.are_equal("x", qpu.commands[1])
+        assert.are_equal("sleep", qpu.commands[2])
+        assert.are_equal("sleep", qpu.commands[3])
+        assert.are_equal("sleep", qpu.commands[4])
+        assert.are_equal("sleep", qpu.commands[5])
+      end)
+    end)
+
     describe('ブロックをならす', function()
       -- [T  ]
       --  X _ _ _ _ _
@@ -408,61 +563,6 @@ describe('qpu #solo', function()
     --   board:put(2, 1, block_class("h"))
     --   cursor.x = 1
     --   cursor.y = 1
-
-    --   qpu:update()
-
-    --   assert.are_equal(5, #qpu.commands)
-    --   assert.are_equal("x", qpu.commands[1])
-    --   assert.are_equal("sleep", qpu.commands[2])
-    --   assert.are_equal("sleep", qpu.commands[3])
-    --   assert.are_equal("sleep", qpu.commands[4])
-    --   assert.are_equal("sleep", qpu.commands[5])
-    -- end)
-
-    -- -- [X-]-C
-    -- it("CNOT を X 側から縮める", function()
-    --   board:put(1, 1, cnot_x_block(3))
-    --   board:put(3, 1, control_block(1))
-    --   cursor.x = 1
-    --   cursor.y = 1
-
-    --   qpu:update()
-
-    --   assert.are_equal(5, #qpu.commands)
-    --   assert.are_equal("x", qpu.commands[1])
-    --   assert.are_equal("sleep", qpu.commands[2])
-    --   assert.are_equal("sleep", qpu.commands[3])
-    --   assert.are_equal("sleep", qpu.commands[4])
-    --   assert.are_equal("sleep", qpu.commands[5])
-    -- end)
-
-    -- -- [C-]-X
-    -- it("CNOT を C 側から縮める", function()
-    --   board:put(1, 1, control_block(3))
-    --   board:put(3, 1, cnot_x_block(1))
-    --   cursor.x = 1
-    --   cursor.y = 1
-
-    --   qpu:update()
-
-    --   assert.are_equal(5, #qpu.commands)
-    --   assert.are_equal("x", qpu.commands[1])
-    --   assert.are_equal("sleep", qpu.commands[2])
-    --   assert.are_equal("sleep", qpu.commands[3])
-    --   assert.are_equal("sleep", qpu.commands[4])
-    --   assert.are_equal("sleep", qpu.commands[5])
-    -- end)
-
-    -- -- [  X]-C
-    -- --  X-C  ■
-    -- it("ずれた CNOT を消す", function()
-    --   board:put(5, 2, cnot_x_block(6))
-    --   board:put(6, 2, control_block(5))
-    --   board:put(4, 1, cnot_x_block(5))
-    --   board:put(5, 1, control_block(4))
-    --   board:put(6, 1, block_class("t"))
-    --   cursor.x = 4
-    --   cursor.y = 2
 
     --   qpu:update()
 
