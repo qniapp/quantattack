@@ -7,7 +7,7 @@ function cursor_class._init(_ENV)
 end
 
 function cursor_class.init(_ENV)
-  x, y, _tick = 3, 11, 0
+  x, y, _tick = 3, 6, 0
 end
 
 function cursor_class.move_left(_ENV)
@@ -22,6 +22,7 @@ function cursor_class.move_right(_ENV, cols)
   end
 end
 
+-- FIXME: 引数に rows を与えられるようにする
 function cursor_class.move_up(_ENV)
   if y < 12 then
     y = y + 1

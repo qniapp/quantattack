@@ -11,7 +11,7 @@ describe('cursor #solo', function()
   describe('constructor', function()
     it('should be placed at x = 3, y = 6 by default', function()
       assert.are_equal(3, cursor.x)
-      assert.are_equal(11, cursor.y)
+      assert.are_equal(6, cursor.y)
     end)
   end)
 
@@ -20,7 +20,7 @@ describe('cursor #solo', function()
       cursor:move_left()
 
       assert.are_equal(2, cursor.x)
-      assert.are_equal(11, cursor.y)
+      assert.are_equal(6, cursor.y)
     end)
 
     it("should not move any further to the left when reaching the left edge", function()
@@ -30,7 +30,7 @@ describe('cursor #solo', function()
       cursor:move_left()
 
       assert.are_equal(1, cursor.x)
-      assert.are_equal(11, cursor.y)
+      assert.are_equal(6, cursor.y)
     end)
   end)
 
@@ -39,7 +39,7 @@ describe('cursor #solo', function()
       cursor:move_right(6)
 
       assert.are_equal(4, cursor.x)
-      assert.are_equal(11, cursor.y)
+      assert.are_equal(6, cursor.y)
     end)
 
     it("should not move any further to the right when reaching the right edge", function()
@@ -49,7 +49,7 @@ describe('cursor #solo', function()
       cursor:move_right(6)
 
       assert.are_equal(5, cursor.x)
-      assert.are_equal(11, cursor.y)
+      assert.are_equal(6, cursor.y)
     end)
   end)
 
@@ -58,10 +58,15 @@ describe('cursor #solo', function()
       cursor:move_up()
 
       assert.are_equal(3, cursor.x)
-      assert.are_equal(12, cursor.y)
+      assert.are_equal(7, cursor.y)
     end)
 
     it("should not move any upper when reaching the dead line", function()
+      cursor:move_up() -- y = 7
+      cursor:move_up() -- y = 8
+      cursor:move_up() -- y = 9
+      cursor:move_up() -- y = 10
+      cursor:move_up() -- y = 11
       cursor:move_up() -- y = 12
 
       cursor:move_up()
@@ -76,15 +81,10 @@ describe('cursor #solo', function()
       cursor:move_down()
 
       assert.are_equal(3, cursor.x)
-      assert.are_equal(10, cursor.y)
+      assert.are_equal(5, cursor.y)
     end)
 
     it("should not move any further down when reaching the bottom", function()
-      cursor:move_down() -- y = 10
-      cursor:move_down() -- y = 9
-      cursor:move_down() -- y = 8
-      cursor:move_down() -- y = 7
-      cursor:move_down() -- y = 6
       cursor:move_down() -- y = 5
       cursor:move_down() -- y = 4
       cursor:move_down() -- y = 3
