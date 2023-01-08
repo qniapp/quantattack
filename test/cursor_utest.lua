@@ -73,25 +73,25 @@ describe('cursor #solo', function()
 
   describe('move_down', function()
     it("should move down", function()
-      cursor:move_down(17)
+      cursor:move_down()
 
       assert.are_equal(3, cursor.x)
       assert.are_equal(10, cursor.y)
     end)
 
     it("should not move any further down when reaching the bottom", function()
-      cursor:move_down(17) -- y = 10
-      cursor:move_down(17) -- y = 9
-      cursor:move_down(17) -- y = 8
-      cursor:move_down(17) -- y = 7
-      cursor:move_down(17) -- y = 6
-      cursor:move_down(17) -- y = 5
-      cursor:move_down(17) -- y = 4
-      cursor:move_down(17) -- y = 3
-      cursor:move_down(17) -- y = 2
-      cursor:move_down(17) -- y = 1
+      cursor:move_down() -- y = 10
+      cursor:move_down() -- y = 9
+      cursor:move_down() -- y = 8
+      cursor:move_down() -- y = 7
+      cursor:move_down() -- y = 6
+      cursor:move_down() -- y = 5
+      cursor:move_down() -- y = 4
+      cursor:move_down() -- y = 3
+      cursor:move_down() -- y = 2
+      cursor:move_down() -- y = 1
 
-      cursor:move_down(17)
+      cursor:move_down()
 
       assert.are_equal(3, cursor.x)
       assert.are_equal(1, cursor.y)

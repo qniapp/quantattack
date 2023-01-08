@@ -28,8 +28,7 @@ function cursor_class.move_up(_ENV)
   end
 end
 
--- FIXME: rows の引数を消す
-function cursor_class.move_down(_ENV, rows)
+function cursor_class.move_down(_ENV)
   if y > 1 then
     y = y - 1
   end

@@ -58,7 +58,7 @@ function game.update(_ENV)
       end
       if player.down then
         sfx(8)
-        cursor:move_down(board.rows)
+        cursor:move_down()
       end
       if player.x and board:swap(cursor.x, cursor.y) then
         sfx(10)
