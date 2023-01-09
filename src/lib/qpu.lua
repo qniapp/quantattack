@@ -51,7 +51,7 @@ function create_qpu(board, _level)
         del(commands, next_command)
         _ENV[next_command] = true
       else
-        if raise and board.top_block_y < 5 then
+        if raise and board.top_block_y < 7 then
           add(commands, "o")
           add_sleep_command(_ENV, 3)
         else

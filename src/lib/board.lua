@@ -247,16 +247,15 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
   -- until matched_garbage_block_count == 0
 end
 
--- function board_class.reduce(_ENV, x, y, include_next_blocks)
---   if include_next_blocks then
---     return _reduce_nocache(_ENV, x, y, true)
---   else
---     return _memoize(_ENV, _reduce_nocache, _reduce_cache, x, y)
---   end
--- end
-
 function board_class.reduce(_ENV, x, y, include_next_blocks)
-  -- function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
+  if include_next_blocks then
+    return _reduce_nocache(_ENV, x, y, true)
+  else
+    return _memoize(_ENV, _reduce_nocache, _reduce_cache, x, y)
+  end
+end
+
+function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
   local reduction, block = { to = {}, score = 0 }, blocks[y][x]
   local rules = reduction_rules[block.type]
 
