@@ -33,6 +33,7 @@ function board_class.init(_ENV, _cols)
 
   -- 各種キャッシュ
   -- _reduce_cache, _is_block_fallable_cache = {}, {}
+  _reduce_cache, _is_block_fallable_cache = {}, {}
 
   -- ゲームオーバーの線
   top_line_start_x = 0
@@ -970,12 +971,12 @@ function board_class.propagatable_hover_timer(_ENV, x, y)
 end
 
 -- ブロック x, y が x, y - 1 に落とせるかどうかを返す
--- function board_class.is_block_fallable(_ENV, x, y)
---   return _memoize(_ENV, _is_block_fallable_nocache, _is_block_fallable_cache, x, y)
--- end
-
--- function board_class._is_block_fallable_nocache(_ENV, x, y)
 function board_class.is_block_fallable(_ENV, x, y)
+  return _memoize(_ENV, _is_block_fallable_nocache, _is_block_fallable_cache, x, y)
+end
+
+function board_class._is_block_fallable_nocache(_ENV, x, y)
+-- function board_class.is_block_fallable(_ENV, x, y)
   local block = blocks[y][x]
 
   if y < 2 or not block:is_fallable() then
@@ -1064,11 +1065,11 @@ function board_class.observable_update(_ENV, block, old_state)
   --   _reduce_cache = {}
   -- end
 
-  -- if not (block:is_swapping() or block:is_match()) then
-  --   for i = 1, y do
-  --     _is_block_fallable_cache[i] = {}
-  --   end
-  -- end
+  if not (block:is_swapping() or block:is_match()) then
+    for i = y, #blocks do
+      _is_block_fallable_cache[i] = {}
+    end
+  end
 end
 
 -------------------------------------------------------------------------------
