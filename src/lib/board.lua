@@ -257,8 +257,8 @@ function board_class.reduce(_ENV, x, y, include_next_blocks)
     -- other_x と dx を決める
     local block_pattern_rows, other_x, dx = rule[1]
 
-    if (include_next_blocks and y + #block_pattern_rows - 1 > row_next_blocks) or
-        (not include_next_blocks and y + #block_pattern_rows - 1 > rows) then
+    if (include_next_blocks and y - #block_pattern_rows < -1) or
+        (not include_next_blocks and y - #block_pattern_rows < 0) then
       return reduction
     end
 
