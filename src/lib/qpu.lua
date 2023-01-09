@@ -63,14 +63,8 @@ function create_qpu(board, _level)
         else
           return for_all_reducible_blocks(_ENV, _reduce_cnot) or
               for_all_reducible_blocks(_ENV, _flatten_block) or
+              board.contains_garbage_match_block or
               for_all_reducible_blocks(_ENV, _reduce_single_block)
-          --     board.contains_garbage_match_block or
-          --     for_all_reducible_blocks(_ENV, _reduce_single_block)
-
-          -- return for_all_reducible_blocks(_ENV, _reduce_cnot) or
-          --     for_all_reducible_blocks(_ENV, _flatten_block) or
-          --     board.contains_garbage_match_block or
-          --     for_all_reducible_blocks(_ENV, _reduce_single_block)
         end
       end
     end,
