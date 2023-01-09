@@ -32,7 +32,6 @@ function board_class.init(_ENV, _cols)
   "play", false, false, false, 0, false, false
 
   -- 各種キャッシュ
-  -- _reduce_cache, _is_block_fallable_cache = {}, {}
   _reduce_cache, _is_block_fallable_cache = {}, {}
 
   -- ゲームオーバーの線
@@ -737,6 +736,9 @@ function board_class._update_game(_ENV, game, player, other_board)
       end
 
       -- ホバー中のブロックに乗ったブロックをホバー状態にする
+      --
+      -- TODO: 条件を絞るために、下の段が空かどうかをチェックするメソッドを追加
+      -- CNOT や SWAP、おじゃまゲートのように複数列にわたるブロックにも対応すること。
       if block.type ~= "i" and
         not block:is_hover() then
         local hover_timer = propagatable_hover_timer(_ENV, x, y)
@@ -933,16 +935,11 @@ end
 -- ブロックの状態
 -------------------------------------------------------------------------------
 
--- ブロック x, y の直下のブロックでホバー状態にあるものから、
--- timer の最大値を取得する。直下のブロックがなかった場合は nil を返す。
--- x, y は単一ブロックだけでなく、CNOT, SWAP, おじゃまゲートもあり。
-function board_class.propagatable_hover_timer(_ENV, x, y)
-  local block = blocks[y][x]
-  local hover_timer = 0
+-- x, y のブロックの下にあるブロックがすべて空であれば true を返す
+function board_class.are_all_blocks_below_empty(_ENV, x, y)
+  if y == 1 then return false end
 
-  if y < 2 or not block:is_fallable() then
-    return nil
-  end
+  local block = blocks[y][x]
 
   local start_x, end_x = x, x + block.span - 1
   if block.other_x then
@@ -950,20 +947,49 @@ function board_class.propagatable_hover_timer(_ENV, x, y)
   end
 
   for i = start_x, end_x do
+    if not is_block_empty(_ENV, i, y - 1) then
+      return false
+    end
+  end
+
+  return true
+end
+
+-- ブロック x, y の直下のブロックでホバー状態にあるもののうち、
+-- timer の最大値を取得する。
+-- 直下のブロックが一つもなかった場合は nil を返す。
+--
+-- x, y で指定するブロックは X などの単一ブロックだけでなく、
+-- CNOT, SWAP, おじゃまゲートもある。
+-- このため、直下のブロックは複数の場合もある。
+function board_class.propagatable_hover_timer(_ENV, x, y)
+  local block = blocks[y][x]
+  local hover_timer = 0
+
+  -- y が最下段、または next block の場合、
+  -- またはブロックが落下可能でない状態の場合、
+  -- nil を返す
+  if y < 2 or not block:is_fallable() then
+    return nil
+  end
+
+  -- ブロックの幅 (x 座標の start と end) を得る
+  local start_x, end_x = x, x + block.span - 1
+  if block.other_x then
+    start_x, end_x = min(x, block.other_x), max(x, block.other_x)
+  end
+
+  for i = start_x, end_x do
     if is_block_empty(_ENV, i, y - 1) then
-      goto continue
+      goto next_block
     end
 
     local block_below = _block_or_its_head_block(_ENV, i, y - 1)
-    if block_below:is_idle() then
-      return nil
-    elseif block_below:is_hover() then
-      if hover_timer < block_below.timer then
-        hover_timer = block_below.timer
-      end
+    if block_below:is_hover() and hover_timer < block_below.timer then
+      hover_timer = block_below.timer
     end
 
-    ::continue::
+    ::next_block::
   end
 
   return hover_timer > 0 and hover_timer or nil
