@@ -7,9 +7,6 @@ local function _is_empty(board, block_x, block_y)
     return false
   end
 
-  -- local result = board.blocks[block_y][block_x]:is_idle() and board:is_block_empty(block_x, block_y)
-  -- printh("_is_empty(" .. block_x .. ", " .. block_y .. ")" .. "=" .. (result and "true" or "false"))
-
   return board.blocks[block_y][block_x]:is_idle() and board:is_block_empty(block_x, block_y)
 end
 
@@ -18,10 +15,8 @@ local function _is_match(board, block_x, block_y, block)
     return false
   end
 
-  -- printh("is_match block.x, block.y = " .. block.x .. ", " .. block.y)
-  -- printh("block_x, block_y = " .. block_x .. ", " .. block_y)
-
   local other_block = board.blocks[block_y][block_x]
+
   return other_block.type == block.type and other_block:is_idle()
 end
 
