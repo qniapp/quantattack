@@ -1021,11 +1021,11 @@ function board_class.observable_update(_ENV, block, old_state)
     local right_block_other_x = right_block.other_x
 
     if block.other_x then
-      blocks[block.other_x][y].other_x = new_x
+      blocks[y][block.other_x].other_x = new_x
     end
 
     if right_block_other_x then
-      blocks[right_block_other_x][y].other_x = x
+      blocks[y][right_block_other_x].other_x = x
     end
 
     put(_ENV, new_x, y, block)
