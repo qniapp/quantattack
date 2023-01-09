@@ -85,12 +85,10 @@ function board_class.put_random_blocks(_ENV)
 end
 
 function board_class.reduce_blocks(_ENV, game, player, other_board)
-  -- local chain_id_callbacked, combo_count = {}
+  local chain_id_callbacked, combo_count = {}
 
   for y, row in pairs(blocks) do
     for x, _ in pairs(row) do
-      -- printh("x, y = " .. x .. ", " .. y)
-
       local reduction = reduce(_ENV, x, y)
 
       -- コンボ (同時消し) とチェイン (連鎖) の処理
@@ -101,13 +99,13 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         --     _chain_count[chain_id] = 0
         --   end
 
-        --   if combo_count and game.combo_callback then
-        --     -- 同時消し
-        --     combo_count = combo_count + #reduction.to
-        --     game.combo_callback(combo_count, x, y, player, _ENV, other_board)
-        --   else
-        --     combo_count = #reduction.to
-        --   end
+        if combo_count and game.combo_callback then
+          -- 同時消し
+          combo_count = combo_count + #reduction.to
+          game.combo_callback(combo_count, x, y, player, _ENV, other_board)
+        else
+          combo_count = #reduction.to
+        end
 
         --   -- 同じフレームで同じ chain_id を持つ連鎖が発生した場合、
         --   -- 連鎖数をインクリメントしない
