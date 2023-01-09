@@ -239,12 +239,9 @@ function create_qpu(board, _level)
     for_all_reducible_blocks = function(_ENV, f)
       for each_y = 12, 1, -1 do
         for each_x = 1, board.cols do
-          local each = board.blocks[each_y][each_x]
-          -- local each = board.reducible_blocks[each_y][each_x]
-          if each:is_reducible() then
-            if f(_ENV, each, each_x, each_y) then
-              return true
-            end
+          local each = board.reducible_blocks[each_y][each_x]
+          if each and f(_ENV, each, each_x, each_y) then
+            return true
           end
         end
       end

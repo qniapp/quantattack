@@ -48,13 +48,6 @@ function board_class.init(_ENV, _cols)
 
   tick, steps = 0, 0
 
-  -- for x = 1, cols do
-  --   blocks[x], reducible_blocks[x] = {}, {}
-  --   for y = 1, row_next_blocks do
-  --     put(_ENV, x, y, block_class("i"))
-  --   end
-  -- end
-
   for y = 0, rows do
     blocks[y], reducible_blocks[y] = {}, {}
     for x = 1, cols do
@@ -415,8 +408,6 @@ function board_class.put(_ENV, x, y, block)
 
   block.x, block.y = x, y
 
-  -- ???: ほんとにキャッシュいる? 一度プロファイラで検証し、不要なら削除
-  --
   -- おじゃまブロックを分解する時 (= garbage_match ブロックと置き換える時)、
   -- おじゃまブロックキャッシュから消す
   if blocks[y][x] and blocks[y][x].type == "g" then
@@ -714,48 +705,44 @@ function board_class._update_game(_ENV, game, player, other_board)
 
       block:update()
 
-      if block.type == "?" then
-        contains_garbage_match_block = true
-      end
+      if block.type ~= "i" then
+        if block.type == "?" then
+          contains_garbage_match_block = true
+        end
 
-      -- 落下できるブロックをホバー状態にする
-      if not block:is_falling() and
-          not block:is_hover() and
-          is_block_fallable(_ENV, x, y) then
-        if not block.other_x then -- 単体ブロックとおじゃまゲート
-          block:hover()
-          if y > 1 and blocks[y - 1][x]:is_hover() then
-            block.timer = blocks[y - 1][x].timer
-          end
-        else -- CNOT または SWAP
-          if x < block.other_x and is_block_fallable(_ENV, block.other_x, y) then
+        -- 落下できるブロックをホバー状態にする
+        if not block:is_falling() and
+            not block:is_hover() and
+            is_block_fallable(_ENV, x, y) then
+          if not block.other_x then -- 単体ブロックとおじゃまゲート
             block:hover()
-            blocks[y][block.other_x]:hover(block.timer + 1)
+            if y > 1 and blocks[y - 1][x]:is_hover() then
+              block.timer = blocks[y - 1][x].timer
+            end
+          else -- CNOT または SWAP
+            if x < block.other_x and is_block_fallable(_ENV, block.other_x, y) then
+              block:hover()
+              blocks[y][block.other_x]:hover(block.timer + 1)
+            end
           end
         end
-      end
 
-      -- ホバー中のブロックに乗ったブロックをホバー状態にする
-      --
-      -- TODO: 条件を絞るために、下の段が空かどうかをチェックするメソッドを追加
-      -- CNOT や SWAP、おじゃまゲートのように複数列にわたるブロックにも対応すること。
-      if block.type ~= "i" and
-        not block:is_hover() then
-        local hover_timer = propagatable_hover_timer(_ENV, x, y)
-        if hover_timer then
-          if not block.other_x then -- 単体ブロックとおじゃまゲート
-            block:hover(hover_timer)
-          else -- CNOT または SWAP
-            if x < block.other_x then
+        -- ホバー中のブロックに乗ったブロックをホバー状態にする
+        if not block:is_hover() then
+          local hover_timer = propagatable_hover_timer(_ENV, x, y)
+          if hover_timer then
+            if not block.other_x then
+              -- 単体ブロックとおじゃまゲート
+              block:hover(hover_timer)
+            elseif x < block.other_x then
+              -- CNOT または SWAP
               block:hover(hover_timer)
               blocks[y][block.other_x]:hover(hover_timer + 1)
             end
           end
         end
-      end
 
-      -- top_block_y を更新
-      if block.type ~= "i" then
+        -- top_block_y を更新
         if block.type == "g" then
           if not block.first_drop and top_block_y > y - block.height + 1 then
             top_block_y = y - block.height + 1
@@ -763,44 +750,44 @@ function board_class._update_game(_ENV, game, player, other_board)
         elseif top_block_y < y then
           top_block_y = y
         end
-      end
 
-      if block:is_idle() and block.chain_id and blocks[y + 1][x].chain_id == nil then
-        block.chain_id = nil
-      end
+        if block:is_idle() and block.chain_id and blocks[y + 1][x].chain_id == nil then
+          block.chain_id = nil
+        end
 
-      if block:is_falling() then
-        if not is_block_fallable(_ENV, x, y) then
-          if block.type == "g" then
-            bounce(_ENV)
-            sfx(9)
-            block.first_drop = false
-          else
-            sfx(12)
-          end
+        if block:is_falling() then
+          if not is_block_fallable(_ENV, x, y) then
+            if block.type == "g" then
+              bounce(_ENV)
+              sfx(9)
+              block.first_drop = false
+            else
+              sfx(12)
+            end
 
-          block._tick_landed = 1
-          block:change_state("idle")
+            block._tick_landed = 1
+            block:change_state("idle")
 
-          if block.other_x and x < block.other_x then
-            local other_block = blocks[y][block.other_x]
-            other_block._tick_landed = 1
-            other_block:change_state("idle")
-          end
-        else
-          if is_block_empty(_ENV, x, y - 1) then
-            -- 落下中のブロックをひとつ下に移動
-            if not block.other_x then
-              remove_block(_ENV, x, y)
-              put(_ENV, x, y - 1, block)
-            elseif x < block.other_x then
-              remove_block(_ENV, x, y)
-              put(_ENV, x, y - 1, block)
-
+            if block.other_x and x < block.other_x then
               local other_block = blocks[y][block.other_x]
-              other_block._state = "falling"
-              remove_block(_ENV, block.other_x, y)
-              put(_ENV, block.other_x, y - 1, other_block)
+              other_block._tick_landed = 1
+              other_block:change_state("idle")
+            end
+          else
+            if is_block_empty(_ENV, x, y - 1) then
+              -- 落下中のブロックをひとつ下に移動
+              if not block.other_x then
+                remove_block(_ENV, x, y)
+                put(_ENV, x, y - 1, block)
+              elseif x < block.other_x then
+                remove_block(_ENV, x, y)
+                put(_ENV, x, y - 1, block)
+
+                local other_block = blocks[y][block.other_x]
+                other_block._state = "falling"
+                remove_block(_ENV, block.other_x, y)
+                put(_ENV, block.other_x, y - 1, other_block)
+              end
             end
           end
         end
@@ -935,26 +922,6 @@ end
 -- ブロックの状態
 -------------------------------------------------------------------------------
 
--- x, y のブロックの下にあるブロックがすべて空であれば true を返す
-function board_class.are_all_blocks_below_empty(_ENV, x, y)
-  if y == 1 then return false end
-
-  local block = blocks[y][x]
-
-  local start_x, end_x = x, x + block.span - 1
-  if block.other_x then
-    start_x, end_x = min(x, block.other_x), max(x, block.other_x)
-  end
-
-  for i = start_x, end_x do
-    if not is_block_empty(_ENV, i, y - 1) then
-      return false
-    end
-  end
-
-  return true
-end
-
 -- ブロック x, y の直下のブロックでホバー状態にあるもののうち、
 -- timer の最大値を取得する。
 -- 直下のブロックが一つもなかった場合は nil を返す。
@@ -973,24 +940,11 @@ function board_class.propagatable_hover_timer(_ENV, x, y)
     return nil
   end
 
-  -- ブロックの幅 (x 座標の start と end) を得る
-  local start_x, end_x = x, x + block.span - 1
-  if block.other_x then
-    start_x, end_x = min(x, block.other_x), max(x, block.other_x)
-  end
-
-  for i = start_x, end_x do
-    if is_block_empty(_ENV, i, y - 1) then
-      goto next_block
+  for_all_nonempty_blocks_below(_ENV, x, y, function(each)
+    if each:is_hover() and hover_timer < each.timer then
+      hover_timer = each.timer
     end
-
-    local block_below = _block_or_its_head_block(_ENV, i, y - 1)
-    if block_below:is_hover() and hover_timer < block_below.timer then
-      hover_timer = block_below.timer
-    end
-
-    ::next_block::
-  end
+  end)
 
   return hover_timer > 0 and hover_timer or nil
 end
@@ -1002,25 +956,40 @@ end
 
 function board_class._is_block_fallable_nocache(_ENV, x, y)
   local block = blocks[y][x]
+  local fallable = true
 
   if y < 2 or not block:is_fallable() then
     return false
   end
 
+  for_all_nonempty_blocks_below(_ENV, x, y, function(each)
+    if not each:is_falling() then
+      fallable = false
+    end
+  end)
+
+  return fallable
+end
+
+-- x, y で指定するブロックの下にあるすべてのブロックに対して、f を適用する
+function board_class.for_all_nonempty_blocks_below(_ENV, x, y, f)
+  local block = blocks[y][x]
+
+  -- ブロックの幅 (x 座標の start と end) を得る
   local start_x, end_x = x, x + block.span - 1
   if block.other_x then
     start_x, end_x = min(x, block.other_x), max(x, block.other_x)
   end
 
   for i = start_x, end_x do
-    if not
-        (is_block_empty(_ENV, i, y - 1) or
-            _block_or_its_head_block(_ENV, i, y - 1):is_falling()) then
-      return false
+    if is_block_empty(_ENV, i, y - 1) then
+      goto next_block
     end
-  end
 
-  return true
+    f(_block_or_its_head_block(_ENV, i, y - 1))
+
+    ::next_block::
+  end
 end
 
 -- ボード内にあるいずれかのブロックが更新された場合に呼ばれる。
