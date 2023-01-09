@@ -16,7 +16,6 @@ local function _is_match(board, block_x, block_y, block)
   end
 
   local other_block = board.blocks[block_y][block_x]
-
   return other_block.type == block.type and other_block:is_idle()
 end
 
@@ -74,13 +73,10 @@ function create_qpu(board, _level)
     end,
 
     _reduce_single_block = function(_ENV, each, each_x, each_y)
-      -- printh("_reduce_single_block: each_x, each_y = " .. each_x .. ", " .. each_y)
-
       if each:is_single_block() then
         -- 下の行とマッチするか走査
         if each_y > 1 then
           if find_left_and_right(_ENV, _is_match, each) then
-            -- printh("下マッチ")
             return true
           end
         end
@@ -88,8 +84,6 @@ function create_qpu(board, _level)
         -- 上の行とマッチするか走査
         if each_y < board.rows then
           if find_left_and_right(_ENV, _is_match, each, true) then
-            -- printh(each.type)
-            -- printh("上マッチ")
             return true
           end
         end
