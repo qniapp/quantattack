@@ -57,7 +57,7 @@ function board_class.init(_ENV, _cols)
   -- end
 
   for y = 0, rows do
-    blocks[y] = {}
+    blocks[y], reducible_blocks[y] = {}, {}
     for x = 1, cols do
       put(_ENV, x, y, block_class("i"))
     end
@@ -404,9 +404,7 @@ function board_class.reducible_block_at(_ENV, x, y)
   assert(0 <= y and y <= rows, "y = " .. y)
   --#endif
 
-  local block = blocks[y][x]
-  return block:is_reducible() and block or block_class("i")
-  -- return reducible_blocks[y][x] or block_class("i")
+  return reducible_blocks[y][x] or block_class("i")
 end
 
 function board_class.put(_ENV, x, y, block)
@@ -739,7 +737,8 @@ function board_class._update_game(_ENV, game, player, other_board)
       end
 
       -- ホバー中のブロックに乗ったブロックをホバー状態にする
-      if not block:is_hover() then
+      if block.type ~= "i" and
+        not block:is_hover() then
         local hover_timer = propagatable_hover_timer(_ENV, x, y)
         if hover_timer then
           if not block.other_x then -- 単体ブロックとおじゃまゲート
@@ -976,7 +975,6 @@ function board_class.is_block_fallable(_ENV, x, y)
 end
 
 function board_class._is_block_fallable_nocache(_ENV, x, y)
--- function board_class.is_block_fallable(_ENV, x, y)
   local block = blocks[y][x]
 
   if y < 2 or not block:is_fallable() then
@@ -1053,11 +1051,11 @@ function board_class.observable_update(_ENV, block, old_state)
     return
   end
 
-  -- if block:is_reducible() then
-  --   reducible_blocks[y][x] = block
-  -- else
-  --   reducible_blocks[y][x] = nil
-  -- end
+  if block:is_reducible() then
+    reducible_blocks[y][x] = block
+  else
+    reducible_blocks[y][x] = nil
+  end
 
   _changed = true
 
