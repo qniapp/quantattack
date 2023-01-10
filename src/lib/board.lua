@@ -20,8 +20,7 @@ end
 
 function board_class.init(_ENV, _cols)
   -- サイズ関係
-  cols, rows, row_next_blocks =
-  _cols or 6, 17, 18
+  cols, rows = _cols or 6, 17
 
   -- 画面上のサイズと位置
   width, height, offset_x, offset_y, raised_dots =
@@ -33,6 +32,9 @@ function board_class.init(_ENV, _cols)
 
   -- 各種キャッシュ
   _reduce_cache, _is_block_fallable_cache = {}, {}
+
+  -- ブロックが hover 状態かどうかをチェックするためのフラグを格納
+  _check_hover_flag = {}
 
   -- ゲームオーバーの線
   top_line_start_x = 0
@@ -49,7 +51,7 @@ function board_class.init(_ENV, _cols)
   tick, steps = 0, 0
 
   for y = 0, rows do
-    blocks[y], reducible_blocks[y] = {}, {}
+    blocks[y], reducible_blocks[y], _check_hover_flag[y] = {}, {}, {}
     for x = 1, cols do
       put(_ENV, x, y, block_class("i"))
     end
@@ -423,6 +425,7 @@ function board_class.put(_ENV, x, y, block)
   blocks[y][x] = block
   block:attach(_ENV)
   observable_update(_ENV, block)
+  _check_hover_flag[y][x] = true
 end
 
 function board_class.remove_block(_ENV, x, y)
@@ -535,11 +538,11 @@ function board_class.update(_ENV, game, player, other_board)
       end
 
       for x = 1, cols do
-        for y = 1, row_next_blocks do
+        for y = 0, #blocks do
           if tick_over == 0 then
-            blocks[x][y]._state = "over"
+            blocks[y][x]._state = "over"
           elseif tick_over == 20 and not done_over_fx then
-            blocks[x][y] = block_class("i")
+            blocks[y][x] = block_class("i")
             particle:create_chunk(screen_x(_ENV, x), screen_y(_ENV, y),
               "5,5,9,7,random,random,-0.03,-0.03,40|5,5,9,7,random,random,-0.03,-0.03,40|4,4,9,7,random,random,-0.03,-0.03,40|4,4,2,5,random,random,-0.03,-0.03,40|4,4,6,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|0,0,2,5,random,random,-0.03,-0.03,40")
           end
@@ -728,16 +731,20 @@ function board_class._update_game(_ENV, game, player, other_board)
         end
 
         -- ホバー中のブロックに乗ったブロックをホバー状態にする
-        if not block:is_hover() then
-          local hover_timer = propagatable_hover_timer(_ENV, x, y)
-          if hover_timer then
-            if not block.other_x then
-              -- 単体ブロックとおじゃまゲート
-              block:hover(hover_timer)
-            elseif x < block.other_x then
-              -- CNOT または SWAP
-              block:hover(hover_timer)
-              blocks[y][block.other_x]:hover(hover_timer + 1)
+        if _check_hover_flag[y][x] then
+          _check_hover_flag[y][x] = false
+
+          if not block:is_hover() then
+            local hover_timer = propagatable_hover_timer(_ENV, x, y)
+            if hover_timer then
+              if not block.other_x then
+                -- 単体ブロックとおじゃまゲート
+                block:hover(hover_timer)
+              elseif x < block.other_x then
+                -- CNOT または SWAP
+                block:hover(hover_timer)
+                blocks[y][block.other_x]:hover(hover_timer + 1)
+              end
             end
           end
         end
@@ -1044,6 +1051,14 @@ function board_class.observable_update(_ENV, block, old_state)
     particle:create_chunk(screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3,
       "2,1,7,7,-1,-1,0.05,0.05,16|2,1,7,7,1,-1,-0.05,0.05,16|2,1,7,7,-1,1,0.05,-0.05,16|2,1,7,7,1,1,-0.05,-0.05,16")
     return
+  end
+
+  if block:is_hover() then
+    for each_y = y + 1, #blocks do
+      for each_x = 1, cols do
+        _check_hover_flag[each_y][each_x] = true
+      end
+    end
   end
 
   if block:is_reducible() then
