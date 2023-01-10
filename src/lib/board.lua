@@ -466,7 +466,7 @@ function board_class.insert_blocks_at_bottom(_ENV)
     if is_block_empty(_ENV, x, 0) then
       repeat
         put(_ENV, x, 0, _random_single_block(_ENV))
-      until #reduce(_ENV, x, rows, true).to == 0
+      until #reduce(_ENV, x, 1, true).to == 0
     end
   end
 
