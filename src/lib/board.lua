@@ -197,14 +197,14 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
           end
         end
 
-        -- -- 左と右
-        -- for i = 0, garbage_height - 1 do
-        --   if (x > 1 and is_matching(blocks[y + i][x - 1])) or
-        --       (x + garbage_span <= cols and is_matching(blocks[y + i][x + garbage_span])) then
-        --     matched_garbage_block_count = matched_garbage_block_count + 1
-        --     goto matched
-        --   end
-        -- end
+        -- 左と右
+        for i = 0, garbage_height - 1 do
+          if (x > 1 and is_matching(blocks[y + i][x - 1])) or
+              (x + garbage_span <= cols and is_matching(blocks[y + i][x + garbage_span])) then
+            matched_garbage_block_count = matched_garbage_block_count + 1
+            goto matched
+          end
+        end
 
         goto next_garbage_block
 
