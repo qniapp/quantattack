@@ -60,6 +60,7 @@ function create_pending_garbage_blocks()
         if first_garbage_block.tick_fall then
           if first_garbage_block.tick_fall == 0 then
             del(all, first_garbage_block)
+            -- printh("put garbage at: " .. first_garbage_block.x .. ", " .. #board.blocks)
             board:put(first_garbage_block.x, #board.blocks, first_garbage_block)
             first_garbage_block:fall()
           else
@@ -81,7 +82,7 @@ function create_pending_garbage_blocks()
           end
 
           for i = x, x + first_garbage_block.span - 1 do
-            if not board:is_block_empty(i, #board.blocks) or not board:is_block_empty(i, #board.blocks - 1) then
+            if not board:is_block_empty(i, #board.blocks) then
               return
             end
           end

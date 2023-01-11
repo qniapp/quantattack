@@ -51,7 +51,8 @@ function board_class.init(_ENV, _cols)
   tick, steps = 0, 0
 
   for y = 0, rows do
-    blocks[y], reducible_blocks[y], _check_hover_flag[y] = {}, {}, {}
+    -- blocks[y], reducible_blocks[y], _check_hover_flag[y] = {}, {}, {}
+    reducible_blocks[y], _check_hover_flag[y] = {}, {}
     for x = 1, cols do
       put(_ENV, x, y, block_class("i"))
     end
@@ -164,6 +165,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
     for _, each in pairs(_garbage_blocks) do
       if each:is_idle() then
         local x, y, garbage_span, garbage_height = each.x, each.y, each.span, each.height
+
         local is_matching = function(adjacent_block)
           if not adjacent_block:is_match() then
             return false
@@ -188,8 +190,8 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
         -- 下と上
         for gx = x, x + garbage_span - 1 do
-          if (y > 1 and blocks[gx][y - 1] and is_matching(blocks[gx][y - 1])) or
-              (blocks[gx][y + garbage_height] and is_matching(blocks[gx][y + garbage_height])) then
+          if (y > 1 and is_matching(blocks[y - 1][gx])) or
+              is_matching(blocks[y + garbage_height][gx]) then
             matched_garbage_block_count = matched_garbage_block_count + 1
             goto matched
           end
@@ -197,8 +199,8 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
         -- -- 左と右
         -- for i = 0, garbage_height - 1 do
-        --   if (x > 1 and is_matching(blocks[x - 1][y + i])) or
-        --       (x + garbage_span <= cols and is_matching(blocks[x + garbage_span][y + i])) then
+        --   if (x > 1 and is_matching(blocks[y + i][x - 1])) or
+        --       (x + garbage_span <= cols and is_matching(blocks[y + i][x + garbage_span])) then
         --     matched_garbage_block_count = matched_garbage_block_count + 1
         --     goto matched
         --   end
@@ -401,17 +403,26 @@ function board_class.reducible_block_at(_ENV, x, y)
   return reducible_blocks[y][x] or block_class("i")
 end
 
+-- x, y に block を配置し、block.x と block.y をセットする
 function board_class.put(_ENV, x, y, block)
   --#if assert
-  assert(1 <= x and x <= cols, "x = " .. x)
-  assert(0 <= y, "y = " .. y)
-  assert(block ~= nil, "block is nil")
+  assert(1 <= x and x <= cols, "invalid x value: x = " .. x)
+  assert(0 <= y, "invalid x value: y = " .. y)
+  assert(block ~= nil, "block should not be nil")
   --#endif
 
   block.x, block.y = x, y
 
-  if blocks[y] == nil then
-    blocks[y] = {}
+  -- もし blocks[y] == nil の場合、I で初期化する
+  for tmp_y = 0, y + block.height do
+    -- 新しい行 y を追加
+    -- TODO: 後で別関数に切り出す
+    if blocks[tmp_y] == nil then
+      blocks[tmp_y] = {}
+      for tmp_x = 1, cols do
+        blocks[tmp_y][tmp_x] = block_class("i")
+      end
+    end
   end
 
   -- おじゃまブロックを分解する時 (= garbage_match ブロックと置き換える時)、
@@ -709,7 +720,7 @@ function board_class._update_game(_ENV, game, player, other_board)
   top_block_y = 0
   contains_garbage_match_block = false
 
-  for y = 1, rows do
+  for y = 1, #blocks do
     for x = 1, cols do
       local block = blocks[y][x]
 
