@@ -159,87 +159,86 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
   end
 
   -- おじゃまブロックのマッチ
-  repeat
-    local matched_garbage_block_count = 0
-
-    for _, each in pairs(_garbage_blocks) do
-      if each:is_idle() then
-        local x, y, garbage_span, garbage_height = each.x, each.y, each.span, each.height
-
-        local is_matching = function(adjacent_block)
-          if not adjacent_block:is_match() then
-            return false
-          end
-
-          if adjacent_block.type == "?" then
-            if each.body_color == adjacent_block.body_color then
-              each.chain_id = adjacent_block.chain_id
-              return true
-            end
-          else
-            each.chain_id = adjacent_block.chain_id
-            return true
-          end
-
+  --
+  -- あるおじゃまブロックの上下左右にマッチ中のブロック、
+  -- または同じ色の ? ブロックがあれば、おじゃまブロックに chain_id をセットして
+  -- ? ブロックに分解 & 一列ちぢめる。
+  for _, each in pairs(_garbage_blocks) do
+    if each:is_idle() then
+      local x, y, garbage_span, garbage_height = each.x, each.y, each.span, each.height
+      local match_with = function(adj_x, adj_y)
+        if adj_y < 1 or adj_x < 1 or cols < adj_x then
           return false
         end
 
-        -- あるおじゃまブロックの上下左右にマッチ中のブロック、
-        -- または同じ色の ? ブロックがあれば、おじゃまブロックに chain_id をセットして
-        -- ? ブロックに分解 & 一列ちぢめる。
+        local adjacent_block = blocks[adj_y][adj_x]
 
-        -- 下と上
-        for gx = x, x + garbage_span - 1 do
-          if (y > 1 and is_matching(blocks[y - 1][gx])) or
-              is_matching(blocks[y + garbage_height][gx]) then
-            matched_garbage_block_count = matched_garbage_block_count + 1
-            goto matched
-          end
+        if not adjacent_block:is_match() then
+          return false
         end
 
-        -- 左と右
-        for i = 0, garbage_height - 1 do
-          if (x > 1 and is_matching(blocks[y + i][x - 1])) or
-              (x + garbage_span <= cols and is_matching(blocks[y + i][x + garbage_span])) then
-            matched_garbage_block_count = matched_garbage_block_count + 1
-            goto matched
+        if adjacent_block.type == "?" then
+          if each.body_color == adjacent_block.body_color then
+            each.chain_id = adjacent_block.chain_id
+            return true
           end
+        else
+          each.chain_id = adjacent_block.chain_id
+          return true
         end
 
-        goto next_garbage_block
+        return false
+      end
 
-        ::matched::
-        for i = 0, garbage_span - 1 do
-          for j = 0, garbage_height - 1 do
-            garbage_match_block = block_class("?")
-            garbage_match_block.body_color = each.body_color
-            put(_ENV, x + i, y + j, garbage_match_block)
-
-            local new_block
-            if j == 0 then
-              -- 一行目にはランダムなブロックを入れる
-              new_block = _random_single_block(_ENV)
-            elseif j == 1 and i == 0 then
-              -- 二行目の先頭にはおじゃまブロック
-              new_block = garbage_block(garbage_span, garbage_height - 1, each.body_color)
-            else
-              new_block = block_class("i")
-            end
-
-            blocks[y + j][x + i]:replace_with(
-              new_block,
-              i + j * garbage_span,
-              j == 0 and each.chain_id or nil,
-              garbage_span,
-              garbage_height
-            )
-          end
+      -- 下と上
+      for gx = x, x + garbage_span - 1 do
+        if match_with(gx, y - 1) or
+            match_with(gx, y + garbage_height) then
+          goto matched
         end
       end
 
-      ::next_garbage_block::
+      -- 左と右
+      for dy = 0, garbage_height - 1 do
+        if match_with(x - 1, y + dy) or
+            match_with(x + garbage_span, y + dy) then
+          goto matched
+        end
+      end
+
+      goto next_garbage_block
+
+      ::matched::
+      for dx = 0, garbage_span - 1 do
+        for dy = 0, garbage_height - 1 do
+          garbage_match_block = block_class("?")
+          garbage_match_block.body_color = each.body_color
+          put(_ENV, x + dx, y + dy, garbage_match_block)
+
+          local new_block
+          if dy == 0 then
+            -- 一行目にはランダムなブロックを入れる
+            new_block = _random_single_block(_ENV)
+          elseif dy == 1 and dx == 0 then
+            -- 二行目の先頭にはおじゃまブロック
+            new_block = garbage_block(garbage_span, garbage_height - 1, each.body_color)
+          else
+            new_block = block_class("i")
+          end
+
+          blocks[y + dy][x + dx]:replace_with(
+            new_block,
+            dx + dy * garbage_span,
+            dy == 0 and each.chain_id or nil,
+            garbage_span,
+            garbage_height
+          )
+        end
+      end
     end
-  until matched_garbage_block_count == 0
+
+    ::next_garbage_block::
+  end
 end
 
 -- function board_class.reduce(_ENV, x, y, include_next_blocks)
