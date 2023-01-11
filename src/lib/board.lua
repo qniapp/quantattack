@@ -624,20 +624,20 @@ function board_class.render(_ENV)
   --   end
   -- end
 
-  -- -- ゲームオーバーの線
-  -- if show_top_line and not is_game_over(_ENV) then
-  --   if top_line_start_x < 73 then
-  --     line(max(offset_x - 1, offset_x + top_line_start_x - 25), 40,
-  --       min(offset_x + 48, offset_x + top_line_start_x + 5), 40,
-  --       is_topped_out(_ENV) and 8 or 1)
-  --   end
+  -- ゲームオーバーの線
+  if show_top_line and not is_game_over(_ENV) then
+    if top_line_start_x < 73 then
+      line(max(offset_x - 1, offset_x + top_line_start_x - 25), 40,
+        min(offset_x + 48, offset_x + top_line_start_x + 5), 40,
+        is_topped_out(_ENV) and 8 or 1)
+    end
 
-  --   -- if offset_x - 1 + (top_line_start_x - 24) < offset_x + 48 then
-  --   --   line(max(offset_x - 1, offset_x - 1 + top_line_start_x - 24), 40,
-  --   --     min(offset_x + 48, offset_x - 1 + top_line_start_x - 24 + 30), 40,
-  --   --     is_topped_out(_ENV) and 8 or 1)
-  --   -- end
-  -- end
+    -- if offset_x - 1 + (top_line_start_x - 24) < offset_x + 48 then
+    --   line(max(offset_x - 1, offset_x - 1 + top_line_start_x - 24), 40,
+    --     min(offset_x + 48, offset_x - 1 + top_line_start_x - 24 + 30), 40,
+    --     is_topped_out(_ENV) and 8 or 1)
+    -- end
+  end
 
   -- -- 待機中のおじゃまブロック
   -- pending_garbage_blocks:render(_ENV)
