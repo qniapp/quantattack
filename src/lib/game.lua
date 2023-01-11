@@ -268,7 +268,7 @@ function game_class:render() -- override
       local countdown_sprite_x = { 32, 16, 0 }
       sspr(countdown_sprite_x[board.countdown], 80,
         16, 16,
-        board.offset_x + 16, board.offset_y + 43)
+        board.offset_x + 16, 43)
     end
   end
 

@@ -60,7 +60,7 @@ function create_pending_garbage_blocks()
         if first_garbage_block.tick_fall then
           if first_garbage_block.tick_fall == 0 then
             del(all, first_garbage_block)
-            board:put(first_garbage_block.x, 1, first_garbage_block)
+            board:put(first_garbage_block.x, #board.blocks, first_garbage_block)
             first_garbage_block:fall()
           else
             first_garbage_block.dy = ceil_rnd(2) - 1
@@ -81,7 +81,7 @@ function create_pending_garbage_blocks()
           end
 
           for i = x, x + first_garbage_block.span - 1 do
-            if not board:is_block_empty(i, 1) or not board:is_block_empty(i, 2) then
+            if not board:is_block_empty(i, #board.blocks) or not board:is_block_empty(i, #board.blocks - 1) then
               return
             end
           end
@@ -98,7 +98,7 @@ function create_pending_garbage_blocks()
     render = function(_ENV, board)
       for i, each in pairs(all) do
         if i < 6 then
-          local x0, y0 = board.offset_x + 1 + (i - 1) * 9, board.offset_y + each.dy
+          local x0, y0 = board.offset_x + 1 + (i - 1) * 9, each.dy
 
           if each.tick_fall then
             pal(7, each.inner_border_color)

@@ -23,8 +23,8 @@ function board_class.init(_ENV, _cols)
   cols, rows = _cols or 6, 17
 
   -- 画面上のサイズと位置
-  width, height, offset_x, offset_y, raised_dots =
-  cols * tile_size, (rows - 1) * tile_size, _offset_x or 11, 0, 0
+  width, height, offset_x, raised_dots =
+  cols * tile_size, (rows - 1) * tile_size, _offset_x or 11, 0
 
   -- board の状態
   state, win, lose, timeup, top_block_y, _changed, show_gameover_menu =
@@ -88,11 +88,11 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
       -- コンボ (同時消し) とチェイン (連鎖) の処理
       if #reduction.to > 0 then
-        --   local chain_id = reduction.chain_id
+        local chain_id = reduction.chain_id
 
-        --   if _chain_count[chain_id] == nil then
-        --     _chain_count[chain_id] = 0
-        --   end
+        if _chain_count[chain_id] == nil then
+          _chain_count[chain_id] = 0
+        end
 
         if combo_count and game.combo_callback then
           -- 同時消し
@@ -102,27 +102,27 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
           combo_count = #reduction.to
         end
 
-        --   -- 同じフレームで同じ chain_id を持つ連鎖が発生した場合、
-        --   -- 連鎖数をインクリメントしない
-        --   if not chain_id_callbacked[chain_id] then
-        --     _chain_count[chain_id] = _chain_count[chain_id] + 1
-        --   end
+        -- 同じフレームで同じ chain_id を持つ連鎖が発生した場合、
+        -- 連鎖数をインクリメントしない
+        if not chain_id_callbacked[chain_id] then
+          _chain_count[chain_id] = _chain_count[chain_id] + 1
+        end
 
-        --   -- 連鎖
-        --   if not chain_id_callbacked[chain_id] and _chain_count[chain_id] > 1 and game and game.chain_callback then
-        --     if #pending_garbage_blocks.all > 1 then
-        --       local offset_height_left = game.block_offset_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV
-        --         , other_board)
+        -- 連鎖
+        if not chain_id_callbacked[chain_id] and _chain_count[chain_id] > 1 and game and game.chain_callback then
+          if #pending_garbage_blocks.all > 1 then
+            local offset_height_left = game.block_offset_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV
+              , other_board)
 
-        --       -- 相殺しても残っていれば、相手に攻撃
-        --       if offset_height_left > 0 then
-        --         game.chain_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
-        --       end
-        --     else
-        --       game.chain_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
-        --     end
-        --     chain_id_callbacked[chain_id] = true
-        --   end
+            -- 相殺しても残っていれば、相手に攻撃
+            if offset_height_left > 0 then
+              game.chain_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
+            end
+          else
+            game.chain_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
+          end
+          chain_id_callbacked[chain_id] = true
+        end
 
         for index, r in pairs(reduction.to) do
           local dx, dy, new_block = r.dx and reduction.dx or 0, r.dy or 0, block_class(r.block_type)
@@ -131,21 +131,21 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
             new_block.other_x = x + (r.dx and 0 or reduction.dx)
           end
 
-          -- printh("replace_with: x + dx, y + dy = " .. x + dx .. ", " .. y + dy)
-          -- printh("new_block.type = " .. new_block.type)
-
+          if blocks[y + dy] == nil then
+            put(_ENV, y + dy, x + dx, block_class("i"))
+          end
           blocks[y + dy][x + dx]:replace_with(new_block, index, chain_id)
 
           -- ブロックが消える、または変化するとき、その上にあるブロックすべてに chain_id をセット
-          -- for chainable_y = y + dy - 1, 1, -1 do
-          --   local block_to_fall = blocks[x + dx][chainable_y]
-          --   if block_to_fall.type ~= "i" then
-          --     if block_to_fall:is_match() then
-          --       goto next_reduction
-          --     end
-          --     block_to_fall.chain_id = chain_id
-          --   end
-          -- end
+          for chainable_y = y + dy - 1, 1, -1 do
+            local block_to_fall = blocks[chainable_y][x + dx]
+            if block_to_fall.type ~= "i" then
+              if block_to_fall:is_match() then
+                goto next_reduction
+              end
+              block_to_fall.chain_id = chain_id
+            end
+          end
 
           ::next_reduction::
         end
@@ -157,87 +157,87 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
     end
   end
 
-  -- -- おじゃまブロックのマッチ
-  -- repeat
-  --   local matched_garbage_block_count = 0
+  -- おじゃまブロックのマッチ
+  repeat
+    local matched_garbage_block_count = 0
 
-  --   for _, each in pairs(_garbage_blocks) do
-  --     if each:is_idle() then
-  --       local x, y, garbage_span, garbage_height = each.x, each.y, each.span, each.height
-  --       local is_matching = function(adjacent_block)
-  --         if not adjacent_block:is_match() then
-  --           return false
-  --         end
+    for _, each in pairs(_garbage_blocks) do
+      if each:is_idle() then
+        local x, y, garbage_span, garbage_height = each.x, each.y, each.span, each.height
+        local is_matching = function(adjacent_block)
+          if not adjacent_block:is_match() then
+            return false
+          end
 
-  --         if adjacent_block.type == "?" then
-  --           if each.body_color == adjacent_block.body_color then
-  --             each.chain_id = adjacent_block.chain_id
-  --             return true
-  --           end
-  --         else
-  --           each.chain_id = adjacent_block.chain_id
-  --           return true
-  --         end
+          if adjacent_block.type == "?" then
+            if each.body_color == adjacent_block.body_color then
+              each.chain_id = adjacent_block.chain_id
+              return true
+            end
+          else
+            each.chain_id = adjacent_block.chain_id
+            return true
+          end
 
-  --         return false
-  --       end
+          return false
+        end
 
-  --       -- あるおじゃまブロックの上下左右にマッチ中のブロック、
-  --       -- または同じ色の ? ブロックがあれば、おじゃまブロックに chain_id をセットして
-  --       -- ? ブロックに分解 & 一列ちぢめる。
+        -- あるおじゃまブロックの上下左右にマッチ中のブロック、
+        -- または同じ色の ? ブロックがあれば、おじゃまブロックに chain_id をセットして
+        -- ? ブロックに分解 & 一列ちぢめる。
 
-  --       -- 下と上
-  --       for gx = x, x + garbage_span - 1 do
-  --         if (y < rows and is_matching(blocks[gx][y + 1])) or
-  --             (y - garbage_height > 1 and is_matching(blocks[gx][y - garbage_height])) then
-  --           matched_garbage_block_count = matched_garbage_block_count + 1
-  --           goto matched
-  --         end
-  --       end
+        -- 下と上
+        for gx = x, x + garbage_span - 1 do
+          if (y > 1 and blocks[gx][y - 1] and is_matching(blocks[gx][y - 1])) or
+              (blocks[gx][y + garbage_height] and is_matching(blocks[gx][y + garbage_height])) then
+            matched_garbage_block_count = matched_garbage_block_count + 1
+            goto matched
+          end
+        end
 
-  --       -- 左と右
-  --       for i = 0, garbage_height - 1 do
-  --         if (x > 1 and y - i > 0 and is_matching(blocks[x - 1][y - i])) or
-  --             (x + garbage_span <= cols and y - i > 0 and is_matching(blocks[x + garbage_span][y - i])) then
-  --           matched_garbage_block_count = matched_garbage_block_count + 1
-  --           goto matched
-  --         end
-  --       end
+        -- -- 左と右
+        -- for i = 0, garbage_height - 1 do
+        --   if (x > 1 and is_matching(blocks[x - 1][y + i])) or
+        --       (x + garbage_span <= cols and is_matching(blocks[x + garbage_span][y + i])) then
+        --     matched_garbage_block_count = matched_garbage_block_count + 1
+        --     goto matched
+        --   end
+        -- end
 
-  --       goto next_garbage_block
+        goto next_garbage_block
 
-  --       ::matched::
-  --       for i = 0, garbage_span - 1 do
-  --         for j = 0, garbage_height - 1 do
-  --           garbage_match_block = block_class("?")
-  --           garbage_match_block.body_color = each.body_color
-  --           put(_ENV, x + i, y - j, garbage_match_block)
+        ::matched::
+        for i = 0, garbage_span - 1 do
+          for j = 0, garbage_height - 1 do
+            garbage_match_block = block_class("?")
+            garbage_match_block.body_color = each.body_color
+            put(_ENV, x + i, y + j, garbage_match_block)
 
-  --           local new_block
-  --           if j == 0 then
-  --             -- 一行目にはランダムなブロックを入れる
-  --             new_block = _random_single_block(_ENV)
-  --           elseif j == 1 and i == 0 then
-  --             -- 二行目の先頭にはおじゃまブロック
-  --             new_block = garbage_block(garbage_span, garbage_height - 1, each.body_color)
-  --           else
-  --             new_block = block_class("i")
-  --           end
+            local new_block
+            if j == 0 then
+              -- 一行目にはランダムなブロックを入れる
+              new_block = _random_single_block(_ENV)
+            elseif j == 1 and i == 0 then
+              -- 二行目の先頭にはおじゃまブロック
+              new_block = garbage_block(garbage_span, garbage_height - 1, each.body_color)
+            else
+              new_block = block_class("i")
+            end
 
-  --           blocks[x + i][y - j]:replace_with(
-  --             new_block,
-  --             i + j * garbage_span,
-  --             j == 0 and each.chain_id or nil,
-  --             garbage_span,
-  --             garbage_height
-  --           )
-  --         end
-  --       end
-  --     end
+            blocks[y + j][x + i]:replace_with(
+              new_block,
+              i + j * garbage_span,
+              j == 0 and each.chain_id or nil,
+              garbage_span,
+              garbage_height
+            )
+          end
+        end
+      end
 
-  --     ::next_garbage_block::
-  --   end
-  -- until matched_garbage_block_count == 0
+      ::next_garbage_block::
+    end
+  until matched_garbage_block_count == 0
 end
 
 -- function board_class.reduce(_ENV, x, y, include_next_blocks)
@@ -355,7 +355,7 @@ end
 -- ボード上の Y 座標を画面上の Y 座標に変換
 -- 一行目は表示しないことに注意
 function board_class.screen_y(_ENV, y)
-  return offset_y + 128 - y * 8 - raised_dots
+  return 128 - y * 8 - raised_dots
   -- return offset_y + (rows - y) * 8 -- raised_dots + _bounce_screen_dy
   -- return offset_y + (y - 2) * 8 - raised_dots + _bounce_screen_dy
 end
@@ -395,7 +395,7 @@ end
 function board_class.reducible_block_at(_ENV, x, y)
   --#if assert
   assert(1 <= x and x <= cols, "x = " .. x)
-  assert(0 <= y and y <= rows, "y = " .. y)
+  assert(0 <= y, "y = " .. y)
   --#endif
 
   return reducible_blocks[y][x] or block_class("i")
@@ -409,6 +409,10 @@ function board_class.put(_ENV, x, y, block)
   --#endif
 
   block.x, block.y = x, y
+
+  if blocks[y] == nil then
+    blocks[y] = {}
+  end
 
   -- おじゃまブロックを分解する時 (= garbage_match ブロックと置き換える時)、
   -- おじゃまブロックキャッシュから消す
@@ -425,6 +429,10 @@ function board_class.put(_ENV, x, y, block)
   blocks[y][x] = block
   block:attach(_ENV)
   observable_update(_ENV, block)
+
+  if _check_hover_flag[y] == nil then
+    _check_hover_flag[y] = {}
+  end
   _check_hover_flag[y][x] = true
 end
 
@@ -561,14 +569,13 @@ function board_class.update(_ENV, game, player, other_board)
 end
 
 function board_class.render(_ENV)
-  -- ワイヤの描画
-  -- show_wires == true の場合のみ、ワイヤを描画する
+  -- ワイヤの描画 (show_wires == true の場合のみ)
   if show_wires then
     for x = 1, cols do
       local line_x = screen_x(_ENV, x) + 3
       line(
-        line_x, offset_y,
-        line_x, offset_y + height,
+        line_x, 0,
+        line_x, height,
         5
       )
     end
@@ -625,22 +632,22 @@ function board_class.render(_ENV)
   -- end
 
   -- ゲームオーバーの線
-  if show_top_line and not is_game_over(_ENV) then
-    if top_line_start_x < 73 then
-      line(max(offset_x - 1, offset_x + top_line_start_x - 25), 40,
-        min(offset_x + 48, offset_x + top_line_start_x + 5), 40,
-        is_topped_out(_ENV) and 8 or 1)
-    end
+  -- if show_top_line and not is_game_over(_ENV) then
+  --   if top_line_start_x < 73 then
+  --     line(max(offset_x - 1, offset_x + top_line_start_x - 25), 40,
+  --       min(offset_x + 48, offset_x + top_line_start_x + 5), 40,
+  --       is_topped_out(_ENV) and 8 or 1)
+  --   end
 
-    -- if offset_x - 1 + (top_line_start_x - 24) < offset_x + 48 then
-    --   line(max(offset_x - 1, offset_x - 1 + top_line_start_x - 24), 40,
-    --     min(offset_x + 48, offset_x - 1 + top_line_start_x - 24 + 30), 40,
-    --     is_topped_out(_ENV) and 8 or 1)
-    -- end
-  end
+  --   -- if offset_x - 1 + (top_line_start_x - 24) < offset_x + 48 then
+  --   --   line(max(offset_x - 1, offset_x - 1 + top_line_start_x - 24), 40,
+  --   --     min(offset_x + 48, offset_x - 1 + top_line_start_x - 24 + 30), 40,
+  --   --     is_topped_out(_ENV) and 8 or 1)
+  --   -- end
+  -- end
 
-  -- -- 待機中のおじゃまブロック
-  -- pending_garbage_blocks:render(_ENV)
+  -- 待機中のおじゃまブロック
+  pending_garbage_blocks:render(_ENV)
 
   -- カーソル
   if not is_game_over(_ENV) then
@@ -807,7 +814,7 @@ function board_class._update_game(_ENV, game, player, other_board)
     -- _chain_count をリセット
     for x = 1, cols do
       for y = 1, rows do
-        if blocks[x][y].chain_id == chain_id then
+        if blocks[y][x].chain_id == chain_id then
           goto next_chain_id
         end
       end
@@ -847,7 +854,7 @@ end
 function board_class.is_block_empty(_ENV, x, y)
   --#if assert
   assert(0 < x and x <= cols, "x = " .. x)
-  assert(0 <= y and y <= rows, "y = " .. y)
+  assert(0 <= y, "y = " .. y)
   --#endif
 
   return blocks[y][x]:is_empty() and
@@ -1056,11 +1063,17 @@ function board_class.observable_update(_ENV, block, old_state)
   if block:is_hover() then
     for each_y = y + 1, #blocks do
       for each_x = 1, cols do
+        if _check_hover_flag[each_y] == nil then
+          _check_hover_flag[each_y] = {}
+        end
         _check_hover_flag[each_y][each_x] = true
       end
     end
   end
 
+  if reducible_blocks[y] == nil then
+    reducible_blocks[y] = {}
+  end
   if block:is_reducible() then
     reducible_blocks[y][x] = block
   else
