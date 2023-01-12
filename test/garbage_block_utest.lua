@@ -4,7 +4,7 @@ require("lib/garbage_block")
 require("lib/board")
 require("lib/cursor")
 
-describe('garbage_block', function()
+describe('garbage_block #solo', function()
   describe('span', function()
     it("幅はデフォルトで 6", function()
       local garbage = garbage_block()
@@ -77,58 +77,58 @@ describe('garbage_block', function()
   end)
 end)
 
-describe("board", function()
+describe("board #solo", function()
   describe("_is_part_of_garbage", function()
     it("指定した座標がおじゃまブロックに含まれるかどうかを判定", function()
       local board = board_class()
 
       -- 行
-      --  9 _ _ _ _ _ _
-      -- 10 _ g g g _ _
-      -- 11 _ g g g _ _
-      -- 12 _ g g g _ _
-      -- 13 _ _ _ _ _ _
-      board:put(2, 12, garbage_block(3, 3))
+      -- _ _ _ _ _ _
+      -- _ g g g _ _
+      -- _ g g g _ _
+      -- _ g g g _ _
+      -- _ _ _ _ _ _
+      board:put(2, 2, garbage_block(3, 3))
 
-      -- 9 行目
-      assert.is_false(board:_is_part_of_garbage(1, 9))
-      assert.is_false(board:_is_part_of_garbage(2, 9))
-      assert.is_false(board:_is_part_of_garbage(3, 9))
-      assert.is_false(board:_is_part_of_garbage(4, 9))
-      assert.is_false(board:_is_part_of_garbage(5, 9))
-      assert.is_false(board:_is_part_of_garbage(6, 9))
+      -- 5 行目
+      assert.is_false(board:_is_part_of_garbage(1, 5))
+      assert.is_false(board:_is_part_of_garbage(2, 5))
+      assert.is_false(board:_is_part_of_garbage(3, 5))
+      assert.is_false(board:_is_part_of_garbage(4, 5))
+      assert.is_false(board:_is_part_of_garbage(5, 5))
+      assert.is_false(board:_is_part_of_garbage(6, 5))
 
-      -- 10 行目
-      assert.is_false(board:_is_part_of_garbage(1, 10))
-      assert.is_true(board:_is_part_of_garbage(2, 10))
-      assert.is_true(board:_is_part_of_garbage(3, 10))
-      assert.is_true(board:_is_part_of_garbage(4, 10))
-      assert.is_false(board:_is_part_of_garbage(5, 10))
-      assert.is_false(board:_is_part_of_garbage(6, 10))
+      -- 4 行目
+      assert.is_false(board:_is_part_of_garbage(1, 4))
+      assert.is_true(board:_is_part_of_garbage(2, 4))
+      assert.is_true(board:_is_part_of_garbage(3, 4))
+      assert.is_true(board:_is_part_of_garbage(4, 4))
+      assert.is_false(board:_is_part_of_garbage(5, 4))
+      assert.is_false(board:_is_part_of_garbage(6, 4))
 
-      -- 11 行目
-      assert.is_false(board:_is_part_of_garbage(1, 11))
-      assert.is_true(board:_is_part_of_garbage(2, 11))
-      assert.is_true(board:_is_part_of_garbage(3, 11))
-      assert.is_true(board:_is_part_of_garbage(4, 11))
-      assert.is_false(board:_is_part_of_garbage(5, 11))
-      assert.is_false(board:_is_part_of_garbage(6, 11))
+      -- 3 行目
+      assert.is_false(board:_is_part_of_garbage(1, 3))
+      assert.is_true(board:_is_part_of_garbage(2, 3))
+      assert.is_true(board:_is_part_of_garbage(3, 3))
+      assert.is_true(board:_is_part_of_garbage(4, 3))
+      assert.is_false(board:_is_part_of_garbage(5, 3))
+      assert.is_false(board:_is_part_of_garbage(6, 3))
 
-      -- 12 行目
-      assert.is_false(board:_is_part_of_garbage(1, 12))
-      assert.is_true(board:_is_part_of_garbage(2, 12))
-      assert.is_true(board:_is_part_of_garbage(3, 12))
-      assert.is_true(board:_is_part_of_garbage(4, 12))
-      assert.is_false(board:_is_part_of_garbage(5, 12))
-      assert.is_false(board:_is_part_of_garbage(6, 12))
+      -- 2 行目
+      assert.is_false(board:_is_part_of_garbage(1, 2))
+      assert.is_true(board:_is_part_of_garbage(2, 2))
+      assert.is_true(board:_is_part_of_garbage(3, 2))
+      assert.is_true(board:_is_part_of_garbage(4, 2))
+      assert.is_false(board:_is_part_of_garbage(5, 2))
+      assert.is_false(board:_is_part_of_garbage(6, 2))
 
-      -- 13 行目
-      assert.is_false(board:_is_part_of_garbage(1, 13))
-      assert.is_false(board:_is_part_of_garbage(2, 13))
-      assert.is_false(board:_is_part_of_garbage(3, 13))
-      assert.is_false(board:_is_part_of_garbage(4, 13))
-      assert.is_false(board:_is_part_of_garbage(5, 13))
-      assert.is_false(board:_is_part_of_garbage(6, 13))
+      -- 1 行目
+      assert.is_false(board:_is_part_of_garbage(1, 1))
+      assert.is_false(board:_is_part_of_garbage(2, 1))
+      assert.is_false(board:_is_part_of_garbage(3, 1))
+      assert.is_false(board:_is_part_of_garbage(4, 1))
+      assert.is_false(board:_is_part_of_garbage(5, 1))
+      assert.is_false(board:_is_part_of_garbage(6, 1))
     end)
   end)
 end)

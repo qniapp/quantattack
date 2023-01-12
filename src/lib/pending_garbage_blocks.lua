@@ -25,7 +25,7 @@ function create_pending_garbage_blocks()
 
       local new_garbage_block = garbage_block(span, height)
       new_garbage_block.chain_id = chain_id
-      new_garbage_block.wait_time = 60
+      new_garbage_block.tick_fall = 60
       new_garbage_block.dy = 0
       add(all, new_garbage_block)
     end,
@@ -57,41 +57,26 @@ function create_pending_garbage_blocks()
       local first_garbage_block = all[1]
 
       if first_garbage_block then
-        if first_garbage_block.tick_fall then
-          if first_garbage_block.tick_fall == 0 then
-            del(all, first_garbage_block)
-            -- printh("put garbage at: " .. first_garbage_block.x .. ", " .. #board.blocks)
-            board:put(first_garbage_block.x, #board.blocks, first_garbage_block)
-            first_garbage_block:fall()
-          else
-            first_garbage_block.dy = ceil_rnd(2) - 1
-            first_garbage_block.tick_fall = first_garbage_block.tick_fall - 1
-          end
-        elseif first_garbage_block.wait_time == 0 then
+        if first_garbage_block.tick_fall == 0 then
           -- 落とす時の x 座標を決める
-          local x
           if first_garbage_block.span == board.cols then
-            x = 1
+            first_garbage_block.x = 1
           else
             -- おじゃまブロックの x 座標
             -- x + span - 1 <= board.cols を満たす x をランダムに決める
             --
             -- x = ceil_rnd(6 - 3 + 1)
             -- →   ceil_rnd(4)
-            x = ceil_rnd(board.cols - first_garbage_block.span + 1)
+            first_garbage_block.x = ceil_rnd(board.cols - first_garbage_block.span + 1)
           end
 
-          for i = x, x + first_garbage_block.span - 1 do
-            if not board:is_block_empty(i, #board.blocks) then
-              return
-            end
-          end
-
-          -- 落とせることが確定
-          first_garbage_block.x = x
-          first_garbage_block.tick_fall = 30
+          del(all, first_garbage_block)
+          board:put(first_garbage_block.x, #board.blocks, first_garbage_block)
         else
-          first_garbage_block.wait_time = first_garbage_block.wait_time - 1
+          if first_garbage_block.tick_fall < 30 then
+            first_garbage_block.dy = ceil_rnd(2) - 1
+          end
+          first_garbage_block.tick_fall = first_garbage_block.tick_fall - 1
         end
       end
     end,

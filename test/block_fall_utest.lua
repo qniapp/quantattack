@@ -280,7 +280,7 @@ describe('ブロックの落下 #solo', function()
     local garbage
 
     before_each(function()
-      garbage = garbage_block(3)
+      garbage = garbage_block(3, 3)
     end)
 
     it("状態が falling になる", function()

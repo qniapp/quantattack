@@ -371,15 +371,10 @@ end
 -- 一行目は表示しないことに注意
 function board_class.screen_y(_ENV, y)
   return 128 - y * 8 - raised_dots + _bounce_screen_dy
-  -- return offset_y + (rows - y) * 8 -- raised_dots + _bounce_screen_dy
-  -- return offset_y + (y - 2) * 8 - raised_dots + _bounce_screen_dy
 end
 
 function board_class._random_single_block(_ENV)
-  local single_block_types = split('h,x,y,z,s,t')
-  local block_type = single_block_types[ceil_rnd(#single_block_types)]
-
-  return block_class(block_type)
+  return block_class(rnd(split('h,x,y,z,s,t')))
 end
 
 -------------------------------------------------------------------------------
@@ -388,7 +383,7 @@ end
 
 function board_class.is_busy(_ENV)
   for x = 1, cols do
-    for y = 1, rows do
+    for y = 1, #blocks do
       local block = blocks[y][x]
       if not (block:is_idle() or block:is_swapping()) then
         return true
@@ -436,6 +431,10 @@ function board_class.put(_ENV, x, y, block)
         blocks[tmp_y][tmp_x] = block_class("i")
       end
     end
+
+    if _check_hover_flag[tmp_y] == nil then
+      _check_hover_flag[tmp_y] = {}
+    end
   end
 
   -- おじゃまブロックを分解する時 (= garbage_match ブロックと置き換える時)、
@@ -454,9 +453,6 @@ function board_class.put(_ENV, x, y, block)
   block:attach(_ENV)
   observable_update(_ENV, block)
 
-  if _check_hover_flag[y] == nil then
-    _check_hover_flag[y] = {}
-  end
   _check_hover_flag[y][x] = true
 end
 
@@ -655,26 +651,20 @@ function board_class.render(_ENV)
   --   end
   -- end
 
-  -- ゲームオーバーの線
-  -- if show_top_line and not is_game_over(_ENV) then
-  --   if top_line_start_x < 73 then
-  --     line(max(offset_x - 1, offset_x + top_line_start_x - 25), 40,
-  --       min(offset_x + 48, offset_x + top_line_start_x + 5), 40,
-  --       is_topped_out(_ENV) and 8 or 1)
-  --   end
-
-  --   -- if offset_x - 1 + (top_line_start_x - 24) < offset_x + 48 then
-  --   --   line(max(offset_x - 1, offset_x - 1 + top_line_start_x - 24), 40,
-  --   --     min(offset_x + 48, offset_x - 1 + top_line_start_x - 24 + 30), 40,
-  --   --     is_topped_out(_ENV) and 8 or 1)
-  --   -- end
-  -- end
-
   -- 待機中のおじゃまブロック
   pending_garbage_blocks:render(_ENV)
 
-  -- カーソル
   if not is_game_over(_ENV) then
+    -- ゲームオーバーの線
+    if show_top_line then
+      if top_line_start_x < 73 then
+        line(max(offset_x - 1, offset_x + top_line_start_x - 25), 40,
+             min(offset_x + 48, offset_x + top_line_start_x + 5), 40,
+             is_topped_out(_ENV) and 8 or 1)
+      end
+    end
+
+    -- カーソル
     cursor:render(screen_x(_ENV, cursor.x), screen_y(_ENV, cursor.y))
   end
 
@@ -743,6 +733,14 @@ function board_class._update_game(_ENV, game, player, other_board)
         if block.type == "?" then
           contains_garbage_match_block = true
         end
+
+        -- if block.type == "g" and block._state ~= "idle" then
+        --   printh("garbage x, y = "  .. x .. ", " .. y)
+        --   printh("garbage is falling = " .. (block:is_falling() and "true" or "false"))
+        --   printh("garbage is hover = " .. (block:is_hover() and "true" or "false"))
+        --   printh("garbage is fallable = " .. (is_block_fallable(_ENV, x, y) and "true" or "false"))
+        --   printh("")
+        -- end
 
         -- 落下できるブロックをホバー状態にする
         if not block:is_falling() and
@@ -906,7 +904,7 @@ function board_class._garbage_head_block(_ENV, x, y)
   for _, each in pairs(_garbage_blocks) do
     local garbage_x, garbage_y = each.x, each.y
     if garbage_x <= x and x <= garbage_x + each.span - 1 and -- 幅に x が含まれる
-        y <= garbage_y and y >= garbage_y - each.height + 1 then -- 高さに y が含まれる
+        garbage_y <= y and y <= garbage_y + each.height - 1 then -- 高さに y が含まれる
       return each
     end
   end
