@@ -51,7 +51,6 @@ function board_class.init(_ENV, _cols)
   tick, steps = 0, 0
 
   for y = 0, rows do
-    -- blocks[y], reducible_blocks[y], _check_hover_flag[y] = {}, {}, {}
     reducible_blocks[y], _check_hover_flag[y] = {}, {}
     for x = 1, cols do
       put(_ENV, x, y, block_class("i"))
@@ -159,13 +158,11 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
   end
 
   -- おじゃまブロックのマッチ
-  --
-  -- あるおじゃまブロックの上下左右にマッチ中のブロック、
-  -- または同じ色の ? ブロックがあれば、おじゃまブロックに chain_id をセットして
-  -- ? ブロックに分解 & 一列ちぢめる。
   for _, each in pairs(_garbage_blocks) do
     if each:is_idle() then
       local x, y, garbage_span, garbage_height = each.x, each.y, each.span, each.height
+
+      -- 隣接ブロック adj_x, adj_y がマッチ中であるかを返す。
       local match_with = function(adj_x, adj_y)
         if adj_y < 1 or adj_x < 1 or cols < adj_x then
           return false
@@ -190,15 +187,32 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         return false
       end
 
-      -- 下と上
+      --          ██ ██ ██ ██  y+garbage_height
+      --         ┌───────────┐
+      --         │           │
+      --         │           │
+      -- x,y ──▶ │██         │
+      --         └───────────┘
+      --          ██ ██ ██ ██  y-1
+      --
+      -- おじゃまブロックの下と上にマッチ中のブロックがあるかどうか調べる
+      --
       for gx = x, x + garbage_span - 1 do
-        if match_with(gx, y - 1) or
-            match_with(gx, y + garbage_height) then
+        if match_with(gx, y + garbage_height) or
+            match_with(gx, y - 1) then
           goto matched
         end
       end
 
-      -- 左と右
+      --    ┌───────────┐
+      --  ██│           │██
+      --  ██│           │██
+      --  ██│ g         │██
+      --    └─▲─────────┘
+      -- x-1  │          x+garbage_span
+      --     x,y
+      --
+      -- おじゃまブロックの左と右にマッチ中のブロックがあるかどうか調べる
       for dy = 0, garbage_height - 1 do
         if match_with(x - 1, y + dy) or
             match_with(x + garbage_span, y + dy) then
@@ -211,23 +225,23 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
       ::matched::
       for dx = 0, garbage_span - 1 do
         for dy = 0, garbage_height - 1 do
+          -- 1. おじゃまブロック全体に ? ブロックをしきつめる
           garbage_match_block = block_class("?")
           garbage_match_block.body_color = each.body_color
           put(_ENV, x + dx, y + dy, garbage_match_block)
 
-          local new_block
-          if dy == 0 then
-            -- 一行目にはランダムなブロックを入れる
-            new_block = _random_single_block(_ENV)
-          elseif dy == 1 and dx == 0 then
-            -- 二行目の先頭にはおじゃまブロック
-            new_block = garbage_block(garbage_span, garbage_height - 1, each.body_color)
-          else
-            new_block = block_class("i")
-          end
-
+          -- 2. 以下のようにブロックを入れ換える
+          --
+          --                    ┌─────────────┐
+          --                    │ i  i  i  i  │
+          -- new garbage head ──┼▶g  i  i  i  │
+          --       (x=0,dy=1)   │ ██ ██ ██ ██ │ random block (dy=0)
+          --                    └─────────────┘
           blocks[y + dy][x + dx]:replace_with(
-            new_block,
+            dy == 0 and _random_single_block(_ENV) or
+            ((dy == 1 and dx == 0) and
+                garbage_block(garbage_span, garbage_height - 1, each.body_color) or
+                block_class("i")),
             dx + dy * garbage_span,
             dy == 0 and each.chain_id or nil,
             garbage_span,
@@ -356,7 +370,7 @@ end
 -- ボード上の Y 座標を画面上の Y 座標に変換
 -- 一行目は表示しないことに注意
 function board_class.screen_y(_ENV, y)
-  return 128 - y * 8 - raised_dots
+  return 128 - y * 8 - raised_dots + _bounce_screen_dy
   -- return offset_y + (rows - y) * 8 -- raised_dots + _bounce_screen_dy
   -- return offset_y + (y - 2) * 8 - raised_dots + _bounce_screen_dy
 end
