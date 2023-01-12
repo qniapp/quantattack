@@ -60,9 +60,11 @@ function board_class.init(_ENV, _cols)
   cursor:init()
 end
 
+--#if debug
 function board_class.block_at(_ENV, x, y)
   return blocks[y][x]
 end
+--#endif
 
 function board_class.put_random_blocks(_ENV)
   for y = 0, 8 do
