@@ -287,7 +287,6 @@ function board_class.reduce(_ENV, x, y, include_next_blocks)
       -- other_x と dx を決める際に、パターンにマッチしないブロックがあれば
       -- 先にここではじいておく
       if block_types[1] ~= "?" then
-        -- printh("x, y, i = " .. x .. ", " .. y .. ", " .. i)
         if reducible_block_at(_ENV, x, y - i + 1).type ~= block_types[1] then
           goto next_rule
         end
@@ -659,8 +658,8 @@ function board_class.render(_ENV)
     if show_top_line then
       if top_line_start_x < 73 then
         line(max(offset_x - 1, offset_x + top_line_start_x - 25), 40,
-             min(offset_x + 48, offset_x + top_line_start_x + 5), 40,
-             is_topped_out(_ENV) and 8 or 1)
+          min(offset_x + 48, offset_x + top_line_start_x + 5), 40,
+          is_topped_out(_ENV) and 8 or 1)
       end
     end
 
@@ -734,14 +733,6 @@ function board_class._update_game(_ENV, game, player, other_board)
           contains_garbage_match_block = true
         end
 
-        -- if block.type == "g" and block._state ~= "idle" then
-        --   printh("garbage x, y = "  .. x .. ", " .. y)
-        --   printh("garbage is falling = " .. (block:is_falling() and "true" or "false"))
-        --   printh("garbage is hover = " .. (block:is_hover() and "true" or "false"))
-        --   printh("garbage is fallable = " .. (is_block_fallable(_ENV, x, y) and "true" or "false"))
-        --   printh("")
-        -- end
-
         -- 落下できるブロックをホバー状態にする
         if not block:is_falling() and
             not block:is_hover() and
@@ -780,8 +771,8 @@ function board_class._update_game(_ENV, game, player, other_board)
 
         -- top_block_y を更新
         if block.type == "g" then
-          if not block.first_drop and top_block_y > y - block.height + 1 then
-            top_block_y = y - block.height + 1
+          if not block.first_drop and top_block_y < y + block.height - 1 then
+            top_block_y = y + block.height - 1
           end
         elseif top_block_y < y then
           top_block_y = y
