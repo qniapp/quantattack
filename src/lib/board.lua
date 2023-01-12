@@ -701,19 +701,17 @@ function board_class.is_topped_out(_ENV)
 end
 
 function board_class._update_game(_ENV, game, player, other_board)
-  -- FIXME: swap のテストのために、一時的に無効
-  --
-  -- if is_topped_out(_ENV) then
-  --   if not is_busy(_ENV) then
-  --     _topped_out_frame_count = _topped_out_frame_count + 1
+  if is_topped_out(_ENV) then
+    if not is_busy(_ENV) then
+      _topped_out_frame_count = _topped_out_frame_count + 1
 
-  --     if _topped_out_frame_count >= _topped_out_delay_frame_count then
-  --       lose = true
-  --     end
-  --   end
-  -- else
-  --   _topped_out_frame_count = 0
-  -- end
+      if _topped_out_frame_count >= _topped_out_delay_frame_count then
+        lose = true
+      end
+    end
+  else
+    _topped_out_frame_count = 0
+  end
 
   if _changed then
     reduce_blocks(_ENV, game, player, other_board)
@@ -827,8 +825,6 @@ function board_class._update_game(_ENV, game, player, other_board)
       end
     end
   end
-
-  printh("top_block_y = " .. top_block_y)
 
   for chain_id, _ in pairs(_chain_count) do
     -- 連鎖可能フラグ (chain_id) の立ったブロックが 1 つもなかった場合、
