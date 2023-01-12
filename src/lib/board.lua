@@ -158,101 +158,107 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
   end
 
   -- おじゃまブロックのマッチ
-  for _, each in pairs(_garbage_blocks) do
-    if each:is_idle() then
-      local x, y, garbage_span, garbage_height = each.x, each.y, each.span, each.height
+  repeat
+    local matched_garbage_block_count = 0
 
-      -- 隣接ブロック adj_x, adj_y がマッチ中であるかを返す。
-      local match_with = function(adj_x, adj_y)
-        if adj_y < 1 or adj_x < 1 or cols < adj_x then
-          return false
-        end
+    for _, each in pairs(_garbage_blocks) do
+      if each:is_idle() then
+        local x, y, garbage_span, garbage_height = each.x, each.y, each.span, each.height
 
-        local adjacent_block = blocks[adj_y][adj_x]
+        -- 隣接ブロック adj_x, adj_y がマッチ中であるかを返す。
+        local match_with = function(adj_x, adj_y)
+          if adj_y < 1 or adj_x < 1 or cols < adj_x then
+            return false
+          end
 
-        if not adjacent_block:is_match() then
-          return false
-        end
+          local adjacent_block = blocks[adj_y][adj_x]
 
-        if adjacent_block.type == "?" then
-          if each.body_color == adjacent_block.body_color then
+          if not adjacent_block:is_match() then
+            return false
+          end
+
+          if adjacent_block.type == "?" then
+            if each.body_color == adjacent_block.body_color then
+              each.chain_id = adjacent_block.chain_id
+              return true
+            end
+          else
             each.chain_id = adjacent_block.chain_id
             return true
           end
-        else
-          each.chain_id = adjacent_block.chain_id
-          return true
+
+          return false
         end
 
-        return false
-      end
-
-      --          ██ ██ ██ ██  y+garbage_height
-      --         ┌───────────┐
-      --         │           │
-      --         │           │
-      -- x,y ──▶ │██         │
-      --         └───────────┘
-      --          ██ ██ ██ ██  y-1
-      --
-      -- おじゃまブロックの下と上にマッチ中のブロックがあるかどうか調べる
-      --
-      for gx = x, x + garbage_span - 1 do
-        if match_with(gx, y + garbage_height) or
-            match_with(gx, y - 1) then
-          goto matched
+        --          ██ ██ ██ ██  y+garbage_height
+        --         ┌───────────┐
+        --         │           │
+        --         │           │
+        -- x,y ──▶ │██         │
+        --         └───────────┘
+        --          ██ ██ ██ ██  y-1
+        --
+        -- おじゃまブロックの下と上にマッチ中のブロックがあるかどうか調べる
+        --
+        for gx = x, x + garbage_span - 1 do
+          if match_with(gx, y + garbage_height) or
+              match_with(gx, y - 1) then
+            matched_garbage_block_count = matched_garbage_block_count + 1
+            goto matched
+          end
         end
-      end
 
-      --    ┌───────────┐
-      --  ██│           │██
-      --  ██│           │██
-      --  ██│ g         │██
-      --    └─▲─────────┘
-      -- x-1  │          x+garbage_span
-      --     x,y
-      --
-      -- おじゃまブロックの左と右にマッチ中のブロックがあるかどうか調べる
-      for dy = 0, garbage_height - 1 do
-        if match_with(x - 1, y + dy) or
-            match_with(x + garbage_span, y + dy) then
-          goto matched
-        end
-      end
-
-      goto next_garbage_block
-
-      ::matched::
-      for dx = 0, garbage_span - 1 do
+        --    ┌───────────┐
+        --  ██│           │██
+        --  ██│           │██
+        --  ██│ g         │██
+        --    └─▲─────────┘
+        -- x-1  │          x+garbage_span
+        --     x,y
+        --
+        -- おじゃまブロックの左と右にマッチ中のブロックがあるかどうか調べる
         for dy = 0, garbage_height - 1 do
-          -- 1. おじゃまブロック全体に ? ブロックをしきつめる
-          garbage_match_block = block_class("?")
-          garbage_match_block.body_color = each.body_color
-          put(_ENV, x + dx, y + dy, garbage_match_block)
+          if match_with(x - 1, y + dy) or
+              match_with(x + garbage_span, y + dy) then
+            matched_garbage_block_count = matched_garbage_block_count + 1
+            goto matched
+          end
+        end
 
-          -- 2. 以下のようにブロックを入れ換える
-          --
-          --                    ┌─────────────┐
-          --                    │ i  i  i  i  │
-          -- new garbage head ──┼▶g  i  i  i  │
-          --       (x=0,dy=1)   │ ██ ██ ██ ██ │ random block (dy=0)
-          --                    └─────────────┘
-          blocks[y + dy][x + dx]:replace_with(
-            dy == 0 and _random_single_block(_ENV) or
-            ((dy == 1 and dx == 0) and
-                garbage_block(garbage_span, garbage_height - 1, each.body_color) or
-                block_class("i")),
-            dx + dy * garbage_span,
-            dy == 0 and each.chain_id or nil,
-            garbage_span,
-            garbage_height
-          )
+        goto next_garbage_block
+
+        ::matched::
+        for dx = 0, garbage_span - 1 do
+          for dy = 0, garbage_height - 1 do
+            -- 1. おじゃまブロック全体に ? ブロックをしきつめる
+            garbage_match_block = block_class("?")
+            garbage_match_block.body_color = each.body_color
+            put(_ENV, x + dx, y + dy, garbage_match_block)
+
+            -- 2. 以下のようにブロックを入れ換える
+            --
+            --                    ┌─────────────┐
+            --                    │ i  i  i  i  │
+            -- new garbage head ──┼▶g  i  i  i  │
+            --       (x=0,dy=1)   │ ██ ██ ██ ██ │ random block (dy=0)
+            --                    └─────────────┘
+            blocks[y + dy][x + dx]:replace_with(
+              dy == 0 and _random_single_block(_ENV) or
+              ((dy == 1 and dx == 0) and
+                  garbage_block(garbage_span, garbage_height - 1, each.body_color) or
+                  block_class("i")),
+              dx + dy * garbage_span,
+              dy == 0 and each.chain_id or nil,
+              garbage_span,
+              garbage_height
+            )
+          end
         end
       end
-    end
 
-    ::next_garbage_block::
-  end
+      ::next_garbage_block::
+    end
+  until matched_garbage_block_count == 0
 end
 
 -- function board_class.reduce(_ENV, x, y, include_next_blocks)
@@ -821,6 +827,8 @@ function board_class._update_game(_ENV, game, player, other_board)
       end
     end
   end
+
+  printh("top_block_y = " .. top_block_y)
 
   for chain_id, _ in pairs(_chain_count) do
     -- 連鎖可能フラグ (chain_id) の立ったブロックが 1 つもなかった場合、
