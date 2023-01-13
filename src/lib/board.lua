@@ -529,10 +529,6 @@ end
 function board_class.swap(_ENV, x_left, y)
   local x_right = x_left + 1
   local left_block, right_block = block_at(_ENV, x_left, y), block_at(_ENV, x_right, y)
-  -- local left_block, right_block = blocks[y][x_left], blocks[y][x_right]
-
-  assert(left_block.x ~= nil, "left_block.x is nil " .. "(type = " .. left_block.type .. ")")
-  assert(right_block.x ~= nil, "right_block.x is nil" .. "(type = " .. right_block.type .. ")")
 
   -- 入れ替えできない場合
   --  1. 左または右の状態が idle や falling でない
@@ -1033,8 +1029,6 @@ end
 -- _changed フラグを立て各種キャッシュも更新・クリアする。
 function board_class.observable_update(_ENV, block, old_state)
   local x, y = block.x, block.y
-
-  assert(x ~= nil, "x is nil")
 
   if old_state == "swapping_with_right" and block:is_idle() then
     local new_x = x + 1
