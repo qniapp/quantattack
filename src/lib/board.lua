@@ -52,19 +52,18 @@ function board_class.init(_ENV, _cols)
 
   for y = 0, rows do
     reducible_blocks[y], _check_hover_flag[y] = {}, {}
-    for x = 1, cols do
-      put(_ENV, x, y, block_class("i"))
-    end
   end
 
   cursor:init()
 end
 
---#if debug
 function board_class.block_at(_ENV, x, y)
+  if blocks[y] == nil or blocks[y][x] == nil then
+    put(_ENV, x, y, block_class("i"))
+  end
+
   return blocks[y][x]
 end
---#endif
 
 function board_class.put_random_blocks(_ENV)
   for y = 0, 8 do
@@ -435,7 +434,11 @@ function board_class.put(_ENV, x, y, block)
     if blocks[tmp_y] == nil then
       blocks[tmp_y] = {}
       for tmp_x = 1, cols do
-        blocks[tmp_y][tmp_x] = block_class("i")
+        local i_block = block_class("i")
+        blocks[tmp_y][tmp_x] = i_block
+        i_block.x = tmp_x
+        i_block.y = tmp_y
+        i_block:attach(_ENV)
       end
     end
 
@@ -527,8 +530,11 @@ end
 -- 入れ替えできる場合は true を、そうでない場合は false を返す
 function board_class.swap(_ENV, x_left, y)
   local x_right = x_left + 1
-  local left_block, right_block = blocks[y][x_left], blocks[y][x_right]
-  -- local left_block, right_block = blocks[x_left][y], blocks[x_right][y]
+  local left_block, right_block = block_at(_ENV, x_left, y), block_at(_ENV, x_right, y)
+  -- local left_block, right_block = blocks[y][x_left], blocks[y][x_right]
+
+  assert(left_block.x ~= nil, "left_block.x is nil " .. "(type = " .. left_block.type .. ")")
+  assert(right_block.x ~= nil, "right_block.x is nil" .. "(type = " .. right_block.type .. ")")
 
   -- 入れ替えできない場合
   --  1. 左または右の状態が idle や falling でない
@@ -609,9 +615,9 @@ function board_class.render(_ENV)
   end
 
   -- ブロックの描画
-  for y = 0, rows do
+  for y = 0, #blocks do
     for x = 1, cols do
-      local block, scr_x, scr_y = blocks[y][x], screen_x(_ENV, x), screen_y(_ENV, y)
+      local block, scr_x, scr_y = block_at(_ENV, x, y), screen_x(_ENV, x), screen_y(_ENV, y)
 
       -- CNOT や SWAP の接続を描画
       -- TODO: block 側で描画する。
@@ -832,7 +838,7 @@ function board_class._update_game(_ENV, game, player, other_board)
     -- 連鎖可能フラグ (chain_id) の立ったブロックが 1 つもなかった場合、
     -- _chain_count をリセット
     for x = 1, cols do
-      for y = 1, rows do
+      for y = 1, #blocks do
         if blocks[y][x].chain_id == chain_id then
           goto next_chain_id
         end
@@ -876,7 +882,7 @@ function board_class.is_block_empty(_ENV, x, y)
   assert(0 <= y, "y = " .. y)
   --#endif
 
-  return blocks[y][x]:is_empty() and
+  return block_at(_ENV, x, y):is_empty() and
       not (_is_part_of_garbage(_ENV, x, y) or
           _is_part_of_cnot(_ENV, x, y) or
           _is_part_of_swap(_ENV, x, y))
@@ -1030,6 +1036,8 @@ end
 function board_class.observable_update(_ENV, block, old_state)
   local x, y = block.x, block.y
 
+  assert(x ~= nil, "x is nil")
+
   if old_state == "swapping_with_right" and block:is_idle() then
     local new_x = x + 1
     local right_block = blocks[y][new_x]
@@ -1140,18 +1148,15 @@ end
 function board_class._tostring(_ENV)
   local str = ''
 
-  for y = rows, 1, -1 do
+  for y = #blocks, 1, -1 do
     for x = 1, cols do
-      local block = blocks[y][x]
+      local block = block_at(_ENV, x, y)
 
-      if block.type == "i" then
-        if _is_part_of_garbage(_ENV, x, y) then
-          str = str .. "g " .. " "
-        else
-          str = str .. blocks[y][x]:_tostring() .. " "
-        end
+      if block.type == "i" and
+          _is_part_of_garbage(_ENV, x, y) then
+        str = str .. "g " .. " "
       else
-        str = str .. blocks[y][x]:_tostring() .. " "
+        str = str .. block:_tostring() .. " "
       end
     end
     str = str .. "\n"
