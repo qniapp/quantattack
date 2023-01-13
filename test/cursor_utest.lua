@@ -1,7 +1,7 @@
 require("engine/test/bustedhelper")
 require("lib/cursor")
 
-describe('cursor #solo', function()
+describe('cursor', function()
   local cursor
 
   before_each(function()

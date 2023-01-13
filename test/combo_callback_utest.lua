@@ -8,7 +8,7 @@ require("lib/cursor")
 
 local match = require("luassert.match")
 
-describe('コンボ (同時消し) のコールバック #solo', function()
+describe('コンボ (同時消し) のコールバック', function()
   local board
 
   before_each(function()

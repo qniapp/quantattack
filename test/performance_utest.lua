@@ -7,7 +7,7 @@ require("lib/board")
 
 local profiler = require("lib/profiler")
 
-describe('パフォーマンス #solo', function()
+describe('パフォーマンス', function()
   it("QPU vs QPU のプロファイルを取る", function()
     local qpu1_cursor = cursor_class()
     local qpu2_cursor = cursor_class()

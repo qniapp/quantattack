@@ -4,7 +4,7 @@ require("test/test_helper")
 require("lib/board")
 require("lib/block")
 
-describe('ブロックの hover 状態 #solo', function()
+describe('ブロックの hover 状態', function()
   local board
 
   before_each(function()

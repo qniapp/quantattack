@@ -136,7 +136,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
           blocks[y + dy][x + dx]:replace_with(new_block, index, chain_id)
 
           -- ブロックが消える、または変化するとき、その上にあるブロックすべてに chain_id をセット
-          for chainable_y = y + dy - 1, 1, -1 do
+          for chainable_y = y + dy + 1, #blocks do
             local block_to_fall = blocks[chainable_y][x + dx]
             if block_to_fall.type ~= "i" then
               if block_to_fall:is_match() then
@@ -269,7 +269,6 @@ function board_class.reduce(_ENV, x, y, include_next_blocks)
 end
 
 function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
--- function board_class.reduce(_ENV, x, y, include_next_blocks)
   local reduction, block = { to = {}, score = 0 }, blocks[y][x]
   local rules = reduction_rules[block.type]
 
@@ -326,6 +325,7 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
 
       if block_types[1] ~= "?" then
         local block1 = reducible_block_at(_ENV, x, current_y)
+
         if block1.type ~= block_types[1] or
             (block1.other_x and block1.other_x ~= other_x) then
           goto next_rule
@@ -784,7 +784,7 @@ function board_class._update_game(_ENV, game, player, other_board)
           top_block_y = y
         end
 
-        if block:is_idle() and block.chain_id and blocks[y + 1][x].chain_id == nil then
+        if block:is_idle() and block.chain_id and blocks[y - 1][x].chain_id == nil then
           block.chain_id = nil
         end
 

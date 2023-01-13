@@ -5,7 +5,7 @@ require("lib/block")
 require("lib/board")
 require("lib/garbage_block")
 
-describe('board #solo', function()
+describe('board', function()
   local board
 
   before_each(function()

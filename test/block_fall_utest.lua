@@ -5,7 +5,7 @@ require("lib/board")
 require("lib/block")
 require("lib/cursor")
 
-describe('ブロックの落下 #solo', function()
+describe('ブロックの落下', function()
   local board
 
   before_each(function()

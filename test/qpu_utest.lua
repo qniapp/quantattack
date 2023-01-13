@@ -7,7 +7,7 @@ require("lib/qpu")
 require("lib/board")
 require("lib/block")
 
-describe('qpu #solo', function()
+describe('qpu', function()
   describe('create_qpu', function()
     it("creates a qpu with score = 0", function()
       local qpu = create_qpu()
