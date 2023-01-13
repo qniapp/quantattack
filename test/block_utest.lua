@@ -4,7 +4,7 @@ require("lib/board")
 require("lib/block")
 require("lib/cursor")
 
-describe('block', function()
+describe('block #solo', function()
   describe('type', function()
     it("type を指定", function()
       local g = block_class("i")
