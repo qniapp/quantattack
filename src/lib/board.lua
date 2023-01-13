@@ -43,8 +43,6 @@ function board_class.init(_ENV, _cols)
       _bounce_screen_dy =
   {}, 0, 600, 0, 0
 
-  pending_garbage_blocks = create_pending_garbage_blocks()
-
   -- 各種ブロックの取得
   blocks, reducible_blocks, _garbage_blocks, contains_garbage_match_block = {}, {}, {}, false
 

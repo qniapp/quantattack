@@ -1,8 +1,9 @@
 require("lib/helpers")
 require("lib/attack_ion")
-require("lib/ripple")
-require("lib/particle")
 require("lib/bubble")
+require("lib/particle")
+require("lib/pending_garbage_blocks")
+require("lib/ripple")
 
 local game = new_class()
 
@@ -50,7 +51,7 @@ function game.block_offset_callback(chain_id, chain_count, x, y, player, board, 
       player.score = player.score + (chain_bonus[chain_count] or 180)
 
       if other_board then
-        offset_height = board.pending_garbage_blocks:offset(offset_height)
+        offset_height = pending_garbage_blocks:offset(offset_height)
       end
     end
 
