@@ -81,7 +81,7 @@ end
 function board_class.reduce_blocks(_ENV, game, player, other_board)
   local chain_id_callbacked, combo_count = {}
 
-  for y, row in pairs(blocks) do
+  for y, row in pairs(reducible_blocks) do
     for x, _ in pairs(row) do
       local reduction = reduce(_ENV, x, y)
 
@@ -260,16 +260,16 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
   until matched_garbage_block_count == 0
 end
 
--- function board_class.reduce(_ENV, x, y, include_next_blocks)
---   if include_next_blocks then
---     return _reduce_nocache(_ENV, x, y, true)
---   else
---     return _memoize(_ENV, _reduce_nocache, _reduce_cache, x, y)
---   end
--- end
-
--- function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
 function board_class.reduce(_ENV, x, y, include_next_blocks)
+  if include_next_blocks then
+    return _reduce_nocache(_ENV, x, y, true)
+  else
+    return _memoize(_ENV, _reduce_nocache, _reduce_cache, x, y)
+  end
+end
+
+function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
+-- function board_class.reduce(_ENV, x, y, include_next_blocks)
   local reduction, block = { to = {}, score = 0 }, blocks[y][x]
   local rules = reduction_rules[block.type]
 
@@ -1107,9 +1107,9 @@ function board_class.observable_update(_ENV, block, old_state)
 
   _changed = true
 
-  -- if block:is_reducible() then
-  --   _reduce_cache = {}
-  -- end
+  if block:is_reducible() then
+    _reduce_cache = {}
+  end
 
   if not (block:is_swapping() or block:is_match()) then
     for i = y, #blocks do
