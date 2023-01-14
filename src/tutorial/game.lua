@@ -33,8 +33,6 @@ function game.update(_ENV)
           new_block.other_x = other_x
           board:put(x, 0, new_block)
         end
-
-        cursor:move_up(board.rows)
       end
     else
       _state = ":idle"
