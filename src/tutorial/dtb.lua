@@ -65,7 +65,7 @@ function _dtb_nextline()
     dtb_dislines[i] = dtb_dislines[i + 1]
   end
   dtb_dislines[#dtb_dislines] = ""
-  sfx(2)
+  sfx(8)
 end
 
 function _dtb_nexttext()
@@ -75,7 +75,7 @@ function _dtb_nexttext()
   del(dtb_queuf, dtb_queuf[1])
   del(dtb_queu, dtb_queu[1])
   _dtb_clean()
-  sfx(2)
+  sfx(8)
 end
 
 -- make sure that this function is called each update.
