@@ -14,8 +14,12 @@ function attack_ion:create(x, y, callback, clr, target_x, target_y)
   end)
 end
 
--- TODO: self いらない
 function attack_ion._update(_ENV, self)
+  local _quadratic_bezier = function(from, mid, to)
+    local t = _tick / _max_tick
+    return (1 - t) * (1 - t) * from + 2 * (1 - t) * t * mid + t * t * to
+  end
+
   _tick = _tick + 1
 
   if _tick == _max_tick then
@@ -24,15 +28,10 @@ function attack_ion._update(_ENV, self)
   end
 
   _x, _y =
-  self._quadratic_bezier(_ENV, _from_x, _mid_x, _target_x), self._quadratic_bezier(_ENV, _from_y, _mid_y, _target_y)
+  _quadratic_bezier(_from_x, _mid_x, _target_x), _quadratic_bezier(_from_y, _mid_y, _target_y)
 end
 
-function attack_ion._quadratic_bezier(_ENV, from, mid, to)
-  local t = _tick / _max_tick
-  return (1 - t) * (1 - t) * from + 2 * (1 - t) * t * mid + t * t * to
-end
-
-function attack_ion._render(_ENV, self)
+function attack_ion._render(_ENV)
   local angle = t()
 
   fillp(23130.5)

@@ -666,28 +666,28 @@ function board_class.render(_ENV)
     end
   end
 
-  -- -- 残り時間ゲージの描画
-  -- if is_topped_out(_ENV) then
-  --   local time_left_height = (_topped_out_delay_frame_count - _topped_out_frame_count) /
-  --       _topped_out_delay_frame_count * 128
-  --   local gauge_x = offset_x < 64 and offset_x + 50 or offset_x - 4
+  -- 残り時間ゲージの描画
+  if is_topped_out(_ENV) then
+    local time_left_height = (_topped_out_delay_frame_count - _topped_out_frame_count) /
+        _topped_out_delay_frame_count * 128
+    local gauge_x = offset_x < 64 and offset_x + 50 or offset_x - 4
 
-  --   if time_left_height > 0 then
-  --     rectfill(gauge_x, 128 - time_left_height, gauge_x + 1, 127, 8)
-  --   end
+    if time_left_height > 0 then
+      rectfill(gauge_x, 128 - time_left_height, gauge_x + 1, 127, 8)
+    end
 
-  --   for y = 1, row_next_blocks do
-  --     for x = 1, cols do
-  --       local block = blocks[x][y]
-  --       if time_left_height < 128 / 3 then
-  --         block.pinch = true
-  --         block.tick_pinch = tick
-  --       else
-  --         block.pinch = false
-  --       end
-  --     end
-  --   end
-  -- end
+    -- for y = 1, row_next_blocks do
+    --   for x = 1, cols do
+    --     local block = blocks[y][x]
+    --     if time_left_height < 128 / 3 then
+    --       block.pinch = true
+    --       block.tick_pinch = tick
+    --     else
+    --       block.pinch = false
+    --     end
+    --   end
+    -- end
+  end
 
   -- 待機中のおじゃまブロック
   pending_garbage_blocks:render(_ENV)
