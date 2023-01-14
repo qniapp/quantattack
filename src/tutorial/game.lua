@@ -31,7 +31,7 @@ function game.update(_ENV)
           local block_type, other_x = unpack(split(_board_data[_rows_raised][x]))
           local new_block = block_class(block_type)
           new_block.other_x = other_x
-          board:put(x, board.row_next_blocks, new_block)
+          board:put(x, 0, new_block)
         end
 
         cursor:move_up(board.rows)
@@ -90,7 +90,7 @@ function game.raise_stack(_ENV, board_data, callback)
   _raise_stack_callback = callback or function() end
 
   for x = 1, board.cols do
-    for y = 1, board.row_next_blocks do
+    for y = 0, board.rows do
       board:put(x, y, block_class("i"))
     end
   end
