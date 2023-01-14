@@ -44,6 +44,6 @@ describe('chain', function()
     end
 
     chain_callback.was_called(1)
-    chain_callback.was_called_with("2,3", 2, 2, 2, match._, match._, match._)
+    chain_callback.was_called_with("2,3", 2, board:screen_x(2), board:screen_y(2), match._, match._, match._)
   end)
 end)

@@ -130,10 +130,26 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
             -- 相殺しても残っていれば、相手に攻撃
             if offset_height_left > 0 then
-              game.chain_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
+              game.chain_callback(
+                chain_id,
+                _chain_count[chain_id],
+                screen_x(_ENV, x),
+                screen_y(_ENV, y),
+                player,
+                _ENV,
+                other_board
+              )
             end
           else
-            game.chain_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV, other_board)
+            game.chain_callback(
+              chain_id,
+              _chain_count[chain_id],
+              screen_x(_ENV, x),
+              screen_y(_ENV, y),
+              player,
+              _ENV,
+              other_board
+            )
           end
           chain_id_callbacked[chain_id] = true
         end

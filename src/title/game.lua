@@ -50,10 +50,10 @@ function game()
       return chain_count
     end,
 
-    chain_callback = function(_chain_id, _chain_count, x, y, _player, board, _other_board)
+    chain_callback = function(_chain_id, _chain_count, screen_x, screen_y)
       attack_ion:create(
-        board:screen_x(x),
-        board:screen_y(y),
+        screen_x,
+        screen_y,
         attack_cube_callback,
         12,
         64,
