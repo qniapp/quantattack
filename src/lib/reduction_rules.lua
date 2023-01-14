@@ -355,15 +355,6 @@ local reduction_rules = {
   },
 
   control = {
-    -- C-X          I I
-    -- X-C          I I
-    -- C-X  ----->  S-S
-    --
-    -- X-C          I I
-    -- C-X          I I
-    -- X-C  ----->  S-S
-    -- "control,cnot_x\ncnot_x,control\ncontrol,cnot_x|,,\ntrue,,\n,1,\ntrue,1,\n,2,swap\ntrue,2,swap|6|10",
-
     --  C-X          I I
     --  S-S  ----->  S-S
     --  X-C          I I

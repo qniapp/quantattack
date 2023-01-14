@@ -706,17 +706,17 @@ function board_class.render(_ENV)
     cursor:render(screen_x(_ENV, cursor.x), screen_y(_ENV, cursor.y))
   end
 
-  -- -- WIN! または LOSE を描画
-  -- if is_game_over(_ENV) and (win or lose) and tick_over > 20 and #particle.all == 0 then
-  --   sspr(
-  --     win and 0 or 48,
-  --     96,
-  --     48,
-  --     24,
-  --     win and offset_x or offset_x + 3 * sin(tick % 60 / 60),
-  --     win and offset_y + 40 + 3 * sin(tick % 60 / 60) or offset_y + 43
-  --   )
-  -- end
+  -- WIN! または LOSE を描画
+  if is_game_over(_ENV) and (win or lose) and tick_over > 20 and #particle.all == 0 then
+    sspr(
+      win and 0 or 48,
+      96,
+      48,
+      24,
+      win and offset_x or offset_x + 3 * sin(tick % 60 / 60),
+      win and 40 + 3 * sin(tick % 60 / 60) or 43
+    )
+  end
 
   -- if show_gameover_menu then
   --   draw_rounded_box(offset_x - 1, offset_y + 96, offset_x + 7, offset_y + 105, 0, 0)
