@@ -719,13 +719,13 @@ function board_class.render(_ENV)
   end
 
   -- if show_gameover_menu then
-  --   draw_rounded_box(offset_x - 1, offset_y + 96, offset_x + 7, offset_y + 105, 0, 0)
-  --   spr(99, offset_x, offset_y + 97)
-  --   print_outlined("try again", offset_x + 11, offset_y + 98, 1, 7)
+  --   draw_rounded_box(offset_x - 1, 96, offset_x + 7, 105, 0, 0)
+  --   spr(99, offset_x, 97)
+  --   print_outlined("try again", offset_x + 11, 98, 1, 7)
 
-  --   draw_rounded_box(offset_x - 1, offset_y + 109, offset_x + 7, offset_y + 118, 0, 0)
-  --   spr(112, offset_x, offset_y + 110)
-  --   print_outlined("title", offset_x + 11, offset_y + 111, 1, 7)
+  --   draw_rounded_box(offset_x - 1, 109, offset_x + 7, 118, 0, 0)
+  --   spr(112, offset_x, 110)
+  --   print_outlined("title", offset_x + 11, 111, 1, 7)
   -- end
 end
 
