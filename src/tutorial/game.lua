@@ -31,10 +31,8 @@ function game.update(_ENV)
           local block_type, other_x = unpack(split(_board_data[_rows_raised][x]))
           local new_block = block_class(block_type)
           new_block.other_x = other_x
-          board:put(x, board.row_next_blocks, new_block)
+          board:put(x, 0, new_block)
         end
-
-        cursor:move_up()
       end
     else
       _state = ":idle"
@@ -54,11 +52,11 @@ function game.update(_ENV)
       end
       if player.up then
         sfx(8)
-        cursor:move_up()
+        cursor:move_up(board.rows)
       end
       if player.down then
         sfx(8)
-        cursor:move_down(board.rows)
+        cursor:move_down()
       end
       if player.x and board:swap(cursor.x, cursor.y) then
         sfx(10)
@@ -90,7 +88,7 @@ function game.raise_stack(_ENV, board_data, callback)
   _raise_stack_callback = callback or function() end
 
   for x = 1, board.cols do
-    for y = 1, board.row_next_blocks do
+    for y = 0, board.rows do
       board:put(x, y, block_class("i"))
     end
   end

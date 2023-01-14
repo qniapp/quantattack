@@ -1,36 +1,35 @@
 require("lib/helpers")
 require("lib/attack_ion")
-require("lib/ripple")
-require("lib/particle")
 require("lib/bubble")
+require("lib/particle")
+require("lib/pending_garbage_blocks")
+require("lib/ripple")
 
 local game = new_class()
 
 local all_players_info, countdown
 
-function game.reduce_callback(score, _x, _y, player)
+function game.reduce_callback(score, player)
   player.score = player.score + score
 end
 
-function game.combo_callback(combo_count, x, y, player, board, other_board)
-  local attack_cube_callback = function(target_x, target_y)
-    sfx(21)
-    particle:create_chunk(target_x, target_y,
-      "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
-
-    player.score = player.score + combo_count
-
-    -- 対戦相手がいる時、おじゃまブロックを送る
-    if other_board then
-      other_board:send_garbage(nil, combo_count > 6 and 6 or combo_count - 1, 1)
-    end
-  end
-
-  bubble:create("combo", combo_count, board:screen_x(x), board:screen_y(y))
+function game.combo_callback(combo_count, screen_x, screen_y, player, board, other_board)
+  bubble:create("combo", combo_count, screen_x, screen_y)
   attack_ion:create(
-    board:screen_x(x),
-    board:screen_y(y),
-    attack_cube_callback,
+    screen_x,
+    screen_y,
+    function(target_x, target_y)
+      sfx(21)
+      particle:create_chunk(target_x, target_y,
+        "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
+
+      player.score = player.score + combo_count
+
+      -- 対戦相手がいる時、おじゃまブロックを送る
+      if other_board then
+        other_board:send_garbage(nil, combo_count > 6 and 6 or combo_count - 1, 1)
+      end
+    end,
     12,
     unpack(board.attack_ion_target)
   )
@@ -38,26 +37,24 @@ end
 
 local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
-function game.block_offset_callback(chain_id, chain_count, x, y, player, board, other_board)
+function game.block_offset_callback(chain_count, screen_x, screen_y, player, board, other_board)
   local offset_height = chain_count
 
   if offset_height > 2 then
-    local attack_cube_callback = function(target_x, target_y)
-      sfx(21)
-      particle:create_chunk(target_x, target_y,
-        "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
-
-      player.score = player.score + (chain_bonus[chain_count] or 180)
-
-      if other_board then
-        offset_height = board.pending_garbage_blocks:offset(offset_height)
-      end
-    end
-
     attack_ion:create(
-      board:screen_x(x),
-      board:screen_y(y),
-      attack_cube_callback,
+      screen_x,
+      screen_y,
+      function(target_x, target_y)
+        sfx(21)
+        particle:create_chunk(target_x, target_y,
+          "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
+
+        player.score = player.score + (chain_bonus[chain_count] or 180)
+
+        if other_board then
+          offset_height = pending_garbage_blocks:offset(offset_height)
+        end
+      end,
       9,
       unpack(board.block_offset_target)
     )
@@ -66,26 +63,24 @@ function game.block_offset_callback(chain_id, chain_count, x, y, player, board, 
   return offset_height
 end
 
-function game.chain_callback(chain_id, chain_count, x, y, player, board, other_board)
+function game.chain_callback(chain_id, chain_count, screen_x, screen_y, player, board, other_board)
   if chain_count > 2 then
-    local attack_cube_callback = function(target_x, target_y)
-      sfx(21)
-      particle:create_chunk(target_x, target_y,
-        "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
-
-      player.score = player.score + (chain_bonus[chain_count] or 180)
-
-      -- 対戦相手がいる時、おじゃまブロックを送る
-      if other_board then
-        other_board:send_garbage(chain_id, 6, chain_count - 1 < 6 and chain_count - 1 or 5)
-      end
-    end
-
-    bubble:create("chain", chain_count, board:screen_x(x), board:screen_y(y))
+    bubble:create("chain", chain_count, screen_x, screen_y)
     attack_ion:create(
-      board:screen_x(x),
-      board:screen_y(y),
-      attack_cube_callback,
+      screen_x,
+      screen_y,
+      function(target_x, target_y)
+        sfx(21)
+        particle:create_chunk(target_x, target_y,
+          "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
+
+        player.score = player.score + (chain_bonus[chain_count] or 180)
+
+        -- 対戦相手がいる時、おじゃまブロックを送る
+        if other_board then
+          other_board:send_garbage(chain_id, 6, chain_count - 1 < 6 and chain_count - 1 or 5)
+        end
+      end,
       12,
       unpack(board.attack_ion_target)
     )
@@ -177,11 +172,11 @@ function game:update()
       end
       if player.up then
         sfx(8)
-        cursor:move_up()
+        cursor:move_up(board.rows)
       end
       if player.down then
         sfx(8)
-        cursor:move_down(board.rows)
+        cursor:move_down()
       end
       if player.x and not countdown and board:swap(cursor.x, cursor.y) then
         sfx(10)
@@ -232,7 +227,7 @@ function game:render() -- override
       local countdown_sprite_x = { 32, 16, 0 }
       sspr(countdown_sprite_x[board.countdown], 80,
         16, 16,
-        board.offset_x + 16, board.offset_y + 43)
+        board.offset_x + 16, 43)
     end
   end
 
@@ -250,7 +245,7 @@ function game:_raise(player_info)
   if board.raised_dots == 8 then
     board.raised_dots = 0
     board:insert_blocks_at_bottom()
-    board.cursor:move_up()
+    board.cursor:move_up(board.rows)
   end
 end
 

@@ -1,6 +1,5 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
-require("lib/helpers")
 require("lib/attack_ion")
 require("lib/bubble")
 require("lib/particle")
@@ -32,14 +31,14 @@ end
 
 function game()
   return setmetatable({
-    reduce_callback = function(_score, _x, _y, _player)
+    reduce_callback = function(_score, _player)
       -- NOP
     end,
 
-    combo_callback = function(_combo_count, x, y, _player, board, _other_board)
+    combo_callback = function(_combo_count, screen_x, screen_y, _player, board, _other_board)
       attack_ion:create(
-        board:screen_x(x),
-        board:screen_y(y),
+        screen_x,
+        screen_y,
         attack_cube_callback,
         12,
         64,
@@ -47,14 +46,14 @@ function game()
       )
     end,
 
-    block_offset_callback = function(_chain_id, chain_count, _x, _y, _player, _board, _other_board)
+    block_offset_callback = function(chain_count)
       return chain_count
     end,
 
-    chain_callback = function(_chain_id, _chain_count, x, y, _player, board, _other_board)
+    chain_callback = function(_chain_id, _chain_count, screen_x, screen_y)
       attack_ion:create(
-        board:screen_x(x),
-        board:screen_y(y),
+        screen_x,
+        screen_y,
         attack_cube_callback,
         12,
         64,
@@ -90,16 +89,16 @@ function game()
         end
         if player.up then
           sfx(8)
-          cursor:move_up()
+          cursor:move_up(board.rows)
         end
         if player.down then
           sfx(8)
-          cursor:move_down(board.rows)
+          cursor:move_down()
         end
         if player.x and board:swap(cursor.x, cursor.y) then
           sfx(10)
         end
-        if player.o and board.top_block_y > 2 then
+        if player.o then
           _raise(_ENV, each)
         end
 
@@ -131,7 +130,7 @@ function game()
       if board.raised_dots == 8 then
         board.raised_dots = 0
         board:insert_blocks_at_bottom()
-        board.cursor:move_up()
+        board.cursor:move_up(board.rows)
       end
     end
   }, { __index = _ENV })

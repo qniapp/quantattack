@@ -1,6 +1,7 @@
 ---@diagnostic disable: lowercase-global, global-in-nil-env
 
-local effect_set = require("lib/effect_set")
+require("lib/effect_set")
+
 local particle_class = derived_class(effect_set)
 
 -- singleton
@@ -48,10 +49,4 @@ end
 
 function particle._render(_ENV)
   circfill(_x, _y, _radius, _color)
-end
-
-function particle:post_render_all()
-  if self.slow and #self.all > 0 then
-    flip()
-  end
 end
