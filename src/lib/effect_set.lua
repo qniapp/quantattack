@@ -1,4 +1,4 @@
-local effect_set = new_class()
+effect_set = new_class()
 
 function effect_set:_init()
   self.all = {}
@@ -21,5 +21,3 @@ function effect_set:render_all()
     self._render(each, self)
   end)
 end
-
-return effect_set

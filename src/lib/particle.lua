@@ -1,6 +1,7 @@
 ---@diagnostic disable: lowercase-global, global-in-nil-env
 
-local effect_set = require("lib/effect_set")
+require("lib/effect_set")
+
 local particle_class = derived_class(effect_set)
 
 -- singleton

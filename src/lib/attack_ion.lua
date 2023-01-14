@@ -1,6 +1,7 @@
 ---@diagnostic disable: lowercase-global, global-in-nil-env
 
-local effect_set = require("lib/effect_set")
+require("lib/effect_set")
+
 local attack_ion_class = derived_class(effect_set)
 
 attack_ion = attack_ion_class()
