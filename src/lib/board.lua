@@ -118,8 +118,15 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         -- 連鎖
         if not chain_id_callbacked[chain_id] and _chain_count[chain_id] > 1 and game and game.chain_callback then
           if #pending_garbage_blocks.all > 1 then
-            local offset_height_left = game.block_offset_callback(chain_id, _chain_count[chain_id], x, y, player, _ENV
-              , other_board)
+            local offset_height_left =
+            game.block_offset_callback(
+              _chain_count[chain_id],
+              screen_x(_ENV, x),
+              screen_y(_ENV, y),
+              player,
+              _ENV,
+              other_board
+            )
 
             -- 相殺しても残っていれば、相手に攻撃
             if offset_height_left > 0 then

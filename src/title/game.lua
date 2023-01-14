@@ -46,7 +46,7 @@ function game()
       )
     end,
 
-    block_offset_callback = function(_chain_id, chain_count, _x, _y, _player, _board, _other_board)
+    block_offset_callback = function(chain_count)
       return chain_count
     end,
 

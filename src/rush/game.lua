@@ -37,26 +37,24 @@ end
 
 local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
-function game.block_offset_callback(chain_id, chain_count, x, y, player, board, other_board)
+function game.block_offset_callback(chain_count, screen_x, screen_y, player, board, other_board)
   local offset_height = chain_count
 
   if offset_height > 2 then
-    local attack_cube_callback = function(target_x, target_y)
-      sfx(21)
-      particle:create_chunk(target_x, target_y,
-        "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
-
-      player.score = player.score + (chain_bonus[chain_count] or 180)
-
-      if other_board then
-        offset_height = pending_garbage_blocks:offset(offset_height)
-      end
-    end
-
     attack_ion:create(
-      board:screen_x(x),
-      board:screen_y(y),
-      attack_cube_callback,
+      screen_x,
+      screen_y,
+      function(target_x, target_y)
+        sfx(21)
+        particle:create_chunk(target_x, target_y,
+          "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
+
+        player.score = player.score + (chain_bonus[chain_count] or 180)
+
+        if other_board then
+          offset_height = pending_garbage_blocks:offset(offset_height)
+        end
+      end,
       9,
       unpack(board.block_offset_target)
     )
