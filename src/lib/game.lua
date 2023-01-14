@@ -173,10 +173,8 @@ function game_class:update()
   ripple.slow = false
 
   for _, each in pairs(all_players_info) do
-    local player = each.player
-    local board = each.board
+    local player, board, other_board = each.player, each.board, each.other_board
     local cursor = board.cursor
-    local other_board = each.other_board
 
     if board:is_game_over() then
       board:update()

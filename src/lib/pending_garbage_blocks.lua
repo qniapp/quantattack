@@ -63,18 +63,19 @@ function pending_garbage_blocks_class.update(_ENV, board)
       end
       first_garbage_block.tick_fall = first_garbage_block.tick_fall - 1
     else
-      -- おじゃまブロックを落とす
-      board:put(
-        -- おじゃまブロックが幅いっぱいの場合、x = 1
-        -- そうでない場合、
-        -- x + span - 1 <= board.cols を満たす x をランダムに決める
-        first_garbage_block.span == board.cols and
+      -- おじゃまブロックが幅いっぱいの場合、x = 1
+      -- そうでない場合、
+      -- x + span - 1 <= board.cols を満たす x をランダムに決める
+      local x, y = first_garbage_block.span == board.cols and
         1 or
         ceil_rnd(board.cols - first_garbage_block.span + 1),
-        #board.blocks < board.rows and board.rows or #board.blocks,
-        first_garbage_block
-      )
-      del(all, first_garbage_block)
+        board.rows + 1
+
+      if board:is_block_empty(x, y) then
+        -- おじゃまブロックを落とす
+        board:put(x, y, first_garbage_block)
+        del(all, first_garbage_block)
+      end
     end
   end
 end
