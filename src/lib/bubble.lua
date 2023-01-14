@@ -44,9 +44,3 @@ function bubble._render(_ENV)
   color(10)
   print(_count)
 end
-
-function bubble:post_render_all()
-  if self.slow and #self.all > 0 then
-    flip()
-  end
-end

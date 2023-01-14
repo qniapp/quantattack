@@ -40,8 +40,4 @@ function attack_ion._render(_ENV, self)
   fillp()
   circfill(_x, _y, 4 + 2 * sin(1.5 * angle), _color)
   circfill(_x, _y, 3 + sin(2.5 * angle), 7)
-
-  if self.slow and _tick < 20 and #self.all > 0 then
-    flip()
-  end
 end
