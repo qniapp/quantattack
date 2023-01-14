@@ -35,10 +35,10 @@ function game()
       -- NOP
     end,
 
-    combo_callback = function(_combo_count, x, y, _player, board, _other_board)
+    combo_callback = function(_combo_count, screen_x, screen_y, _player, board, _other_board)
       attack_ion:create(
-        board:screen_x(x),
-        board:screen_y(y),
+        screen_x,
+        screen_y,
         attack_cube_callback,
         12,
         64,

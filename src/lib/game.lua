@@ -11,24 +11,23 @@ function game_class.reduce_callback(score, player)
   player.score = player.score + score
 end
 
-function game_class.combo_callback(combo_count, x, y, player, board, other_board)
-  local attack_cube_callback = function(target_x, target_y)
-    sfx(21)
-    particle:create_chunk(target_x, target_y,
-      "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
-
-    player.score = player.score + combo_count
-
-    -- 対戦相手がいる時、おじゃまブロックを送る
-    if other_board then
-      other_board:send_garbage(nil, combo_count > 6 and 6 or combo_count - 1, 1)
-    end
-  end
-
-  bubble:create("combo", combo_count, board:screen_x(x), board:screen_y(y))
+function game_class.combo_callback(combo_count, screen_x, screen_y, player, board, other_board)
+  bubble:create("combo", combo_count, screen_x, screen_y)
   attack_ion:create(
-    board:screen_x(x), board:screen_y(y),
-    attack_cube_callback,
+    screen_x,
+    screen_y,
+    function(target_x, target_y)
+      sfx(21)
+      particle:create_chunk(target_x, target_y,
+        "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
+
+      player.score = player.score + combo_count
+
+      -- 対戦相手がいる時、おじゃまブロックを送る
+      if other_board then
+        other_board:send_garbage(nil, combo_count > 6 and 6 or combo_count - 1, 1)
+      end
+    end,
     12,
     unpack(board.attack_ion_target)
   )
