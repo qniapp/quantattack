@@ -31,7 +31,7 @@ end
 
 function game()
   return setmetatable({
-    reduce_callback = function(_score, _x, _y, _player)
+    reduce_callback = function(_score, _player)
       -- NOP
     end,
 

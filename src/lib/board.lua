@@ -150,9 +150,9 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
           ::next_reduction::
         end
 
-        --   if player then
-        --     game.reduce_callback(reduction.score, x, y, player, reduction.pattern, reduction.dx)
-        --   end
+        if player then
+          game.reduce_callback(reduction.score, player)
+        end
       end
     end
   end

@@ -9,7 +9,7 @@ local game = new_class()
 
 local all_players_info, countdown
 
-function game.reduce_callback(score, _x, _y, player)
+function game.reduce_callback(score, player)
   player.score = player.score + score
 end
 

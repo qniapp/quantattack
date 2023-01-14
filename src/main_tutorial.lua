@@ -29,7 +29,7 @@ function wait(wait_sec, callback)
   _wait_callback = callback
 end
 
-function tutorial_game.reduce_callback(_score, x, y, _player, pattern, dx)
+function tutorial_game.reduce_callback(_score, _player)
   -- 消えてないブロックが残っていれば、コールバック本体を呼ばない
   for _y = 1, board.rows do
     for _x = 1, board.cols do
