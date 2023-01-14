@@ -35,7 +35,7 @@ describe('コンボ (同時消し) のコールバック', function()
   end)
 
   it("5-コンボ発生でコールバックが呼ばれる", function()
-    --    S            S <- 5-combo
+    --    S            S
     -- [Z H]         H Z
     --  H S  ----->  H S
     board:put(2, 3, block_class("s"))
@@ -51,7 +51,7 @@ describe('コンボ (同時消し) のコールバック', function()
     board:update(game_class)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(5, 2, 3, match._, match._, match._)
+    combo_callback.was_called_with(5, 1, 2, match._, match._, match._)
   end)
 
   it("6-コンボ発生でコールバックが呼ばれる", function()
@@ -76,7 +76,7 @@ describe('コンボ (同時消し) のコールバック', function()
   end)
 
   it("7-コンボ発生でコールバックが呼ばれる", function()
-    --    T            T <- 7-combo
+    --    T            T
     --  H Z          H Z
     --  X S          X S
     -- [T H]  -----> H T
@@ -95,6 +95,6 @@ describe('コンボ (同時消し) のコールバック', function()
     board:update(game_class)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(7, 2, 4, match._, match._, match._)
+    combo_callback.was_called_with(7, 1, 3, match._, match._, match._)
   end)
 end)

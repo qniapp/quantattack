@@ -81,7 +81,8 @@ end
 function board_class.reduce_blocks(_ENV, game, player, other_board)
   local chain_id_callbacked, combo_count = {}
 
-  for y, row in pairs(reducible_blocks) do
+  for y = #reducible_blocks, 1, -1 do
+    local row = reducible_blocks[y] or {}
     for x, _ in pairs(row) do
       local reduction = reduce(_ENV, x, y)
 
