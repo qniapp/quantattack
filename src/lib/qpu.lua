@@ -227,7 +227,7 @@ function create_qpu(board, _level)
       -- 必ず次のように入れ替え完了するまで sleep する。
       -- これをしないと「左に連続して移動して落とす」などの
       -- 操作がうまく行かない。
-      add_sleep_command(_ENV, 4)
+      add_sleep_command(_ENV, 3)
     end,
 
     add_sleep_command = function(_ENV, count)
