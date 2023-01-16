@@ -2,7 +2,7 @@ require("lib/helpers")
 require("lib/block")
 
 function wait_swap_to_finish(board)
-  for _ = 1, 1 + block_class.block_swap_animation_frame_count do
+  for _ = 1, block_class.block_swap_animation_frame_count + 1 do
     board:update()
   end
 end

@@ -62,26 +62,28 @@ function game_class.block_offset_callback(chain_count, screen_x, screen_y, playe
 end
 
 function game_class.chain_callback(chain_id, chain_count, screen_x, screen_y, player, board, other_board)
-  if chain_count > 2 then
+  if chain_count > 1 then
     bubble:create("chain", chain_count, screen_x, screen_y)
-    attack_ion:create(
-      screen_x,
-      screen_y,
-      function(target_x, target_y)
-        sfx(21)
-        particle:create_chunk(target_x, target_y,
-          "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
+    if chain_count > 2 then
+      attack_ion:create(
+        screen_x,
+        screen_y,
+        function(target_x, target_y)
+          sfx(21)
+          particle:create_chunk(target_x, target_y,
+            "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
 
-        player.score = player.score + (chain_bonus[chain_count] or 180)
+          player.score = player.score + (chain_bonus[chain_count] or 180)
 
-        -- 対戦相手がいる時、おじゃまブロックを送る
-        if other_board then
-          other_board:send_garbage(chain_id, 6, chain_count - 1 < 6 and chain_count - 1 or 5)
-        end
-      end,
-      12,
-      unpack(board.attack_ion_target)
-    )
+          -- 対戦相手がいる時、おじゃまブロックを送る
+          if other_board then
+            other_board:send_garbage(chain_id, 6, chain_count - 1 < 6 and chain_count - 1 or 5)
+          end
+        end,
+        12,
+        unpack(board.attack_ion_target)
+      )
+    end
   else
     player.score = player.score + (chain_bonus[chain_count])
   end

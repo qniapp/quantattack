@@ -64,7 +64,7 @@ function game.block_offset_callback(chain_count, screen_x, screen_y, player, boa
 end
 
 function game.chain_callback(chain_id, chain_count, screen_x, screen_y, player, board, other_board)
-  if chain_count > 2 then
+  if chain_count > 1 then
     bubble:create("chain", chain_count, screen_x, screen_y)
     attack_ion:create(
       screen_x,

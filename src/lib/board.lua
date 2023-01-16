@@ -80,18 +80,25 @@ end
 
 function board_class.reduce_blocks(_ENV, game, player, other_board)
   local chain_id_callbacked, combo_count = {}
+  local chain_xy = {}
 
   for y = #reducible_blocks, 1, -1 do
-    local row = reducible_blocks[y] or {}
-    for x, _ in pairs(row) do
+    for x, _ in pairs(reducible_blocks[y] or {}) do
       local reduction = reduce(_ENV, x, y)
 
-      -- コンボ (同時消し) とチェイン (連鎖) の処理
+      if player then
+        game.reduce_callback(reduction.score, player)
+      end
+
       if #reduction.to > 0 then
         local chain_id = reduction.chain_id
 
+        -- 新しい chain_id の場合 _chain_count を 1 に初期化する
         if _chain_count[chain_id] == nil then
-          _chain_count[chain_id] = 0
+          _chain_count[chain_id] = 1
+        else
+          _chain_count[chain_id] = _chain_count[chain_id] + 1
+          chain_xy[chain_id] = { x = x, y = y }
         end
 
         if combo_count and game.combo_callback then
@@ -107,51 +114,6 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
           )
         else
           combo_count = #reduction.to
-        end
-
-        -- 同じフレームで同じ chain_id を持つ連鎖が発生した場合、
-        -- 連鎖数をインクリメントしない
-        if not chain_id_callbacked[chain_id] then
-          _chain_count[chain_id] = _chain_count[chain_id] + 1
-        end
-
-        -- 連鎖
-        if not chain_id_callbacked[chain_id] and _chain_count[chain_id] > 1 and game and game.chain_callback then
-          if #pending_garbage_blocks.all > 1 then
-            local offset_height_left =
-            game.block_offset_callback(
-              _chain_count[chain_id],
-              screen_x(_ENV, x),
-              screen_y(_ENV, y),
-              player,
-              _ENV,
-              other_board
-            )
-
-            -- 相殺しても残っていれば、相手に攻撃
-            if offset_height_left > 0 then
-              game.chain_callback(
-                chain_id,
-                _chain_count[chain_id],
-                screen_x(_ENV, x),
-                screen_y(_ENV, y),
-                player,
-                _ENV,
-                other_board
-              )
-            end
-          else
-            game.chain_callback(
-              chain_id,
-              _chain_count[chain_id],
-              screen_x(_ENV, x),
-              screen_y(_ENV, y),
-              player,
-              _ENV,
-              other_board
-            )
-          end
-          chain_id_callbacked[chain_id] = true
         end
 
         for index, r in pairs(reduction.to) do
@@ -178,10 +140,6 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
           end
 
           ::next_reduction::
-        end
-
-        if player then
-          game.reduce_callback(reduction.score, player)
         end
       end
     end
@@ -224,7 +182,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         --         ┌───────────┐
         --         │           │
         --         │           │
-        -- x,y ──▶ │██         │
+        -- x,y ──▶ │ g         │
         --         └───────────┘
         --          ██ ██ ██ ██  y-1
         --
@@ -289,6 +247,49 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
       ::next_garbage_block::
     end
   until matched_garbage_block_count == 0
+
+  -- 連鎖
+  for chain_id, xy in pairs(chain_xy) do
+    local scr_x = screen_x(_ENV, xy.x)
+    local scr_y = screen_y(_ENV, xy.y)
+
+    if game and game.chain_callback then
+      if #pending_garbage_blocks.all > 1 then
+        local offset_height_left =
+          game.block_offset_callback(
+            _chain_count[chain_id],
+            scr_x,
+            scr_y,
+            player,
+            _ENV,
+            other_board
+          )
+
+        -- 相殺しても残っていれば、相手に攻撃
+        if offset_height_left > 0 then
+          game.chain_callback(
+            chain_id,
+            _chain_count[chain_id],
+            scr_x,
+            scr_y,
+            player,
+            _ENV,
+            other_board
+          )
+        end
+      else
+        game.chain_callback(
+          chain_id,
+          _chain_count[chain_id],
+          scr_x,
+          scr_y,
+          player,
+          _ENV,
+          other_board
+        )
+      end
+    end
+  end
 end
 
 function board_class.reduce(_ENV, x, y, include_next_blocks)

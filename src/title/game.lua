@@ -50,15 +50,17 @@ function game()
       return chain_count
     end,
 
-    chain_callback = function(_chain_id, _chain_count, screen_x, screen_y)
-      attack_ion:create(
-        screen_x,
-        screen_y,
-        attack_cube_callback,
-        12,
-        64,
-        36
-      )
+    chain_callback = function(_chain_id, chain_count, screen_x, screen_y)
+      if chain_count > 1 then
+        attack_ion:create(
+          screen_x,
+          screen_y,
+          attack_cube_callback,
+          12,
+          64,
+          36
+        )
+      end
     end,
 
     init = function(_ENV)
