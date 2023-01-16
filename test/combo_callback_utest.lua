@@ -51,7 +51,7 @@ describe('コンボ (同時消し) のコールバック', function()
     board:update(game_class)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(5, board:screen_x(2), board:screen_y(3), match._, match._, match._)
+    combo_callback.was_called_with(5, board:screen_x(1), board:screen_y(2), match._, match._, match._)
   end)
 
   it("6-コンボ発生でコールバックが呼ばれる", function()
