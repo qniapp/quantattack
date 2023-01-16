@@ -43,6 +43,8 @@ function _init()
 
   demo_game:init()
   demo_game:add_player(qpu, qpu_board)
+
+  music(32)
 end
 
 function _update60()

@@ -82,19 +82,15 @@ function game()
         player:update(board)
 
         if player.left then
-          sfx(8)
           cursor:move_left()
         end
         if player.right then
-          sfx(8)
           cursor:move_right(board.cols)
         end
         if player.up then
-          sfx(8)
           cursor:move_up(board.rows)
         end
         if player.down then
-          sfx(8)
           cursor:move_down()
         end
         if player.x and board:swap(cursor.x, cursor.y) then

@@ -45,7 +45,9 @@ end
 
 function menu.update(_ENV)
   if cart_to_load then
-    if stat(16) == -1 then
+    if cart_load_delay > 0 then
+      cart_load_delay = cart_load_delay - 1
+    else
       jump(cart_to_load, nil, cart_load_param)
     end
   else
@@ -67,6 +69,7 @@ function menu.update(_ENV)
       else
         cart_to_load = selected_menu_item.target_cart
         cart_load_param = selected_menu_item.cart_load_param
+        cart_load_delay = 60
       end
     elseif btnp(4) then -- c
       sfx(8)
