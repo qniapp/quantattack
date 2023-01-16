@@ -4,17 +4,15 @@ require("lib/block")
 require("lib/cursor")
 require("lib/garbage_block")
 require("lib/particle")
-require("lib/pending_garbage_blocks")
 
+local pending_garbage_blocks_class = require("lib/pending_garbage_blocks")
 local reduction_rules = require("lib/reduction_rules")
 
 board_class = new_class()
 
 function board_class._init(_ENV, _cursor, __offset_x, _cols)
-  cursor = _cursor or cursor_class()
-  _offset_x = __offset_x
-  show_wires = true
-  show_top_line = true
+  cursor, _offset_x, show_wires, show_top_line =
+    _cursor or cursor_class(), __offset_x, true, true
   init(_ENV, _cols)
 end
 
@@ -46,7 +44,7 @@ function board_class.init(_ENV, _cols)
   -- 各種ブロックの取得
   blocks, reducible_blocks, _garbage_blocks, contains_garbage_match_block = {}, {}, {}, false
 
-  tick, steps = 0, 0
+  tick, steps, pending_garbage_blocks = 0, 0, pending_garbage_blocks_class()
 
   for y = 0, rows do
     reducible_blocks[y], _check_hover_flag[y] = {}, {}
@@ -256,14 +254,14 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
     if game and game.chain_callback then
       if #pending_garbage_blocks.all > 1 then
         local offset_height_left =
-          game.block_offset_callback(
-            _chain_count[chain_id],
-            scr_x,
-            scr_y,
-            player,
-            _ENV,
-            other_board
-          )
+        game.block_offset_callback(
+          _chain_count[chain_id],
+          scr_x,
+          scr_y,
+          player,
+          _ENV,
+          other_board
+        )
 
         -- 相殺しても残っていれば、相手に攻撃
         if offset_height_left > 0 then

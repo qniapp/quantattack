@@ -2,9 +2,10 @@ require("lib/helpers")
 require("lib/attack_ion")
 require("lib/bubble")
 require("lib/particle")
-require("lib/pending_garbage_blocks")
 require("lib/ripple")
 
+local pending_garbage_blocks_class = require("lib/pending_garbage_blocks")
+local pending_garbage_blocks = pending_garbage_blocks_class()
 local game = new_class()
 
 local all_players_info, countdown

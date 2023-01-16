@@ -107,5 +107,4 @@ function pending_garbage_blocks_class.render(_ENV, board)
   end
 end
 
--- singleton
-pending_garbage_blocks = pending_garbage_blocks_class()
+return pending_garbage_blocks_class
