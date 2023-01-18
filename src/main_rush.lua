@@ -57,8 +57,14 @@ function _update60()
 
   if game:is_game_over() then
     if t() - game.game_over_time > 2 then
+      if high_score:put(player.score) then
+        sfx(22)
+        sash:create("high score!", 9, 8)
+      end
+
       board.show_gameover_menu = true
       if btnp(5) then -- x でリプレイ
+        current_high_score = high_score:get()
         _init()
       elseif btnp(4) then -- z でタイトルへ戻る
         jump('quantattack_title')
