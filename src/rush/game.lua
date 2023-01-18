@@ -259,15 +259,17 @@ function game:render() -- override
 end
 
 -- ブロックをせりあげる
-function game:_raise(player_info)
+function game:_raise(player_info, force)
   local board = player_info.board
 
-  board.raised_dots = board.raised_dots + 1
+  if not board:is_topped_out() or force then
+    board.raised_dots = board.raised_dots + 1
 
-  if board.raised_dots == 8 then
-    board.raised_dots = 0
-    board:insert_blocks_at_bottom()
-    board.cursor:move_up(board.rows)
+    if board.raised_dots == 8 then
+      board.raised_dots = 0
+      board:insert_blocks_at_bottom()
+      board.cursor:move_up(board.rows)
+    end
   end
 end
 
@@ -280,7 +282,7 @@ function game:_auto_raise(player_info)
   player_info.tick = player_info.tick + 1
 
   if player_info.tick > self.auto_raise_frame_count then
-    self:_raise(player_info)
+    self:_raise(player_info, true)
     player_info.tick = 0
   end
 end

@@ -25,8 +25,8 @@ function board_class.init(_ENV, _cols)
   cols * tile_size, (rows - 1) * tile_size, _offset_x or 11, 0
 
   -- board の状態
-  state, win, lose, timeup, top_block_y, _changed, show_gameover_menu =
-  "play", false, false, false, 0, false, false
+  state, win, lose, timeup, top_block_y, _changed, show_gameover_menu, done_over_fx =
+  "play", false, false, false, 0, false, false, false
 
   -- 各種キャッシュ
   _reduce_cache, _is_block_fallable_cache = {}, {}
