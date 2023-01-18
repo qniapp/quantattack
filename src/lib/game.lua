@@ -5,7 +5,7 @@ require("lib/bubble")
 
 game_class = new_class()
 
-local all_players_info, countdown
+local chain_bonus, all_players_info, countdown = split("0,5,8,15,30,40,50,70,90,110,130,150,180")
 
 function game_class.reduce_callback(score, player)
   player.score = player.score + score
@@ -32,8 +32,6 @@ function game_class.combo_callback(combo_count, screen_x, screen_y, player, boar
     unpack(board.attack_ion_target)
   )
 end
-
-local chain_bonus = split("0,5,8,15,30,40,50,70,90,110,130,150,180")
 
 function game_class.block_offset_callback(chain_count, screen_x, screen_y, player, board, other_board)
   local offset_height = chain_count

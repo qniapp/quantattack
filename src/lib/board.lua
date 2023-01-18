@@ -5,8 +5,7 @@ require("lib/cursor")
 require("lib/garbage_block")
 require("lib/particle")
 
-local pending_garbage_blocks_class = require("lib/pending_garbage_blocks")
-local reduction_rules = require("lib/reduction_rules")
+local pending_garbage_blocks_class, reduction_rules = require("lib/pending_garbage_blocks"), require("lib/reduction_rules")
 
 board_class = new_class()
 
