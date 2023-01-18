@@ -34,7 +34,7 @@ describe('コンボ (同時消し) のコールバック', function()
     combo_callback.was_called_with(4, board:screen_x(2), board:screen_y(2), match._, match._, match._)
   end)
 
-  it("5-コンボ発生でコールバックが呼ばれる #solo", function()
+  it("5-コンボ発生でコールバックが呼ばれる", function()
     --    S            S
     -- [Z H]         H Z
     --  H S  ----->  H S
