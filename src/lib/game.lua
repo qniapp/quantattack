@@ -111,6 +111,8 @@ function game_class:init()
     each.board:init()
     each.board:put_random_blocks()
   end
+
+  music(-1) -- stop the music
 end
 
 function game_class:add_player(player, board, other_board)

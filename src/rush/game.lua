@@ -107,6 +107,8 @@ function game:init()
   self.start_time = t()
   self.game_over_time = nil
   self.time_left = nil
+
+  music(-1) -- stop the music
 end
 
 function game:add_player(player, board, other_board)
