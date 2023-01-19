@@ -42,7 +42,7 @@ function tutorial_game.reduce_callback(_score, _player)
     end
   end
 
-  wait(2, function()
+  wait(1, function()
     dtb_disp(({ "awesome!", "great!", "nice!" })[flr(rnd(3)) + 1])
     ion:shake()
     show_legends = false
