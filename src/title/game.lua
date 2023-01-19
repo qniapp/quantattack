@@ -93,8 +93,8 @@ function game()
         if player.down then
           cursor:move_down()
         end
-        if player.x and board:swap(cursor.x, cursor.y) then
-          sfx(10)
+        if player.x then
+          board:swap(cursor.x, cursor.y)
         end
         if player.o then
           _raise(_ENV, each)
