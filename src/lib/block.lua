@@ -244,11 +244,12 @@ end
 
 --- @param new_state string
 function block_class.change_state(_ENV, new_state)
-  _timer_landing = 12
+  _timer_landing = is_falling(_ENV) and 12 or 0
   _tick_swap = 0
 
   local old_state = _state
   _state = new_state
+
   observer:observable_update(_ENV, old_state)
 end
 
