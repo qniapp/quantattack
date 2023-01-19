@@ -11,8 +11,8 @@ local pending_garbage_blocks_class, reduction_rules = require("lib/pending_garba
 board_class = new_class()
 
 function board_class._init(_ENV, _cursor, __offset_x, _cols)
-  cursor, _offset_x, show_wires, show_top_line =
-  _cursor or cursor_class(), __offset_x, true, true
+  cursor, _offset_x, show_top_line =
+  _cursor or cursor_class(), __offset_x, true
   init(_ENV, _cols)
 end
 
@@ -28,12 +28,6 @@ function board_class.init(_ENV, _cols)
   state, win, lose, timeup, top_block_y, _changed, show_gameover_menu, done_over_fx =
   "play", false, false, false, 0, false, false, false
 
-  -- 各種キャッシュ
-  _reduce_cache, _is_block_fallable_cache = {}, {}
-
-  -- ブロックが hover 状態かどうかをチェックするためのフラグを格納
-  _check_hover_flag = {}
-
   -- ゲームオーバーの線
   top_line_start_x = 0
 
@@ -44,7 +38,8 @@ function board_class.init(_ENV, _cols)
   -- 各種ブロックの取得
   blocks, reducible_blocks, _garbage_blocks, contains_garbage_match_block = {}, {}, {}, false
 
-  tick, steps, pending_garbage_blocks = 0, 0, pending_garbage_blocks_class()
+  tick, steps, pending_garbage_blocks, flash_col_timer, _check_hover_flag, _reduce_cache, _is_block_fallable_cache =
+    0, 0, pending_garbage_blocks_class(), {}, {}, {}, {}
 
   for y = 0, rows do
     reducible_blocks[y], _check_hover_flag[y] = {}, {}
@@ -115,6 +110,8 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         end
 
         for index, r in pairs(reduction.to) do
+          sfx(35)
+
           local dx, dy, new_block = r.dx and reduction.dx or 0, r.dy or 0, block_class(r.block_type)
 
           if new_block.type == "swap" or new_block.type == "cnot_x" or new_block.type == "control" then
@@ -125,6 +122,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
             put(_ENV, y + dy, x + dx, block_class("i"))
           end
           blocks[y + dy][x + dx]:replace_with(new_block, index, chain_id)
+          flash_col_timer[x + dx] = 10
 
           -- ブロックが消える、または変化するとき、その上にあるブロックすべてに chain_id をセット
           for chainable_y = y + dy + 1, #blocks do
@@ -622,18 +620,27 @@ function board_class.update(_ENV, game, player, other_board)
     end
   end
 
+  flash_col_timer = transform(flash_col_timer, function(each)
+    return each and max(each - 1, 0) or 0
+  end)
+
   tick = tick + 1
 end
 
+local flash_colors = split("7,13,13,5,5,5,1,1,1,1")
+
 function board_class.render(_ENV)
-  -- ワイヤの描画 (show_wires == true の場合のみ)
-  if show_wires then
-    for x = 1, cols do
-      local line_x = screen_x(_ENV, x) + 3
-      line(
-        line_x, 0,
-        line_x, height,
-        5
+  -- フラッシュを描画
+  for x = 1, cols do
+    local line_x, flash_color = screen_x(_ENV, x), flash_colors[flash_col_timer[x]]
+
+    if flash_color then
+      rectfill(
+        line_x,
+        0,
+        line_x + 6,
+        height,
+        flash_color
       )
     end
   end
