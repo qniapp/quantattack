@@ -227,10 +227,7 @@ function block_class:render(screen_x, screen_y)
 
   spr(sprite, screen_x + swap_screen_dx + shake_dx, screen_y + shake_dy)
 
-  palt(0, true)
-  pal(13, 13)
-  pal(6, 6)
-  pal(7, 7)
+  pal()
 end
 
 -------------------------------------------------------------------------------
