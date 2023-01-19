@@ -674,18 +674,6 @@ function board_class.render(_ENV)
     if time_left_height > 0 then
       rectfill(gauge_x, 128 - time_left_height, gauge_x + 1, 127, 8)
     end
-
-    -- for y = 1, row_next_blocks do
-    --   for x = 1, cols do
-    --     local block = blocks[y][x]
-    --     if time_left_height < 128 / 3 then
-    --       block.pinch = true
-    --       block.tick_pinch = tick
-    --     else
-    --       block.pinch = false
-    --     end
-    --   end
-    -- end
   end
 
   -- 待機中のおじゃまブロック
