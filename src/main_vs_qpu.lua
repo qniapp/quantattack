@@ -25,6 +25,7 @@ function _update60()
   if game:is_game_over() and t() - game.game_over_time > 2 then
     board.show_gameover_menu = true
     if btnp(5) then -- x でリプレイ
+      sfx(15)
       _init()
     elseif btnp(4) then -- c でタイトルへ戻る
       jump('quantattack_title')

@@ -64,6 +64,7 @@ function _update60()
 
       board.show_gameover_menu = true
       if btnp(5) then -- x でリプレイ
+        sfx(15)
         current_high_score = high_score:get()
         _init()
       elseif btnp(4) then -- z でタイトルへ戻る

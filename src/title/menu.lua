@@ -69,7 +69,7 @@ function menu.update(_ENV)
       else
         cart_to_load = selected_menu_item.target_cart
         cart_load_param = selected_menu_item.cart_load_param
-        cart_load_delay = 60
+        cart_load_delay = 30
       end
     elseif btnp(4) then -- c
       sfx(8)
