@@ -75,3 +75,12 @@ end
 function score_string(score)
   return score .. (score == 0 and "" or "0")
 end
+
+-- map function
+function transform(t, func)
+  local transformed_t = {}
+  for key, value in pairs(t) do
+    transformed_t[key] = func(value)
+  end
+  return transformed_t
+end

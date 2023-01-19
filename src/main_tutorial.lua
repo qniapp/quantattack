@@ -134,7 +134,7 @@ function _update60()
       show_legends = true
       tutorial_game.move_cursor = true
     end)
-    _main_state = ":idle"
+    _main_state = "idle"
   elseif _main_state == ":wait" then
     if _wait_sec < t() - _time_wait_start then
       _wait_callback()
@@ -146,7 +146,7 @@ function _update60()
       tutorial_game:raise_stack(board_data_xy)
       _next_state_after_clear = ":try_s"
     end)
-    _main_state = ":idle"
+    _main_state = "idle"
   elseif _main_state == ":try_s" then
     dtb_disp("some blocks change into other blocks!", function()
       show_legends = true
@@ -154,7 +154,7 @@ function _update60()
       tutorial_game:raise_stack(board_data_s)
       _next_state_after_clear = ":try_cnot"
     end)
-    _main_state = ":idle"
+    _main_state = "idle"
   elseif _main_state == ":try_cnot" then
     dtb_disp("some of the blocks are a bit odd...", function()
       tutorial_game:raise_stack(board_data_cnot)
@@ -165,7 +165,7 @@ function _update60()
       show_legends = true
       tutorial_game.move_cursor = true
     end)
-    _main_state = ":idle"
+    _main_state = "idle"
   elseif _main_state == ":fin" then
     dtb_disp("wow. you are catching on fast!")
     dtb_disp("i have given you all the basic rules.")
@@ -173,7 +173,7 @@ function _update60()
     dtb_disp("well, see you around!", function()
       jump("quantattack_title")
     end)
-    _main_state = ":idle"
+    _main_state = "idle"
   end
 
   tutorial_game:update()

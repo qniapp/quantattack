@@ -13,7 +13,7 @@ end
 function ion.update(_ENV)
   if _state == ":appear" then
     if _tick == _max_tick then
-      _state = ":idle"
+      _state = "idle"
       _appear_callback()
       return
     end
@@ -23,7 +23,7 @@ function ion.update(_ENV)
     _quadratic_bezier(_ENV, 64, 128, 84), _quadratic_bezier(_ENV, 128, 64, 36)
   elseif _state == ":shake" then
     if _tick == _max_tick then
-      _state = ":idle"
+      _state = "idle"
       if _shake_callback then
         _shake_callback()
       end
@@ -31,7 +31,7 @@ function ion.update(_ENV)
 
     _dx = 0
     _dy = cos(t() / 0.2) * 4
-  else -- state == ":idle"
+  else -- state == "idle"
     _dx = cos(t() / 2) * 1.5
     _dy = sin(t() / 2.5) * 1.5
   end

@@ -5,7 +5,7 @@ global_variable = "global_variable"
 local foo_class = new_class()
 
 function foo_class:_init()
-  self.state = ":idle"
+  self.state = "idle"
 end
 
 -- self を省略したいときの書きかた

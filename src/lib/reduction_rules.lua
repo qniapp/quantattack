@@ -1,12 +1,3 @@
--- map function
-local function transform(t, func)
-  local transformed_t = {}
-  for key, value in pairs(t) do
-    transformed_t[key] = func(value)
-  end
-  return transformed_t
-end
-
 return transform(
   transform(
   -- NOTE: ルールの行数を昇り順にならべておくことで、

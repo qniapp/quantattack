@@ -6,43 +6,40 @@
 --- @field height integer height of the block
 --- @field render function
 --- @field replace_with function
---- @field new_block block
+--- @field new_block block_class
 --- @field change_state function
 block_class = new_class()
 block_class.block_match_animation_frame_count = 45
 block_class.block_match_delay_per_block = 8
 block_class.block_swap_animation_frame_count = 3
-block_class.sprites = {
-  -- default|landed|match|bouncing
-  h = "0|1,1,1,1,3,3,2,2,2,1,1,1|24,24,24,25,25,25,24,24,24,26,26,26,0,0,0,27|0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,2,2,2,2",
-  x = "16|17,17,17,17,19,19,18,18,18,17,17,17|40,40,40,41,41,41,40,40,40,42,42,42,16,16,16,43|16,16,16,16,16,16,16,16,17,17,17,17,18,18,18,18,19,19,19,19,18,18,18,18",
-  y = "32|33,33,33,33,35,35,34,34,34,33,33,33|56,56,56,57,57,57,56,56,56,58,58,58,32,32,32,59|32,32,32,32,32,32,32,32,33,33,33,33,34,34,34,34,35,35,35,35,34,34,34,34",
-  z = "48|49,49,49,49,51,51,50,50,50,49,49,49|12,12,12,13,13,13,12,12,12,14,14,14,48,48,48,15|48,48,48,48,48,48,48,48,49,49,49,49,50,50,50,50,51,51,51,51,50,50,50,50",
-  s = "4|5,5,5,5,7,7,6,6,6,5,5,5|28,28,28,29,29,29,28,28,28,30,30,30,4,4,4,31|4,4,4,4,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,6,6,6,6",
-  t = "20|21,21,21,21,23,23,22,22,22,21,21,21|44,44,44,45,45,45,44,44,44,46,46,46,20,20,20,47|20,20,20,20,20,20,20,20,21,21,21,21,22,22,22,22,23,23,23,23,22,22,22,22",
-  control = "36|37,37,37,37,39,39,38,38,38,37,37,37|60,60,60,61,61,61,60,60,60,62,62,62,36,36,36,63|36,36,36,36,36,36,36,36,37,37,37,37,38,38,38,38,39,39,39,39,38,38,38,38",
-  cnot_x = "52|53,53,53,53,55,55,54,54,54,53,53,53|64,64,64,65,65,65,64,64,64,66,66,66,52,52,52,67|52,52,52,52,52,52,52,52,53,53,53,53,54,54,54,54,55,55,55,55,54,54,54,54",
-  swap = "8|9,9,9,9,11,11,10,10,10,9,9,9|80,80,80,81,81,81,80,80,80,82,82,82,8,8,8,83|8,8,8,8,8,8,8,8,9,9,9,9,10,10,10,10,11,11,11,11,10,10,10,10",
+block_class.sprites = transform({
+  -- default|landing|match|bouncing
+  h = "0|1,1,1,2,2,2,3,3,1,1,1,1|24,24,24,25,25,25,24,24,24,26,26,26,0,0,0,27|0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,2,2,2,2",
+  x = "16|17,17,17,18,18,18,19,19,17,17,17,17|40,40,40,41,41,41,40,40,40,42,42,42,16,16,16,43|16,16,16,16,16,16,16,16,17,17,17,17,18,18,18,18,19,19,19,19,18,18,18,18",
+  y = "32|33,33,33,34,34,34,35,35,33,33,33,33|56,56,56,57,57,57,56,56,56,58,58,58,32,32,32,59|32,32,32,32,32,32,32,32,33,33,33,33,34,34,34,34,35,35,35,35,34,34,34,34",
+  z = "48|49,49,49,50,50,50,51,51,49,49,49,49|12,12,12,13,13,13,12,12,12,14,14,14,48,48,48,15|48,48,48,48,48,48,48,48,49,49,49,49,50,50,50,50,51,51,51,51,50,50,50,50",
+  s = "4|5,5,5,6,6,6,7,7,5,5,5,5|28,28,28,29,29,29,28,28,28,30,30,30,4,4,4,31|4,4,4,4,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,6,6,6,6",
+  t = "20|21,21,21,22,22,22,23,23,21,21,21,21|44,44,44,45,45,45,44,44,44,46,46,46,20,20,20,47|20,20,20,20,20,20,20,20,21,21,21,21,22,22,22,22,23,23,23,23,22,22,22,22",
+  control = "36|37,37,37,38,38,38,39,39,37,37,37,37|60,60,60,61,61,61,60,60,60,62,62,62,36,36,36,63|36,36,36,36,36,36,36,36,37,37,37,37,38,38,38,38,39,39,39,39,38,38,38,38",
+  cnot_x = "52|53,53,53,54,54,54,55,55,53,53,53,53|64,64,64,65,65,65,64,64,64,66,66,66,52,52,52,67|52,52,52,52,52,52,52,52,53,53,53,53,54,54,54,54,55,55,55,55,54,54,54,54",
+  swap = "8|9,9,9,10,10,10,11,11,9,9,9,9|80,80,80,81,81,81,80,80,80,82,82,82,8,8,8,83|8,8,8,8,8,8,8,8,9,9,9,9,10,10,10,10,11,11,11,11,10,10,10,10",
   ["?"] = "98|98,98,98,98,98,98,98,98,98,98,98,98|98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98|98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98",
   ["#"] = "113|113,113,113,113,113,113,113,113,113,113,113,113|113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113|113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113"
-}
-
-for key, each in pairs(block_class.sprites) do
-  local default, landed, match, bouncing = unpack(split(each, "|"))
-  ---@diagnostic disable-next-line: assign-type-mismatch
-  block_class.sprites[key] = {
+}, function(each)
+  local default, landing, match, bouncing = unpack(split(each, "|"))
+  return {
     default = default,
-    landed = split(landed),
+    landing = split(landing),
     match = split(match),
     bouncing = split(bouncing)
   }
-end
+end)
 
 --- @param _type "i" | "h" | "x" | "y" | "z" | "s" | "t" | "control" | "cnot_x" | "swap" | "g" | "?" block type
 --- @param _span? 1 | 2 | 3 | 4 | 5 | 6 span of the block
 --- @param _height? integer height of the block
 function block_class._init(_ENV, _type, _span, _height)
-  type, sprite_set, span, height, _state = _type, sprites[_type], _span or 1, _height or 1, "idle"
+  type, sprite_set, span, height, _state, _timer_landing = _type, sprites[_type], _span or 1, _height or 1, "idle", 0
 end
 
 -------------------------------------------------------------------------------
@@ -149,12 +146,8 @@ end
 
 function block_class.update(_ENV)
   if is_idle(_ENV) then
-    if _tick_landed then
-      _tick_landed = _tick_landed + 1
-
-      if _tick_landed == 13 then
-        _tick_landed = nil
-      end
+    if _timer_landing > 0 then
+      _timer_landing = _timer_landing - 1
     end
   elseif is_swapping(_ENV) then
     if _tick_swap < block_swap_animation_frame_count then
@@ -207,8 +200,8 @@ function block_class:render(screen_x, screen_y)
       swap_screen_dx = -swap_screen_dx
     end
 
-    if is_idle(_ENV) and _tick_landed then
-      sprite = sprite_set.landed[_tick_landed]
+    if is_idle(_ENV) and _timer_landing > 0 then
+      sprite = sprite_set.landing[_timer_landing]
     elseif (is_idle(_ENV) or is_freeze(_ENV)) and pinch then
       sprite = sprite_set.bouncing[tick_pinch % #sprite_set.bouncing + 1]
     elseif is_match(_ENV) then
@@ -251,6 +244,7 @@ end
 
 --- @param new_state string
 function block_class.change_state(_ENV, new_state)
+  _timer_landing = 12
   _tick_swap = 0
 
   local old_state = _state

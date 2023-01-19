@@ -35,7 +35,7 @@ function game.update(_ENV)
         end
       end
     else
-      _state = ":idle"
+      _state = "idle"
       _raise_stack_callback()
     end
   else

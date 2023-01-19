@@ -5,13 +5,14 @@ require("lib/cursor")
 require("lib/garbage_block")
 require("lib/particle")
 
-local pending_garbage_blocks_class, reduction_rules = require("lib/pending_garbage_blocks"), require("lib/reduction_rules")
+local pending_garbage_blocks_class, reduction_rules = require("lib/pending_garbage_blocks"),
+    require("lib/reduction_rules")
 
 board_class = new_class()
 
 function board_class._init(_ENV, _cursor, __offset_x, _cols)
   cursor, _offset_x, show_wires, show_top_line =
-    _cursor or cursor_class(), __offset_x, true, true
+  _cursor or cursor_class(), __offset_x, true, true
   init(_ENV, _cols)
 end
 
@@ -825,12 +826,10 @@ function board_class._update_game(_ENV, game, player, other_board)
               sfx(12)
             end
 
-            block._tick_landed = 1
             block:change_state("idle")
 
             if block.other_x and x < block.other_x then
               local other_block = blocks[y][block.other_x]
-              other_block._tick_landed = 1
               other_block:change_state("idle")
             end
           else
