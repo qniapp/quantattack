@@ -9,7 +9,7 @@ local game = game_class()
 local qpu1_board, qpu2_board = board_class(cursor_class(), 3), board_class(cursor_class(), 78)
 qpu1_board.block_offset_target, qpu2_board.block_offset_target = { 3 + 24, 9 }, { 78 + 24, 9 }
 qpu1_board.attack_ion_target, qpu2_board.attack_ion_target = { 78 + 24, 9 }, { 3 + 24, 9 }
-local qpu1, qpu2 = create_qpu(qpu1_board, 1), create_qpu(qpu2_board, 1)
+local qpu1, qpu2 = qpu_class(qpu1_board, 1), qpu_class(qpu2_board, 1)
 
 game:add_player(qpu1, qpu1_board, qpu2_board)
 game:add_player(qpu2, qpu2_board, qpu1_board)

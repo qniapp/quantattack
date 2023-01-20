@@ -8,20 +8,20 @@ require("lib/board")
 require("lib/block")
 
 describe('qpu', function()
-  describe('create_qpu', function()
+  describe('new', function()
     it("creates a qpu with score = 0", function()
-      local qpu = create_qpu()
+      local qpu = qpu_class()
 
       assert.are_equal(0, qpu.score)
     end)
   end)
 
-  describe('init', function()
+  describe('_init', function()
     it("resets score", function()
-      local qpu = create_qpu()
+      local qpu = qpu_class()
       qpu.score = 1
 
-      qpu:init()
+      qpu:_init()
 
       assert.are_equal(0, qpu.score)
     end)
@@ -35,7 +35,7 @@ describe('qpu', function()
     before_each(function()
       cursor = cursor_class()
       board = board_class(cursor)
-      qpu = create_qpu(board)
+      qpu = qpu_class(board)
       qpu.sleep = false
       qpu.raise = false
     end)

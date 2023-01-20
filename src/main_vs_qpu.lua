@@ -10,10 +10,10 @@ local game, board, qpu_board =
 game_class(), board_class(cursor_class(), 3), board_class(cursor_class(), 78)
 
 board.block_offset_target, qpu_board.block_offset_target, board.attack_ion_target, qpu_board.attack_ion_target =
-  { 27, 9 }, { 102, 9 }, { 102, 9 }, { 27, 9 }
+{ 27, 9 }, { 102, 9 }, { 102, 9 }, { 27, 9 }
 
 game:add_player(player_class(), board, qpu_board)
-game:add_player(create_qpu(qpu_board, stat(6)), qpu_board, board)
+game:add_player(qpu_class(qpu_board, stat(6)), qpu_board, board)
 
 function _init()
   game:init()
