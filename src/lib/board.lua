@@ -38,8 +38,8 @@ function board_class.init(_ENV, _cols)
   -- 各種ブロックの取得
   blocks, reducible_blocks, _garbage_blocks, contains_garbage_match_block = {}, {}, {}, false
 
-  tick, steps, pending_garbage_blocks, flash_col_timer, _check_hover_flag, _reduce_cache, _is_block_fallable_cache =
-    0, 0, pending_garbage_blocks_class(), {}, {}, {}, {}
+  tick, steps, pending_garbage_blocks, _flash_col_timer, _flash_col_colors, _check_hover_flag, _reduce_cache, _is_block_fallable_cache =
+    0, 0, pending_garbage_blocks_class(), {}, split("1,1,1,1,1,1,5,5,5,5,5,13,13,7"), {}, {}, {}
 
   for y = 0, rows do
     reducible_blocks[y], _check_hover_flag[y] = {}, {}
@@ -122,7 +122,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
             put(_ENV, y + dy, x + dx, block_class("i"))
           end
           blocks[y + dy][x + dx]:replace_with(new_block, index, chain_id)
-          flash_col_timer[x + dx] = 10
+          _flash_col_timer[x + dx] = #_flash_col_colors + 1
 
           -- ブロックが消える、または変化するとき、その上にあるブロックすべてに chain_id をセット
           for chainable_y = y + dy + 1, #blocks do
@@ -620,25 +620,24 @@ function board_class.update(_ENV, game, player, other_board)
     end
   end
 
-  flash_col_timer = transform(flash_col_timer, function(each)
+  -- 列フラッシュのタイマーをそれぞれ -1 する
+  _flash_col_timer = transform(_flash_col_timer, function(each)
     return each and max(each - 1, 0) or 0
   end)
 
   tick = tick + 1
 end
 
-local flash_colors = split("7,13,13,5,5,5,1,1,1,1")
-
 function board_class.render(_ENV)
-  -- フラッシュを描画
+  -- 列フラッシュを描画
   for x = 1, cols do
-    local line_x, flash_color = screen_x(_ENV, x), flash_colors[flash_col_timer[x]]
+    local col_start_x, flash_color = screen_x(_ENV, x), _flash_col_colors[_flash_col_timer[x]]
 
     if flash_color then
       rectfill(
-        line_x,
+        col_start_x,
         0,
-        line_x + 6,
+        col_start_x + 6,
         height,
         flash_color
       )
