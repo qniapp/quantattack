@@ -94,7 +94,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
           chain_xy[chain_id] = { x = x, y = y }
         end
 
-        if combo_count and game and game.combo_callback then
+        if combo_count and game.combo_callback then
           -- 同時消し
           combo_count = combo_count + #reduction.to
           game.combo_callback(
