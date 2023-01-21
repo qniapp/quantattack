@@ -7,9 +7,10 @@ function ripple_class._init(_ENV)
 end
 
 function ripple_class.update(_ENV)
-  tick = tick + 1
-  t1 = t1 - 1 / (slow and 3000 or 1500)
-  t2 = t2 - 1 / (slow and 300 or 150)
+  tick, t1, t2 =
+  tick + 1,
+      t1 - 1 / (slow and 3000 or 1500),
+      t2 - 1 / (slow and 300 or 150)
 end
 
 function ripple_class.render(_ENV)

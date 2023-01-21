@@ -1,7 +1,5 @@
 ---@diagnostic disable: global-in-nil-env
 
-require("lib/block")
-
 --                       span
 --          ██████████████████████████████
 --          ██                          ██
@@ -27,9 +25,12 @@ local inner_border_colors = { nil, 14, 11, 9 }
 --- @param _height? integer おじゃまブロックの高さ
 --- @param _color? 2 | 3 | 4 おじゃまブロックの色
 --- @return Garbageblock
-function garbage_block(_span, _height, _color)
+function garbage_block(_span, _height, _color, _chain_id, _tick_fall)
   local garbage = setmetatable({
     body_color = _color or garbage_block_colors[ceil_rnd(#garbage_block_colors)],
+    chain_id = _chain_id,
+    tick_fall = _tick_fall,
+    dy = 0,
     first_drop = true,
     _render_box = draw_rounded_box,
 

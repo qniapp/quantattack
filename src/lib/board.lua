@@ -4,9 +4,9 @@ require("lib/block")
 require("lib/cursor")
 require("lib/garbage_block")
 require("lib/particle")
+require("lib/reduction_rules")
 
-local pending_garbage_blocks_class, reduction_rules = require("lib/pending_garbage_blocks"),
-    require("lib/reduction_rules")
+local pending_garbage_blocks_class = require("lib/pending_garbage_blocks")
 
 board_class = new_class()
 
@@ -38,8 +38,9 @@ function board_class.init(_ENV, _cols)
   -- 各種ブロックの取得
   blocks, reducible_blocks, _garbage_blocks, contains_garbage_match_block = {}, {}, {}, false
 
-  tick, steps, pending_garbage_blocks, _flash_col_timer, _flash_col_colors, _check_hover_flag, _reduce_cache, _is_block_fallable_cache =
-    0, 0, pending_garbage_blocks_class(), {}, split("1,1,1,1,1,1,5,5,5,5,5,13,13,7"), {}, {}, {}
+  tick, steps, pending_garbage_blocks, _flash_col_timer, _flash_col_colors, _check_hover_flag, _reduce_cache,
+      _is_block_fallable_cache =
+  0, 0, pending_garbage_blocks_class(), {}, split("1,1,1,1,1,1,5,5,5,5,5,13,13,7"), {}, {}, {}
 
   for y = 0, rows do
     reducible_blocks[y], _check_hover_flag[y] = {}, {}
@@ -72,8 +73,7 @@ function board_class.put_random_blocks(_ENV)
 end
 
 function board_class.reduce_blocks(_ENV, game, player, other_board)
-  local chain_id_callbacked, combo_count = {}
-  local chain_xy = {}
+  local chain_xy, combo_count = {}
 
   for y = #reducible_blocks, 1, -1 do
     for x, _ in pairs(reducible_blocks[y] or {}) do
@@ -94,7 +94,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
           chain_xy[chain_id] = { x = x, y = y }
         end
 
-        if combo_count and game.combo_callback then
+        if combo_count and game and game.combo_callback then
           -- 同時消し
           combo_count = combo_count + #reduction.to
           game.combo_callback(
@@ -246,8 +246,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
   -- 連鎖
   for chain_id, xy in pairs(chain_xy) do
-    local scr_x = screen_x(_ENV, xy.x)
-    local scr_y = screen_y(_ENV, xy.y)
+    local scr_x, scr_y = screen_x(_ENV, xy.x), screen_y(_ENV, xy.y)
 
     if game and game.chain_callback then
       if #pending_garbage_blocks.all > 1 then
@@ -298,9 +297,7 @@ end
 
 function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
   local reduction, block = { to = {}, score = 0 }, blocks[y][x]
-  local rules = reduction_rules[block.type]
-
-  if not rules then return reduction end
+  local rules = reduction_rules[block.type] or {}
 
   for _, rule in pairs(rules) do
     -- other_x と dx を決める
@@ -380,10 +377,8 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
     reduction = {
       to = rule[2],
       dx = dx,
-      block_count = rule[3],
-      score = rule[4] or 1,
-      chain_id = chain_id,
-      pattern = rule[5]
+      score = rule[3],
+      chain_id = chain_id
     }
     goto matched
 
@@ -462,8 +457,7 @@ function board_class.put(_ENV, x, y, block)
       for tmp_x = 1, cols do
         local i_block = block_class("i")
         blocks[tmp_y][tmp_x] = i_block
-        i_block.x = tmp_x
-        i_block.y = tmp_y
+        i_block.x, i_block.y = tmp_x, tmp_y
         i_block:attach(_ENV)
       end
     end
@@ -645,24 +639,11 @@ function board_class.render(_ENV)
   end
 
   -- ブロックの描画
-  for y = 0, #blocks do
-    for x = 1, cols do
-      local block, scr_x, scr_y = block_at(_ENV, x, y), screen_x(_ENV, x), screen_y(_ENV, y)
+  for x = 1, cols do
+    for y = 0, rows do
+      local scr_x, scr_y, block = screen_x(_ENV, x), screen_y(_ENV, y), block_at(_ENV, x, y)
 
-      -- CNOT や SWAP の接続を描画
-      -- TODO: block 側で描画する。
-      if block.other_x and x < block.other_x then
-        local connection_y = scr_y + 3
-        line(
-          scr_x + 3,
-          connection_y,
-          screen_x(_ENV, block.other_x) + 3,
-          connection_y,
-          block:is_match() and 13 or (lose and 5 or 10)
-        )
-      end
-
-      block:render(scr_x, scr_y)
+      block:render(scr_x, scr_y, block.other_x and screen_x(_ENV, block.other_x))
 
       -- 一番下のマスクを描画
       if y == 0 and not is_game_over(_ENV) then
@@ -673,20 +654,26 @@ function board_class.render(_ENV)
 
   -- 残り時間ゲージの描画
   if is_topped_out(_ENV) then
-    local time_left_height = (_topped_out_delay_frame_count - _topped_out_frame_count) /
-        _topped_out_delay_frame_count * 128
-    local gauge_x = offset_x < 64 and offset_x + 50 or offset_x - 4
+    local time_left_height, gauge_x =
+    (_topped_out_delay_frame_count - _topped_out_frame_count) / _topped_out_delay_frame_count * 128,
+        offset_x < 64 and offset_x + 50 or offset_x - 4
 
     if time_left_height > 0 then
-      rectfill(gauge_x, 128 - time_left_height, gauge_x + 1, 127, 8)
+      rectfill(
+        gauge_x,
+        128 - time_left_height,
+        gauge_x + 1,
+        127,
+        8
+      )
     end
   end
 
-  -- 待機中のおじゃまブロック
+  -- 待機中のおじゃまブロックを描画
   pending_garbage_blocks:render(_ENV)
 
+  -- ブロック上限の線を描画
   if not is_game_over(_ENV) then
-    -- ゲームオーバーの線
     if show_top_line then
       if top_line_start_x < 73 then
         line(max(offset_x - 1, offset_x + top_line_start_x - 25), 40,
@@ -695,12 +682,10 @@ function board_class.render(_ENV)
       end
     end
 
-    -- カーソル
+    -- カーソルを描画
     cursor:render(screen_x(_ENV, cursor.x), screen_y(_ENV, cursor.y))
-  end
-
-  -- WIN! または LOSE を描画
-  if is_game_over(_ENV) and (win or lose) and tick_over > 20 and #particle.all == 0 then
+  elseif (win or lose) and tick_over > 20 and #particle.all == 0 then
+    -- WIN! または LOSE を描画
     sspr(
       win and 0 or 48,
       96,
@@ -711,6 +696,7 @@ function board_class.render(_ENV)
     )
   end
 
+  -- try again, title を描画
   if show_gameover_menu then
     spr(99, offset_x, 97)
     print_outlined("try again", offset_x + 11, 98, 1, 7)
@@ -747,8 +733,7 @@ function board_class._update_game(_ENV, game, player, other_board)
   --
   -- swap などのペアとなるブロックを正しく落とすために、
   -- 一番下の行から上に向かって順に処理
-  top_block_y = 0
-  contains_garbage_match_block = false
+  top_block_y, contains_garbage_match_block = 0, false
 
   for y = 1, #blocks do
     for x = 1, cols do
@@ -983,8 +968,7 @@ end
 -- CNOT, SWAP, おじゃまゲートもある。
 -- このため、直下のブロックは複数の場合もある。
 function board_class.propagatable_hover_timer(_ENV, x, y)
-  local block = blocks[y][x]
-  local hover_timer = 0
+  local block, hover_timer = blocks[y][x], 0
 
   -- y が最下段、または next block の場合、
   -- またはブロックが落下可能でない状態の場合、
@@ -1008,8 +992,7 @@ function board_class.is_block_fallable(_ENV, x, y)
 end
 
 function board_class._is_block_fallable_nocache(_ENV, x, y)
-  local block = blocks[y][x]
-  local fallable = true
+  local block, fallable = blocks[y][x], true
 
   if y < 2 or not block:is_fallable() then
     return false

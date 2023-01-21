@@ -38,7 +38,7 @@ function qpu_class._init(_ENV, _board, _level)
   -- raise はテスト用で、false にすると QPU プレーヤーは x を押さない
   -- 通常は常に true
   board, cursor, level, sleep, raise =
-    _board, _board and _board.cursor or nil, _level or 2, true, true
+  _board, _board and _board.cursor or nil, _level or 2, true, true
   init(_ENV)
 end
 
@@ -47,9 +47,8 @@ function qpu_class.init(_ENV)
 end
 
 function qpu_class.update(_ENV)
-  left, right, up, down, x, o = false, false, false, false, false, false
+  left, right, up, down, x, o, next_command = false, false, false, false, false, false, commands[1]
 
-  local next_command = commands[1]
   if next_command then
     del(commands, next_command)
     _ENV[next_command] = true
@@ -59,9 +58,9 @@ function qpu_class.update(_ENV)
       add_sleep_command(_ENV, 3)
     else
       return for_all_reducible_blocks(_ENV, _reduce_cnot) or
-        for_all_reducible_blocks(_ENV, _flatten_block) or
-        board.contains_garbage_match_block or
-        for_all_reducible_blocks(_ENV, _reduce_single_block)
+          for_all_reducible_blocks(_ENV, _flatten_block) or
+          board.contains_garbage_match_block or
+          for_all_reducible_blocks(_ENV, _reduce_single_block)
     end
   end
 end
@@ -94,8 +93,9 @@ function qpu_class._reduce_single_block(_ENV, each, each_x, each_y)
 end
 
 function qpu_class._reduce_cnot(_ENV, each, each_x, each_y)
-  local upper_block = each_y < board.rows and board:reducible_block_at(each_x, each_y + 1) or block_class("i")
-  local lower_block = each_y > 1 and board:reducible_block_at(each_x, each_y - 1) or block_class("i")
+  local upper_block, lower_block =
+  each_y < board.rows and board:reducible_block_at(each_x, each_y + 1) or block_class("i"),
+      each_y > 1 and board:reducible_block_at(each_x, each_y - 1) or block_class("i")
 
   if not each:is_single_block() then
     -- d-2. 上の X-C を左にずらす
@@ -103,8 +103,8 @@ function qpu_class._reduce_cnot(_ENV, each, each_x, each_y)
     -- [X--]-C
     --  X-C  ■
     if each.type == "cnot_x" and each.other_x == each_x + 2 and
-      lower_block.type == "cnot_x" and
-      lower_block.other_x == each_x + 1 then
+        lower_block.type == "cnot_x" and
+        lower_block.other_x == each_x + 1 then
       move_and_swap(_ENV, each_x + 1, each_y)
       return true
     end
@@ -114,8 +114,8 @@ function qpu_class._reduce_cnot(_ENV, each, each_x, each_y)
     --  X-C  ■
     -- [X--]-C
     if each.type == "cnot_x" and each.other_x == each_x + 2 and
-      upper_block.type == "cnot_x" and
-      upper_block.other_x == each_x + 1 then
+        upper_block.type == "cnot_x" and
+        upper_block.other_x == each_x + 1 then
       move_and_swap(_ENV, each_x + 1, each_y)
       return true
     end
@@ -142,7 +142,7 @@ function qpu_class._reduce_cnot(_ENV, each, each_x, each_y)
     --
     --   X-[C ]
     if each_x < board.cols and
-      each.type == "control" and each.other_x < each_x and _is_empty(board, each_x + 1, each_y) then
+        each.type == "control" and each.other_x < each_x and _is_empty(board, each_x + 1, each_y) then
       move_and_swap(_ENV, each_x, each_y)
       return true
     end
@@ -152,9 +152,9 @@ function qpu_class._reduce_cnot(_ENV, each, each_x, each_y)
     -- [  X]-C
     --  X-C  ■
     if each_x > 1 and each_y > 1 and
-      _is_empty(board, each_x - 1, each_y) and each.type == "cnot_x" and each.other_x == each_x + 1 and
-      lower_block.type == "control" and
-      lower_block.other_x == each_x - 1 then
+        _is_empty(board, each_x - 1, each_y) and each.type == "cnot_x" and each.other_x == each_x + 1 and
+        lower_block.type == "control" and
+        lower_block.other_x == each_x - 1 then
       move_and_swap(_ENV, each_x - 1, each_y)
       return true
     end
@@ -164,9 +164,9 @@ function qpu_class._reduce_cnot(_ENV, each, each_x, each_y)
     --  X-C  ■
     -- [  X]-C
     if each_x > 1 and
-      _is_empty(board, each_x - 1, each_y) and each.type == "cnot_x" and each.other_x == each_x + 1 and
-      upper_block.type == "control" and
-      upper_block.other_x == each_x - 1 then
+        _is_empty(board, each_x - 1, each_y) and each.type == "cnot_x" and each.other_x == each_x + 1 and
+        upper_block.type == "control" and
+        upper_block.other_x == each_x - 1 then
       move_and_swap(_ENV, each_x - 1, each_y)
       return true
     end
@@ -174,8 +174,8 @@ function qpu_class._reduce_cnot(_ENV, each, each_x, each_y)
 end
 
 function qpu_class.find_left_and_right(_ENV, f, block, upper)
-  local block_x, block_y, other_row_block_y = block.x, block.y, block.y + (upper and 1 or -1)
-  local find_left, find_right = true, true
+  local block_x, block_y, other_row_block_y, find_left, find_right =
+  block.x, block.y, block.y + (upper and 1 or -1), true, true
 
   for dx = 1, board.cols - 1 do
     if not (find_left or find_right) then
@@ -215,7 +215,7 @@ function qpu_class.move_and_swap(_ENV, block_x, block_y)
 end
 
 function qpu_class.add_move_command(_ENV, direction, count)
-  for i = 1, count do
+  for _ = 1, count do
     add(commands, direction)
 
     if sleep then
@@ -234,7 +234,7 @@ function qpu_class.add_swap_command(_ENV)
 end
 
 function qpu_class.add_sleep_command(_ENV, count)
-  for i = 1, count do
+  for _ = 1, count do
     add(commands, "sleep")
   end
 end

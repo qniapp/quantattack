@@ -99,9 +99,6 @@ function game:_init()
 end
 
 function game:init()
-  attack_ion.slow = false
-  particle.slow = false
-
   all_players_info = {}
   countdown = 240
   self.start_time = t()
@@ -224,15 +221,11 @@ function game:update()
   bubble:update_all()
   attack_ion:update_all()
 
-  if self:is_game_over() then
-    particle.slow = true
-  else
-    -- ゲーム中だけ time_left を更新
-    game.time_left = 120 - (t() - self.start_time)
+  -- ゲーム中だけ time_left を更新
+  game.time_left = 120 - (t() - self.start_time)
 
-    if all_players_info[1].board:is_game_over() then
-      self.game_over_time = t()
-    end
+  if all_players_info[1].board:is_game_over() then
+    self.game_over_time = t()
   end
 end
 

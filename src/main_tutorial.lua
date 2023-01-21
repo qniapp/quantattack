@@ -12,10 +12,6 @@ local cursor = cursor_class()
 local board, player = board_class(cursor), player_class()
 local tutorial_game = game_class()
 
-local gamestate = require("lib/gamestate")
-local tutorial = derived_class(gamestate)
-tutorial.type = ':tutorial'
-
 local sash = require("lib/sash")
 
 local ion_class = require("tutorial/ion")

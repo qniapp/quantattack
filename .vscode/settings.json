@@ -114,7 +114,8 @@
     "pget",
     "game_class",
     "music",
-    "effect_set"
+    "effect_set",
+    "reduction_rules"
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,

@@ -14,7 +14,7 @@ function attack_ion:create(x, y, callback, clr, target_x, target_y)
   end)
 end
 
-function attack_ion._update(_ENV, self)
+function attack_ion._update(_ENV, all)
   local _quadratic_bezier = function(from, mid, to)
     local t = _tick / _max_tick
     return (1 - t) * (1 - t) * from + 2 * (1 - t) * t * mid + t * t * to
@@ -24,7 +24,7 @@ function attack_ion._update(_ENV, self)
 
   if _tick == _max_tick then
     _callback(_target_x, _target_y)
-    del(self.all, _ENV)
+    del(all, _ENV)
   end
 
   _x, _y =

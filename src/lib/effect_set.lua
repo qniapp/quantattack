@@ -12,12 +12,12 @@ end
 
 function effect_set:update_all()
   foreach(self.all, function(each)
-    self._update(each, self)
+    self._update(each, self.all)
   end)
 end
 
 function effect_set:render_all()
   foreach(self.all, function(each)
-    self._render(each, self)
+    self._render(each)
   end)
 end

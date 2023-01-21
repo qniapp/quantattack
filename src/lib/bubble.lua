@@ -13,9 +13,9 @@ function bubble:create(bubble_type, count, x, y)
   end)
 end
 
-function bubble._update(_ENV, self)
+function bubble._update(_ENV, all)
   if _tick > 40 then
-    del(self.all, _ENV)
+    del(all, _ENV)
   end
   if _tick < 30 then
     _y = _y - 0.2

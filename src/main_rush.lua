@@ -19,12 +19,6 @@ local player = player_class()
 
 local game_class = require("rush/game")
 local game = game_class()
-
-local gamestate = require("lib/gamestate")
-local rush = derived_class(gamestate)
-
-rush.type = ':rush'
-
 local last_steps = -1
 
 function _init()

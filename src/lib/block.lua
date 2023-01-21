@@ -38,7 +38,8 @@ end)
 --- @param _span? 1 | 2 | 3 | 4 | 5 | 6 span of the block
 --- @param _height? integer height of the block
 function block_class._init(_ENV, _type, _span, _height)
-  type, sprite_set, span, height, _state, _timer_landing = _type, sprites[_type], _span or 1, _height or 1, "idle", 0
+  type, sprite_set, span, height, _state, _timer_landing =
+  _type, sprites[_type], _span or 1, _height or 1, "idle", 0
 end
 
 -------------------------------------------------------------------------------
@@ -184,7 +185,7 @@ end
 
 --- @param screen_x integer x position of the screen
 --- @param screen_y integer y position of the screen
-function block_class:render(screen_x, screen_y)
+function block_class:render(screen_x, screen_y, screen_other_x)
   local shake_dx, shake_dy, swap_screen_dx, sprite = 0, 0
 
   do
@@ -208,6 +209,17 @@ function block_class:render(screen_x, screen_y)
       sprite = sprite_set.match[#sprite_set.match]
     else
       sprite = sprite_set.default
+    end
+
+    -- CNOT または SWAP の接続を描画
+    if other_x and x < other_x then
+      line(
+        screen_x + 3,
+        screen_y + 3,
+        screen_other_x + 3,
+        screen_y + 3,
+        is_match(_ENV) and 13 or 10
+      )
     end
   end
 

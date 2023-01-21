@@ -16,12 +16,6 @@ board.attack_ion_target = { 85, 30 }
 
 local player = player_class()
 local game = game_class()
-
-local gamestate = require("lib/gamestate")
-local endless = derived_class(gamestate)
-
-endless.type = ':endless'
-
 local last_steps = 0
 
 game:add_player(player, board)

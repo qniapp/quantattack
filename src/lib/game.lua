@@ -1,3 +1,4 @@
+---@diagnostic disable: global-in-nil-env, lowercase-global
 require("lib/attack_ion")
 require("lib/ripple")
 require("lib/particle")
@@ -5,7 +6,7 @@ require("lib/bubble")
 
 game_class = new_class()
 
-local chain_bonus, all_players_info, countdown = split("0,5,8,15,30,40,50,70,90,110,130,150,180")
+local chain_bonus = split("0,5,8,15,30,40,50,70,90,110,130,150,180")
 
 function game_class.reduce_callback(score, player)
   player.score = player.score + score
@@ -87,22 +88,16 @@ function game_class.chain_callback(chain_id, chain_count, screen_x, screen_y, pl
   end
 end
 
-function game_class:is_game_over()
-  return self.game_over_time ~= nil
+function game_class.is_game_over(_ENV)
+  return game_over_time ~= nil
 end
 
-function game_class:_init()
-  all_players_info = {}
-  self.auto_raise_frame_count = 30
+function game_class._init(_ENV)
+  all_players_info, auto_raise_frame_count = {}, 30
 end
 
-function game_class:init()
-  attack_ion.slow = false
-  particle.slow = false
-
-  countdown = 240
-  self.start_time = t()
-  self.game_over_time = nil
+function game_class.init(_ENV)
+  countdown, start_time, game_over_time = 240, t()
 
   for _, each in pairs(all_players_info) do
     each.player:init()
@@ -113,16 +108,19 @@ function game_class:init()
   music(-1) -- stop the music
 end
 
-function game_class:add_player(player, board, other_board)
-  add(all_players_info, {
-    player = player,
-    board = board,
-    other_board = other_board,
-    tick = 0
-  })
+function game_class.add_player(_ENV, player, board, other_board)
+  add(
+    all_players_info,
+    {
+      player = player,
+      board = board,
+      other_board = other_board,
+      tick = 0
+    }
+  )
 end
 
-function game_class:update()
+function game_class.update(_ENV)
   ripple:update()
 
   if countdown then
@@ -130,7 +128,7 @@ function game_class:update()
     local countdown_number = flr(countdown / 60 + 1)
 
     if countdown > 0 then
-      self.start_time = t()
+      start_time = t()
 
       if countdown_number < 4 then
         for _, each in pairs(all_players_info) do
@@ -204,14 +202,14 @@ function game_class:update()
         sfx(10)
       end
       if player.o and not countdown and board.top_block_y > 2 then
-        self:_raise(each)
+        _raise(_ENV, each)
       end
 
-      board:update(self, player, other_board)
+      board:update(_ENV, player, other_board)
       cursor:update()
 
       if not countdown then
-        self:_auto_raise(each)
+        _auto_raise(_ENV, each)
       end
 
       if board.contains_garbage_match_block then
@@ -224,22 +222,20 @@ function game_class:update()
   bubble:update_all()
   attack_ion:update_all()
 
-  if self:is_game_over() then
-    particle.slow = true
-  else
+  if not game_over_time then
     -- ゲーム中だけ elapsed_time を更新
-    game_class.elapsed_time = t() - self.start_time
+    elapsed_time = t() - start_time
 
     -- プレーヤーが 2 人であれば、勝ったほうの board に win = true をセット
     if #all_players_info == 1 then
       if all_players_info[1].board:is_game_over() then
-        self.game_over_time = t()
+        game_over_time = t()
       end
     else
       local board1, board2 = all_players_info[1].board, all_players_info[2].board
 
       if board1:is_game_over() or board2:is_game_over() then
-        self.game_over_time = t()
+        game_over_time = t()
 
         if board1.lose then
           board2.win = true
@@ -252,7 +248,7 @@ function game_class:update()
   end
 end
 
-function game_class:render() -- override
+function game_class.render(_ENV) -- override
   ripple:render()
 
   for _, each in pairs(all_players_info) do
@@ -263,9 +259,14 @@ function game_class:render() -- override
     -- カウントダウンの数字はカーソルの上に表示
     if board.countdown then
       local countdown_sprite_x = { 32, 16, 0 }
-      sspr(countdown_sprite_x[board.countdown], 80,
-        16, 16,
-        board.offset_x + 16, 43)
+      sspr(
+        countdown_sprite_x[board.countdown],
+        80,
+        16,
+        16,
+        board.offset_x + 16,
+        43
+      )
     end
   end
 
@@ -275,7 +276,7 @@ function game_class:render() -- override
 end
 
 -- ブロックをせりあげる
-function game_class:_raise(player_info, force)
+function game_class._raise(_ENV, player_info, force)
   local board = player_info.board
 
   if not board:is_topped_out() or force then
@@ -290,26 +291,26 @@ function game_class:_raise(player_info, force)
 end
 
 -- 可能な場合ブロックを自動的にせりあげる
-function game_class:_auto_raise(player_info)
+function game_class._auto_raise(_ENV, player_info)
   if player_info.board:is_busy() then
     return
   end
 
   player_info.tick = player_info.tick + 1
 
-  if player_info.tick > self.auto_raise_frame_count then
-    self:_raise(player_info, true)
+  if player_info.tick > auto_raise_frame_count then
+    _raise(_ENV, player_info, true)
     player_info.tick = 0
   end
 end
 
 -- ゲーム経過時間を文字列で返す (e.g., "01:23")
-function game_class:elapsed_time_string()
-  return length2_number_string_0filled(flr(self.elapsed_time / 60)) ..
-      ":" ..
-      length2_number_string_0filled(flr(self.elapsed_time) % 60)
-end
+function game_class.elapsed_time_string(_ENV)
+  local length2_number_string_0filled = function(num)
+    return (num < 10) and "0" .. num or num
+  end
 
-function length2_number_string_0filled(num)
-  return (num < 10) and "0" .. num or num
+  return length2_number_string_0filled(flr(elapsed_time / 60)) ..
+      ":" ..
+      length2_number_string_0filled(flr(elapsed_time) % 60)
 end
