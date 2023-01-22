@@ -8,8 +8,13 @@ game_class = new_class()
 
 local chain_bonus = split("0,5,8,15,30,40,50,70,90,110,130,150,180")
 
-function game_class.reduce_callback(score, player)
+function game_class.reduce_callback(score, player, board, contains_cnot_or_swap)
   player.score = player.score + score
+
+  if contains_cnot_or_swap then
+    board.freeze_timer = 300
+    sfx(49)
+  end
 end
 
 function game_class.combo_callback(combo_count, screen_x, screen_y, player, board, other_board)
@@ -169,8 +174,7 @@ function game_class.update(_ENV)
     end
   end
 
-  -- もしどちらかの board でおじゃまブロックを分解中だった場合 "slow" にする
-  ripple.slow = false
+  ripple.slow, ripple.freeze = false, false
 
   for _, each in pairs(all_players_info) do
     local player, board, other_board = each.player, each.board, each.other_board
@@ -212,9 +216,13 @@ function game_class.update(_ENV)
         _auto_raise(_ENV, each)
       end
 
+      -- もしどちらかの board でおじゃまブロックを分解中だった場合 "slow" にする
       if board.contains_garbage_match_block then
         ripple.slow = true
       end
+
+      -- もしフリーズ中だったら ripple も freeze にする
+      ripple.freeze = board.freeze_timer > 0
     end
   end
 
@@ -292,7 +300,7 @@ end
 
 -- 可能な場合ブロックを自動的にせりあげる
 function game_class._auto_raise(_ENV, player_info)
-  if player_info.board:is_busy() then
+  if player_info.board.freeze_timer > 0 or player_info.board:is_busy() then
     return
   end
 

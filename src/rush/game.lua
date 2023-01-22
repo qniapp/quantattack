@@ -10,8 +10,12 @@ local game = new_class()
 
 local all_players_info, countdown
 
-function game.reduce_callback(score, player)
+function game.reduce_callback(score, player, board, contains_cnot_or_swap)
   player.score = player.score + score
+
+  if contains_cnot_or_swap then
+    board.freeze_timer = 300
+  end
 end
 
 function game.combo_callback(combo_count, screen_x, screen_y, player, board, other_board)
@@ -268,7 +272,7 @@ end
 
 -- 可能な場合ブロックを自動的にせりあげる
 function game:_auto_raise(player_info)
-  if player_info.board:is_busy() then
+  if player_info.board.freeze_timer > 0 or player_info.board:is_busy() then
     return
   end
 

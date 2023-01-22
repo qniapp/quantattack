@@ -28,8 +28,8 @@ function board_class.init(_ENV, _cols)
   state, win, lose, timeup, top_block_y, _changed, show_gameover_menu, done_over_fx =
   "play", false, false, false, 0, false, false, false
 
-  -- ゲームオーバーの線
-  top_line_start_x = 0
+  -- ゲームオーバーの線 etc.
+  top_line_start_x, freeze_timer = 0, 0
 
   _chain_count, _topped_out_frame_count, _topped_out_delay_frame_count, _bounce_speed,
       _bounce_screen_dy =
@@ -80,7 +80,12 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
       local reduction = reduce(_ENV, x, y)
 
       if player then
-        game.reduce_callback(reduction.score, player)
+        game.reduce_callback(
+          reduction.score,
+          player,
+          _ENV,
+          reduction.contains_cnot_or_swap
+        )
       end
 
       if #reduction.to > 0 then
@@ -338,7 +343,7 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
 
     ::check_match::
     -- chainable フラグがついたブロックがマッチしたブロックの中に 1 個でも含まれていたら連鎖
-    local chain_id = x .. "," .. y
+    local chain_id, contains_cnot_or_swap = x .. "," .. y, false
 
     -- マッチするかチェック
     for i, block_types in pairs(block_pattern_rows) do
@@ -354,6 +359,10 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
         if block1.type ~= block_types[1] or
             (block1.other_x and block1.other_x ~= other_x) then
           goto next_rule
+        end
+
+        if block1.other_x then
+          contains_cnot_or_swap = true
         end
 
         if block1.chain_id then
@@ -378,7 +387,8 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
       to = rule[2],
       dx = dx,
       score = rule[3],
-      chain_id = chain_id
+      chain_id = chain_id,
+      contains_cnot_or_swap = contains_cnot_or_swap
     }
     goto matched
 
@@ -497,12 +507,9 @@ end
 function board_class.insert_blocks_at_bottom(_ENV)
   shift_all_blocks_up(_ENV)
 
-  -- local min_cnot_probability = 0.3
-  -- local max_cnot_probability = 0.7
-  local p = 0.3 + flr(steps / 5) * 0.1
-  p = p > 0.7 and 0.7 or p
-
-  if rnd(1) < p then
+  -- min_cnot_probability = 0.3
+  -- max_cnot_probability = 0.7
+  if rnd(1) < min(0.3 + flr(steps / 5) * 0.1, 0.7) then
     local control_x, cnot_x_x
 
     repeat
@@ -577,7 +584,10 @@ end
 function board_class.update(_ENV, game, player, other_board)
   pending_garbage_blocks:update(_ENV)
   _update_bounce(_ENV)
-  top_line_start_x = (top_line_start_x + 4) % 96
+  freeze_timer = max(freeze_timer - 1, 0)
+  if freeze_timer == 0 then
+    top_line_start_x = (top_line_start_x + 4) % 96
+  end
 
   if state == "play" then
     if win or lose then
@@ -664,7 +674,7 @@ function board_class.render(_ENV)
         128 - time_left_height,
         gauge_x + 1,
         127,
-        8
+        freeze_timer > 0 and 12 or 8
       )
     end
   end
@@ -676,9 +686,13 @@ function board_class.render(_ENV)
   if not is_game_over(_ENV) then
     if show_top_line then
       if top_line_start_x < 73 then
-        line(max(offset_x - 1, offset_x + top_line_start_x - 25), 40,
-          min(offset_x + 48, offset_x + top_line_start_x + 5), 40,
-          is_topped_out(_ENV) and 8 or 1)
+        line(
+          max(offset_x - 1, offset_x + top_line_start_x - 25),
+          40,
+          min(offset_x + 48, offset_x + top_line_start_x + 5),
+          40,
+          freeze_timer > 0 and 12 or (is_topped_out(_ENV) and 8 or 1)
+        )
       end
     end
 
@@ -712,7 +726,7 @@ end
 
 function board_class._update_game(_ENV, game, player, other_board)
   if is_topped_out(_ENV) then
-    if not is_busy(_ENV) then
+    if not is_busy(_ENV) and freeze_timer == 0 then
       _topped_out_frame_count = _topped_out_frame_count + 1
 
       if _topped_out_frame_count >= _topped_out_delay_frame_count then

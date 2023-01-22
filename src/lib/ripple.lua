@@ -3,14 +3,14 @@
 local ripple_class = new_class()
 
 function ripple_class._init(_ENV)
-  t1, t2, tick, slow = 0, 0, 0, false
+  t1, t2, tick, slow, freeze = 0, 0, 0, false, false
 end
 
 function ripple_class.update(_ENV)
   tick, t1, t2 =
   tick + 1,
-      t1 - 1 / (slow and 3000 or 1500),
-      t2 - 1 / (slow and 300 or 150)
+    t1 - 1 / ((slow or freeze) and 3000 or 1500),
+    t2 - 1 / ((slow or freeze) and 300 or 150)
 end
 
 function ripple_class.render(_ENV)
@@ -22,7 +22,7 @@ function ripple_class.render(_ENV)
         64 + 12 * d * cos(ang + t1),
         64 + 12 * d * sin(ang + t1) - 3 * r,
         r,
-        (slow and r > 3 and tick % 2 == 0) and 13 or 1
+        ((slow or freeze) and r > 3 and tick % 2 == 0) and (slow and 13 or 12) or 1
       )
     end
   end
