@@ -1,4 +1,5 @@
 require("lib/helpers")
+require("lib/effect_set")
 require("lib/player")
 require("lib/game")
 require("lib/board")

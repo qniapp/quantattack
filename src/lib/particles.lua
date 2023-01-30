@@ -1,8 +1,6 @@
 ---
 -- パーティクルを表示
 
-require("lib/effect_set")
-
 particles = derived_class(effect_set)()
 
 --- パーティクルの集合を作る

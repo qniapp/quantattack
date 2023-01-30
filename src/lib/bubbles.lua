@@ -1,7 +1,6 @@
 ---
 -- 同時消しまたは連鎖の数を表示
 --
-require("lib/effect_set")
 
 bubbles = derived_class(effect_set)()
 
