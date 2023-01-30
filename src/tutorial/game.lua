@@ -1,7 +1,6 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
 require("lib/helpers")
-require("lib/block")
 
 local game = new_class()
 local _state

@@ -4,7 +4,6 @@ require("lib/helpers")
 require("lib/effect_set")
 require("lib/game")
 require("lib/board")
-require("lib/block")
 
 local match = require("luassert.match")
 

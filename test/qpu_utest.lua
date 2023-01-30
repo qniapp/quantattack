@@ -5,7 +5,6 @@ require("lib/helpers")
 require("lib/effect_set")
 require("lib/qpu")
 require("lib/board")
-require("lib/block")
 
 describe('qpu', function()
   describe('new', function()
