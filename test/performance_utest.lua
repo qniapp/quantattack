@@ -1,7 +1,6 @@
 require("engine/test/bustedhelper")
 require("lib/helpers")
 require("lib/effect_set")
-require("lib/cursor")
 require("lib/qpu")
 require("lib/game")
 require("lib/board")

@@ -3,7 +3,6 @@ require("test/test_helper")
 require("lib/effect_set")
 require("lib/board")
 require("lib/block")
-require("lib/cursor")
 
 describe('block', function()
   describe('type', function()

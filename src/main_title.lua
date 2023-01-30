@@ -3,7 +3,6 @@
 require("lib/helpers")
 require("lib/effect_set")
 require("lib/board")
-require("lib/cursor")
 require("lib/qpu")
 require("title/game")
 require("title/plasma")

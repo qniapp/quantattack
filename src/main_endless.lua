@@ -3,7 +3,6 @@ require("lib/effect_set")
 require("lib/player")
 require("lib/game")
 require("lib/board")
-require("lib/cursor")
 
 local sash = require("lib/sash")
 

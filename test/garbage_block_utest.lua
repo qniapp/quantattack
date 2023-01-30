@@ -3,7 +3,6 @@ require("lib/helpers")
 require("lib/garbage_block")
 require("lib/effect_set")
 require("lib/board")
-require("lib/cursor")
 
 describe('garbage_block', function()
   describe('span', function()

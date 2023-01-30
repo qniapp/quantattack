@@ -5,7 +5,6 @@ require("lib/effect_set")
 require("lib/game")
 require("lib/board")
 require("lib/block")
-require("lib/cursor")
 
 local match = require("luassert.match")
 
