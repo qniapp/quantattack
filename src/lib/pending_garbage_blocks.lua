@@ -92,8 +92,7 @@ function pending_garbage_blocks_class.render(_ENV, board)
         draw_rounded_box(x0 + 1, y0 + 2, x0 + 11, y0 + 8, 0, 0)
 
         cursor(x0 + 5, y0 + 3)
-        color(6)
-        print(each.height)
+        print(each.height, 6)
       end
 
       pal()
