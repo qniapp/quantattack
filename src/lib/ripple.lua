@@ -1,18 +1,19 @@
----@diagnostic disable: global-in-nil-env, lowercase-global
-
+--- 背景の波紋を描画するクラス
 local ripple_class = new_class()
 
 function ripple_class._init(_ENV)
-  t1, t2, tick, slow, freeze = 0, 0, 0, false, false
+  t1, t2, tick = 0, 0, 0
 end
 
+--- 波紋の状態を更新
 function ripple_class.update(_ENV)
   tick, t1, t2 =
   tick + 1,
-    t1 - 1 / ((slow or freeze) and 3000 or 1500),
-    t2 - 1 / ((slow or freeze) and 300 or 150)
+      t1 - 1 / ((slow or freeze) and 3000 or 1500),
+      t2 - 1 / ((slow or freeze) and 300 or 150)
 end
 
+--- 波紋を描画
 function ripple_class.render(_ENV)
   for i = -5, 5 do
     for j = -5, 5 do
