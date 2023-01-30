@@ -1,7 +1,6 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
 require("lib/block")
-require("lib/cursor")
 require("lib/garbage_block")
 require("lib/particles")
 require("lib/reduction_rules")

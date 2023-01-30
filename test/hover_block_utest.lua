@@ -2,6 +2,7 @@ require("engine/test/bustedhelper")
 require("engine/render/color")
 require("test/test_helper")
 require("lib/effect_set")
+require("lib/cursor")
 require("lib/board")
 require("lib/block")
 
