@@ -1,5 +1,3 @@
----@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
-
 --- ユーザまたは QPU が操作するカーソルのクラス
 cursor_class = new_class()
 
@@ -602,11 +600,7 @@ function board_class.shift_all_blocks_up(_ENV)
   end
 end
 
--------------------------------------------------------------------------------
--- プレイヤーによるブロック操作
--------------------------------------------------------------------------------
-
--- (x_left, y) と (x_left + 1, y) のブロックを入れ替える
+--- x_left, y と x_left + 1, y のブロックを入れ替える
 -- 入れ替えできる場合は true を、そうでない場合は false を返す
 function board_class.swap(_ENV, x_left, y)
   local x_right = x_left + 1
@@ -629,10 +623,6 @@ function board_class.swap(_ENV, x_left, y)
   right_block:swap_with("left")
   return true
 end
-
--------------------------------------------------------------------------------
--- update, render
--------------------------------------------------------------------------------
 
 function board_class.update(_ENV, game, player, other_board)
   pending_garbage_blocks:update(_ENV)
@@ -916,11 +906,7 @@ function board_class._update_game(_ENV, game, player, other_board)
   end
 end
 
--------------------------------------------------------------------------------
--- おじゃまユニタリが接地したときの bounce エフェクト
--------------------------------------------------------------------------------
-
--- bounce エフェクトを開始
+--- bounce エフェクトを開始
 function board_class.bounce(_ENV)
   _bounce_screen_dy, _bounce_speed = 0, -4
 end
@@ -936,11 +922,7 @@ function board_class._update_bounce(_ENV)
   end
 end
 
--------------------------------------------------------------------------------
--- ブロックの種類判定
--------------------------------------------------------------------------------
-
--- x, y が空かどうかを返す
+--- x, y が空かどうかを返す
 -- おじゃまユニタリと SWAP, CNOT ブロックも考慮する
 function board_class.is_block_empty(_ENV, x, y)
   --#if assert
@@ -1023,11 +1005,7 @@ function board_class._swap_head_block(_ENV, x, y)
   return block.type == "swap" and block or nil
 end
 
--------------------------------------------------------------------------------
--- ブロックの状態
--------------------------------------------------------------------------------
-
--- ブロック x, y の直下のブロックでホバー状態にあるもののうち、
+--- ブロック x, y の直下のブロックでホバー状態にあるもののうち、
 -- timer の最大値を取得する。
 -- 直下のブロックが一つもなかった場合は nil を返す。
 --
@@ -1182,11 +1160,6 @@ function board_class.observable_update(_ENV, block, old_state)
   end
 end
 
--------------------------------------------------------------------------------
--- memoization
--------------------------------------------------------------------------------
-
--- 引数 x, y を取る関数 func をメモ化した関数を返す
 function board_class._memoize(_ENV, f, cache, x, y)
   if cache[y] == nil then
     cache[y] = {}
@@ -1201,10 +1174,6 @@ function board_class._memoize(_ENV, f, cache, x, y)
 
   return result
 end
-
--------------------------------------------------------------------------------
--- debug
--------------------------------------------------------------------------------
 
 --#if debug
 function board_class._tostring(_ENV)
