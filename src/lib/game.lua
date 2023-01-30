@@ -1,8 +1,9 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
-require("lib/attack_ion")
-require("lib/ripple")
-require("lib/particle")
+
 require("lib/bubble")
+require("lib/ions")
+require("lib/particle")
+require("lib/ripple")
 
 game_class = new_class()
 
@@ -19,7 +20,7 @@ end
 
 function game_class.combo_callback(combo_count, screen_x, screen_y, player, board, other_board)
   bubble:create("combo", combo_count, screen_x, screen_y)
-  attack_ion:create(
+  ions:create(
     screen_x,
     screen_y,
     function(target_x, target_y)
@@ -43,7 +44,7 @@ function game_class.block_offset_callback(chain_count, screen_x, screen_y, playe
   local offset_height = chain_count
 
   if offset_height > 2 then
-    attack_ion:create(
+    ions:create(
       screen_x,
       screen_y,
       function(target_x, target_y)
@@ -69,7 +70,7 @@ function game_class.chain_callback(chain_id, chain_count, screen_x, screen_y, pl
   if chain_count > 1 then
     bubble:create("chain", chain_count, screen_x, screen_y)
     if chain_count > 2 then
-      attack_ion:create(
+      ions:create(
         screen_x,
         screen_y,
         function(target_x, target_y)
@@ -228,7 +229,7 @@ function game_class.update(_ENV)
 
   particle:update_all()
   bubble:update_all()
-  attack_ion:update_all()
+  ions:update_all()
 
   if not game_over_time then
     -- ゲーム中だけ elapsed_time を更新
@@ -280,7 +281,7 @@ function game_class.render(_ENV) -- override
 
   particle:render_all()
   bubble:render_all()
-  attack_ion:render_all()
+  ions:render_all()
 end
 
 -- ブロックをせりあげる

@@ -4,6 +4,7 @@ activity_log.txt
 backup
 build/
 config.txt
+doc/
 intermediate/
 log.txt
 luacov.report.out
