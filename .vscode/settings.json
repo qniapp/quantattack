@@ -119,5 +119,9 @@
   ],
   "Lua.workspace.library": ["${3rd}/lfs/library"],
   "Lua.workspace.checkThirdParty": false,
-  "Lua.diagnostics.disable": ["deprecated"]
+  "Lua.diagnostics.disable": [
+    "deprecated",
+    "global-in-nil-env",
+    "lowercase-global"
+  ]
 }

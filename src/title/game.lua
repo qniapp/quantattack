@@ -1,6 +1,6 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
-require("lib/attack_ion")
+require("lib/ions")
 require("lib/bubble")
 require("lib/particle")
 
@@ -36,7 +36,7 @@ function game()
     end,
 
     combo_callback = function(_combo_count, screen_x, screen_y, _player, board, _other_board)
-      attack_ion:create(
+      ions:create(
         screen_x,
         screen_y,
         attack_cube_callback,
@@ -52,7 +52,7 @@ function game()
 
     chain_callback = function(_chain_id, chain_count, screen_x, screen_y)
       if chain_count > 1 then
-        attack_ion:create(
+        ions:create(
           screen_x,
           screen_y,
           attack_cube_callback,
@@ -106,7 +106,7 @@ function game()
 
       particle:update_all()
       bubble:update_all()
-      attack_ion:update_all()
+      ions:update_all()
     end,
 
     render = function(_ENV)
@@ -116,7 +116,7 @@ function game()
 
       particle:render_all()
       bubble:render_all()
-      attack_ion:render_all()
+      ions:render_all()
     end,
 
     -- ブロックをせりあげる

@@ -1,5 +1,5 @@
 require("lib/helpers")
-require("lib/attack_ion")
+require("lib/ions")
 require("lib/bubble")
 require("lib/particle")
 require("lib/ripple")
@@ -20,7 +20,7 @@ end
 
 function game.combo_callback(combo_count, screen_x, screen_y, player, board, other_board)
   bubble:create("combo", combo_count, screen_x, screen_y)
-  attack_ion:create(
+  ions:create(
     screen_x,
     screen_y,
     function(target_x, target_y)
@@ -46,7 +46,7 @@ function game.block_offset_callback(chain_count, screen_x, screen_y, player, boa
   local offset_height = chain_count
 
   if offset_height > 2 then
-    attack_ion:create(
+    ions:create(
       screen_x,
       screen_y,
       function(target_x, target_y)
@@ -71,7 +71,7 @@ end
 function game.chain_callback(chain_id, chain_count, screen_x, screen_y, player, board, other_board)
   if chain_count > 1 then
     bubble:create("chain", chain_count, screen_x, screen_y)
-    attack_ion:create(
+    ions:create(
       screen_x,
       screen_y,
       function(target_x, target_y)
@@ -223,7 +223,7 @@ function game:update()
 
   particle:update_all()
   bubble:update_all()
-  attack_ion:update_all()
+  ions:update_all()
 
   -- ゲーム中だけ time_left を更新
   game.time_left = 120 - (t() - self.start_time)
@@ -252,7 +252,7 @@ function game:render() -- override
 
   particle:render_all()
   bubble:render_all()
-  attack_ion:render_all()
+  ions:render_all()
 end
 
 -- ブロックをせりあげる
