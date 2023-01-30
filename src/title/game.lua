@@ -1,8 +1,8 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
-require("lib/bubble")
+require("lib/bubbles")
 require("lib/ions")
-require("lib/particle")
+require("lib/particles")
 
 title_logo_bounce_speed, title_logo_bounce_screen_dy = 0, 0
 
@@ -25,8 +25,8 @@ end
 local attack_cube_callback = function(target_x, target_y)
   bounce_title_logo()
   sfx(19)
-  particle:create_chunk(target_x, target_y,
-    "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
+  particles:create(target_x, target_y,
+    "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 end
 
 function game()
@@ -104,8 +104,8 @@ function game()
         cursor:update()
       end
 
-      particle:update_all()
-      bubble:update_all()
+      particles:update_all()
+      bubbles:update_all()
       ions:update_all()
     end,
 
@@ -114,8 +114,8 @@ function game()
         each.board:render()
       end
 
-      particle:render_all()
-      bubble:render_all()
+      particles:render_all()
+      bubbles:render_all()
       ions:render_all()
     end,
 

@@ -1,19 +1,22 @@
----@diagnostic disable: lowercase-global, global-in-nil-env
-
+---
+-- 同時消しまたは連鎖の数を表示
+--
 require("lib/effect_set")
 
-local bubble_class = derived_class(effect_set)
+bubbles = derived_class(effect_set)()
 
--- singleton
-bubble = bubble_class()
-
-function bubble:create(bubble_type, count, x, y)
+--- バブルを作る
+-- @param bubble_type バブル
+-- @param count 同時消しまたは連鎖の数
+-- @param x x 座標
+-- @param y y 座標
+function bubbles:create(bubble_type, count, x, y)
   self:_add(function(_ENV)
     _type, _count, _x, _y, _tick = bubble_type, count, x, y - 8, 0
   end)
 end
 
-function bubble._update(_ENV, all)
+function bubbles._update(_ENV, all)
   if _tick > 40 then
     del(all, _ENV)
   end
@@ -24,7 +27,7 @@ function bubble._update(_ENV, all)
   _tick = _tick + 1
 end
 
-function bubble._render(_ENV)
+function bubbles._render(_ENV)
   if _type == "combo" then
     draw_rounded_box(_x - 1, _y + 1, _x + 7, _y + 9, 5, 5)
     draw_rounded_box(_x - 1, _y, _x + 7, _y + 8, 7, 8)
@@ -41,6 +44,5 @@ function bubble._render(_ENV)
     cursor(_x + rbox_dx + 4, _y + 2)
   end
 
-  color(10)
-  print(_count)
+  print(_count, 10)
 end

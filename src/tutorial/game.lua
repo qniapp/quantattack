@@ -3,8 +3,8 @@
 require("lib/helpers")
 require("lib/block")
 require("lib/ripple")
-require("lib/particle")
-require("lib/bubble")
+require("lib/particles")
+require("lib/bubbles")
 
 local game = new_class()
 local _state
@@ -28,7 +28,7 @@ function game.update(_ENV)
         board:shift_all_blocks_up()
 
         for x = 1, board.cols do
-          local block_type, other_x = unpack(split(_board_data[_rows_raised][x]))
+          local block_type, other_x = unpack_split(_board_data[_rows_raised][x])
           local new_block = block_class(block_type)
           new_block.other_x = other_x
           board:put(x, 0, new_block)
@@ -69,16 +69,16 @@ function game.update(_ENV)
   cursor:update()
 
   ripple:update()
-  particle:update_all()
-  bubble:update_all()
+  particles:update_all()
+  bubbles:update_all()
 end
 
 function game.render(_ENV)
   if _state ~= ":initial" then
     board:render()
   end
-  particle:render_all()
-  bubble:render_all()
+  particles:render_all()
+  bubbles:render_all()
 end
 
 function game.raise_stack(_ENV, board_data, callback)
