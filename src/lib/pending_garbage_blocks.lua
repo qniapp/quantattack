@@ -1,6 +1,6 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
 
-local pending_garbage_blocks_class = new_class()
+pending_garbage_blocks_class = new_class()
 
 function pending_garbage_blocks_class._init(_ENV)
   all = {}
@@ -100,5 +100,3 @@ function pending_garbage_blocks_class.render(_ENV, board)
     end
   end
 end
-
-return pending_garbage_blocks_class

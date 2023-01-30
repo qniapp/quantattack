@@ -3,8 +3,7 @@
 require("lib/block")
 require("lib/garbage_block")
 require("lib/reduction_rules")
-
-local pending_garbage_blocks_class = require("lib/pending_garbage_blocks")
+require("lib/pending_garbage_blocks")
 
 board_class = new_class()
 
