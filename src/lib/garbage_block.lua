@@ -39,8 +39,8 @@ function garbage_block(_span, _height, _color, _chain_id, _tick_fall)
     --- @param screen_y integer おじゃまブロック先頭ブロックの Y 座標
     render = function(_ENV, screen_x, screen_y)
       local y0, x1, y1, _body_color =
-      screen_y + (1 - height) * tile_size,
-          screen_x + span * tile_size - 2,
+      screen_y + (1 - height) * 8,
+          screen_x + span * 8 - 2,
           screen_y + 6,
           _state ~= "over" and body_color or 9
 

@@ -1,5 +1,4 @@
 ---@diagnostic disable: discard-returns, lowercase-global
-tile_size = 8
 
 function ceil_rnd(num)
   return flr(rnd(num)) + 1

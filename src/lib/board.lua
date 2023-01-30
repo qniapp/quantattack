@@ -19,7 +19,7 @@ function board_class.init(_ENV, _cols)
 
   -- 画面上のサイズと位置
   width, height, offset_x, raised_dots =
-  cols * tile_size, (rows - 1) * tile_size, _offset_x or 11, 0
+  cols * 8, (rows - 1) * 8, _offset_x or 11, 0
 
   -- board の状態
   state, win, lose, timeup, top_block_y, _changed, show_gameover_menu, done_over_fx =
