@@ -1,7 +1,5 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
-require("lib/ripple")
-
 game_class = new_class()
 
 local chain_bonus = split("0,5,8,15,30,40,50,70,90,110,130,150,180")
