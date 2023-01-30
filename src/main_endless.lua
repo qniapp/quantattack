@@ -1,8 +1,5 @@
 require("lib/helpers")
 require("lib/effect_set")
-require("lib/bubbles")
-require("lib/ions")
-require("lib/particles")
 require("lib/player")
 require("lib/game")
 require("lib/board")

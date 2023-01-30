@@ -1,9 +1,5 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
-require("lib/bubbles")
-require("lib/ions")
-require("lib/particles")
-
 title_logo_bounce_speed, title_logo_bounce_screen_dy = 0, 0
 
 -- タイトルロゴを跳ねさせる

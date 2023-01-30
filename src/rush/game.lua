@@ -1,7 +1,4 @@
 require("lib/helpers")
-require("lib/bubbles")
-require("lib/ions")
-require("lib/particles")
 require("lib/ripple")
 require("lib/pending_garbage_blocks")
 

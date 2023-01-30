@@ -1,6 +1,5 @@
 require("engine/test/bustedhelper")
 require("lib/effect_set")
-require("lib/particles")
 
 describe('particle', function()
   before_each(function()

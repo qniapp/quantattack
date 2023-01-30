@@ -3,8 +3,6 @@
 require("lib/helpers")
 require("lib/block")
 require("lib/ripple")
-require("lib/particles")
-require("lib/bubbles")
 
 local game = new_class()
 local _state
