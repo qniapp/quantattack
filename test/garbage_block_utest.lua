@@ -1,6 +1,5 @@
 require("engine/test/bustedhelper")
 require("lib/helpers")
-require("lib/garbage_block")
 require("lib/effect_set")
 require("lib/board")
 

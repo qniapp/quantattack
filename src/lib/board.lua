@@ -300,7 +300,46 @@ function block_class:_tostring()
 end
 --#endif
 
-require("lib/garbage_block")
+--- おじゃまブロック
+
+local garbage_block_colors = { 2, 3, 4 }
+local inner_border_colors = { nil, 14, 11, 9 }
+
+--- 新しいおじゃまブロックを作る
+function garbage_block(_span, _height, _color, _chain_id, _tick_fall)
+  local garbage = setmetatable({
+    body_color = _color or garbage_block_colors[ceil_rnd(#garbage_block_colors)],
+    chain_id = _chain_id,
+    tick_fall = _tick_fall,
+    dy = 0,
+    first_drop = true,
+    _render_box = draw_rounded_box,
+
+    render = function(_ENV, screen_x, screen_y)
+      local y0, x1, y1, _body_color =
+      screen_y + (1 - height) * 8,
+          screen_x + span * 8 - 2,
+          screen_y + 6,
+          _state ~= "over" and body_color or 9
+
+      _render_box(screen_x, y0 + 1, x1, y1 + 1, 5) -- 影
+      _render_box(screen_x, y0, x1, y1, _body_color, _body_color) -- 本体
+      _render_box(screen_x + 1, y0 + 1, x1 - 1, y1 - 1, _state ~= "over" and inner_border_color or 1) -- 内側の線
+    end
+  }, { __index = block_class("g", _span or 6, _height) })
+
+  --#if assert
+  assert(garbage.body_color == 2 or garbage.body_color == 3 or garbage.body_color == 4,
+    "invalid color: " .. garbage.body_color)
+  assert(2 < garbage.span, "span must be greater than 2")
+  assert(garbage.span < 7, "span must be less than 7")
+  --#endif
+
+  garbage.inner_border_color = inner_border_colors[garbage.body_color]
+
+  return garbage
+end
+
 require("lib/reduction_rules")
 require("lib/pending_garbage_blocks")
 
