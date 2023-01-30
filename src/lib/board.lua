@@ -2,7 +2,6 @@
 
 require("lib/block")
 require("lib/garbage_block")
-require("lib/particles")
 require("lib/reduction_rules")
 
 local pending_garbage_blocks_class = require("lib/pending_garbage_blocks")

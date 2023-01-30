@@ -1,7 +1,10 @@
--- 8145
+-- 8142
 
 require("lib/helpers")
 require("lib/effect_set")
+require("lib/bubbles")
+require("lib/ions")
+require("lib/particles")
 require("lib/cursor")
 require("lib/board")
 require("lib/game")
