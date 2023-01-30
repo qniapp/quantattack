@@ -1,9 +1,9 @@
 require("lib/helpers")
 require("lib/effect_set")
 require("lib/cursor")
-require("lib/qpu")
 require("lib/game")
 require("lib/board")
+require("lib/qpu")
 
 local game = game_class()
 local qpu1_board, qpu2_board = board_class(cursor_class(), 3), board_class(cursor_class(), 78)
