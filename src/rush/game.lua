@@ -1,6 +1,6 @@
 require("lib/helpers")
-require("lib/ions")
 require("lib/bubble")
+require("lib/ions")
 require("lib/particle")
 require("lib/ripple")
 

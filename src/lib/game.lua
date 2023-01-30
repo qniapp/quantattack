@@ -1,8 +1,9 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
-require("lib/ions")
-require("lib/ripple")
-require("lib/particle")
+
 require("lib/bubble")
+require("lib/ions")
+require("lib/particle")
+require("lib/ripple")
 
 game_class = new_class()
 

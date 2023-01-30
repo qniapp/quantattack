@@ -1,7 +1,7 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
-require("lib/ions")
 require("lib/bubble")
+require("lib/ions")
 require("lib/particle")
 
 title_logo_bounce_speed, title_logo_bounce_screen_dy = 0, 0
