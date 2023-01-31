@@ -516,6 +516,7 @@ local state_string = {
 function block_class:_tostring()
   return (type_string[self.type] or self.type:upper()) .. state_string[self._state]
 end
+
 --#endif
 
 --- おじゃまブロック
@@ -1500,8 +1501,6 @@ function board_class._update_game(_ENV, game, player, other_board)
               bounce(_ENV)
               sfx(9)
               block.first_drop = false
-            else
-              sfx(12)
             end
 
             block:change_state("idle")
