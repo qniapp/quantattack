@@ -1,28 +1,7 @@
----@diagnostic disable: discard-returns, lowercase-global, global-in-nil-env
+require("lib/high_score")
 
-local high_score_class = require("lib/high_score")
-
---- @class menu_item
---- @field target_cart string
---- @field sx integer
---- @field sy integer
---- @field width integer
---- @field height integer
---- @field cart_load_param string
---- @field label string
---- @field description string
---- @field high_score integer
 local menu_item = new_class()
 
---- @param _target_cart string
---- @param _sx integer
---- @param _sy integer
---- @param _width integer
---- @param _height integer
---- @param _cart_load_param string
---- @param _label string
---- @param _description string
---- @param _high_score_slot integer
 function menu_item._init(_ENV, _target_cart, _target_state, _sx, _sy, _width, _height, _cart_load_param, _label,
                          _description,
                          _high_score_slot)
@@ -32,9 +11,9 @@ function menu_item._init(_ENV, _target_cart, _target_state, _sx, _sy, _width, _h
       _high_score_slot and high_score_class(_high_score_slot):get()
 end
 
-local menu = new_class()
+menu_class = new_class()
 
-function menu._init(_ENV, items_string, previous_state)
+function menu_class._init(_ENV, items_string, previous_state)
   _items = {}
   for index, each in pairs(split(items_string, "|")) do
     _items[index] = menu_item(unpack_split(each))
@@ -43,7 +22,7 @@ function menu._init(_ENV, items_string, previous_state)
   _previous_state = previous_state
 end
 
-function menu.update(_ENV)
+function menu_class.update(_ENV)
   if cart_to_load then
     if cart_load_delay > 0 then
       cart_load_delay = cart_load_delay - 1
@@ -79,7 +58,7 @@ function menu.update(_ENV)
   end
 end
 
-function menu.draw(_ENV, left, top)
+function menu_class.draw(_ENV, left, top)
   local sx = left
 
   for i, each in pairs(_items) do
@@ -110,5 +89,3 @@ function print_centered(text, center_x, center_y, col)
     print(text, center_x - #text * 2 + 1, center_y - 2, col)
   end
 end
-
-return menu

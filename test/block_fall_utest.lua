@@ -2,8 +2,6 @@ require("engine/test/bustedhelper")
 require("engine/render/color")
 require("test/test_helper")
 require("lib/board")
-require("lib/block")
-require("lib/cursor")
 
 describe('ブロックの落下', function()
   local board

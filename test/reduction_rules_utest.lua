@@ -1,9 +1,6 @@
 require("engine/test/bustedhelper")
 require("test/test_helper")
-
-require("lib/block")
 require("lib/board")
-require("lib/cursor")
 
 -- TODO: assert.is_i とかをほかのテストでも使えるようにする
 

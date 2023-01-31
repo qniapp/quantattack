@@ -1,10 +1,3 @@
-require("lib/helpers")
-require("lib/bubble")
-require("lib/ions")
-require("lib/particle")
-require("lib/ripple")
-
-local pending_garbage_blocks_class = require("lib/pending_garbage_blocks")
 local pending_garbage_blocks = pending_garbage_blocks_class()
 local game = new_class()
 
@@ -19,14 +12,14 @@ function game.reduce_callback(score, player, board, contains_cnot_or_swap)
 end
 
 function game.combo_callback(combo_count, screen_x, screen_y, player, board, other_board)
-  bubble:create("combo", combo_count, screen_x, screen_y)
+  bubbles:create("combo", combo_count, screen_x, screen_y)
   ions:create(
     screen_x,
     screen_y,
     function(target_x, target_y)
       sfx(21)
-      particle:create_chunk(target_x, target_y,
-        "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
+      particles:create(target_x, target_y,
+        "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
       player.score = player.score + combo_count
 
@@ -51,8 +44,8 @@ function game.block_offset_callback(chain_count, screen_x, screen_y, player, boa
       screen_y,
       function(target_x, target_y)
         sfx(21)
-        particle:create_chunk(target_x, target_y,
-          "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
+        particles:create(target_x, target_y,
+          "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
         player.score = player.score + (chain_bonus[chain_count] or 180)
 
@@ -70,14 +63,14 @@ end
 
 function game.chain_callback(chain_id, chain_count, screen_x, screen_y, player, board, other_board)
   if chain_count > 1 then
-    bubble:create("chain", chain_count, screen_x, screen_y)
+    bubbles:create("chain", chain_count, screen_x, screen_y)
     ions:create(
       screen_x,
       screen_y,
       function(target_x, target_y)
         sfx(21)
-        particle:create_chunk(target_x, target_y,
-          "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
+        particles:create(target_x, target_y,
+          "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
         player.score = player.score + (chain_bonus[chain_count] or 180)
 
@@ -221,8 +214,8 @@ function game:update()
     end
   end
 
-  particle:update_all()
-  bubble:update_all()
+  particles:update_all()
+  bubbles:update_all()
   ions:update_all()
 
   -- ゲーム中だけ time_left を更新
@@ -250,8 +243,8 @@ function game:render() -- override
     end
   end
 
-  particle:render_all()
-  bubble:render_all()
+  particles:render_all()
+  bubbles:render_all()
   ions:render_all()
 end
 

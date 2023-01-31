@@ -1,9 +1,9 @@
-require("lib/helpers")
+-- 7997
 
-require("lib/cursor")
+require("lib/helpers")
+require("lib/board")
 require("lib/qpu")
 require("lib/game")
-require("lib/board")
 
 local game = game_class()
 local qpu1_board, qpu2_board = board_class(cursor_class(), 3), board_class(cursor_class(), 78)

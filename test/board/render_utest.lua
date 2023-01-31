@@ -1,9 +1,6 @@
 require("engine/test/bustedhelper")
 require("test/test_helper")
-
-require("lib/block")
 require("lib/board")
-require("lib/garbage_block")
 
 describe('board', function()
   local board

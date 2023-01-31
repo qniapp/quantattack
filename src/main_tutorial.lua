@@ -1,10 +1,9 @@
-require("lib/helpers")
+-- 8022
 
-require("lib/cursor")
-require("lib/player")
+require("lib/helpers")
 require("tutorial/dtb")
 require("lib/board")
-require("lib/ripple")
+require("lib/player")
 
 local game_class = require("tutorial/game")
 

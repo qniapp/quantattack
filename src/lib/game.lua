@@ -1,10 +1,5 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
-require("lib/bubble")
-require("lib/ions")
-require("lib/particle")
-require("lib/ripple")
-
 game_class = new_class()
 
 local chain_bonus = split("0,5,8,15,30,40,50,70,90,110,130,150,180")
@@ -19,14 +14,14 @@ function game_class.reduce_callback(score, player, board, contains_cnot_or_swap)
 end
 
 function game_class.combo_callback(combo_count, screen_x, screen_y, player, board, other_board)
-  bubble:create("combo", combo_count, screen_x, screen_y)
+  bubbles:create("combo", combo_count, screen_x, screen_y)
   ions:create(
     screen_x,
     screen_y,
     function(target_x, target_y)
       sfx(21)
-      particle:create_chunk(target_x, target_y,
-        "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
+      particles:create(target_x, target_y,
+        "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
       player.score = player.score + combo_count
 
@@ -49,8 +44,8 @@ function game_class.block_offset_callback(chain_count, screen_x, screen_y, playe
       screen_y,
       function(target_x, target_y)
         sfx(21)
-        particle:create_chunk(target_x, target_y,
-          "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
+        particles:create(target_x, target_y,
+          "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
         player.score = player.score + (chain_bonus[chain_count] or 180)
 
@@ -68,15 +63,15 @@ end
 
 function game_class.chain_callback(chain_id, chain_count, screen_x, screen_y, player, board, other_board)
   if chain_count > 1 then
-    bubble:create("chain", chain_count, screen_x, screen_y)
+    bubbles:create("chain", chain_count, screen_x, screen_y)
     if chain_count > 2 then
       ions:create(
         screen_x,
         screen_y,
         function(target_x, target_y)
           sfx(21)
-          particle:create_chunk(target_x, target_y,
-            "5,5,9,7,random,random,-0.03,-0.03,20|5,5,9,7,random,random,-0.03,-0.03,20|4,4,9,7,random,random,-0.03,-0.03,20|4,4,2,5,random,random,-0.03,-0.03,20|4,4,6,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,9,7,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|2,2,6,5,random,random,-0.03,-0.03,20|0,0,2,5,random,random,-0.03,-0.03,20")
+          particles:create(target_x, target_y,
+            "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
           player.score = player.score + (chain_bonus[chain_count] or 180)
 
@@ -227,8 +222,8 @@ function game_class.update(_ENV)
     end
   end
 
-  particle:update_all()
-  bubble:update_all()
+  particles:update_all()
+  bubbles:update_all()
   ions:update_all()
 
   if not game_over_time then
@@ -279,8 +274,8 @@ function game_class.render(_ENV) -- override
     end
   end
 
-  particle:render_all()
-  bubble:render_all()
+  particles:render_all()
+  bubbles:render_all()
   ions:render_all()
 end
 

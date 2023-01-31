@@ -8,7 +8,6 @@
     "new_class",
     "pal",
     "spr",
-    "derived_class",
     "lfs",
     "cls",
     "_draw",
@@ -122,6 +121,7 @@
   "Lua.diagnostics.disable": [
     "deprecated",
     "global-in-nil-env",
-    "lowercase-global"
+    "lowercase-global",
+    "unbalanced-assignments"
   ]
 }

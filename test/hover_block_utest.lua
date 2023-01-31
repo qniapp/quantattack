@@ -2,7 +2,6 @@ require("engine/test/bustedhelper")
 require("engine/render/color")
 require("test/test_helper")
 require("lib/board")
-require("lib/block")
 
 describe('ブロックの hover 状態', function()
   local board

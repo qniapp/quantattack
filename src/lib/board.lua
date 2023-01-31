@@ -1,13 +1,706 @@
----@diagnostic disable: global-in-nil-env, lowercase-global, unbalanced-assignments
+effect_set = new_class()
 
-require("lib/block")
-require("lib/cursor")
-require("lib/garbage_block")
-require("lib/particle")
-require("lib/reduction_rules")
+function effect_set:_init()
+  self.all = {}
+end
 
-local pending_garbage_blocks_class = require("lib/pending_garbage_blocks")
+function effect_set:_add(f)
+  local _ENV = setmetatable({}, { __index = _ENV })
+  f(_ENV)
+  add(self.all, _ENV)
+end
 
+function effect_set:update_all()
+  foreach(self.all, function(each)
+    self._update(each, self.all)
+  end)
+end
+
+function effect_set:render_all()
+  foreach(self.all, function(each)
+    self._render(each)
+  end)
+end
+
+---
+-- 同時消しまたは連鎖の数を表示
+--
+
+bubbles = derived_class(effect_set)()
+
+--- バブルを作る
+-- @param bubble_type バブル
+-- @param count 同時消しまたは連鎖の数
+-- @param x x 座標
+-- @param y y 座標
+function bubbles:create(bubble_type, count, x, y)
+  self:_add(function(_ENV)
+    _type, _count, _x, _y, _tick = bubble_type, count, x, y - 8, 0
+  end)
+end
+
+function bubbles._update(_ENV, all)
+  if _tick > 40 then
+    del(all, _ENV)
+  end
+  if _tick < 30 then
+    _y = _y - 0.2
+  end
+
+  _tick = _tick + 1
+end
+
+function bubbles._render(_ENV)
+  if _type == "combo" then
+    draw_rounded_box(_x - 1, _y + 1, _x + 7, _y + 9, 5, 5)
+    draw_rounded_box(_x - 1, _y, _x + 7, _y + 8, 7, 8)
+
+    cursor(_x + 2, _y + 2)
+  else
+    local rbox_dx = _count < 10 and 0 or -2
+
+    draw_rounded_box(_x + rbox_dx - 2, _y + 1, _x - rbox_dx + 8, _y + 9, 5, 5)
+    draw_rounded_box(_x + rbox_dx - 2, _y, _x - rbox_dx + 8, _y + 8, 7, 3)
+
+    spr(96, _x + rbox_dx, _y - 1) -- the "x" part in "x5"
+
+    cursor(_x + rbox_dx + 4, _y + 2)
+  end
+
+  print(_count, 10)
+end
+
+---
+-- 攻撃または相殺の時に表示するイオン球エフェクト。
+-- チュートリアルに登場するキャラクター「イオン君」の表示にも使われる。
+
+ions = derived_class(effect_set)()
+
+--- イオン球エフェクトを作る
+-- @usage ions:create(64, 64, ions_callback, 12, 10, 10) -- 64, 64 から 10, 10 に向かって青色のイオン球を飛ばす
+-- @param x x 座標
+-- @param y y 座標
+-- @param callback コールバック
+-- @param ion_color イオン球の色
+-- @param target_x 目標 x 座標
+-- @param target_y 目標 y 座標
+function ions:create(x, y, callback, ion_color, target_x, target_y)
+  self:_add(function(_ENV)
+    _from_x, _from_y, _target_x, _target_y, _callback, _tick, _color =
+    x, y, target_x, target_y, callback, 0, ion_color
+    sfx(20)
+  end)
+end
+
+--- イオン球のプロパティを更新。
+-- effect_set の update から呼ばれるので、このメソッドを明示的に呼ぶ必要はないことに注意。
+-- @param _ENV イオン球オブジェクト
+-- @param all すべてのイオン球オブジェクト
+function ions._update(_ENV, all)
+  local _quadratic_bezier = function(from, mid, to)
+    local t = _tick / 60
+    return (1 - t) * (1 - t) * from + 2 * (1 - t) * t * mid + t * t * to
+  end
+
+  if _tick == 60 then
+    _callback(_target_x, _target_y)
+    del(all, _ENV)
+  end
+
+  _tick = _tick + 1
+
+  _x, _y =
+  _quadratic_bezier(_from_x, _from_x > 64 and _from_x + 60 or _from_x - 60, _target_x),
+      _quadratic_bezier(_from_y, _from_y + 40, _target_y)
+end
+
+--- イオン球を描画。
+-- effect_set の render から呼ばれるので、このメソッドを明示的に呼ぶ必要はないことに注意。
+-- @param _ENV イオン球オブジェクト
+function ions._render(_ENV)
+  fillp(23130.5)
+  circfill(_x, _y, 6 + 2 * sin(t()), _color)
+  fillp()
+  circfill(_x, _y, 4 + 2 * sin(1.5 * t()), _color)
+  circfill(_x, _y, 3 + sin(2.5 * t()), 7)
+end
+
+---
+-- パーティクルを表示
+
+particles = derived_class(effect_set)()
+
+--- パーティクルの集合を作る
+-- @param x x 座標
+-- @param y y 座標
+-- @param data 各パーティクルのデータ文字列
+function particles:create(x, y, data)
+  foreach(split(data, "|"), function(each)
+    self:_create(x, y, unpack_split(each))
+  end)
+end
+
+function particles:_create(x, y, radius, end_radius, particle_color, particle_color_fade, dx, dy, ddx, ddy, max_tick)
+  self:_add(function(_ENV)
+    _x, _y, _dx, _dy, _radius, _end_radius, _color, _color_fade, _tick, _max_tick, _ddx, _ddy =
+    x, y, dx == "" and rnd(1) or dx, dy == "" and rnd(1) or dy, radius, end_radius, particle_color, particle_color_fade,
+        0, max_tick + rnd(10), ddx, ddy
+
+    if dx == "" then
+      -- move to the left
+      if ceil_rnd(2) == 1 then
+        _dx, _ddx = _dx * -1, _ddx * -1
+      end
+
+      -- move upwards
+      if ceil_rnd(2) == 1 then
+        _dy, _ddy = _dy * -1, _ddy * -1
+      end
+    end
+  end)
+end
+
+--- パーティクルのプロパティを更新。
+-- effect_set の update から呼ばれるので、このメソッドを明示的に呼ぶ必要はないことに注意。
+-- @param _ENV パーティクルオブジェクト
+-- @param all すべてのパーティクルオブジェクト
+function particles._update(_ENV, all)
+  if _tick > _max_tick then
+    del(all, _ENV)
+  end
+  if _tick > _max_tick * .5 then
+    _color, _radius = _color_fade, _end_radius
+  end
+
+  _x, _y, _dx, _dy, _tick = _x + _dx, _y + _dy, _dx + _ddx, _dy + _ddy, _tick + 1
+end
+
+--- パーティクルを描画。
+-- effect_set の render から呼ばれるので、このメソッドを明示的に呼ぶ必要はないことに注意。
+-- @param _ENV パーティクルオブジェクト
+function particles._render(_ENV)
+  circfill(_x, _y, _radius, _color)
+end
+
+--- 背景の波紋を描画するクラス
+local ripple_class = new_class()
+
+function ripple_class._init(_ENV)
+  t1, t2, tick = 0, 0, 0
+end
+
+--- 波紋の状態を更新
+function ripple_class.update(_ENV)
+  tick, t1, t2 =
+  tick + 1,
+      t1 - 1 / ((slow or freeze) and 3000 or 1500),
+      t2 - 1 / ((slow or freeze) and 300 or 150)
+end
+
+--- 波紋を描画
+function ripple_class.render(_ENV)
+  for i = -5, 5 do
+    for j = -5, 5 do
+      local ang, d = atan2(i, j), sqrt(i * i + j * j)
+      local r = 2 + 2 * sin(d / 4 + t2)
+      circfill(
+        64 + 12 * d * cos(ang + t1),
+        64 + 12 * d * sin(ang + t1) - 3 * r,
+        r,
+        ((slow or freeze) and r > 3 and tick % 2 == 0) and (slow and 13 or 12) or 1
+      )
+    end
+  end
+end
+
+-- singleton
+ripple = ripple_class()
+
+--- ユーザまたは QPU が操作するカーソルのクラス
+cursor_class = new_class()
+
+function cursor_class._init(_ENV)
+  init(_ENV)
+end
+
+--- カーソルの初期化
+function cursor_class.init(_ENV)
+  x, y, _tick = 3, 6, 0
+end
+
+--- カーソルを左に移動
+function cursor_class.move_left(_ENV)
+  if x > 1 then
+    x = x - 1
+  end
+end
+
+--- カーソルを右に移動
+function cursor_class.move_right(_ENV, cols)
+  if x < cols - 1 then
+    x = x + 1
+  end
+end
+
+--- カーソルを上に移動
+function cursor_class.move_up(_ENV, rows)
+  if y < rows then
+    y = y + 1
+  end
+end
+
+--- カーソルを下に移動
+function cursor_class.move_down(_ENV)
+  if y > 1 then
+    y = y - 1
+  end
+end
+
+--- カーソルの状態を更新
+function cursor_class.update(_ENV)
+  _tick = (_tick + 1) % 28
+end
+
+--- カーソルを描画
+function cursor_class.render(_ENV, screen_x, screen_y)
+  if _tick < 14 then
+    sspr(32, 32, 19, 11, screen_x - 2, screen_y - 2)
+  else
+    sspr(56, 32, 21, 13, screen_x - 3, screen_y - 3)
+  end
+end
+
+--- ブロック (量子ゲート) クラス
+block_class = new_class()
+block_class.block_match_animation_frame_count = 45
+block_class.block_match_delay_per_block = 8
+block_class.block_swap_animation_frame_count = 3
+block_class.sprites = transform({
+  -- default|landing|match
+  h = "0|1,1,1,2,2,2,3,3,1,1,1,1|24,24,24,25,25,25,24,24,24,26,26,26,0,0,0,27",
+  x = "16|17,17,17,18,18,18,19,19,17,17,17,17|40,40,40,41,41,41,40,40,40,42,42,42,16,16,16,43",
+  y = "32|33,33,33,34,34,34,35,35,33,33,33,33|56,56,56,57,57,57,56,56,56,58,58,58,32,32,32,59",
+  z = "48|49,49,49,50,50,50,51,51,49,49,49,49|12,12,12,13,13,13,12,12,12,14,14,14,48,48,48,15",
+  s = "4|5,5,5,6,6,6,7,7,5,5,5,5|28,28,28,29,29,29,28,28,28,30,30,30,4,4,4,31",
+  t = "20|21,21,21,22,22,22,23,23,21,21,21,21|44,44,44,45,45,45,44,44,44,46,46,46,20,20,20,47",
+  control = "36|37,37,37,38,38,38,39,39,37,37,37,37|60,60,60,61,61,61,60,60,60,62,62,62,36,36,36,63",
+  cnot_x = "52|53,53,53,54,54,54,55,55,53,53,53,53|64,64,64,65,65,65,64,64,64,66,66,66,52,52,52,67",
+  swap = "8|9,9,9,10,10,10,11,11,9,9,9,9|80,80,80,81,81,81,80,80,80,82,82,82,8,8,8,83",
+  ["?"] = "98|98,98,98,98,98,98,98,98,98,98,98,98|98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98",
+  ["#"] = "113|113,113,113,113,113,113,113,113,113,113,113,113|113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113"
+}, function(each)
+  local default, landing, match = unpack(split(each, "|"))
+  return {
+    default = default,
+    landing = split(landing),
+    match = split(match)
+  }
+end)
+
+function block_class._init(_ENV, _type, _span, _height)
+  type, sprite_set, span, height, _state, _timer_landing =
+  _type, sprites[_type], _span or 1, _height or 1, "idle", 0
+end
+
+--- 状態が idle かどうかを返す
+function block_class:is_idle()
+  return self._state == "idle"
+end
+
+function block_class:is_hover()
+  return self._state == "hover"
+end
+
+function block_class.is_fallable(_ENV)
+  return not (type == "i" or type == "?" or is_swapping(_ENV) or is_freeze(_ENV))
+end
+
+function block_class:is_falling()
+  return self._state == "falling"
+end
+
+function block_class.is_reducible(_ENV)
+  return type ~= "i" and type ~= "?" and is_idle(_ENV)
+end
+
+function block_class:is_match()
+  return self._state == "match"
+end
+
+-- おじゃまブロックが小さいブロックに分解した後の硬直中かどうか
+function block_class:is_freeze()
+  return self._state == "freeze"
+end
+
+function block_class:is_swapping()
+  return self:_is_swapping_with_right() or self:_is_swapping_with_left()
+end
+
+function block_class:_is_swapping_with_left()
+  return self._state == "swapping_with_left"
+end
+
+function block_class:_is_swapping_with_right()
+  return self._state == "swapping_with_right"
+end
+
+function block_class:is_swappable_state()
+  return self:is_idle() or self:is_falling()
+end
+
+function block_class:is_empty()
+  return self.type == "i" and not self:is_swapping()
+end
+
+function block_class.is_single_block(_ENV)
+  return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
+end
+
+function block_class:swap_with(direction)
+  self.chain_id = nil
+  self:change_state("swapping_with_" .. direction)
+end
+
+function block_class:hover(timer)
+  self.timer = timer or 12
+  self:change_state("hover")
+end
+
+function block_class:fall()
+  --#if assert
+  assert(self:is_fallable(), "block " .. self.type .. "(" .. self.x .. ", " .. self.y .. ")")
+  --#endif
+
+  if self:is_falling() then
+    return
+  end
+
+  self:change_state("falling")
+end
+
+function block_class.replace_with(_ENV, other, match_index, _chain_id, garbage_span, garbage_height)
+  new_block, _match_index, _tick_match, chain_id, other.chain_id, _garbage_span, _garbage_height =
+  other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height
+
+  change_state(_ENV, "match")
+end
+
+function block_class.update(_ENV)
+  if is_idle(_ENV) then
+    if _timer_landing > 0 then
+      _timer_landing = _timer_landing - 1
+    end
+  elseif is_swapping(_ENV) then
+    if _tick_swap < block_swap_animation_frame_count then
+      _tick_swap = _tick_swap + 1
+    else
+      chain_id = nil
+      change_state(_ENV, "idle")
+    end
+  elseif is_hover(_ENV) then
+    if timer > 0 then
+      timer = timer - 1
+    else
+      change_state(_ENV, "idle")
+    end
+  elseif is_match(_ENV) then
+    if _tick_match <= block_match_animation_frame_count + _match_index * block_match_delay_per_block then
+      _tick_match = _tick_match + 1
+    else
+      change_state(_ENV, "idle")
+
+      if _garbage_span then
+        new_block._tick_freeze = 0
+        new_block._freeze_frame_count = (_garbage_span * _garbage_height - _match_index) * block_match_delay_per_block
+        new_block:change_state("freeze")
+      end
+    end
+  elseif is_freeze(_ENV) then
+    if _tick_freeze < _freeze_frame_count then
+      _tick_freeze = _tick_freeze + 1
+    else
+      change_state(_ENV, "idle")
+    end
+  end
+end
+
+function block_class:render(screen_x, screen_y, screen_other_x)
+  local shake_dx, shake_dy, swap_screen_dx, sprite = 0, 0
+
+  do
+    local _ENV = self
+
+    if type == "i" then
+      return
+    end
+
+    swap_screen_dx = (_tick_swap or 0) * (8 / block_swap_animation_frame_count)
+    if _is_swapping_with_left(_ENV) then
+      swap_screen_dx = -swap_screen_dx
+    end
+
+    if is_idle(_ENV) and _timer_landing > 0 then
+      sprite = sprite_set.landing[_timer_landing]
+    elseif is_match(_ENV) then
+      local sequence = sprite_set.match
+      sprite = _tick_match <= block_match_delay_per_block and sequence[_tick_match] or sequence[#sequence]
+    elseif _state == "over" then
+      sprite = sprite_set.match[#sprite_set.match]
+    else
+      sprite = sprite_set.default
+    end
+
+    -- CNOT または SWAP の接続を描画
+    if other_x and x < other_x then
+      line(
+        screen_x + 3,
+        screen_y + 3,
+        screen_other_x + 3,
+        screen_y + 3,
+        is_match(_ENV) and 13 or 10
+      )
+    end
+  end
+
+  if self.type == "?" then
+    palt(0, false)
+    pal(13, self.body_color)
+  end
+
+  if self._state == "over" then
+    shake_dx, shake_dy = rnd(2) - 1, rnd(2) - 1
+    pal(6, 9)
+    pal(7, 1)
+  end
+
+  spr(sprite, screen_x + swap_screen_dx + shake_dx, screen_y + shake_dy)
+
+  palt(0, true)
+  pal(13, 13)
+  pal(6, 6)
+  pal(7, 7)
+end
+
+function block_class:attach(observer)
+  self.observer = observer
+end
+
+function block_class.change_state(_ENV, new_state)
+  _timer_landing, _tick_swap =
+  is_falling(_ENV) and 12 or 0, 0
+
+  local old_state = _state
+  _state = new_state
+
+  observer:observable_update(_ENV, old_state)
+end
+
+--#if debug
+local type_string = {
+  i = '_',
+  control = '●',
+  cnot_x = '+',
+  swap = 'X'
+}
+
+local state_string = {
+  idle = " ",
+  swapping_with_left = "<",
+  swapping_with_right = ">",
+  hover = "^",
+  falling = "|",
+  match = "*",
+  freeze = "f",
+}
+
+function block_class:_tostring()
+  return (type_string[self.type] or self.type:upper()) .. state_string[self._state]
+end
+
+--#endif
+
+--- おじゃまブロック
+
+local garbage_block_colors = { 2, 3, 4 }
+local inner_border_colors = { nil, 14, 11, 9 }
+
+--- 新しいおじゃまブロックを作る
+function garbage_block(_span, _height, _color, _chain_id, _tick_fall)
+  local garbage = setmetatable({
+    body_color = _color or garbage_block_colors[ceil_rnd(#garbage_block_colors)],
+    chain_id = _chain_id,
+    tick_fall = _tick_fall,
+    dy = 0,
+    first_drop = true,
+    _render_box = draw_rounded_box,
+
+    render = function(_ENV, screen_x, screen_y)
+      local y0, x1, y1, _body_color =
+      screen_y + (1 - height) * 8,
+          screen_x + span * 8 - 2,
+          screen_y + 6,
+          _state ~= "over" and body_color or 9
+
+      _render_box(screen_x, y0 + 1, x1, y1 + 1, 5) -- 影
+      _render_box(screen_x, y0, x1, y1, _body_color, _body_color) -- 本体
+      _render_box(screen_x + 1, y0 + 1, x1 - 1, y1 - 1, _state ~= "over" and inner_border_color or 1) -- 内側の線
+    end
+  }, { __index = block_class("g", _span or 6, _height) })
+
+  --#if assert
+  assert(garbage.body_color == 2 or garbage.body_color == 3 or garbage.body_color == 4,
+    "invalid color: " .. garbage.body_color)
+  assert(2 < garbage.span, "span must be greater than 2")
+  assert(garbage.span < 7, "span must be less than 7")
+  --#endif
+
+  garbage.inner_border_color = inner_border_colors[garbage.body_color]
+
+  return garbage
+end
+
+--- ブロックのマッチパターン
+reduction_rules = transform(
+  transform(
+  -- NOTE: ルールの行数を昇り順にならべておくことで、
+  -- マッチする時に途中で探索を切り上げることができるようにする
+    {
+      h = "h\nh|,,\n,-1,|1&h\nx\nh|,,\n,-1,\n,-2,z|3&h\nz\nh|,,\n,-1,\n,-2,x|3&h,h\ncontrol,cnot_x\nh,h|,,\ntrue,,\n,-1,cnot_x\ntrue,-1,control\n,-2,\ntrue,-2,|10&h\nswap,swap\n?,h|,,\ntrue,-2,|5&h,z\ncnot_x,control\nh,z|true,,\ntrue,-2,|10&h\nx\nswap,swap\n?,h|,,\n,-1,z\ntrue,-3,|7&h\nswap,swap\n?,x\n?,h|,,z\ntrue,-2,\ntrue,-3,|7&h\nz\nswap,swap\n?,h|,,\n,-1,x\ntrue,-3,|7&h\nswap,swap\n?,z\n?,h|,,x\ntrue,-2,\ntrue,-3,|7",
+      x = "x\nx|,,\n,-1,|1&x\nz|,,\n,-1,y|2&x,x\ncontrol,cnot_x\nx|,,\ntrue,,\n,-2,|8&x\ncnot_x,control\nx|,,\n,-2,|6&x\nswap,swap\n?,x|,,\ntrue,-2,|5&x\nswap,swap\n?,z|,,y\ntrue,-2,|6&x\nh,z\ncnot_x,control\nh\nx|,,\ntrue,-1,\n,-4,|10",
+      y = "y\ny|,,\n,-1,|1&y\nswap,swap\n?,y|,,\ntrue,-2,|5",
+      z = "z\nz|,,\n,-1,|1&z\nx|,,\n,-1,y|2&z,z\ncontrol,cnot_x\n?,z|,,\ntrue,,\ntrue,-2,|8&z\ncontrol,cnot_x\nz|,,\n,-2,|6&z\nswap,swap\n?,z|,,\ntrue,-2,|5&z\nh,x\ncnot_x,control\nh,x|,,\ntrue,-1,\ntrue,-3,|10&z\nh\ncnot_x,control\nh\nz|,,\n,-4,|10",
+      s = "s\ns|,,\n,-1,z|1&s\nz\ns|,,\n,-1,\n,-2,z|3&s\nswap,swap\n?,s|,,z\ntrue,-2,|5&s\nz\nswap,swap\n?,s|,,\n,-1,z\ntrue,-3,|7&s\nswap,swap\n?,z\n?,s|,,z\ntrue,-2,\ntrue,-3,|7",
+      t = "t\nt|,,\n,-1,s|1&t\ns\nt|,,\n,-1,\n,-2,z|3&t\nswap,swap\n?,t|,,s\ntrue,-2,|5&t\nz\ns\nt|,,\n,-1,\n,-2,\n,-3,|4&t\ns\nz\nt|,,\n,-1,\n,-2,\n,-3,|4&t\ns\nswap,swap\n?,t|,,\n,-1,z\ntrue,-3,|7&t\nswap,swap\n?,s\n?,t|,,z\ntrue,-2,\ntrue,-3,|7&t\nswap,swap\n?,z\n?,s\n?,t|,,\ntrue,-2,\ntrue,-3,\ntrue,-4,|8&t\nswap,swap\n?,s\n?,z\n?,t|,,\ntrue,-2,\ntrue,-3,\ntrue,-4,|8",
+      control = "control,cnot_x\nswap,swap\ncnot_x,control|,,\ntrue,,\n,-2,\ntrue,-2,|10",
+      cnot_x = "cnot_x,control\ncnot_x,control|,,\ntrue,,\n,-1,\ntrue,-1,|5&cnot_x,control\ncontrol,cnot_x\ncnot_x,control|,,\ntrue,,\n,-1,\ntrue,-1,\n,-2,swap\ntrue,-2,swap|10",
+      swap = "swap,swap\nswap,swap|,,\ntrue,,\n,-1,\ntrue,-1,|30"
+    },
+    function(rule_string) return split(rule_string, "&") end),
+  function(gate_rules)
+    return transform(
+      gate_rules,
+      function(each)
+        local pattern, reduce_to, score = unpack(split(each, "|"))
+
+        return {
+          transform(split(pattern, "\n"), split),
+          transform(split(reduce_to, "\n"), function(to)
+            local attrs = split(to)
+            return {
+              dx = attrs[1] ~= "",
+              dy = attrs[2] == "" and nil or tonum(attrs[2]),
+              block_type = attrs[3] == "" and 'i' or attrs[3]
+            }
+          end),
+          tonum(score)
+        }
+      end
+    )
+  end
+)
+
+--- 待機中のおじゃまブロック
+pending_garbage_blocks_class = new_class()
+
+function pending_garbage_blocks_class._init(_ENV)
+  all = {}
+end
+
+function pending_garbage_blocks_class.add_garbage(_ENV, span, height, chain_id)
+  -- 同じ chain_id のおじゃまブロックをまとめる
+  for _, each in pairs(all) do
+    if each.chain_id == chain_id and each.span == 6 then
+      if each.height <= height then
+        -- 同じ chain_id でより低いおじゃまブロックがすでにプールに入っている場合、消す
+        del(all, each)
+      else
+        -- 同じ chain_id でより高いおじゃまブロックがすでにプールに入っている場合、何もしない
+        return
+      end
+    end
+  end
+
+  add(all, garbage_block(span, height, nil, chain_id, 60))
+end
+
+--- おじゃまブロックの相殺
+function pending_garbage_blocks_class.offset(_ENV, chain_count)
+  local offset_height = chain_count
+
+  for _, each in pairs(all) do
+    if each.span == 6 then
+      if not each.tick_fall then
+        if each.height > offset_height then
+          each.height = each.height - offset_height
+          break
+        else
+          offset_height = offset_height - each.height
+          del(all, each)
+        end
+      end
+    else
+      offset_height = offset_height - 1
+      del(all, each)
+    end
+  end
+
+  return offset_height
+end
+
+function pending_garbage_blocks_class.update(_ENV, board)
+  local first_garbage_block = all[1]
+
+  if first_garbage_block then
+    if first_garbage_block.tick_fall > 0 then
+      if first_garbage_block.tick_fall < 30 then
+        first_garbage_block.dy = ceil_rnd(2) - 1
+      end
+      first_garbage_block.tick_fall = first_garbage_block.tick_fall - 1
+    else
+      -- おじゃまブロックが幅いっぱいの場合、x = 1
+      -- そうでない場合、
+      -- x + span - 1 <= board.cols を満たす x をランダムに決める
+      local x, y = first_garbage_block.span == board.cols and
+          1 or
+          ceil_rnd(board.cols - first_garbage_block.span + 1),
+          board.rows + 1
+
+      if board:is_block_empty(x, y) then
+        -- おじゃまブロックを落とす
+        board:put(x, y, first_garbage_block)
+        del(all, first_garbage_block)
+      end
+    end
+  end
+end
+
+function pending_garbage_blocks_class.render(_ENV, board)
+  for i, each in pairs(all) do
+    if i < 6 then
+      local x0, y0 = board.offset_x + 1 + (i - 1) * 9, each.dy
+
+      if each.tick_fall then
+        pal(7, each.inner_border_color)
+        pal(6, each.inner_border_color)
+      end
+
+      if each.span < 6 then
+        draw_rounded_box(x0, y0 + 4, x0 + 12, y0 + 9, 7, 7)
+        draw_rounded_box(x0 + 1, y0 + 5, x0 + 11, y0 + 8, 0, 0)
+      else
+        draw_rounded_box(x0, y0 + 1, x0 + 12, y0 + 9, 7, 7)
+        draw_rounded_box(x0 + 1, y0 + 2, x0 + 11, y0 + 8, 0, 0)
+
+        cursor(x0 + 5, y0 + 3)
+        print(each.height, 6)
+      end
+
+      pal()
+    end
+  end
+end
+
+--- ボードのクラス
 board_class = new_class()
 
 function board_class._init(_ENV, _cursor, __offset_x, _cols)
@@ -16,13 +709,14 @@ function board_class._init(_ENV, _cursor, __offset_x, _cols)
   init(_ENV, _cols)
 end
 
+-- ボードの初期化
 function board_class.init(_ENV, _cols)
   -- サイズ関係
   cols, rows = _cols or 6, 17
 
   -- 画面上のサイズと位置
   width, height, offset_x, raised_dots =
-  cols * tile_size, (rows - 1) * tile_size, _offset_x or 11, 0
+  cols * 8, (rows - 1) * 8, _offset_x or 11, 0
 
   -- board の状態
   state, win, lose, timeup, top_block_y, _changed, show_gameover_menu, done_over_fx =
@@ -549,11 +1243,7 @@ function board_class.shift_all_blocks_up(_ENV)
   end
 end
 
--------------------------------------------------------------------------------
--- プレイヤーによるブロック操作
--------------------------------------------------------------------------------
-
--- (x_left, y) と (x_left + 1, y) のブロックを入れ替える
+--- x_left, y と x_left + 1, y のブロックを入れ替える
 -- 入れ替えできる場合は true を、そうでない場合は false を返す
 function board_class.swap(_ENV, x_left, y)
   local x_right = x_left + 1
@@ -576,10 +1266,6 @@ function board_class.swap(_ENV, x_left, y)
   right_block:swap_with("left")
   return true
 end
-
--------------------------------------------------------------------------------
--- update, render
--------------------------------------------------------------------------------
 
 function board_class.update(_ENV, game, player, other_board)
   pending_garbage_blocks:update(_ENV)
@@ -610,8 +1296,8 @@ function board_class.update(_ENV, game, player, other_board)
             blocks[y][x]._state = "over"
           elseif tick_over == 20 and not done_over_fx then
             blocks[y][x] = block_class("i")
-            particle:create_chunk(screen_x(_ENV, x), screen_y(_ENV, y),
-              "5,5,9,7,random,random,-0.03,-0.03,40|5,5,9,7,random,random,-0.03,-0.03,40|4,4,9,7,random,random,-0.03,-0.03,40|4,4,2,5,random,random,-0.03,-0.03,40|4,4,6,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,9,7,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|2,2,6,5,random,random,-0.03,-0.03,40|0,0,2,5,random,random,-0.03,-0.03,40")
+            particles:create(screen_x(_ENV, x), screen_y(_ENV, y),
+              "5,5,9,7,,,-0.03,-0.03,40|5,5,9,7,,,-0.03,-0.03,40|4,4,9,7,,,-0.03,-0.03,40|4,4,2,5,,,-0.03,-0.03,40|4,4,6,7,,,-0.03,-0.03,40|2,2,9,7,,,-0.03,-0.03,40|2,2,9,7,,,-0.03,-0.03,40|2,2,6,5,,,-0.03,-0.03,40|2,2,6,5,,,-0.03,-0.03,40|0,0,2,5,,,-0.03,-0.03,40")
           end
         end
       end
@@ -698,7 +1384,7 @@ function board_class.render(_ENV)
 
     -- カーソルを描画
     cursor:render(screen_x(_ENV, cursor.x), screen_y(_ENV, cursor.y))
-  elseif (win or lose) and tick_over > 20 and #particle.all == 0 then
+  elseif (win or lose) and tick_over > 20 and #particles.all == 0 then
     -- WIN! または LOSE を描画
     sspr(
       win and 0 or 48,
@@ -815,8 +1501,6 @@ function board_class._update_game(_ENV, game, player, other_board)
               bounce(_ENV)
               sfx(9)
               block.first_drop = false
-            else
-              sfx(12)
             end
 
             block:change_state("idle")
@@ -863,11 +1547,7 @@ function board_class._update_game(_ENV, game, player, other_board)
   end
 end
 
--------------------------------------------------------------------------------
--- おじゃまユニタリが接地したときの bounce エフェクト
--------------------------------------------------------------------------------
-
--- bounce エフェクトを開始
+--- bounce エフェクトを開始
 function board_class.bounce(_ENV)
   _bounce_screen_dy, _bounce_speed = 0, -4
 end
@@ -883,11 +1563,7 @@ function board_class._update_bounce(_ENV)
   end
 end
 
--------------------------------------------------------------------------------
--- ブロックの種類判定
--------------------------------------------------------------------------------
-
--- x, y が空かどうかを返す
+--- x, y が空かどうかを返す
 -- おじゃまユニタリと SWAP, CNOT ブロックも考慮する
 function board_class.is_block_empty(_ENV, x, y)
   --#if assert
@@ -970,11 +1646,7 @@ function board_class._swap_head_block(_ENV, x, y)
   return block.type == "swap" and block or nil
 end
 
--------------------------------------------------------------------------------
--- ブロックの状態
--------------------------------------------------------------------------------
-
--- ブロック x, y の直下のブロックでホバー状態にあるもののうち、
+--- ブロック x, y の直下のブロックでホバー状態にあるもののうち、
 -- timer の最大値を取得する。
 -- 直下のブロックが一つもなかった場合は nil を返す。
 --
@@ -1056,11 +1728,11 @@ function board_class.observable_update(_ENV, block, old_state)
     --#endif
 
     if right_block.type ~= "i" then
-      particle:create_chunk(screen_x(_ENV, x) - 2, screen_y(_ENV, y) + 3,
+      particles:create(screen_x(_ENV, x) - 2, screen_y(_ENV, y) + 3,
         "1,1,10,10,-1,-0.8,0.05,0.05,3|1,1,10,10,-1,0,0.05,0,5|1,1,10,10,-1,0.8,0.05,-0.05,3")
     end
     if block.type ~= "i" then
-      particle:create_chunk(screen_x(_ENV, new_x) + 10, screen_y(_ENV, y) + 3,
+      particles:create(screen_x(_ENV, new_x) + 10, screen_y(_ENV, y) + 3,
         "1,1,10,10,1,-0.8,-0.05,0.05,3|1,1,10,10,1,0,-0.05,0,5|1,1,10,10,1,0.8,-0.05,-0.05,3")
     end
 
@@ -1091,7 +1763,7 @@ function board_class.observable_update(_ENV, block, old_state)
   if old_state == "match" and block:is_idle() then
     sfx(11, -1, (block._match_index % 6 - 1) * 4, 4)
     put(_ENV, x, y, block.new_block)
-    particle:create_chunk(screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3,
+    particles:create(screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3,
       "2,1,7,7,-1,-1,0.05,0.05,16|2,1,7,7,1,-1,-0.05,0.05,16|2,1,7,7,-1,1,0.05,-0.05,16|2,1,7,7,1,1,-0.05,-0.05,16")
     return
   end
@@ -1129,11 +1801,6 @@ function board_class.observable_update(_ENV, block, old_state)
   end
 end
 
--------------------------------------------------------------------------------
--- memoization
--------------------------------------------------------------------------------
-
--- 引数 x, y を取る関数 func をメモ化した関数を返す
 function board_class._memoize(_ENV, f, cache, x, y)
   if cache[y] == nil then
     cache[y] = {}
@@ -1148,10 +1815,6 @@ function board_class._memoize(_ENV, f, cache, x, y)
 
   return result
 end
-
--------------------------------------------------------------------------------
--- debug
--------------------------------------------------------------------------------
 
 --#if debug
 function board_class._tostring(_ENV)

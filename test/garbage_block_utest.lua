@@ -1,8 +1,6 @@
 require("engine/test/bustedhelper")
 require("lib/helpers")
-require("lib/garbage_block")
 require("lib/board")
-require("lib/cursor")
 
 describe('garbage_block', function()
   describe('span', function()

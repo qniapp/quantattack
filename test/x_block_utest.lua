@@ -1,5 +1,5 @@
 require("engine/test/bustedhelper")
-require("lib/block")
+require("lib/board")
 
 describe('x_block', function()
   local x

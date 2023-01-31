@@ -1,7 +1,5 @@
 ---@diagnostic disable: lowercase-global, global-in-nil-env
 
-require("lib/block")
-
 local function _is_empty(board, block_x, block_y)
   if block_x < 1 or board.cols < block_x or board.rows < block_y then
     return false
