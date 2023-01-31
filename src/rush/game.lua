@@ -1,6 +1,3 @@
-require("lib/helpers")
-require("lib/pending_garbage_blocks")
-
 local pending_garbage_blocks = pending_garbage_blocks_class()
 local game = new_class()
 
