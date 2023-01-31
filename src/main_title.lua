@@ -2,7 +2,7 @@
 
 require("lib/helpers")
 require("lib/board")
-require("lib/qpu")
+require("lib/player")
 require("title/game")
 require("title/plasma")
 

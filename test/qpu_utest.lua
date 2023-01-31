@@ -2,7 +2,7 @@ require("engine/test/bustedhelper")
 require("engine/render/color")
 require("test/test_helper")
 require("lib/helpers")
-require("lib/qpu")
+require("lib/player")
 require("lib/board")
 
 describe('qpu', function()
