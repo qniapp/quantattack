@@ -114,8 +114,6 @@ function _draw()
       end
     end
   end
-
-  -- render_plasma()
 end
 
 function fadein(i)
