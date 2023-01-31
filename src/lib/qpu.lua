@@ -1,19 +1,4 @@
---- 人間のプレーヤーを表すクラス
-player_class = new_class()
-
-function player_class._init(_ENV)
-  init(_ENV)
-end
-
---- 初期化
-function player_class.init(_ENV)
-  score = 0
-end
-
---- プレーヤーの入力を更新
-function player_class.update(_ENV)
-  left, right, up, down, x, o = btnp(0), btnp(1), btnp(2), btnp(3), btnp(5), btn(4)
-end
+---@diagnostic disable: lowercase-global, global-in-nil-env
 
 local function _is_empty(board, block_x, block_y)
   if block_x < 1 or board.cols < block_x or board.rows < block_y then
@@ -41,7 +26,7 @@ local function _is_swappable(board, block_x, block_y)
   return block:is_idle() and (board:is_block_empty(block_x, block_y) or block:is_single_block())
 end
 
---- QPU プレーヤー
+-- singleton
 qpu_class = new_class()
 
 -- 新しい QPU プレーヤーを返す

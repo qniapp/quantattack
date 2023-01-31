@@ -1,8 +1,8 @@
 require("engine/test/bustedhelper")
 require("lib/helpers")
-require("lib/player")
-require("lib/game")
 require("lib/board")
+require("lib/qpu")
+require("lib/game")
 
 local profiler = require("lib/profiler")
 

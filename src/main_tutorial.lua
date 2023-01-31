@@ -1,5 +1,4 @@
 require("lib/helpers")
-require("lib/player")
 require("tutorial/dtb")
 require("lib/board")
 

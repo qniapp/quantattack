@@ -1,8 +1,7 @@
 require("engine/test/bustedhelper")
 require("test/test_helper")
-require("lib/player")
-require("lib/game")
 require("lib/board")
+require("lib/game")
 
 local match = require("luassert.match")
 
