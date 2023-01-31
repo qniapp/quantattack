@@ -4,7 +4,7 @@ require("lib/board")
 require("lib/qpu")
 require("lib/game")
 
-local profiler = require("lib/profiler")
+local profiler = require("test/profiler")
 
 describe('パフォーマンス', function()
   it("QPU vs QPU のプロファイルを取る", function()
