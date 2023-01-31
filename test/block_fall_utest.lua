@@ -1,7 +1,6 @@
 require("engine/test/bustedhelper")
 require("engine/render/color")
 require("test/test_helper")
-require("lib/effect_set")
 require("lib/board")
 
 describe('ブロックの落下', function()

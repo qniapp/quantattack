@@ -1,7 +1,6 @@
--- 8043
+-- 8033
 
 require("lib/helpers")
-require("lib/effect_set")
 require("lib/board")
 require("lib/game")
 require("lib/player")

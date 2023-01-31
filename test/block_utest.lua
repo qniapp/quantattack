@@ -1,6 +1,5 @@
 require("engine/test/bustedhelper")
 require("test/test_helper")
-require("lib/effect_set")
 require("lib/board")
 
 describe('block', function()

@@ -1,5 +1,4 @@
 require("lib/helpers")
-require("lib/effect_set")
 require("lib/game")
 require("lib/board")
 require("lib/qpu")
