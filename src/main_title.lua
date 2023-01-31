@@ -1,14 +1,13 @@
----@diagnostic disable: lowercase-global
+-- 8084
 
 require("lib/helpers")
 require("lib/board")
 require("lib/qpu")
 require("title/game")
 require("title/plasma")
+require("title/menu")
 
 demo_game = game()
-
-local menu_class = require("title/menu")
 
 local main_menu = menu_class(
   "quantattack_tutorial,,32,48,16,16,,tutorial,learn how to play|quantattack_endless,,64,48,16,16,,endless,play as long as you can, 1|quantattack_rush,,48,48,16,16,,rush,play for 2 minutes,0|,:level_menu,80,48,16,16,,vs qpu,defeat the qpu|quantattack_qpu_vs_qpu,,96,48,16,16,,qpu vs qpu,watch qpu vs qpu"
@@ -29,24 +28,20 @@ local title_state = ":logo_slidein"
 local tick = 0
 
 function _init()
-  local qpu_cursor = cursor_class()
-  local qpu_board = board_class(qpu_cursor, 0, 16)
-  local qpu = qpu_class(qpu_board, 1)
+  local qpu_board = board_class(cursor_class(), 0, 16)
 
   qpu_board:put_random_blocks()
 
   qpu_board.show_top_line = false
 
   demo_game:init()
-  demo_game:add_player(qpu, qpu_board)
+  demo_game:add_player(qpu_class(qpu_board, 1), qpu_board)
 
   music(32)
 end
 
 function _update60()
-  if title_state == ":logo_slidein" then
-    -- NOP
-  elseif title_state == ":board_fadein" then
+  if title_state == ":board_fadein" then
     demo_game:update()
   elseif title_state == ":demo" then
     demo_game:update()
@@ -73,6 +68,8 @@ end
 
 function _draw()
   cls()
+
+  render_plasma()
 
   if title_state == ":logo_slidein" then
     sspr(unpack_split("0,64,128,16,0," .. tick))
@@ -118,7 +115,7 @@ function _draw()
     end
   end
 
-  render_plasma()
+  -- render_plasma()
 end
 
 function fadein(i)

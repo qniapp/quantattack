@@ -1,10 +1,13 @@
+-- 7609
+
 require("lib/helpers")
 require("lib/board")
+require("lib/player")
+require("lib/high_score")
 
 local sash = require("lib/sash")
 
 -- ハイスコア関係
-local high_score_class = require("lib/high_score")
 local high_score = high_score_class(0)
 local current_high_score
 

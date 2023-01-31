@@ -1,5 +1,5 @@
 require("engine/test/bustedhelper")
-require("lib/board")
+require("lib/player")
 
 describe('player', function()
   local player

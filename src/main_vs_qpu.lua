@@ -1,7 +1,8 @@
--- 8023
+-- 8033
 
 require("lib/helpers")
 require("lib/board")
+require("lib/player")
 require("lib/qpu")
 require("lib/game")
 

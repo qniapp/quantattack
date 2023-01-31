@@ -2,17 +2,17 @@
 
 cartdata("quantattack_0_5_0")
 
-local high_score = new_class()
+high_score_class = new_class()
 
-function high_score:_init(id)
+function high_score_class:_init(id)
   self.id = id
 end
 
-function high_score:get()
+function high_score_class:get()
   return dget(self.id) or 0
 end
 
-function high_score:put(score)
+function high_score_class:put(score)
   if self:get() < score then
     dset(self.id, score)
     return true
@@ -20,5 +20,3 @@ function high_score:put(score)
 
   return false
 end
-
-return high_score

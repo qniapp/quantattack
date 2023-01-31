@@ -1,6 +1,9 @@
+-- 8022
+
 require("lib/helpers")
 require("tutorial/dtb")
 require("lib/board")
+require("lib/player")
 
 local game_class = require("tutorial/game")
 
