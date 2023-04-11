@@ -480,6 +480,25 @@ describe('ブロックの簡約ルール', function()
   -- ┌───┐
   -- │ S │        I
   -- ├───┤ ───▶
+  -- │ Y │        I
+  -- ├───┤ ───▶ ┌───┐
+  -- │ S │      │ Y │
+  -- └───┘      └───┘
+  it('SYS ─▶ Y', function()
+    put(1, 3, "s")
+    put(1, 2, "y")
+    put(1, 1, "s")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 3))
+    assert.becomes_i(block_at(1, 2))
+    assert.becomes_y(block_at(1, 1))
+  end)
+
+  -- ┌───┐
+  -- │ S │        I
+  -- ├───┤ ───▶
   -- │ Z │        I
   -- ├───┤ ───▶ ┌───┐
   -- │ S │      │ Z │
