@@ -11,12 +11,12 @@ describe('連鎖 (chain)', function()
   end)
 
   it("ブロックがマッチすると、マッチしたブロックとその上にあるブロックすべてに chain_id が付く"
-    , function()
-    -- Y <-
+  , function()
+    -- T <-
     -- X <-
     -- H
     -- H
-    board:put(1, 4, block_class("y"))
+    board:put(1, 4, block_class("t"))
     board:put(1, 3, block_class("x"))
     board:put(1, 2, block_class("h"))
     board:put(1, 1, block_class("h"))
@@ -30,11 +30,11 @@ describe('連鎖 (chain)', function()
   end)
 
   it("chain_id が付いたブロックは、着地すると chain_id が消える", function()
-    -- Y
+    -- T
     -- X
-    -- H ---> Y
+    -- H ---> T
     -- H      X
-    board:put(1, 4, block_class("y"))
+    board:put(1, 4, block_class("t"))
     board:put(1, 3, block_class("x"))
     board:put(1, 2, block_class("h"))
     board:put(1, 1, block_class("h"))

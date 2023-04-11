@@ -87,7 +87,7 @@ ions = derived_class(effect_set)()
 function ions:create(x, y, callback, ion_color, target_x, target_y)
   self:_add(function(_ENV)
     _from_x, _from_y, _target_x, _target_y, _callback, _tick, _color =
-    x, y, target_x, target_y, callback, 0, ion_color
+        x, y, target_x, target_y, callback, 0, ion_color
     sfx(20)
   end)
 end
@@ -110,7 +110,7 @@ function ions._update(_ENV, all)
   _tick = _tick + 1
 
   _x, _y =
-  _quadratic_bezier(_from_x, _from_x > 64 and _from_x + 60 or _from_x - 60, _target_x),
+      _quadratic_bezier(_from_x, _from_x > 64 and _from_x + 60 or _from_x - 60, _target_x),
       _quadratic_bezier(_from_y, _from_y + 40, _target_y)
 end
 
@@ -143,7 +143,8 @@ end
 function particles:_create(x, y, radius, end_radius, particle_color, particle_color_fade, dx, dy, ddx, ddy, max_tick)
   self:_add(function(_ENV)
     _x, _y, _dx, _dy, _radius, _end_radius, _color, _color_fade, _tick, _max_tick, _ddx, _ddy =
-    x, y, dx == "" and rnd(1) or dx, dy == "" and rnd(1) or dy, radius, end_radius, particle_color, particle_color_fade,
+        x, y, dx == "" and rnd(1) or dx, dy == "" and rnd(1) or dy, radius, end_radius, particle_color,
+        particle_color_fade,
         0, max_tick + rnd(10), ddx, ddy
 
     if dx == "" then
@@ -192,7 +193,7 @@ end
 --- 波紋の状態を更新
 function ripple_class.update(_ENV)
   tick, t1, t2 =
-  tick + 1,
+      tick + 1,
       t1 - 1 / ((slow or freeze) and 3000 or 1500),
       t2 - 1 / ((slow or freeze) and 300 or 150)
 end
@@ -299,7 +300,7 @@ end)
 
 function block_class._init(_ENV, _type, _span, _height)
   type, sprite_set, span, height, _state, _timer_landing =
-  _type, sprites[_type], _span or 1, _height or 1, "idle", 0
+      _type, sprites[_type], _span or 1, _height or 1, "idle", 0
 end
 
 --- 状態が idle かどうかを返す
@@ -380,7 +381,7 @@ end
 
 function block_class.replace_with(_ENV, other, match_index, _chain_id, garbage_span, garbage_height)
   new_block, _match_index, _tick_match, chain_id, other.chain_id, _garbage_span, _garbage_height =
-  other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height
+      other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height
 
   change_state(_ENV, "match")
 end
@@ -487,7 +488,7 @@ end
 
 function block_class.change_state(_ENV, new_state)
   _timer_landing, _tick_swap =
-  is_falling(_ENV) and 12 or 0, 0
+      is_falling(_ENV) and 12 or 0, 0
 
   local old_state = _state
   _state = new_state
@@ -533,16 +534,15 @@ function garbage_block(_span, _height, _color, _chain_id, _tick_fall)
     dy = 0,
     first_drop = true,
     _render_box = draw_rounded_box,
-
     render = function(_ENV, screen_x, screen_y)
       local y0, x1, y1, _body_color =
-      screen_y + (1 - height) * 8,
+          screen_y + (1 - height) * 8,
           screen_x + span * 8 - 2,
           screen_y + 6,
           _state ~= "over" and body_color or 9
 
-      _render_box(screen_x, y0 + 1, x1, y1 + 1, 5) -- 影
-      _render_box(screen_x, y0, x1, y1, _body_color, _body_color) -- 本体
+      _render_box(screen_x, y0 + 1, x1, y1 + 1, 5)                                                    -- 影
+      _render_box(screen_x, y0, x1, y1, _body_color, _body_color)                                     -- 本体
       _render_box(screen_x + 1, y0 + 1, x1 - 1, y1 - 1, _state ~= "over" and inner_border_color or 1) -- 内側の線
     end
   }, { __index = block_class("g", _span or 6, _height) })
@@ -565,14 +565,20 @@ reduction_rules = transform(
   -- NOTE: ルールの行数を昇り順にならべておくことで、
   -- マッチする時に途中で探索を切り上げることができるようにする
     {
-      h = "h\nh|,,\n,-1,|1&h\nx\nh|,,\n,-1,\n,-2,z|3&h\nz\nh|,,\n,-1,\n,-2,x|3&h,h\ncontrol,cnot_x\nh,h|,,\ntrue,,\n,-1,cnot_x\ntrue,-1,control\n,-2,\ntrue,-2,|10&h\nswap,swap\n?,h|,,\ntrue,-2,|5&h,z\ncnot_x,control\nh,z|true,,\ntrue,-2,|10&h\nx\nswap,swap\n?,h|,,\n,-1,z\ntrue,-3,|7&h\nswap,swap\n?,x\n?,h|,,z\ntrue,-2,\ntrue,-3,|7&h\nz\nswap,swap\n?,h|,,\n,-1,x\ntrue,-3,|7&h\nswap,swap\n?,z\n?,h|,,x\ntrue,-2,\ntrue,-3,|7",
-      x = "x\nx|,,\n,-1,|1&x\nz|,,\n,-1,y|2&x,x\ncontrol,cnot_x\nx|,,\ntrue,,\n,-2,|8&x\ncnot_x,control\nx|,,\n,-2,|6&x\nswap,swap\n?,x|,,\ntrue,-2,|5&x\nswap,swap\n?,z|,,y\ntrue,-2,|6&x\nh,z\ncnot_x,control\nh\nx|,,\ntrue,-1,\n,-4,|10",
-      y = "y\ny|,,\n,-1,|1&y\nswap,swap\n?,y|,,\ntrue,-2,|5",
-      z = "z\nz|,,\n,-1,|1&z\nx|,,\n,-1,y|2&z,z\ncontrol,cnot_x\n?,z|,,\ntrue,,\ntrue,-2,|8&z\ncontrol,cnot_x\nz|,,\n,-2,|6&z\nswap,swap\n?,z|,,\ntrue,-2,|5&z\nh,x\ncnot_x,control\nh,x|,,\ntrue,-1,\ntrue,-3,|10&z\nh\ncnot_x,control\nh\nz|,,\n,-4,|10",
-      s = "s\ns|,,\n,-1,z|1&s\nz\ns|,,\n,-1,\n,-2,z|3&s\nswap,swap\n?,s|,,z\ntrue,-2,|5&s\nz\nswap,swap\n?,s|,,\n,-1,z\ntrue,-3,|7&s\nswap,swap\n?,z\n?,s|,,z\ntrue,-2,\ntrue,-3,|7",
-      t = "t\nt|,,\n,-1,s|1&t\ns\nt|,,\n,-1,\n,-2,z|3&t\nswap,swap\n?,t|,,s\ntrue,-2,|5&t\nz\ns\nt|,,\n,-1,\n,-2,\n,-3,|4&t\ns\nz\nt|,,\n,-1,\n,-2,\n,-3,|4&t\ns\nswap,swap\n?,t|,,\n,-1,z\ntrue,-3,|7&t\nswap,swap\n?,s\n?,t|,,z\ntrue,-2,\ntrue,-3,|7&t\nswap,swap\n?,z\n?,s\n?,t|,,\ntrue,-2,\ntrue,-3,\ntrue,-4,|8&t\nswap,swap\n?,s\n?,z\n?,t|,,\ntrue,-2,\ntrue,-3,\ntrue,-4,|8",
+      h =
+      "h\nh|,,\n,-1,|1&h\nx\nh|,,\n,-1,\n,-2,z|3&h\nz\nh|,,\n,-1,\n,-2,x|3&h,h\ncontrol,cnot_x\nh,h|,,\ntrue,,\n,-1,cnot_x\ntrue,-1,control\n,-2,\ntrue,-2,|10&h\nswap,swap\n?,h|,,\ntrue,-2,|5&h,z\ncnot_x,control\nh,z|true,,\ntrue,-2,|10&h\nx\nswap,swap\n?,h|,,\n,-1,z\ntrue,-3,|7&h\nswap,swap\n?,x\n?,h|,,z\ntrue,-2,\ntrue,-3,|7&h\nz\nswap,swap\n?,h|,,\n,-1,x\ntrue,-3,|7&h\nswap,swap\n?,z\n?,h|,,x\ntrue,-2,\ntrue,-3,|7",
+      x =
+      "x\nx|,,\n,-1,|1&x\ny|,,\n,-1,z|2&x\nz|,,\n,-1,y|2&x,x\ncontrol,cnot_x\nx|,,\ntrue,,\n,-2,|8&x\ncnot_x,control\nx|,,\n,-2,|6&x\nswap,swap\n?,x|,,\ntrue,-2,|5&x\nswap,swap\n?,z|,,y\ntrue,-2,|6&x\nh,z\ncnot_x,control\nh\nx|,,\ntrue,-1,\n,-4,|10",
+      y = "y\ny|,,\n,-1,|1&y\nx|,,\n,-1,z|2&y\nswap,swap\n?,y|,,\ntrue,-2,|5",
+      z =
+      "z\nz|,,\n,-1,|1&z\nx|,,\n,-1,y|2&z,z\ncontrol,cnot_x\n?,z|,,\ntrue,,\ntrue,-2,|8&z\ncontrol,cnot_x\nz|,,\n,-2,|6&z\nswap,swap\n?,z|,,\ntrue,-2,|5&z\nh,x\ncnot_x,control\nh,x|,,\ntrue,-1,\ntrue,-3,|10&z\nh\ncnot_x,control\nh\nz|,,\n,-4,|10",
+      s =
+      "s\ns|,,\n,-1,z|1&s\nz\ns|,,\n,-1,\n,-2,z|3&s\nswap,swap\n?,s|,,z\ntrue,-2,|5&s\nz\nswap,swap\n?,s|,,\n,-1,z\ntrue,-3,|7&s\nswap,swap\n?,z\n?,s|,,z\ntrue,-2,\ntrue,-3,|7",
+      t =
+      "t\nt|,,\n,-1,s|1&t\ns\nt|,,\n,-1,\n,-2,z|3&t\nswap,swap\n?,t|,,s\ntrue,-2,|5&t\nz\ns\nt|,,\n,-1,\n,-2,\n,-3,|4&t\ns\nz\nt|,,\n,-1,\n,-2,\n,-3,|4&t\ns\nswap,swap\n?,t|,,\n,-1,z\ntrue,-3,|7&t\nswap,swap\n?,s\n?,t|,,z\ntrue,-2,\ntrue,-3,|7&t\nswap,swap\n?,z\n?,s\n?,t|,,\ntrue,-2,\ntrue,-3,\ntrue,-4,|8&t\nswap,swap\n?,s\n?,z\n?,t|,,\ntrue,-2,\ntrue,-3,\ntrue,-4,|8",
       control = "control,cnot_x\nswap,swap\ncnot_x,control|,,\ntrue,,\n,-2,\ntrue,-2,|10",
-      cnot_x = "cnot_x,control\ncnot_x,control|,,\ntrue,,\n,-1,\ntrue,-1,|5&cnot_x,control\ncontrol,cnot_x\ncnot_x,control|,,\ntrue,,\n,-1,\ntrue,-1,\n,-2,swap\ntrue,-2,swap|10",
+      cnot_x =
+      "cnot_x,control\ncnot_x,control|,,\ntrue,,\n,-1,\ntrue,-1,|5&cnot_x,control\ncontrol,cnot_x\ncnot_x,control|,,\ntrue,,\n,-1,\ntrue,-1,\n,-2,swap\ntrue,-2,swap|10",
       swap = "swap,swap\nswap,swap|,,\ntrue,,\n,-1,\ntrue,-1,|30"
     },
     function(rule_string) return split(rule_string, "&") end),
@@ -705,7 +711,7 @@ board_class = new_class()
 
 function board_class._init(_ENV, _cursor, __offset_x, _cols)
   cursor, _offset_x, show_top_line =
-  _cursor or cursor_class(), __offset_x, true
+      _cursor or cursor_class(), __offset_x, true
   init(_ENV, _cols)
 end
 
@@ -716,25 +722,25 @@ function board_class.init(_ENV, _cols)
 
   -- 画面上のサイズと位置
   width, height, offset_x, raised_dots =
-  cols * 8, (rows - 1) * 8, _offset_x or 11, 0
+      cols * 8, (rows - 1) * 8, _offset_x or 11, 0
 
   -- board の状態
   state, win, lose, timeup, top_block_y, _changed, show_gameover_menu, done_over_fx =
-  "play", false, false, false, 0, false, false, false
+      "play", false, false, false, 0, false, false, false
 
   -- ゲームオーバーの線 etc.
   top_line_start_x, freeze_timer = 0, 0
 
   _chain_count, _topped_out_frame_count, _topped_out_delay_frame_count, _bounce_speed,
-      _bounce_screen_dy =
-  {}, 0, 600, 0, 0
+  _bounce_screen_dy =
+      {}, 0, 600, 0, 0
 
   -- 各種ブロックの取得
   blocks, reducible_blocks, _garbage_blocks, contains_garbage_match_block = {}, {}, {}, false
 
   tick, steps, pending_garbage_blocks, _flash_col_timer, _flash_col_colors, _check_hover_flag, _reduce_cache,
-      _is_block_fallable_cache =
-  0, 0, pending_garbage_blocks_class(), {}, split("1,1,1,1,1,1,5,5,5,5,5,13,13,7"), {}, {}, {}
+  _is_block_fallable_cache =
+      0, 0, pending_garbage_blocks_class(), {}, split("1,1,1,1,1,1,5,5,5,5,5,13,13,7"), {}, {}, {}
 
   for y = 0, rows do
     reducible_blocks[y], _check_hover_flag[y] = {}, {}
@@ -928,8 +934,8 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
             blocks[y + dy][x + dx]:replace_with(
               dy == 0 and _random_single_block(_ENV) or
               ((dy == 1 and dx == 0) and
-                  garbage_block(garbage_span, garbage_height - 1, each.body_color) or
-                  block_class("i")),
+              garbage_block(garbage_span, garbage_height - 1, each.body_color) or
+              block_class("i")),
               dx + dy * garbage_span,
               dy == 0 and each.chain_id or nil,
               garbage_span,
@@ -950,14 +956,14 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
     if game and game.chain_callback then
       if #pending_garbage_blocks.all > 1 then
         local offset_height_left =
-        game.block_offset_callback(
-          _chain_count[chain_id],
-          scr_x,
-          scr_y,
-          player,
-          _ENV,
-          other_board
-        )
+            game.block_offset_callback(
+              _chain_count[chain_id],
+              scr_x,
+              scr_y,
+              player,
+              _ENV,
+              other_board
+            )
 
         -- 相殺しても残っていれば、相手に攻撃
         if offset_height_left > 0 then
@@ -1351,7 +1357,7 @@ function board_class.render(_ENV)
   -- 残り時間ゲージの描画
   if is_topped_out(_ENV) then
     local time_left_height, gauge_x =
-    (_topped_out_delay_frame_count - _topped_out_frame_count) / _topped_out_delay_frame_count * 128,
+        (_topped_out_delay_frame_count - _topped_out_frame_count) / _topped_out_delay_frame_count * 128,
         offset_x < 64 and offset_x + 50 or offset_x - 4
 
     if time_left_height > 0 then
@@ -1573,8 +1579,8 @@ function board_class.is_block_empty(_ENV, x, y)
 
   return block_at(_ENV, x, y):is_empty() and
       not (_is_part_of_garbage(_ENV, x, y) or
-          _is_part_of_cnot(_ENV, x, y) or
-          _is_part_of_swap(_ENV, x, y))
+      _is_part_of_cnot(_ENV, x, y) or
+      _is_part_of_swap(_ENV, x, y))
 end
 
 -- x, y がおじゃまブロックの一部であるかどうかを返す
@@ -1595,7 +1601,7 @@ end
 function board_class._garbage_head_block(_ENV, x, y)
   for _, each in pairs(_garbage_blocks) do
     local garbage_x, garbage_y = each.x, each.y
-    if garbage_x <= x and x <= garbage_x + each.span - 1 and -- 幅に x が含まれる
+    if garbage_x <= x and x <= garbage_x + each.span - 1 and     -- 幅に x が含まれる
         garbage_y <= y and y <= garbage_y + each.height - 1 then -- 高さに y が含まれる
       return each
     end

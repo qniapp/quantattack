@@ -17,18 +17,18 @@ describe('chain', function()
     player = player_class()
   end)
 
-  it("コールバックが呼ばれる", function()
-    --    Y           Y          Y
+  it("chain コールバックが呼ばれる", function()
+    --    T           T          T
     -- [X H]        H X
-    --  H X  -----> H X ----->     ----->   Y
-    --  Y Y         Y Y        Y Y        Y Y
-    board:put(2, 4, block_class("y"))
+    --  H X  -----> H X ----->     ----->   T
+    --  T T         T T        T T        T T
+    board:put(2, 4, block_class("t"))
     board:put(1, 3, block_class("x"))
     board:put(2, 3, block_class("h"))
     board:put(1, 2, block_class("h"))
     board:put(2, 2, block_class("x"))
-    board:put(1, 1, block_class("y"))
-    board:put(2, 1, block_class("y"))
+    board:put(1, 1, block_class("t"))
+    board:put(2, 1, block_class("t"))
 
     board:swap(1, 3)
 

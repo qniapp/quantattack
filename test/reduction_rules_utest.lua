@@ -380,6 +380,36 @@ describe('ブロックの簡約ルール', function()
   end)
 
   -- ┌───┐
+  -- │ Y │        I
+  -- ├───┤ ───▶ ┌───┐
+  -- │ X │      │ Z │
+  -- └───┘      └───┘
+  it('YX ─▶ Z', function()
+    put(1, 2, "y")
+    put(1, 1, "x")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 2))
+    assert.becomes_z(block_at(1, 1))
+  end)
+
+  -- ┌───┐
+  -- │ X │        I
+  -- ├───┤ ───▶ ┌───┐
+  -- │ Y │      │ Z │
+  -- └───┘      └───┘
+  it('XY ─▶ Z', function()
+    put(1, 2, "x")
+    put(1, 1, "y")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 2))
+    assert.becomes_z(block_at(1, 1))
+  end)
+
+  -- ┌───┐
   -- │ H │        I
   -- ├───┤ ───▶
   -- │ X │        I
