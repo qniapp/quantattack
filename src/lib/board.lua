@@ -573,7 +573,7 @@ reduction_rules = transform(
       z =
       "z\nz|,,\n,-1,|1&z\nx|,,\n,-1,y|2&z\ny|,,\n,-1,x|2&z,z\ncontrol,cnot_x\n?,z|,,\ntrue,,\ntrue,-2,|8&z\ncontrol,cnot_x\nz|,,\n,-2,|6&z\nswap,swap\n?,z|,,\ntrue,-2,|5&z\nh,x\ncnot_x,control\nh,x|,,\ntrue,-1,\ntrue,-3,|10&z\nh\ncnot_x,control\nh\nz|,,\n,-4,|10",
       s =
-      "s\ns|,,\n,-1,z|1&s\ny\ns|,,\n,-1,\n,-2,y|3&s\nz\ns|,,\n,-1,\n,-2,z|3&s\nswap,swap\n?,s|,,z\ntrue,-2,|5&s\nz\nswap,swap\n?,s|,,\n,-1,z\ntrue,-3,|7&s\nswap,swap\n?,z\n?,s|,,z\ntrue,-2,\ntrue,-3,|7",
+      "s\ns|,,\n,-1,z|1&s\nx\ns|,,\n,-1,\n,-2,x|3&s\ny\ns|,,\n,-1,\n,-2,y|3&s\nz\ns|,,\n,-1,\n,-2,z|3&s\nswap,swap\n?,s|,,z\ntrue,-2,|5&s\nz\nswap,swap\n?,s|,,\n,-1,z\ntrue,-3,|7&s\nswap,swap\n?,z\n?,s|,,z\ntrue,-2,\ntrue,-3,|7",
       t =
       "t\nt|,,\n,-1,s|1&t\ns\nt|,,\n,-1,\n,-2,z|3&t\nswap,swap\n?,t|,,s\ntrue,-2,|5&t\nz\ns\nt|,,\n,-1,\n,-2,\n,-3,|4&t\ns\nz\nt|,,\n,-1,\n,-2,\n,-3,|4&t\ns\nswap,swap\n?,t|,,\n,-1,z\ntrue,-3,|7&t\nswap,swap\n?,s\n?,t|,,z\ntrue,-2,\ntrue,-3,|7&t\nswap,swap\n?,z\n?,s\n?,t|,,\ntrue,-2,\ntrue,-3,\ntrue,-4,|8&t\nswap,swap\n?,s\n?,z\n?,t|,,\ntrue,-2,\ntrue,-3,\ntrue,-4,|8",
       control = "control,cnot_x\nswap,swap\ncnot_x,control|,,\ntrue,,\n,-2,\ntrue,-2,|10",
