@@ -8,7 +8,7 @@ function game_class.reduce_callback(score, player, board, contains_cnot_or_swap)
   player.score = player.score + score
 
   if contains_cnot_or_swap then
-    board.freeze_timer = 300
+    board.freeze_timer = 120
     sfx(49)
   end
 end
@@ -151,8 +151,8 @@ function game_class.update(_ENV)
     end
   end
 
-  if not countdown and -- カウントダウン終了
-      stat(46) == -1 and -- カウントダウンの sfx が鳴り終わっている
+  if not countdown and    -- カウントダウン終了
+      stat(46) == -1 and  -- カウントダウンの sfx が鳴り終わっている
       stat(54) == -1 then -- BGM がまだ始まっていない
     music(0)
   end
