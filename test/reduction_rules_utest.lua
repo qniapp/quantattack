@@ -1931,6 +1931,35 @@ describe('ブロックの簡約ルール', function()
     assert.becomes_i(block_at(1, 1))
   end)
 
+  --          ┌───┐
+  --          │ T │                 I
+  --          ├───┤
+  --          │ Z │                 I
+  --          ├───┤
+  --          │ S │                 I
+  -- ┌───┐    ├───┤      ┌───┐    ┌───┐
+  -- │ S ├────┤ S │ ───▶ │ S ├────┤ S │
+  -- ├───┤    └───┘      └───┘    └───┘
+  -- │ T │                 I
+  -- └───┘
+  it('TZS S-S T ─▶ S-S (左右反転)', function()
+    put(3, 5, "t")
+    put(3, 4, "z")
+    put(3, 3, "s")
+    put(1, 2, "swap", 3)
+    put(3, 2, "swap", 1)
+    put(1, 1, "t")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(3, 5))
+    assert.becomes_i(block_at(3, 4))
+    assert.becomes_i(block_at(3, 3))
+    assert.is_swap(block_at(1, 2), 3)
+    assert.is_swap(block_at(3, 2), 1)
+    assert.becomes_i(block_at(1, 1))
+  end)
+
   -- ┌───┐    ┌───┐      ┌───┐
   -- │ H │    │ Z │      │ H │      I
   -- ├───┤    ├───┤      ├───┤    ┌───┐
@@ -1953,6 +1982,35 @@ describe('ブロックの簡約ルール', function()
     assert.is_cnot_x(block_at(1, 2), 3)
     assert.is_control(block_at(3, 2), 1)
     assert.is_h(block_at(1, 1))
+    assert.becomes_i(block_at(3, 1))
+  end)
+
+  -- ┌───┐
+  -- │ T │                 I
+  -- ├───┤
+  -- │ Z │                 I
+  -- ├───┤
+  -- │ S │                 I
+  -- ├───┤    ┌───┐      ┌───┐    ┌───┐
+  -- │ S ├────┤ S │ ───▶ │ S ├────┤ S │
+  -- └───┘    ├───┤      └───┘    └───┘
+  --          │ T │                 I
+  --          └───┘
+  it('TZS S-S T ─▶ S-S #solo', function()
+    put(1, 5, "t")
+    put(1, 4, "z")
+    put(1, 3, "s")
+    put(1, 2, "swap", 3)
+    put(3, 2, "swap", 1)
+    put(3, 1, "t")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 5))
+    assert.becomes_i(block_at(1, 4))
+    assert.becomes_i(block_at(1, 3))
+    assert.is_swap(block_at(1, 2), 3)
+    assert.is_swap(block_at(3, 2), 1)
     assert.becomes_i(block_at(3, 1))
   end)
 
