@@ -218,11 +218,13 @@ function game:update()
   bubbles:update_all()
   ions:update_all()
 
-  -- ゲーム中だけ time_left を更新
-  game.time_left = 120 - (t() - self.start_time)
-
   if all_players_info[1].board:is_game_over() then
-    self.game_over_time = t()
+    if self.game_over_time == nil then
+      self.game_over_time = t()
+    end
+  else
+    -- ゲーム中だけ time_left を更新
+    game.time_left = 120 - (t() - self.start_time)
   end
 end
 
