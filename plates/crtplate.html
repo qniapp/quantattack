@@ -1,6 +1,11 @@
 ﻿<html><head>
-<title>PICO-8 Cartridge</title>
-<meta name="viewport" content="width=device-width, user-scalable=no">
+  <title>QuantAttack</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./favicon.ico" sizes="any">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+
+  <meta name="viewport" content="width=device-width, user-scalable=no">
 <script type="text/javascript">
 
 	// Default shell for PICO-8 0.2.2 (includes @weeble's gamepad mod 1.0)
@@ -928,61 +933,61 @@
 </script>
 
 <STYLE TYPE="text/css">
-<!--
-.p8_menu_button{
-	opacity:0.3;
-	padding:4px;
-	display:table;
-	width:24px;
-	height:24px;
-	float:right;
-}
+ <!--
+ .p8_menu_button{
+	 opacity:0.3;
+	 padding:4px;
+	 display:table;
+	 width:24px;
+	 height:24px;
+	 float:right;
+ }
 
-@media screen and (min-width:512px) {
-	.p8_menu_button{
-		width:24px; margin-left:12px; margin-bottom:8px;
-	}
-}
-.p8_menu_button:hover{
-	opacity:1.0;
-	cursor:pointer;
-}
+ @media screen and (min-width:512px) {
+	 .p8_menu_button{
+		 width:24px; margin-left:12px; margin-bottom:8px;
+	 }
+ }
+ .p8_menu_button:hover{
+	 opacity:1.0;
+	 cursor:pointer;
+ }
 
-canvas{
-    image-rendering: optimizeSpeed;
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: optimize-contrast;
-    image-rendering: pixelated;
-    -ms-interpolation-mode: nearest-neighbor;
-	border: 0px;
-	cursor: none;
-}
+ canvas{
+     image-rendering: optimizeSpeed;
+     image-rendering: -moz-crisp-edges;
+     image-rendering: -webkit-optimize-contrast;
+     image-rendering: optimize-contrast;
+     image-rendering: pixelated;
+     -ms-interpolation-mode: nearest-neighbor;
+	 border: 0px;
+	 cursor: none;
+ }
 
 
-.p8_start_button{
-	cursor:pointer;
-	background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAIAAABMXPacAAAARUlEQVR4Ae3dgQAAAACAoP2pFymSAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACABsCAAAGB4kPcAAAAEHRFWHRMb2RlUE5HADIwMTEwMjIx41m2wQAAAABJRU5ErkJggg==");
-	-repeat center;
-	-webkit-background-size:cover; -moz-background-size:cover; -o-background-size:cover; background-size:cover;
-}
+ .p8_start_button{
+	 cursor:pointer;
+	 background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAIAAABMXPacAAAARUlEQVR4Ae3dgQAAAACAoP2pFymSAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACABsCAAAGB4kPcAAAAEHRFWHRMb2RlUE5HADIwMTEwMjIx41m2wQAAAABJRU5ErkJggg==");
+	 -repeat center;
+	 -webkit-background-size:cover; -moz-background-size:cover; -o-background-size:cover; background-size:cover;
+ }
 
-.button_gfx{
-	stroke-width:2;
-	stroke: #ffffff;
-	stroke-opacity:0.4;
-	fill-opacity:0.2;
-	fill:black;
-}
+ .button_gfx{
+	 stroke-width:2;
+	 stroke: #ffffff;
+	 stroke-opacity:0.4;
+	 fill-opacity:0.2;
+	 fill:black;
+ }
 
-.button_gfx_icon{
-	stroke-width:3;
-	stroke: #909090;
-	stroke-opacity:0.7;
-	fill:none;
-}
+ .button_gfx_icon{
+	 stroke-width:3;
+	 stroke: #909090;
+	 stroke-opacity:0.7;
+	 fill:none;
+ }
 
--->
+ -->
 </STYLE>
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -990,11 +995,14 @@ canvas{
 </head>
 
 <body style="padding:0px; margin:0px; background-color:#222; color:#ccc">
-<div id="body_0"> <!-- hide this when playing in mobile (p8_touch_detected) so that elements don't affect layout -->
+  <div id="body_0"> <!-- hide this when playing in mobile (p8_touch_detected) so that elements don't affect layout -->
 
 
-<!-- Add any content above the cart here -->
+	<!-- Add any content above the cart here -->
 
+	<div style="max-width:800px; margin:auto;">
+	  <img src="./logo.png" class="max-w-full h-auto mt-8 sm:mt-16">
+	</div>
 
 <div id="p8_frame_0" style="max-width:800px; max-height:800px; margin:auto;"> <!-- double function: limit size, and display only this div for touch devices -->
 <div id="p8_frame" style="display:flex; width:100%; max-width:95vw; height:100vw; max-height:95vh; margin:auto;">
@@ -1101,13 +1109,70 @@ canvas{
 
 <div style="max-width:800px; margin:auto;">
   <div class="mx-4 mb-32">
-	<h1 class="text-xl font-bold">How to Play</h1>
+  <div style="max-width:640px; margin:auto">
+	<img src="./controls.png" class="max-w-full h-auto">
+  </div>
 
-	<ul>
-	  <li>Arrow keys - Move Cursor</li>
-	  <li>X Button (X or M or V) - Confirm. Swap blocks.</li>
-	  <li>O Button (Z or N or C) - Cancel. Manually rise blocks.</li>
-	</ul>
+  <h2 class="text-4xl font-extrabold text-white mt-8">How to Play</h2>
+
+  <p class="mt-4 mb-2 text-lg text-gray-300">
+	QuantAttack is a match-2 type action puzzle game. Blocks are cleared by lining up two blocks of the same type vertically.
+  </p>
+
+  <p class="mb-4 text-base text-gray-300">
+	QuantAttack は「マッチ2」タイプのアクションパズルゲームです。同じ種類のブロックを縦に2つ並べることでブロックを消せます。
+  </p>
+
+  <img src="./HH.png" class="max-w-full h-auto">
+
+  <p class="mt-4 mb-2 text-lg text-gray-300">
+	While the basic rules are this simple, QuantAttack introduces a fresh twist on block-clearing puzzlers. Some blocks are unique, and players must discover hidden patterns to clear them.
+  </p>
+
+  <p class="mb-4 text-base text-gray-300">
+	基本的なルールはこのようにシンプルですが、QuantAttack はマッチパズルの世界に新しい要素を追加します。いくつかの特殊なブロックを消すためには、隠されたパターンを発見しなければなりません。
+  </p>
+
+  <img src="./cnots.png" class="max-w-full h-auto">
+
+  <p class="mt-4 mb-2 text-lg text-gray-300">
+	There are more than 40 patterns of such block combinations, and finding and mastering them is the fastest way to improve.
+  </p>
+
+  <p class="mb-4 text-base text-gray-300">
+	隠された組み合わせは 40 パターン以上あり、それらを見つけて使いこなすことが上達への早道です。
+  </p>
+
+  <div class="inline-flex items-center justify-center w-full">
+    <hr class="w-64 h-px my-8 bg-gray-200 border-0">
+    <span style="background-color:#222" class="absolute px-3 font-medium text-white -translate-x-1/2 left-1/2">HINT</span>
+  </div>
+
+  <p class="mt-4 mb-2 text-lg text-gray-300">
+	These secret patterns are based on the rules of quantum mechanics: each block is a quantum computer instruction (quantum logic gate), which works exactly like an actual quantum computer instruction.
+  </p>
+
+  <p class="mb-4 text-base text-gray-300">
+	これらの秘密のパターンは、量子力学のルールに基づいています。各ブロックは量子コンピュータの命令 (量子論理ゲート) であり、実際の量子コンピュータの命令と全く同じ働きをします。
+  </p>
+
+  <img src="./XX_I.png" class="max-w-full h-auto">
+
+  <p class="mt-4 mb-2 text-lg text-gray-300">
+	<a href="https://en.wikipedia.org/wiki/Quantum_logic_gate" class="text-red-500">This article</a> on Wikipedia might help you get a better handle on the blocks.
+  </p>
+
+  <p class="mb-4 text-base text-gray-300">
+	ウィキペディアの<a href="https://en.wikipedia.org/wiki/Quantum_logic_gate" class="text-red-500">この記事</a>がブロック (量子論理ゲート) をより深く理解するのに役立つかもしれません。
+  </p>
+
+  <h2 class="text-4xl font-extrabold text-white mt-8">Links</h2>
+
+  <ul class="list-disc list-inside my-4 text-lg text-gray-300">
+	<li><a href="https://qniapp.net/" class="text-red-500">Qni</a> Quantum live-programming app that runs in your browser. <span class="text-base block">Qni (キューニ): ブラウザで動く量子ライブプログラミング環境</span></li>
+	<li><a href="https://qniapp.github.io/qni/" class="text-red-500">Qni Tutorial</a> Quantum Computer Programming Tutorial for Beginners (in Japanese). <span class="text-base block">Qni チュートリアル: 初心者向け量子コンピュータプログラミングチュートリアル</span></li>
+  </ul>
+
   </div>
 </div>
 
