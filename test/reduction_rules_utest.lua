@@ -1749,6 +1749,241 @@ describe('ブロックの簡約パターン', function()
   -----------------------------------------------------------------------------
 
   -- ┌───┐    ┌───┐
+  -- │ X │    │ X │        I        I
+  -- └───┘    ├───┤               ┌───┐
+  --   ●──────┤ X │ ───▶   ●──────┤ X │
+  -- ┌───┐    └───┘               └───┘
+  -- │ X │                 I
+  -- └───┘
+  it('XX C-X X ─▶ C-X', function()
+    put(1, 3, "x")
+    put(3, 3, "x")
+    put(1, 2, "control", 3)
+    put(3, 2, "cnot_x", 1)
+    put(1, 1, "x")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 3))
+    assert.becomes_i(block_at(3, 3))
+    assert.is_control(block_at(1, 2), 3)
+    assert.is_cnot_x(block_at(3, 2), 1)
+    assert.becomes_i(block_at(1, 1))
+  end)
+
+  -- ┌───┐    ┌───┐
+  -- │ X │    │ X │        I        I
+  -- ├───┤    └───┘      ┌───┐
+  -- │ X ├──────●   ───▶ │ X ├──────●
+  -- └───┘    ┌───┐      └───┘
+  --          │ X │                 I
+  --          └───┘
+  it('XX X-C X ─▶ X-C', function()
+    put(1, 3, "x")
+    put(3, 3, "x")
+    put(1, 2, "cnot_x", 3)
+    put(3, 2, "control", 1)
+    put(3, 1, "x")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 3))
+    assert.becomes_i(block_at(3, 3))
+    assert.is_cnot_x(block_at(1, 2), 3)
+    assert.is_control(block_at(3, 2), 1)
+    assert.becomes_i(block_at(3, 1))
+  end)
+
+  -- ┌───┐    ┌───┐
+  -- │ X │    │ X │        I        I
+  -- ├───┤    └───┘      ┌───┐
+  -- │ X ├──────●   ───▶ │ X ├──────●
+  -- ├───┤               └───┘
+  -- │ X │                 I
+  -- └───┘
+  it('XX X-C X ─▶ X-C', function()
+    put(1, 3, "x")
+    put(3, 3, "x")
+    put(1, 2, "cnot_x", 3)
+    put(3, 2, "control", 1)
+    put(1, 1, "x")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 3))
+    assert.becomes_i(block_at(3, 3))
+    assert.is_cnot_x(block_at(1, 2), 3)
+    assert.is_control(block_at(3, 2), 1)
+    assert.becomes_i(block_at(1, 1))
+  end)
+
+  -- ┌───┐    ┌───┐
+  -- │ X │    │ X │        I        I
+  -- └───┘    ├───┤               ┌───┐
+  --   ●──────┤ X │ ───▶   ●──────┤ X │
+  --          ├───┤               └───┘
+  --          │ X │                 I
+  --          └───┘
+  it('XX C-X X ─▶ C-X', function()
+    put(1, 3, "x")
+    put(3, 3, "x")
+    put(1, 2, "control", 3)
+    put(3, 2, "cnot_x", 1)
+    put(3, 1, "x")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 3))
+    assert.becomes_i(block_at(3, 3))
+    assert.is_control(block_at(1, 2), 3)
+    assert.is_cnot_x(block_at(3, 2), 1)
+    assert.becomes_i(block_at(3, 1))
+  end)
+
+
+  -- ┌───┐    ┌───┐
+  -- │ Y │    │ X │        I        I
+  -- └───┘    ├───┤               ┌───┐
+  --   ●──────┤ X │ ───▶   ●──────┤ X │
+  -- ┌───┐    └───┘               └───┘
+  -- │ Y │                 I
+  -- └───┘
+  it('YX C-X Y ─▶ C-X', function()
+    put(1, 3, "y")
+    put(3, 3, "x")
+    put(1, 2, "control", 3)
+    put(3, 2, "cnot_x", 1)
+    put(1, 1, "y")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 3))
+    assert.becomes_i(block_at(3, 3))
+    assert.is_control(block_at(1, 2), 3)
+    assert.is_cnot_x(block_at(3, 2), 1)
+    assert.becomes_i(block_at(1, 1))
+  end)
+
+  -- ┌───┐    ┌───┐
+  -- │ X │    │ Y │        I        I
+  -- ├───┤    └───┘      ┌───┐
+  -- │ X ├──────●   ───▶ │ X ├──────●
+  -- └───┘    ┌───┐      └───┘
+  --          │ Y │                 I
+  --          └───┘
+  it('XY X-C Y ─▶ X-C', function()
+    put(1, 3, "x")
+    put(3, 3, "y")
+    put(1, 2, "cnot_x", 3)
+    put(3, 2, "control", 1)
+    put(3, 1, "y")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 3))
+    assert.becomes_i(block_at(3, 3))
+    assert.is_cnot_x(block_at(1, 2), 3)
+    assert.is_control(block_at(3, 2), 1)
+    assert.becomes_i(block_at(3, 1))
+  end)
+
+  -- ┌───┐    ┌───┐
+  -- │ Y │    │ Z │        I        I
+  -- ├───┤    └───┘      ┌───┐
+  -- │ X ├──────●   ───▶ │ X ├──────●
+  -- ├───┤               └───┘
+  -- │ Y │                 I
+  -- └───┘
+  it('YZ X-C Y ─▶ X-C', function()
+    put(1, 3, "y")
+    put(3, 3, "z")
+    put(1, 2, "cnot_x", 3)
+    put(3, 2, "control", 1)
+    put(1, 1, "y")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 3))
+    assert.becomes_i(block_at(3, 3))
+    assert.is_cnot_x(block_at(1, 2), 3)
+    assert.is_control(block_at(3, 2), 1)
+    assert.becomes_i(block_at(1, 1))
+  end)
+
+  -- ┌───┐    ┌───┐
+  -- │ Z │    │ Y │        I        I
+  -- └───┘    ├───┤               ┌───┐
+  --   ●──────│ X │ ───▶   ●──────│ X │
+  --          ├───┤               └───┘
+  --          │ Y │                 I
+  --          └───┘
+  it('ZY C-X Y ─▶ C-X', function()
+    put(1, 3, "z")
+    put(3, 3, "y")
+    put(1, 2, "control", 3)
+    put(3, 2, "cnot_x", 1)
+    put(3, 1, "y")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 3))
+    assert.becomes_i(block_at(3, 3))
+    assert.is_control(block_at(1, 2), 3)
+    assert.is_cnot_x(block_at(3, 2), 1)
+    assert.becomes_i(block_at(3, 1))
+  end)
+
+  -- ┌───┐    ┌───┐
+  -- │ Z │    │ Z │        I        I
+  -- └───┘    ├───┤               ┌───┐
+  --   ●──────┤ X │ ───▶   ●──────┤ X │
+  --          ├───┤               └───┘
+  --          │ Z │                 I
+  --          └───┘
+  it('ZZ C-X Z ─▶ C-X', function()
+    put(1, 3, "z")
+    put(3, 3, "z")
+    put(1, 2, "control", 3)
+    put(3, 2, "cnot_x", 1)
+    put(3, 1, "z")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 3))
+    assert.becomes_i(block_at(3, 3))
+    assert.is_control(block_at(1, 2), 3)
+    assert.is_cnot_x(block_at(3, 2), 1)
+    assert.becomes_i(block_at(3, 1))
+  end)
+
+  -- ┌───┐    ┌───┐
+  -- │ Z │    │ Z │        I        I
+  -- ├───┤    └───┘      ┌───┐
+  -- │ X ├──────●   ───▶ │ X ├──────●
+  -- ├───┤               └───┘
+  -- │ Z │                 I
+  -- └───┘
+  it('ZZ X-C Z ─▶ X-C', function()
+    put(1, 3, "z")
+    put(3, 3, "z")
+    put(1, 2, "cnot_x", 3)
+    put(3, 2, "control", 1)
+    put(1, 1, "z")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 3))
+    assert.becomes_i(block_at(3, 3))
+    assert.is_cnot_x(block_at(1, 2), 3)
+    assert.is_control(block_at(3, 2), 1)
+    assert.becomes_i(block_at(1, 1))
+  end)
+
+  -----------------------------------------------------------------------------
+  -- 100 Points
+  -----------------------------------------------------------------------------
+
+  -- ┌───┐    ┌───┐
   -- │ C ├────┤ X │        I        I
   -- ├───┤    ├───┤ ───▶
   -- │ X ├────┤ C │        I        I
@@ -1799,190 +2034,6 @@ describe('ブロックの簡約パターン', function()
   end)
 
   -- ┌───┐    ┌───┐
-  -- │ X │    │ X │        I        I
-  -- ├───┤    ├───┤      ┌───┐    ┌───┐
-  -- │ C ├────┤ X │ ───▶ │ C ├────┤ X │
-  -- ├───┤    └───┘      └───┘    └───┘
-  -- │ X │                 I
-  -- └───┘
-  it('XX C-X X ─▶ C-X', function()
-    put(1, 3, "x")
-    put(3, 3, "x")
-    put(1, 2, "control", 3)
-    put(3, 2, "cnot_x", 1)
-    put(1, 1, "x")
-
-    reduce_blocks()
-
-    assert.becomes_i(block_at(1, 3))
-    assert.becomes_i(block_at(3, 3))
-    assert.is_control(block_at(1, 2), 3)
-    assert.is_cnot_x(block_at(3, 2), 1)
-    assert.becomes_i(block_at(1, 1))
-  end)
-
-  -- ┌───┐    ┌───┐
-  -- │ X │    │ X │        I        I
-  -- ├───┤    ├───┤      ┌───┐    ┌───┐
-  -- │ X ├────┤ C │ ───▶ │ X ├────┤ C │
-  -- └───┘    ├───┤      └───┘    └───┘
-  --          │ X │                 I
-  --          └───┘
-  it('XX X-C X ─▶ X-C', function()
-    put(1, 3, "x")
-    put(3, 3, "x")
-    put(1, 2, "cnot_x", 3)
-    put(3, 2, "control", 1)
-    put(3, 1, "x")
-
-    reduce_blocks()
-
-    assert.becomes_i(block_at(1, 3))
-    assert.becomes_i(block_at(3, 3))
-    assert.is_cnot_x(block_at(1, 2), 3)
-    assert.is_control(block_at(3, 2), 1)
-    assert.becomes_i(block_at(3, 1))
-  end)
-
-  -- ┌───┐    ┌───┐
-  -- │ Y │    │ X │        I        I
-  -- ├───┤    ├───┤      ┌───┐    ┌───┐
-  -- │ C ├────┤ X │ ───▶ │ C ├────┤ X │
-  -- ├───┤    └───┘      └───┘    └───┘
-  -- │ Y │                 I
-  -- └───┘
-  it('YX C-X Y ─▶ C-X', function()
-    put(1, 3, "y")
-    put(3, 3, "x")
-    put(1, 2, "control", 3)
-    put(3, 2, "cnot_x", 1)
-    put(1, 1, "y")
-
-    reduce_blocks()
-
-    assert.becomes_i(block_at(1, 3))
-    assert.becomes_i(block_at(3, 3))
-    assert.is_control(block_at(1, 2), 3)
-    assert.is_cnot_x(block_at(3, 2), 1)
-    assert.becomes_i(block_at(1, 1))
-  end)
-
-  -- ┌───┐    ┌───┐
-  -- │ X │    │ Y │        I        I
-  -- ├───┤    ├───┤      ┌───┐    ┌───┐
-  -- │ X ├────┤ C │ ───▶ │ X ├────┤ C │
-  -- └───┘    ├───┤      └───┘    └───┘
-  --          │ Y │                 I
-  --          └───┘
-  it('XY X-C Y ─▶ X-C', function()
-    put(1, 3, "x")
-    put(3, 3, "y")
-    put(1, 2, "cnot_x", 3)
-    put(3, 2, "control", 1)
-    put(3, 1, "y")
-
-    reduce_blocks()
-
-    assert.becomes_i(block_at(1, 3))
-    assert.becomes_i(block_at(3, 3))
-    assert.is_cnot_x(block_at(1, 2), 3)
-    assert.is_control(block_at(3, 2), 1)
-    assert.becomes_i(block_at(3, 1))
-  end)
-
-  -- ┌───┐    ┌───┐
-  -- │ Y │    │ Z │        I        I
-  -- ├───┤    ├───┤      ┌───┐    ┌───┐
-  -- │ X ├────┤ C │ ───▶ │ X ├────┤ C │
-  -- ├───┤    └───┘      └───┘    └───┘
-  -- │ Y │                 I
-  -- └───┘
-  it('YZ X-C Y ─▶ X-C', function()
-    put(1, 3, "y")
-    put(3, 3, "z")
-    put(1, 2, "cnot_x", 3)
-    put(3, 2, "control", 1)
-    put(1, 1, "y")
-
-    reduce_blocks()
-
-    assert.becomes_i(block_at(1, 3))
-    assert.becomes_i(block_at(3, 3))
-    assert.is_cnot_x(block_at(1, 2), 3)
-    assert.is_control(block_at(3, 2), 1)
-    assert.becomes_i(block_at(1, 1))
-  end)
-
-  -- ┌───┐    ┌───┐
-  -- │ Z │    │ Y │        I        I
-  -- ├───┤    ├───┤      ┌───┐    ┌───┐
-  -- │ C ├────┤ X │ ───▶ │ C ├────┤ X │
-  -- └───┘    ├───┤      └───┘    └───┘
-  --          │ Y │                 I
-  --          └───┘
-  it('ZY C-X Y ─▶ C-X', function()
-    put(1, 3, "z")
-    put(3, 3, "y")
-    put(1, 2, "control", 3)
-    put(3, 2, "cnot_x", 1)
-    put(3, 1, "y")
-
-    reduce_blocks()
-
-    assert.becomes_i(block_at(1, 3))
-    assert.becomes_i(block_at(3, 3))
-    assert.is_control(block_at(1, 2), 3)
-    assert.is_cnot_x(block_at(3, 2), 1)
-    assert.becomes_i(block_at(3, 1))
-  end)
-
-  -- ┌───┐    ┌───┐
-  -- │ Z │    │ Z │        I        I
-  -- ├───┤    ├───┤      ┌───┐    ┌───┐
-  -- │ C ├────┤ X │ ───▶ │ C ├────┤ X │
-  -- └───┘    ├───┤      └───┘    └───┘
-  --          │ Z │                 I
-  --          └───┘
-  it('ZZ C-X Z ─▶ C-X', function()
-    put(1, 3, "z")
-    put(3, 3, "z")
-    put(1, 2, "control", 3)
-    put(3, 2, "cnot_x", 1)
-    put(3, 1, "z")
-
-    reduce_blocks()
-
-    assert.becomes_i(block_at(1, 3))
-    assert.becomes_i(block_at(3, 3))
-    assert.is_control(block_at(1, 2), 3)
-    assert.is_cnot_x(block_at(3, 2), 1)
-    assert.becomes_i(block_at(3, 1))
-  end)
-
-  -- ┌───┐    ┌───┐
-  -- │ Z │    │ Z │        I        I
-  -- ├───┤    ├───┤      ┌───┐    ┌───┐
-  -- │ X ├────┤ C │ ───▶ │ X ├────┤ C │
-  -- ├───┤    └───┘      └───┘    └───┘
-  -- │ Z │                 I
-  -- └───┘
-  it('ZZ X-C Z ─▶ X-C', function()
-    put(1, 3, "z")
-    put(3, 3, "z")
-    put(1, 2, "cnot_x", 3)
-    put(3, 2, "control", 1)
-    put(1, 1, "z")
-
-    reduce_blocks()
-
-    assert.becomes_i(block_at(1, 3))
-    assert.becomes_i(block_at(3, 3))
-    assert.is_cnot_x(block_at(1, 2), 3)
-    assert.is_control(block_at(3, 2), 1)
-    assert.becomes_i(block_at(1, 1))
-  end)
-
-  -- ┌───┐    ┌───┐
   -- │ S ├────┤ S │        I   I
   -- ├───┤    ├───┤ ───▶
   -- │ S ├────┤ S │        I   I
@@ -1999,56 +2050,6 @@ describe('ブロックの簡約パターン', function()
     assert.becomes_i(block_at(3, 2))
     assert.becomes_i(block_at(1, 1))
     assert.becomes_i(block_at(3, 1))
-  end)
-
-  -- ┌───┐
-  -- │ H │                 I
-  -- ├───┤               ┌───┐
-  -- │ Z │               │ X │
-  -- ├───┤    ┌───┐      ├───┤    ┌───┐
-  -- │ S ├────┤ S │ ───▶ │ S ├────┤ S │
-  -- └───┘    ├───┤      └───┘    └───┘
-  --          │ H │                 I
-  --          └───┘
-  it('HZ X-X H ─▶ X X-X', function()
-    put(1, 4, "h")
-    put(1, 3, "z")
-    put(1, 2, "swap", 3)
-    put(3, 2, "swap", 1)
-    put(3, 1, "h")
-
-    reduce_blocks()
-
-    assert.becomes_i(block_at(1, 4))
-    assert.becomes_x(block_at(1, 3))
-    assert.is_swap(block_at(1, 2), 3)
-    assert.is_swap(block_at(3, 2), 1)
-    assert.becomes_i(block_at(3, 1))
-  end)
-
-  --          ┌───┐
-  --          │ H │                 I
-  --          ├───┤               ┌───┐
-  --          │ Z │               │ X │
-  -- ┌───┐    ├───┤      ┌───┐    ├───┤
-  -- │ S ├────┤ S │ ───▶ │ S ├────┤ S │
-  -- ├───┤    └───┘      └───┘    └───┘
-  -- │ H │                 I
-  -- └───┘
-  it('HZ X-X H ─▶ X X-X (左右反転)', function()
-    put(3, 4, "h")
-    put(3, 3, "z")
-    put(1, 2, "swap", 3)
-    put(3, 2, "swap", 1)
-    put(1, 1, "h")
-
-    reduce_blocks()
-
-    assert.becomes_i(block_at(3, 4))
-    assert.becomes_x(block_at(3, 3))
-    assert.is_swap(block_at(1, 2), 3)
-    assert.is_swap(block_at(3, 2), 1)
-    assert.becomes_i(block_at(1, 1))
   end)
 
   -- ┌───┐    ┌───┐      ┌───┐
