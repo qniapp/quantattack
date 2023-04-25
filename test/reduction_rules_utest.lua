@@ -2037,82 +2037,13 @@ describe('ブロックの簡約パターン', function()
   -- 200 Points
   -----------------------------------------------------------------------------
 
-  -- ┌───┐    ┌───┐
-  -- │ S ├────┤ S │        I   I
-  -- ├───┤    ├───┤ ───▶
-  -- │ S ├────┤ S │        I   I
-  -- └───┘    └───┘
-  it('X-X X-X ─▶ I', function()
-    put(1, 2, "swap", 3)
-    put(3, 2, "swap", 1)
-    put(1, 1, "swap", 3)
-    put(3, 1, "swap", 1)
-
-    reduce_blocks()
-
-    assert.becomes_i(block_at(1, 2))
-    assert.becomes_i(block_at(3, 2))
-    assert.becomes_i(block_at(1, 1))
-    assert.becomes_i(block_at(3, 1))
-  end)
-
-  -- ┌───┐    ┌───┐      ┌───┐
-  -- │ H │    │ Z │      │ H │      I
-  -- ├───┤    ├───┤      ├───┤    ┌───┐
-  -- │ X ├────┤ C │ ───▶ │ X ├────┤ C │
-  -- ├───┤    ├───┤      ├───┤    └───┘
-  -- │ H │    │ Z │      │ H │      I
-  -- └───┘    └───┘      └───┘
-  it('HZ X-C HZ ─▶ H X-C H', function()
-    put(1, 3, "h")
-    put(3, 3, "z")
-    put(1, 2, "cnot_x", 3)
-    put(3, 2, "control", 1)
-    put(1, 1, "h")
-    put(3, 1, "z")
-
-    reduce_blocks()
-
-    assert.is_h(block_at(1, 3))
-    assert.becomes_i(block_at(3, 3))
-    assert.is_cnot_x(block_at(1, 2), 3)
-    assert.is_control(block_at(3, 2), 1)
-    assert.is_h(block_at(1, 1))
-    assert.becomes_i(block_at(3, 1))
-  end)
-
-  -- ┌───┐    ┌───┐               ┌───┐
-  -- │ Z │    │ H │        I      │ H │
-  -- ├───┤    ├───┤      ┌───┐    ├───┤
-  -- │ C ├────┤ X │ ───▶ │ C ├────┤ X │
-  -- ├───┤    ├───┤      └───┘    ├───┤
-  -- │ Z │    │ H │        I      │ H │
-  -- └───┘    └───┘               └───┘
-  it('HZ X-C HZ ─▶ H X-C H (左右反転)', function()
-    put(3, 3, "h")
-    put(1, 3, "z")
-    put(3, 2, "cnot_x", 1)
-    put(1, 2, "control", 3)
-    put(3, 1, "h")
-    put(1, 1, "z")
-
-    reduce_blocks()
-
-    assert.is_h(block_at(3, 3))
-    assert.becomes_i(block_at(1, 3))
-    assert.is_cnot_x(block_at(3, 2), 1)
-    assert.is_control(block_at(1, 2), 3)
-    assert.is_h(block_at(3, 1))
-    assert.becomes_i(block_at(1, 1))
-  end)
-
-  -- ┌───┐    ┌───┐
-  -- │ C ├────┤ X │        I        I
-  -- ├───┤    ├───┤      ┌───┐    ┌───┐
+  --          ┌───┐
+  --   ●──────│ X │        I        I
+  -- ┌───┐    ├───┤      ┌───┐    ┌───┐
   -- │ S ├────┤ S │ ───▶ │ S ├────┤ S │
-  -- ├───┤    ├───┤      └───┘    └───┘
-  -- │ X ├────┤ C │        I        I
-  -- └───┘    └───┘
+  -- ├───┤    └───┘      └───┘    └───┘
+  -- │ X ├──────●          I        I
+  -- └───┘
   it('C-X X-X X-C ─▶ X-X', function()
     put(1, 3, "control", 3)
     put(3, 3, "cnot_x", 1)
@@ -2131,13 +2062,13 @@ describe('ブロックの簡約パターン', function()
     assert.becomes_i(block_at(3, 1))
   end)
 
-  -- ┌───┐    ┌───┐
-  -- │ X ├────┤ C │        I        I
-  -- ├───┤    ├───┤      ┌───┐    ┌───┐
+  -- ┌───┐
+  -- │ X ├──────●          I        I
+  -- ├───┤    ┌───┐      ┌───┐    ┌───┐
   -- │ S ├────┤ S │ ───▶ │ S ├────┤ S │
-  -- ├───┤    ├───┤      └───┘    └───┘
-  -- │ C ├────┤ X │        I        I
-  -- └───┘    └───┘
+  -- └───┘    ├───┤      └───┘    └───┘
+  --   ●──────│ X │        I        I
+  --          └───┘
   it('X-C X-X C-X ─▶ X-X', function()
     put(1, 3, "cnot_x", 3)
     put(3, 3, "control", 1)
@@ -2152,6 +2083,29 @@ describe('ブロックの簡約パターン', function()
     assert.becomes_i(block_at(3, 3))
     assert.is_swap(block_at(1, 2), 3)
     assert.is_swap(block_at(3, 2), 1)
+    assert.becomes_i(block_at(1, 1))
+    assert.becomes_i(block_at(3, 1))
+  end)
+
+  -----------------------------------------------------------------------------
+  -- 300 Points
+  -----------------------------------------------------------------------------
+
+  -- ┌───┐    ┌───┐
+  -- │ S ├────┤ S │        I   I
+  -- ├───┤    ├───┤ ───▶
+  -- │ S ├────┤ S │        I   I
+  -- └───┘    └───┘
+  it('X-X X-X ─▶ I', function()
+    put(1, 2, "swap", 3)
+    put(3, 2, "swap", 1)
+    put(1, 1, "swap", 3)
+    put(3, 1, "swap", 1)
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 2))
+    assert.becomes_i(block_at(3, 2))
     assert.becomes_i(block_at(1, 1))
     assert.becomes_i(block_at(3, 1))
   end)
