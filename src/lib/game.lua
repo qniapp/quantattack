@@ -4,11 +4,11 @@ game_class = new_class()
 
 local chain_bonus = transform(split("0,50,80,150,300,400,500,700,900,1100,1300,1500,1800"), tonum)
 
-function game_class.reduce_callback(score, player, board, contains_cnot_or_swap)
+function game_class.reduce_callback(score, player, board, contains_swap)
   local score_delta = score >> 16
   player.score = player.score + score_delta
 
-  if contains_cnot_or_swap then
+  if contains_swap then
     board.freeze_timer = 120
     sfx(49)
   end

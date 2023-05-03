@@ -5,11 +5,11 @@ local all_players_info, countdown
 
 local chain_bonus = transform(split("0,50,80,150,300,400,500,700,900,1100,1300,1500,1800"), tonum)
 
-function game.reduce_callback(score, player, board, contains_cnot_or_swap)
+function game.reduce_callback(score, player, board, contains_swap)
   local score_delta = score >> 16
   player.score = player.score + score_delta
 
-  if contains_cnot_or_swap then
+  if contains_swap then
     board.freeze_timer = 120
   end
 end
@@ -153,8 +153,8 @@ function game:update()
     end
   end
 
-  if not countdown and -- カウントダウン終了
-      stat(46) == -1 and -- カウントダウンの sfx が鳴り終わっている
+  if not countdown and    -- カウントダウン終了
+      stat(46) == -1 and  -- カウントダウンの sfx が鳴り終わっている
       stat(54) == -1 then -- BGM がまだ始まっていない
     music(0)
   end

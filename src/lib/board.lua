@@ -785,7 +785,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
           reduction.score,
           player,
           _ENV,
-          reduction.contains_cnot_or_swap
+          reduction.contains_swap
         )
       end
 
@@ -1044,7 +1044,7 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
 
     ::check_match::
     -- chainable フラグがついたブロックがマッチしたブロックの中に 1 個でも含まれていたら連鎖
-    local chain_id, contains_cnot_or_swap = x .. "," .. y, false
+    local chain_id, contains_swap = x .. "," .. y, false
 
     -- マッチするかチェック
     for i, block_types in pairs(block_pattern_rows) do
@@ -1064,7 +1064,7 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
 
         -- SWAP を含むパターンの点数かどうかをチェック
         if rule[3] == 50 or rule[3] == 60 or rule[3] == 70 or rule[3] == 200 or rule[3] == 300 then
-          contains_cnot_or_swap = true
+          contains_swap = true
         end
 
         if block1.chain_id then
@@ -1090,7 +1090,7 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
       dx = dx,
       score = rule[3],
       chain_id = chain_id,
-      contains_cnot_or_swap = contains_cnot_or_swap
+      contains_swap = contains_swap
     }
     goto matched
 
