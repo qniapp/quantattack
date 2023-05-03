@@ -2,12 +2,13 @@
 
 game_class = new_class()
 
-local chain_bonus = split("0,5,8,15,30,40,50,70,90,110,130,150,180")
+local chain_bonus = transform(split("0,50,80,150,300,400,500,700,900,1100,1300,1500,1800"), tonum)
 
-function game_class.reduce_callback(score, player, board, contains_cnot_or_swap)
-  player.score = player.score + score
+function game_class.reduce_callback(score, player, board, contains_swap)
+  local score_delta = score >> 16
+  player.score = player.score + score_delta
 
-  if contains_cnot_or_swap then
+  if contains_swap then
     board.freeze_timer = 120
     sfx(49)
   end
@@ -23,7 +24,9 @@ function game_class.combo_callback(combo_count, screen_x, screen_y, player, boar
       particles:create(target_x, target_y,
         "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
-      player.score = player.score + combo_count
+      local score = combo_count * 10
+      local score_delta = score >> 16
+      player.score = player.score + score_delta
 
       -- 対戦相手がいる時、おじゃまブロックを送る
       if other_board then
@@ -47,7 +50,9 @@ function game_class.block_offset_callback(chain_count, screen_x, screen_y, playe
         particles:create(target_x, target_y,
           "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
-        player.score = player.score + (chain_bonus[chain_count] or 180)
+        local score = chain_bonus[chain_count] or 1800
+        local score_delta = score >> 16
+        player.score = player.score + score_delta
 
         if other_board then
           offset_height = board.pending_garbage_blocks:offset(offset_height)
@@ -73,7 +78,9 @@ function game_class.chain_callback(chain_id, chain_count, screen_x, screen_y, pl
           particles:create(target_x, target_y,
             "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
-          player.score = player.score + (chain_bonus[chain_count] or 180)
+          local score = chain_bonus[chain_count] or 1800
+          local score_delta = score >> 16
+          player.score = player.score + score_delta
 
           -- 対戦相手がいる時、おじゃまブロックを送る
           if other_board then
@@ -85,7 +92,9 @@ function game_class.chain_callback(chain_id, chain_count, screen_x, screen_y, pl
       )
     end
   else
-    player.score = player.score + (chain_bonus[chain_count])
+    local score = chain_bonus[chain_count] or 1800
+    local score_delta = score >> 16
+    player.score = player.score + score_delta
   end
 end
 

@@ -16,7 +16,7 @@ describe('player', function()
 
   describe('init', function()
     it("resets score", function()
-      player.score = 1
+      player.score = 1 >> 16
 
       player:init()
 

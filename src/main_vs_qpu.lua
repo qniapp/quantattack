@@ -1,5 +1,3 @@
--- 8033
-
 require("lib/helpers")
 require("lib/board")
 require("lib/player")

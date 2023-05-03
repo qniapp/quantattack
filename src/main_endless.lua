@@ -1,5 +1,3 @@
--- 7615
-
 require("lib/helpers")
 require("lib/board")
 require("lib/game")
@@ -73,8 +71,8 @@ function _draw()
   local base_x = board.offset_x * 2 + board.width
 
   -- スコア表示
-  print_outlined("score " .. score_string(player.score), base_x, 16, 7, 0)
-  print_outlined("hi-score " .. score_string(current_high_score), base_x, 24, 7, 0)
+  print_outlined("score " .. tostr(player.score, 0x2), base_x, 16, 7, 0)
+  print_outlined("hi-score " .. tostr(current_high_score, 0x2), base_x, 24, 7, 0)
   print_outlined(board.steps .. " steps", base_x, 38, 7, 0)
 
   if not game:is_game_over() then

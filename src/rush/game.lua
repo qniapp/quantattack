@@ -3,11 +3,14 @@ local game = new_class()
 
 local all_players_info, countdown
 
-function game.reduce_callback(score, player, board, contains_cnot_or_swap)
-  player.score = player.score + score
+local chain_bonus = transform(split("0,50,80,150,300,400,500,700,900,1100,1300,1500,1800"), tonum)
 
-  if contains_cnot_or_swap then
-    board.freeze_timer = 300
+function game.reduce_callback(score, player, board, contains_swap)
+  local score_delta = score >> 16
+  player.score = player.score + score_delta
+
+  if contains_swap then
+    board.freeze_timer = 120
   end
 end
 
@@ -21,7 +24,9 @@ function game.combo_callback(combo_count, screen_x, screen_y, player, board, oth
       particles:create(target_x, target_y,
         "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
-      player.score = player.score + combo_count
+      local score = combo_count * 10
+      local score_delta = score >> 16
+      player.score = player.score + score_delta
 
       -- 対戦相手がいる時、おじゃまブロックを送る
       if other_board then
@@ -32,8 +37,6 @@ function game.combo_callback(combo_count, screen_x, screen_y, player, board, oth
     unpack(board.attack_ion_target)
   )
 end
-
-local chain_bonus = { 0, 5, 8, 15, 30, 40, 50, 70, 90, 110, 130, 150, 180 }
 
 function game.block_offset_callback(chain_count, screen_x, screen_y, player, board, other_board)
   local offset_height = chain_count
@@ -47,7 +50,9 @@ function game.block_offset_callback(chain_count, screen_x, screen_y, player, boa
         particles:create(target_x, target_y,
           "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
-        player.score = player.score + (chain_bonus[chain_count] or 180)
+        local score = chain_bonus[chain_count] or 1800
+        local score_delta = score >> 16
+        player.score = player.score + score_delta
 
         if other_board then
           offset_height = pending_garbage_blocks:offset(offset_height)
@@ -72,7 +77,9 @@ function game.chain_callback(chain_id, chain_count, screen_x, screen_y, player, 
         particles:create(target_x, target_y,
           "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
-        player.score = player.score + (chain_bonus[chain_count] or 180)
+        local score = chain_bonus[chain_count] or 1800
+        local score_delta = score >> 16
+        player.score = player.score + score_delta
 
         -- 対戦相手がいる時、おじゃまブロックを送る
         if other_board then
@@ -83,7 +90,9 @@ function game.chain_callback(chain_id, chain_count, screen_x, screen_y, player, 
       unpack(board.attack_ion_target)
     )
   else
-    player.score = player.score + (chain_bonus[chain_count])
+    local score = chain_bonus[chain_count] or 1800
+    local score_delta = score >> 16
+    player.score = player.score + score_delta
   end
 end
 
@@ -144,8 +153,8 @@ function game:update()
     end
   end
 
-  if not countdown and -- カウントダウン終了
-      stat(46) == -1 and -- カウントダウンの sfx が鳴り終わっている
+  if not countdown and    -- カウントダウン終了
+      stat(46) == -1 and  -- カウントダウンの sfx が鳴り終わっている
       stat(54) == -1 then -- BGM がまだ始まっていない
     music(0)
   end
