@@ -1,6 +1,6 @@
 ---@diagnostic disable: undefined-global
 
-cartdata("quantattack_0_5_0")
+cartdata("quantattack_0_6_1")
 
 high_score_class = new_class()
 

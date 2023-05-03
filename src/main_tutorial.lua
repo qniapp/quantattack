@@ -1,5 +1,3 @@
--- 8022
-
 require("lib/helpers")
 require("tutorial/dtb")
 require("lib/board")

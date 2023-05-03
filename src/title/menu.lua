@@ -67,7 +67,7 @@ function menu_class.draw(_ENV, left, top)
       print_centered(each.description, 62, top - 8, 7)
 
       draw_rounded_box(sx - 2, top - 2, sx + each.width + 1, top + each.height + 1, stale and 6 or 12)
-      print_centered(each.high_score and 'hi score: ' .. score_string(each.high_score), 62, top + 23, 7)
+      print_centered(each.high_score and 'hi score: ' .. tostr(each.high_score, 0x2), 62, top + 23, 7)
 
       if stale then
         pal(7, 6)
