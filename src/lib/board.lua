@@ -1063,7 +1063,7 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
         end
 
         -- SWAP を含むパターンの点数かどうかをチェック
-        if rule[3] == 5 or rule[3] == 6 or rule[3] == 7 or rule[3] == 20 or rule[3] == 30 then
+        if rule[3] == 50 or rule[3] == 60 or rule[3] == 70 or rule[3] == 200 or rule[3] == 300 then
           contains_cnot_or_swap = true
         end
 
