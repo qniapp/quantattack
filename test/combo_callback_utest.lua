@@ -4,10 +4,10 @@ require("lib/helpers")
 require("lib/game")
 require("lib/board")
 
-local match = require("luassert.match")
-
 describe('コンボ (同時消し) のコールバック', function()
   local board
+  local match = require("luassert.match")
+  local _ = match._
 
   before_each(function()
     board = board_class()
@@ -29,7 +29,7 @@ describe('コンボ (同時消し) のコールバック', function()
     board:update(game_class)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(4, board:screen_x(2), board:screen_y(2), match._, match._, match._)
+    combo_callback.was_called_with(4, board:screen_x(2), board:screen_y(2), _, _, _)
   end)
 
   it("5-コンボ発生でコールバックが呼ばれる", function()
@@ -49,12 +49,12 @@ describe('コンボ (同時消し) のコールバック', function()
     board:update(game_class)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(5, board:screen_x(1), board:screen_y(2), match._, match._, match._)
+    combo_callback.was_called_with(5, board:screen_x(1), board:screen_y(2), _, _, _)
   end)
 
   it("6-コンボ発生でコールバックが呼ばれる", function()
     -- [S H]        H S <- 6-combo
-    --  X Z         Z X
+    --  X Z         Z Z
     --  H S  -----> H S
     board:put(1, 3, block_class("s"))
     board:put(2, 3, block_class("h"))
@@ -70,7 +70,7 @@ describe('コンボ (同時消し) のコールバック', function()
     board:update(game_class)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(6, board:screen_x(2), board:screen_y(3), match._, match._, match._)
+    combo_callback.was_called_with(6, board:screen_x(2), board:screen_y(3), _, _, _)
   end)
 
   it("7-コンボ発生でコールバックが呼ばれる", function()
@@ -93,6 +93,6 @@ describe('コンボ (同時消し) のコールバック', function()
     board:update(game_class)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(7, board:screen_x(1), board:screen_y(3), match._, match._, match._)
+    combo_callback.was_called_with(7, board:screen_x(1), board:screen_y(3), _, _, _)
   end)
 end)
