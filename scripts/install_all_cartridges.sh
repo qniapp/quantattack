@@ -13,7 +13,7 @@
 
 # Configuration: paths
 game_scripts_path="$(dirname "$0")"
-data_path="$(dirname "$0")/data"
+data_path="$(dirname "$0")/../data"
 
 # check that source and output paths have been provided
 if ! [[ $# -ge 1 &&  $# -le 3 ]] ; then

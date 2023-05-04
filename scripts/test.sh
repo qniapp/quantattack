@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Configuration
-game_src_path="$(dirname "$0")/src"
-picoboots_scripts_path="$(dirname "$0")/pico-boots/scripts"
+game_src_path="$(dirname "$0")/../src"
+picoboots_scripts_path="$(dirname "$0")/../pico-boots/scripts"
 
 help() {
   echo "Test pico-boots modules with busted
