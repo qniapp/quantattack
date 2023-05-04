@@ -7,7 +7,7 @@
 
 # Configuration: paths
 game_scripts_path="$(dirname "$0")"
-data_path="$(dirname "$0")/data"
+data_path="$(dirname "$0")/../data"
 
 help() {
   echo "Build a PICO-8 cartridge with the passed config."

@@ -15,7 +15,7 @@
 # Currently only supported on Linux
 
 # Configuration: paths
-data_path="$(dirname "$0")/data"
+data_path="$(dirname "$0")/../data"
 
 # check that source and output paths have been provided
 if ! [[ $# -ge 1 &&  $# -le 4 ]] ; then

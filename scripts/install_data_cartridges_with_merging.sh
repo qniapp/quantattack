@@ -18,7 +18,7 @@ if ! [[ $# == 1 ]] ; then
 fi
 
 # Configuration: paths
-data_path="$(dirname "$0")/data"
+data_path="$(dirname "$0")/../data"
 
 # Configuration: cartridge
 cartridge_stem="quantattack"

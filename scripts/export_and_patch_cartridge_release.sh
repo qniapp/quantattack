@@ -8,10 +8,10 @@
 # Make sure to first build full game in release
 
 # Configuration: paths
-picoboots_scripts_path="$(dirname "$0")/pico-boots/scripts"
-picoboots_plates_path="$(dirname "$0")/pico-boots/plates"
+picoboots_scripts_path="$(dirname "$0")/../pico-boots/scripts"
+picoboots_plates_path="$(dirname "$0")/../pico-boots/plates"
 game_scripts_path="$(dirname "$0")"
-data_path="$(dirname "$0")/data"
+data_path="$(dirname "$0")/../data"
 # Linux only
 carts_dirpath="$HOME/.lexaloffle/pico-8/carts"
 config_plates_dirpath="$HOME/.lexaloffle/pico-8/plates"

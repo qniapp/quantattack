@@ -5,10 +5,10 @@
 # It also defines game information and defined symbols per config.
 
 # Configuration: paths
-picoboots_scripts_path="$(dirname "$0")/pico-boots/scripts"
-game_src_path="$(dirname "$0")/src"
-data_path="$(dirname "$0")/data"
-build_dir_path="$(dirname "$0")/build"
+picoboots_scripts_path="$(dirname "$0")/../pico-boots/scripts"
+game_src_path="$(dirname "$0")/../src"
+data_path="$(dirname "$0")/../data"
+build_dir_path="$(dirname "$0")/../build"
 
 # Configuration: cartridge
 version=`cat "$data_path/version.txt"`
