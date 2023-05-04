@@ -8,7 +8,7 @@ require("title/menu")
 demo_game = game()
 
 local main_menu = menu_class(
-  "quantattack_tutorial,,32,48,16,16,,tutorial,learn how to play|quantattack_endless,,64,48,16,16,,endless,play as long as you can, 1|quantattack_rush,,48,48,16,16,,rush,play for 2 minutes,0|,:level_menu,80,48,16,16,,vs qpu,defeat the qpu|quantattack_qpu_vs_qpu,,96,48,16,16,,qpu vs qpu,watch qpu vs qpu"
+  "quantattack_tutorial,,32,48,16,16,,tutorial,learn how to play|quantattack_endless,,64,48,16,16,,endless,play as long as you can, 1|quantattack_rush,,48,48,16,16,,rush,play for 2 minutes,0|,:level_menu,80,48,16,16,,vs qpu,defeat the qpu|quantattack_qpu_vs_qpu,,96,48,16,16,,qpu vs qpu,watch qpu vs qpu|quantattack_vs_human,,112,48,16,16,,vs human,player1 vs player2"
   ,
   ":demo"
 )
@@ -99,12 +99,12 @@ function _draw()
       end
     else -- ":main_menu" or ":level_menu"
       -- メニューのウィンドウを表示
-      draw_rounded_box(unpack_split("7,46,118,108,0,0")) -- ふちどり
-      draw_rounded_box(unpack_split("8,47,117,107,12,12")) -- 枠線
-      draw_rounded_box(unpack_split("10,49,115,105,1,1")) -- 本体
+      draw_rounded_box(unpack_split("1,46,125,108,0,0")) -- ふちどり
+      draw_rounded_box(unpack_split("2,47,124,107,12,12")) -- 枠線
+      draw_rounded_box(unpack_split("4,49,122,105,1,1")) -- 本体
 
       -- メニューを表示
-      main_menu:draw(15, 72)
+      main_menu:draw(8, 72)
 
       -- レベル選択メニューを表示
       if main_menu._active_item_index == 4 or title_state == ":level_menu" then

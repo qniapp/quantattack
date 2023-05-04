@@ -1,7 +1,8 @@
---- 人間のプレーヤーを表すクラス
+--- プレーヤー (人間)
 player_class = new_class()
 
-function player_class._init(_ENV)
+function player_class._init(_ENV, _number)
+  number = _number or 0
   init(_ENV)
 end
 
@@ -12,5 +13,5 @@ end
 
 --- プレーヤーの入力を更新
 function player_class.update(_ENV)
-  left, right, up, down, x, o = btnp(0), btnp(1), btnp(2), btnp(3), btnp(5), btn(4)
+  left, right, up, down, x, o = btnp(0, number), btnp(1, number), btnp(2, number), btnp(3, number), btnp(5, number), btn(4, number)
 end

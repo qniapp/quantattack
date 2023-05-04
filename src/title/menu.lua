@@ -80,7 +80,7 @@ function menu_class.draw(_ENV, left, top)
 
     pal()
 
-    sx = sx + each.width + 4
+    sx = sx + each.width + 3
   end
 end
 
