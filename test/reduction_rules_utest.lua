@@ -265,10 +265,10 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐
   -- │ H │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ H │        I
   -- └───┘
-  it('HH ─▶ I', function()
+  it('HH ─> I', function()
     put(1, 2, "h")
     put(1, 1, "h")
 
@@ -280,10 +280,10 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐
   -- │ X │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ X │        I
   -- └───┘
-  it('XX ─▶ I', function()
+  it('XX ─> I', function()
     put(1, 2, "x")
     put(1, 1, "x")
 
@@ -295,10 +295,10 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐
   -- │ Y │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ Y │        I
   -- └───┘
-  it('YY ─▶ I', function()
+  it('YY ─> I', function()
     put(1, 2, "y")
     put(1, 1, "y")
 
@@ -310,10 +310,10 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐
   -- │ Z │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ Z │        I
   -- └───┘
-  it('ZZ ─▶ I', function()
+  it('ZZ ─> I', function()
     put(1, 2, "z")
     put(1, 1, "z")
 
@@ -325,10 +325,10 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐
   -- │ S │        I
-  -- ├───┤ ───▶ ┌───┐
+  -- ├───┤ ───> ┌───┐
   -- │ S │      │ Z │
   -- └───┘      └───┘
-  it('SS ─▶ Z', function()
+  it('SS ─> Z', function()
     put(1, 2, "s")
     put(1, 1, "s")
 
@@ -340,10 +340,10 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐
   -- │ T │        I
-  -- ├───┤ ───▶ ┌───┐
+  -- ├───┤ ───> ┌───┐
   -- │ T │      │ S │
   -- └───┘      └───┘
-  it('TT ─▶ S', function()
+  it('TT ─> S', function()
     put(1, 2, "t")
     put(1, 1, "t")
 
@@ -359,12 +359,12 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐
   -- │ H │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ X │        I
-  -- ├───┤ ───▶ ┌───┐
+  -- ├───┤ ───> ┌───┐
   -- │ H │      │ Z │
   -- └───┘      └───┘
-  it('HXH ─▶ Z', function()
+  it('HXH ─> Z', function()
     put(1, 3, "h")
     put(1, 2, "x")
     put(1, 1, "h")
@@ -378,12 +378,12 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐
   -- │ H │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ Y │        I
-  -- ├───┤ ───▶ ┌───┐
+  -- ├───┤ ───> ┌───┐
   -- │ H │      │ Y │
   -- └───┘      └───┘
-  it('HYH ─▶ Y', function()
+  it('HYH ─> Y', function()
     put(1, 3, "h")
     put(1, 2, "y")
     put(1, 1, "h")
@@ -397,12 +397,12 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐
   -- │ H │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ Z │        I
-  -- ├───┤ ───▶ ┌───┐
+  -- ├───┤ ───> ┌───┐
   -- │ H │      │ X │
   -- └───┘      └───┘
-  it('HZH ─▶ X', function()
+  it('HZH ─> X', function()
     put(1, 3, "h")
     put(1, 2, "z")
     put(1, 1, "h")
@@ -416,12 +416,12 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐
   -- │ S │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ Z │        I
-  -- ├───┤ ───▶ ┌───┐
-  -- │ S │      │ Z │
-  -- └───┘      └───┘
-  it('SZS ─▶ Z', function()
+  -- ├───┤ ───>
+  -- │ S │        I
+  -- └───┘
+  it('SZS ─> I', function()
     put(1, 3, "s")
     put(1, 2, "z")
     put(1, 1, "s")
@@ -430,17 +430,17 @@ describe('ブロックの簡約パターン', function()
 
     assert.becomes_i(block_at(1, 3))
     assert.becomes_i(block_at(1, 2))
-    assert.becomes_z(block_at(1, 1))
+    assert.becomes_i(block_at(1, 1))
   end)
 
   -- ┌───┐
   -- │ T │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ S │        I
-  -- ├───┤ ───▶ ┌───┐
+  -- ├───┤ ───> ┌───┐
   -- │ T │      │ Z │
   -- └───┘      └───┘
-  it('TST ─▶ Z', function()
+  it('TST ─> Z', function()
     put(1, 3, "t")
     put(1, 2, "s")
     put(1, 1, "t")
@@ -458,14 +458,14 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐
   -- │ T │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ Z │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ S │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ T │        I
   -- └───┘
-  it('TZST ─▶ I', function()
+  it('TZST ─> I', function()
     put(1, 4, "t")
     put(1, 3, "z")
     put(1, 2, "s")
@@ -481,14 +481,14 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐
   -- │ T │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ S │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ Z │        I
-  -- ├───┤ ───▶
+  -- ├───┤ ───>
   -- │ T │        I
   -- └───┘
-  it('TSZT ─▶ I', function()
+  it('TSZT ─> I', function()
     put(1, 4, "t")
     put(1, 3, "s")
     put(1, 2, "z")
@@ -508,10 +508,10 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐    ┌───┐
   -- │ C ├────┤ X │        I   I
-  -- ├───┤    ├───┤ ───▶
+  -- ├───┤    ├───┤ ───>
   -- │ C ├────┤ X │        I   I
   -- └───┘    └───┘
-  it('C-X C-X ─▶ I', function()
+  it('C-X C-X ─> I', function()
     put(1, 2, "control", 3)
     put(3, 2, "cnot_x", 1)
     put(1, 1, "control", 3)
@@ -527,10 +527,10 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐    ┌───┐
   -- │ X ├────┤ C │        I   I
-  -- ├───┤    ├───┤ ───▶
+  -- ├───┤    ├───┤ ───>
   -- │ X ├────┤ C │        I   I
   -- └───┘    └───┘
-  it('X-C X-C ─▶ I', function()
+  it('X-C X-C ─> I', function()
     put(1, 2, "cnot_x", 3)
     put(3, 2, "control", 1)
     put(1, 1, "cnot_x", 3)
@@ -551,11 +551,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐
   -- │ H │                 I
   -- └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ H │                 I
   --          └───┘
-  it('H X-X H ─▶ X-X', function()
+  it('H X-X H ─> X-X', function()
     put(1, 3, "h")
     put(1, 2, "swap", 3)
     put(3, 2, "swap", 1)
@@ -572,11 +572,11 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐
   --          │ H │                 I
   --          └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ H │                 I
   -- └───┘
-  it('H X-X H ─▶ X-X (左右反転)', function()
+  it('H X-X H ─> X-X (左右反転)', function()
     put(3, 3, "h")
     put(1, 2, "swap", 3)
     put(3, 2, "swap", 1)
@@ -593,11 +593,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐
   -- │ X │                 I
   -- └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ X │                 I
   --          └───┘
-  it('X X-X X ─▶ X-X', function()
+  it('X X-X X ─> X-X', function()
     put(1, 3, "x")
     put(1, 2, "swap", 3)
     put(3, 2, "swap", 1)
@@ -614,11 +614,11 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐
   --          │ X │                 I
   --          └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ X │                 I
   -- └───┘
-  it('X X-X X ─▶ X-X (左右反転)', function()
+  it('X X-X X ─> X-X (左右反転)', function()
     put(3, 3, "x")
     put(1, 2, "swap", 3)
     put(3, 2, "swap", 1)
@@ -635,11 +635,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐
   -- │ Y │                 I
   -- └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ Y │                 I
   --          └───┘
-  it('Y X-X Y ─▶ X-X', function()
+  it('Y X-X Y ─> X-X', function()
     put(1, 3, "y")
     put(1, 2, "swap", 3)
     put(3, 2, "swap", 1)
@@ -656,11 +656,11 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐
   --          │ Y │                 I
   --          └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ Y │                 I
   -- └───┘
-  it('Y X-X Y ─▶ X-X (左右反転)', function()
+  it('Y X-X Y ─> X-X (左右反転)', function()
     put(3, 3, "y")
     put(1, 2, "swap", 3)
     put(3, 2, "swap", 1)
@@ -677,11 +677,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐
   -- │ Z │                 I
   -- └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ Z │                 I
   --          └───┘
-  it('Z X-X Z ─▶ X-X', function()
+  it('Z X-X Z ─> X-X', function()
     put(1, 3, "z")
     put(1, 2, "swap", 3)
     put(3, 2, "swap", 1)
@@ -698,11 +698,11 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐
   --          │ Z │                 I
   --          └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ Z │                 I
   -- └───┘
-  it('Z X-X Z ─▶ X-X (左右反転)', function()
+  it('Z X-X Z ─> X-X (左右反転)', function()
     put(3, 3, "z")
     put(1, 2, "swap", 3)
     put(3, 2, "swap", 1)
@@ -719,11 +719,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐               ┌───┐
   -- │ S │               │ Z │
   -- └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ S │                 I
   --          └───┘
-  it('S X-X S ─▶ Z X-X', function()
+  it('S X-X S ─> Z X-X', function()
     put(1, 3, "s")
     put(1, 2, "swap", 3)
     put(3, 2, "swap", 1)
@@ -740,11 +740,11 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐               ┌───┐
   --          │ S │               │ Z │
   --          └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ S │                 I
   -- └───┘
-  it('S X-X S ─▶ Z X-X (左右反転)', function()
+  it('S X-X S ─> Z X-X (左右反転)', function()
     put(3, 3, "s")
     put(1, 2, "swap", 3)
     put(3, 2, "swap", 1)
@@ -761,11 +761,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐               ┌───┐
   -- │ T │               │ S │
   -- └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ T │                 I
   --          └───┘
-  it('T X-X T ─▶ S X-X', function()
+  it('T X-X T ─> S X-X', function()
     put(1, 3, "t")
     put(1, 2, "swap", 3)
     put(3, 2, "swap", 1)
@@ -782,11 +782,11 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐               ┌───┐
   --          │ T │               │ S │
   --          └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ T │                 I
   -- └───┘
-  it('T X-X T ─▶ S X-X (左右反転)', function()
+  it('T X-X T ─> S X-X (左右反転)', function()
     put(3, 3, "t")
     put(1, 2, "swap", 3)
     put(3, 2, "swap", 1)
@@ -807,13 +807,13 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐               ┌───┐
   -- │ H │               │ Z │
   -- └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ X │                 I
   --          ├───┤
   --          │ H │                 I
   --          └───┘
-  it('H X-X XH ─▶ Z X-X', function()
+  it('H X-X XH ─> Z X-X', function()
     put(1, 4, "h")
     put(1, 3, "swap", 3)
     put(3, 3, "swap", 1)
@@ -832,13 +832,13 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐               ┌───┐
   --          │ H │               │ Z │
   --          └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ X │                 I
   -- ├───┤
   -- │ H │                 I
   -- └───┘
-  it('H X-X XH ─▶ Z X-X (左右反転)', function()
+  it('H X-X XH ─> Z X-X (左右反転)', function()
     put(3, 4, "h")
     put(1, 3, "swap", 3)
     put(3, 3, "swap", 1)
@@ -859,11 +859,11 @@ describe('ブロックの簡約パターン', function()
   -- ├───┤               ┌───┐
   -- │ X │               │ Z │
   -- └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ H │                 I
   --          └───┘
-  it('HX X-X H ─▶ Z X-X', function()
+  it('HX X-X H ─> Z X-X', function()
     put(1, 4, "h")
     put(1, 3, "x")
     put(1, 2, "swap", 3)
@@ -884,11 +884,11 @@ describe('ブロックの簡約パターン', function()
   --          ├───┤               ┌───┐
   --          │ X │               │ Z │
   --          └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ H │                 I
   -- └───┘
-  it('HX X-X H ─▶ Z X-X (左右反転)', function()
+  it('HX X-X H ─> Z X-X (左右反転)', function()
     put(3, 4, "h")
     put(3, 3, "x")
     put(1, 2, "swap", 3)
@@ -907,13 +907,13 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐               ┌───┐
   -- │ H │               │ Y │
   -- └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ Y │                 I
   --          ├───┤
   --          │ H │                 I
   --          └───┘
-  it('H X-X YH ─▶ Y X-X', function()
+  it('H X-X YH ─> Y X-X', function()
     put(1, 4, "h")
     put(1, 3, "swap", 3)
     put(3, 3, "swap", 1)
@@ -932,13 +932,13 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐               ┌───┐
   --          │ H │               │ Y │
   --          └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ Y │                 I
   -- ├───┤
   -- │ H │                 I
   -- └───┘
-  it('H X-X YH ─▶ Y X-X (左右反転)', function()
+  it('H X-X YH ─> Y X-X (左右反転)', function()
     put(3, 4, "h")
     put(1, 3, "swap", 3)
     put(3, 3, "swap", 1)
@@ -959,11 +959,11 @@ describe('ブロックの簡約パターン', function()
   -- ├───┤               ┌───┐
   -- │ Y │               │ Y │
   -- └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ H │                 I
   --          └───┘
-  it('HY X-X H ─▶ Y X-X', function()
+  it('HY X-X H ─> Y X-X', function()
     put(1, 4, "h")
     put(1, 3, "y")
     put(1, 2, "swap", 3)
@@ -984,11 +984,11 @@ describe('ブロックの簡約パターン', function()
   --          ├───┤               ┌───┐
   --          │ Y │               │ Y │
   --          └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ H │                 I
   -- └───┘
-  it('HY X-X H ─▶ Y X-X (左右反転)', function()
+  it('HY X-X H ─> Y X-X (左右反転)', function()
     put(3, 4, "h")
     put(3, 3, "y")
     put(1, 2, "swap", 3)
@@ -1007,13 +1007,13 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐               ┌───┐
   -- │ H │               │ X │
   -- └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ Z │                 I
   --          ├───┤
   --          │ H │                 I
   --          └───┘
-  it('H X-X ZH ─▶ X X-X', function()
+  it('H X-X ZH ─> X X-X', function()
     put(1, 4, "h")
     put(1, 3, "swap", 3)
     put(3, 3, "swap", 1)
@@ -1032,13 +1032,13 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐               ┌───┐
   --          │ H │               │ X │
   --          └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ Z │                 I
   -- ├───┤
   -- │ H │                 I
   -- └───┘
-  it('H X-X ZH ─▶ X X-X (左右反転)', function()
+  it('H X-X ZH ─> X X-X (左右反転)', function()
     put(3, 4, "h")
     put(1, 3, "swap", 3)
     put(3, 3, "swap", 1)
@@ -1059,11 +1059,11 @@ describe('ブロックの簡約パターン', function()
   -- ├───┤               ┌───┐
   -- │ Z │               │ X │
   -- └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ H │                 I
   --          └───┘
-  it('HZ X-X H ─▶ X X-X', function()
+  it('HZ X-X H ─> X X-X', function()
     put(1, 4, "h")
     put(1, 3, "z")
     put(1, 2, "swap", 3)
@@ -1084,11 +1084,11 @@ describe('ブロックの簡約パターン', function()
   --          ├───┤               ┌───┐
   --          │ Z │               │ X │
   --          └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ H │                 I
   -- └───┘
-  it('HZ X-X H ─▶ X X-X (左右反転)', function()
+  it('HZ X-X H ─> X X-X (左右反転)', function()
     put(3, 4, "h")
     put(3, 3, "z")
     put(1, 2, "swap", 3)
@@ -1107,13 +1107,13 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐               ┌───┐
   -- │ S │               │ Z │
   -- └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ Z │                 I
   --          ├───┤
   --          │ S │                 I
   --          └───┘
-  it('S X-X ZS ─▶ Z X-X', function()
+  it('S X-X ZS ─> Z X-X', function()
     put(1, 4, "s")
     put(1, 3, "swap", 3)
     put(3, 3, "swap", 1)
@@ -1132,13 +1132,13 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐               ┌───┐
   --          │ S │               │ Z │
   --          └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ Z │                 I
   -- ├───┤
   -- │ S │                 I
   -- └───┘
-  it('S X-X ZS ─▶ Z X-X (左右反転)', function()
+  it('S X-X ZS ─> Z X-X (左右反転)', function()
     put(3, 4, "s")
     put(1, 3, "swap", 3)
     put(3, 3, "swap", 1)
@@ -1159,11 +1159,11 @@ describe('ブロックの簡約パターン', function()
   -- ├───┤               ┌───┐
   -- │ Z │               │ Z │
   -- └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ S │                 I
   --          └───┘
-  it('SZ X-X S ─▶ Z X-X', function()
+  it('SZ X-X S ─> Z X-X', function()
     put(1, 4, "s")
     put(1, 3, "z")
     put(1, 2, "swap", 3)
@@ -1184,11 +1184,11 @@ describe('ブロックの簡約パターン', function()
   --          ├───┤               ┌───┐
   --          │ Z │               │ Z │
   --          └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ S │                 I
   -- └───┘
-  it('SZ X-X S ─▶ Z X-X (左右反転)', function()
+  it('SZ X-X S ─> Z X-X (左右反転)', function()
     put(3, 4, "s")
     put(3, 3, "z")
     put(1, 2, "swap", 3)
@@ -1207,13 +1207,13 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐               ┌───┐
   -- │ T │               │ Z │
   -- └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ S │                 I
   --          ├───┤
   --          │ T │                 I
   --          └───┘
-  it('T X-X ST ─▶ Z X-X', function()
+  it('T X-X ST ─> Z X-X', function()
     put(1, 4, "t")
     put(1, 3, "swap", 3)
     put(3, 3, "swap", 1)
@@ -1232,13 +1232,13 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐               ┌───┐
   --          │ T │               │ Z │
   --          └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ S │                 I
   -- ├───┤
   -- │ T │                 I
   -- └───┘
-  it('T X-X ST ─▶ Z X-X (左右反転)', function()
+  it('T X-X ST ─> Z X-X (左右反転)', function()
     put(3, 4, "t")
     put(1, 3, "swap", 3)
     put(3, 3, "swap", 1)
@@ -1259,11 +1259,11 @@ describe('ブロックの簡約パターン', function()
   -- ├───┤               ┌───┐
   -- │ S │               │ Z │
   -- └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ T │                 I
   --          └───┘
-  it('TS X-X T ─▶ Z X-X', function()
+  it('TS X-X T ─> Z X-X', function()
     put(1, 4, "t")
     put(1, 3, "s")
     put(1, 2, "swap", 3)
@@ -1284,11 +1284,11 @@ describe('ブロックの簡約パターン', function()
   --          ├───┤               ┌───┐
   --          │ S │               │ Z │
   --          └───┘               └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ T │                 I
   -- └───┘
-  it('TS X-X T ─▶ Z X-X (左右反転)', function()
+  it('TS X-X T ─> Z X-X (左右反転)', function()
     put(3, 4, "t")
     put(3, 3, "s")
     put(1, 2, "swap", 3)
@@ -1311,7 +1311,7 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐
   -- │ T │                 I
   -- └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ Z │                 I
   --          ├───┤
@@ -1319,7 +1319,7 @@ describe('ブロックの簡約パターン', function()
   --          ├───┤
   --          │ T │                 I
   --          └───┘
-  it('T X-X ZST ─▶ X-X', function()
+  it('T X-X ZST ─> X-X', function()
     put(1, 5, "t")
     put(1, 4, "swap", 3)
     put(3, 4, "swap", 1)
@@ -1340,7 +1340,7 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐
   --          │ T │                 I
   --          └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ Z │                 I
   -- ├───┤
@@ -1348,7 +1348,7 @@ describe('ブロックの簡約パターン', function()
   -- ├───┤
   -- │ T │                 I
   -- └───┘
-  it('T X-X ZST ─▶ X-X (左右反転)', function()
+  it('T X-X ZST ─> X-X (左右反転)', function()
     put(3, 5, "t")
     put(1, 4, "swap", 3)
     put(3, 4, "swap", 1)
@@ -1371,13 +1371,13 @@ describe('ブロックの簡約パターン', function()
   -- ├───┤
   -- │ Z │                 I
   -- └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ S │                 I
   --          ├───┤
   --          │ T │                 I
   --          └───┘
-  it('TZ X-X ST ─▶ X-X', function()
+  it('TZ X-X ST ─> X-X', function()
     put(1, 5, "t")
     put(1, 4, "z")
     put(1, 3, "swap", 3)
@@ -1400,13 +1400,13 @@ describe('ブロックの簡約パターン', function()
   --          ├───┤
   --          │ Z │                 I
   --          └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ S │                 I
   -- ├───┤
   -- │ T │                 I
   -- └───┘
-  it('TZ X-X ST ─▶ X-X (左右反転)', function()
+  it('TZ X-X ST ─> X-X (左右反転)', function()
     put(3, 5, "t")
     put(3, 4, "z")
     put(1, 3, "swap", 3)
@@ -1431,11 +1431,11 @@ describe('ブロックの簡約パターン', function()
   -- ├───┤
   -- │ S │                 I
   -- └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ T │                 I
   --          └───┘
-  it('TZS X-X T ─▶ X-X', function()
+  it('TZS X-X T ─> X-X', function()
     put(1, 5, "t")
     put(1, 4, "z")
     put(1, 3, "s")
@@ -1460,11 +1460,11 @@ describe('ブロックの簡約パターン', function()
   --          ├───┤
   --          │ S │                 I
   --          └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ T │                 I
   -- └───┘
-  it('TZS X-X T ─▶ X-X (左右反転)', function()
+  it('TZS X-X T ─> X-X (左右反転)', function()
     put(3, 5, "t")
     put(3, 4, "z")
     put(3, 3, "s")
@@ -1485,7 +1485,7 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐
   -- │ T │                 I
   -- └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ S │                 I
   --          ├───┤
@@ -1493,7 +1493,7 @@ describe('ブロックの簡約パターン', function()
   --          ├───┤
   --          │ T │                 I
   --          └───┘
-  it('T X-X SZT ─▶ X-X', function()
+  it('T X-X SZT ─> X-X', function()
     put(1, 5, "t")
     put(1, 4, "swap", 3)
     put(3, 4, "swap", 1)
@@ -1514,7 +1514,7 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐
   --          │ T │                 I
   --          └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ S │                 I
   -- ├───┤
@@ -1522,7 +1522,7 @@ describe('ブロックの簡約パターン', function()
   -- ├───┤
   -- │ T │                 I
   -- └───┘
-  it('T X-X SZT ─▶ X-X (左右反転)', function()
+  it('T X-X SZT ─> X-X (左右反転)', function()
     put(3, 5, "t")
     put(1, 4, "swap", 3)
     put(3, 4, "swap", 1)
@@ -1545,13 +1545,13 @@ describe('ブロックの簡約パターン', function()
   -- ├───┤
   -- │ S │                 I
   -- └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ Z │                 I
   --          ├───┤
   --          │ T │                 I
   --          └───┘
-  it('TS X-X ZT ─▶ X-X', function()
+  it('TS X-X ZT ─> X-X', function()
     put(1, 5, "t")
     put(1, 4, "s")
     put(1, 3, "swap", 3)
@@ -1574,13 +1574,13 @@ describe('ブロックの簡約パターン', function()
   --          ├───┤
   --          │ S │                 I
   --          └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ Z │                 I
   -- ├───┤
   -- │ T │                 I
   -- └───┘
-  it('TS X-X ZT ─▶ X-X (左右反転)', function()
+  it('TS X-X ZT ─> X-X (左右反転)', function()
     put(3, 5, "t")
     put(3, 4, "s")
     put(1, 3, "swap", 3)
@@ -1605,11 +1605,11 @@ describe('ブロックの簡約パターン', function()
   -- ├───┤
   -- │ Z │                 I
   -- └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ T │                 I
   --          └───┘
-  it('TSZ X-X T ─▶ X-X', function()
+  it('TSZ X-X T ─> X-X', function()
     put(1, 5, "t")
     put(1, 4, "s")
     put(1, 3, "z")
@@ -1634,11 +1634,11 @@ describe('ブロックの簡約パターン', function()
   --          ├───┤
   --          │ Z │                 I
   --          └───┘
-  --   X────────X   ───▶   X────────X
+  --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ T │                 I
   -- └───┘
-  it('TSZ X-X T ─▶ X-X (左右反転)', function()
+  it('TSZ X-X T ─> X-X (左右反転)', function()
     put(3, 5, "t")
     put(3, 4, "s")
     put(3, 3, "z")
@@ -1663,11 +1663,11 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐
   --          │ X │                 I
   --          ├───┤               ┌───┐
-  --   ●──────│ X │   ───▶   ●────│ X │
+  --   ●──────│ X │   ───>   ●────│ X │
   --          ├───┤               └───┘
   --          │ X │                 I
   --          └───┘
-  it('X C-X X ─▶ C-X', function()
+  it('X C-X X ─> C-X', function()
     put(3, 3, "x")
     put(1, 2, "control", 3)
     put(3, 2, "cnot_x", 1)
@@ -1684,11 +1684,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐
   -- │ X │                 I
   -- ├───┤               ┌───┐
-  -- │ X ├──────●   ───▶ │ X ├──────●
+  -- │ X ├──────●   ───> │ X ├──────●
   -- ├───┤               └───┘
   -- │ X │                 I
   -- └───┘
-  it('X X-C X ─▶ X-C', function()
+  it('X X-C X ─> X-C', function()
     put(1, 3, "x")
     put(1, 2, "cnot_x", 3)
     put(3, 2, "control", 1)
@@ -1705,11 +1705,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐
   -- │ Z │                 I
   -- └───┘    ┌───┐               ┌───┐
-  --   ●──────┤ X │ ───▶   ●──────┤ X │
+  --   ●──────┤ X │ ───>   ●──────┤ X │
   -- ┌───┐    └───┘               └───┘
   -- │ Z │                 I
   -- └───┘
-  it('Z C-X Z ─▶ C-X', function()
+  it('Z C-X Z ─> C-X', function()
     put(1, 3, "z")
     put(1, 2, "control", 3)
     put(3, 2, "cnot_x", 1)
@@ -1726,11 +1726,11 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐
   --          │ Z │                 I
   -- ┌───┐    └───┘      ┌───┐
-  -- │ X ├──────●   ───▶ │ X ├──────●
+  -- │ X ├──────●   ───> │ X ├──────●
   -- └───┘    ┌───┐      └───┘
   --          │ Z │                 I
   --          └───┘
-  it('Z X-C Z ─▶ X-C', function()
+  it('Z X-C Z ─> X-C', function()
     put(3, 3, "z")
     put(1, 2, "cnot_x", 3)
     put(3, 2, "control", 1)
@@ -1751,11 +1751,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐    ┌───┐
   -- │ X │    │ X │        I        I
   -- └───┘    ├───┤               ┌───┐
-  --   ●──────┤ X │ ───▶   ●──────┤ X │
+  --   ●──────┤ X │ ───>   ●──────┤ X │
   -- ┌───┐    └───┘               └───┘
   -- │ X │                 I
   -- └───┘
-  it('XX C-X X ─▶ C-X', function()
+  it('XX C-X X ─> C-X', function()
     put(1, 3, "x")
     put(3, 3, "x")
     put(1, 2, "control", 3)
@@ -1774,11 +1774,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐    ┌───┐
   -- │ X │    │ X │        I        I
   -- ├───┤    └───┘      ┌───┐
-  -- │ X ├──────●   ───▶ │ X ├──────●
+  -- │ X ├──────●   ───> │ X ├──────●
   -- └───┘    ┌───┐      └───┘
   --          │ X │                 I
   --          └───┘
-  it('XX X-C X ─▶ X-C', function()
+  it('XX X-C X ─> X-C', function()
     put(1, 3, "x")
     put(3, 3, "x")
     put(1, 2, "cnot_x", 3)
@@ -1797,11 +1797,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐    ┌───┐
   -- │ X │    │ X │        I        I
   -- ├───┤    └───┘      ┌───┐
-  -- │ X ├──────●   ───▶ │ X ├──────●
+  -- │ X ├──────●   ───> │ X ├──────●
   -- ├───┤               └───┘
   -- │ X │                 I
   -- └───┘
-  it('XX X-C X ─▶ X-C', function()
+  it('XX X-C X ─> X-C', function()
     put(1, 3, "x")
     put(3, 3, "x")
     put(1, 2, "cnot_x", 3)
@@ -1820,11 +1820,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐    ┌───┐
   -- │ X │    │ X │        I        I
   -- └───┘    ├───┤               ┌───┐
-  --   ●──────┤ X │ ───▶   ●──────┤ X │
+  --   ●──────┤ X │ ───>   ●──────┤ X │
   --          ├───┤               └───┘
   --          │ X │                 I
   --          └───┘
-  it('XX C-X X ─▶ C-X', function()
+  it('XX C-X X ─> C-X', function()
     put(1, 3, "x")
     put(3, 3, "x")
     put(1, 2, "control", 3)
@@ -1844,11 +1844,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐    ┌───┐
   -- │ Y │    │ X │        I        I
   -- └───┘    ├───┤               ┌───┐
-  --   ●──────┤ X │ ───▶   ●──────┤ X │
+  --   ●──────┤ X │ ───>   ●──────┤ X │
   -- ┌───┐    └───┘               └───┘
   -- │ Y │                 I
   -- └───┘
-  it('YX C-X Y ─▶ C-X', function()
+  it('YX C-X Y ─> C-X', function()
     put(1, 3, "y")
     put(3, 3, "x")
     put(1, 2, "control", 3)
@@ -1867,11 +1867,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐    ┌───┐
   -- │ X │    │ Y │        I        I
   -- ├───┤    └───┘      ┌───┐
-  -- │ X ├──────●   ───▶ │ X ├──────●
+  -- │ X ├──────●   ───> │ X ├──────●
   -- └───┘    ┌───┐      └───┘
   --          │ Y │                 I
   --          └───┘
-  it('XY X-C Y ─▶ X-C', function()
+  it('XY X-C Y ─> X-C', function()
     put(1, 3, "x")
     put(3, 3, "y")
     put(1, 2, "cnot_x", 3)
@@ -1890,11 +1890,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐    ┌───┐
   -- │ Y │    │ Z │        I        I
   -- ├───┤    └───┘      ┌───┐
-  -- │ X ├──────●   ───▶ │ X ├──────●
+  -- │ X ├──────●   ───> │ X ├──────●
   -- ├───┤               └───┘
   -- │ Y │                 I
   -- └───┘
-  it('YZ X-C Y ─▶ X-C', function()
+  it('YZ X-C Y ─> X-C', function()
     put(1, 3, "y")
     put(3, 3, "z")
     put(1, 2, "cnot_x", 3)
@@ -1913,11 +1913,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐    ┌───┐
   -- │ Z │    │ Y │        I        I
   -- └───┘    ├───┤               ┌───┐
-  --   ●──────│ X │ ───▶   ●──────│ X │
+  --   ●──────│ X │ ───>   ●──────│ X │
   --          ├───┤               └───┘
   --          │ Y │                 I
   --          └───┘
-  it('ZY C-X Y ─▶ C-X', function()
+  it('ZY C-X Y ─> C-X', function()
     put(1, 3, "z")
     put(3, 3, "y")
     put(1, 2, "control", 3)
@@ -1936,11 +1936,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐    ┌───┐
   -- │ Z │    │ Z │        I        I
   -- └───┘    ├───┤               ┌───┐
-  --   ●──────┤ X │ ───▶   ●──────┤ X │
+  --   ●──────┤ X │ ───>   ●──────┤ X │
   --          ├───┤               └───┘
   --          │ Z │                 I
   --          └───┘
-  it('ZZ C-X Z ─▶ C-X', function()
+  it('ZZ C-X Z ─> C-X', function()
     put(1, 3, "z")
     put(3, 3, "z")
     put(1, 2, "control", 3)
@@ -1959,11 +1959,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐    ┌───┐
   -- │ Z │    │ Z │        I        I
   -- ├───┤    └───┘      ┌───┐
-  -- │ X ├──────●   ───▶ │ X ├──────●
+  -- │ X ├──────●   ───> │ X ├──────●
   -- ├───┤               └───┘
   -- │ Z │                 I
   -- └───┘
-  it('ZZ X-C Z ─▶ X-C', function()
+  it('ZZ X-C Z ─> X-C', function()
     put(1, 3, "z")
     put(3, 3, "z")
     put(1, 2, "cnot_x", 3)
@@ -1986,11 +1986,11 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐
   --   ●──────│ X │        I        I
   -- ┌───┐    └───┘
-  -- │ X ├──────●   ───▶   I        I
+  -- │ X ├──────●   ───>   I        I
   -- └───┘    ┌───┐      ┌───┐    ┌───┐
   --   ●──────┤ X │      │ S ├────┤ S │
   --          └───┘      └───┘    └───┘
-  it('C-X X-C C-X ─▶ X-X', function()
+  it('C-X X-C C-X ─> X-X', function()
     put(1, 3, "control", 3)
     put(3, 3, "cnot_x", 1)
     put(1, 2, "cnot_x", 3)
@@ -2011,11 +2011,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐
   -- │ X ├──────●          I        I
   -- └───┘    ┌───┐
-  --   ●──────│ X │ ───▶   I        I
+  --   ●──────│ X │ ───>   I        I
   -- ┌───┐    └───┘      ┌───┐    ┌───┐
   -- │ X ├──────●        │ S ├────┤ S │
   -- └───┘               └───┘    └───┘
-  it('X-C C-X X-C ─▶ X-X', function()
+  it('X-C C-X X-C ─> X-X', function()
     put(1, 3, "cnot_x", 3)
     put(3, 3, "control", 1)
     put(1, 2, "control", 3)
@@ -2040,11 +2040,11 @@ describe('ブロックの簡約パターン', function()
   --          ┌───┐
   --   ●──────│ X │        I        I
   -- ┌───┐    ├───┤      ┌───┐    ┌───┐
-  -- │ S ├────┤ S │ ───▶ │ S ├────┤ S │
+  -- │ S ├────┤ S │ ───> │ S ├────┤ S │
   -- ├───┤    └───┘      └───┘    └───┘
   -- │ X ├──────●          I        I
   -- └───┘
-  it('C-X X-X X-C ─▶ X-X', function()
+  it('C-X X-X X-C ─> X-X', function()
     put(1, 3, "control", 3)
     put(3, 3, "cnot_x", 1)
     put(1, 2, "swap", 3)
@@ -2065,11 +2065,11 @@ describe('ブロックの簡約パターン', function()
   -- ┌───┐
   -- │ X ├──────●          I        I
   -- ├───┤    ┌───┐      ┌───┐    ┌───┐
-  -- │ S ├────┤ S │ ───▶ │ S ├────┤ S │
+  -- │ S ├────┤ S │ ───> │ S ├────┤ S │
   -- └───┘    ├───┤      └───┘    └───┘
   --   ●──────│ X │        I        I
   --          └───┘
-  it('X-C X-X C-X ─▶ X-X', function()
+  it('X-C X-X C-X ─> X-X', function()
     put(1, 3, "cnot_x", 3)
     put(3, 3, "control", 1)
     put(1, 2, "swap", 3)
@@ -2093,10 +2093,10 @@ describe('ブロックの簡約パターン', function()
 
   -- ┌───┐    ┌───┐
   -- │ S ├────┤ S │        I   I
-  -- ├───┤    ├───┤ ───▶
+  -- ├───┤    ├───┤ ───>
   -- │ S ├────┤ S │        I   I
   -- └───┘    └───┘
-  it('X-X X-X ─▶ I', function()
+  it('X-X X-X ─> I', function()
     put(1, 2, "swap", 3)
     put(3, 2, "swap", 1)
     put(1, 1, "swap", 3)
