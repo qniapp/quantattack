@@ -4,3 +4,4 @@ rush
 endless
 vs_qpu
 qpu_vs_qpu
+vs_human
