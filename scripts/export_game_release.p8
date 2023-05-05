@@ -28,6 +28,7 @@ cd(export_folder)
     "quantattack_endless.p8",
     "quantattack_vs_qpu.p8",
     "quantattack_qpu_vs_qpu.p8",
+    "quantattack_vs_human.p8",
   }
 
   -- all main cartridges, including entry cartridge
