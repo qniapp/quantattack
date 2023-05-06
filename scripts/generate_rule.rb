@@ -42,7 +42,7 @@ def parse_pattern(string)
                        block_type: Regexp.last_match(1) == 'I' ? '' : Regexp.last_match(1).downcase }
       when /^\s+│\sY\s│.*([I|X|Y|Z])/ # パターン二列目の Y
         gates << '?,y'
-        reduce_to << { dx: 0, dy: 1 - gates.length,
+        reduce_to << { dx: true, dy: 1 - gates.length,
                        block_type: Regexp.last_match(1) == 'I' ? '' : Regexp.last_match(1).downcase }
       when /^│\sZ\s│.*([I|X|Y|Z])/ # パターン一列目の Z
         gates << 'z'
@@ -50,7 +50,7 @@ def parse_pattern(string)
                        block_type: Regexp.last_match(1) == 'I' ? '' : Regexp.last_match(1).downcase }
       when /^\s+│\sZ\s│.*([I|X|Y|Z])/ # パターン二列目の Z
         gates << '?,z'
-        reduce_to << { dx: 0, dy: 1 - gates.length,
+        reduce_to << { dx: true, dy: 1 - gates.length,
                        block_type: Regexp.last_match(1) == 'I' ? '' : Regexp.last_match(1).downcase }
       when /^\s\sX─+X/
         gates << 'swap,swap'
@@ -60,6 +60,8 @@ def parse_pattern(string)
 
   [score, gates, reduce_to]
 end
+
+all_pattern_strings = []
 
 aa_patterns.each do |pattern|
   puts pattern
@@ -75,6 +77,12 @@ aa_patterns.each do |pattern|
     "#{dx},#{dy},#{block_type}"
   end.join("\n")
 
-  p "#{gates_string}|#{reduce_to_string}|#{score}"
+  pattern_string = "#{gates_string}|#{reduce_to_string}|#{score}"
+
+  p pattern_string
   puts
+
+  all_pattern_strings << pattern_string
 end
+
+p all_pattern_strings.join('&')
