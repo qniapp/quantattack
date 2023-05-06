@@ -568,7 +568,7 @@ reduction_rules = transform(
       h =
       "h\nh|,,\n,-1,|10&h\nx\nh|,,\n,-1,\n,-2,z|20&h\ny\nh|,,\n,-1,\n,-2,y|20&h\nz\nh|,,\n,-1,\n,-2,x|20&h\nswap,swap\n?,h|,,\ntrue,-2,|50&h\nswap,swap\n?,x\n?,h|,,z\ntrue,-2,\ntrue,-3,|60&h\nx\nswap,swap\n?,h|,,\n,-1,z\ntrue,-3,|60&h\nswap,swap\n?,y\n?,h|,,y\ntrue,-2,\ntrue,-3,|60&h\ny\nswap,swap\n?,h|,,\n,-1,y\ntrue,-3,|60&h\nswap,swap\n?,z\n?,h|,,x\ntrue,-2,\ntrue,-3,|60&h\nz\nswap,swap\n?,h|,,\n,-1,x\ntrue,-3,|60",
       x =
-      "x\nx|,,\n,-1,|10&x,x\ncontrol,cnot_x\nx|,,\ntrue,,\n,-2,|90&x,x\ncnot_x,control\nx|,,\ntrue,,\n,-2,|90&x\ncnot_x,control\nx|,,\n,-2,|80&x\nswap,swap\n?,x|,,\ntrue,-2,|50",
+      "x\nx|,,\n,-1,|10&x\nswap,swap\n?,x|,,\ntrue,-2,|50&x,x\ncnot_x,control\nx|,,\ntrue,,\n,-2,|90&x,x\ncnot_x,control\n?,x|,,\ntrue,,\ntrue,-2,|90&x\ncnot_x,control\nx|,,\n,-2,|80",
       y =
       "y\ny|,,\n,-1,|10&y\nswap,swap\n?,y|,,\ntrue,-2,|50&y,x\ncontrol,cnot_x\ny|,,\ntrue,,\n,-2,|90&y,z\ncnot_x,control\ny|,,\ntrue,,\n,-2,|90",
       z =

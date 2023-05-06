@@ -19,6 +19,8 @@ def parse_pattern(string)
       score = each.to_i
     else
       case each
+      when /┌/, /├/, /└/
+        next
       when /^│\sH\s│.*([I|X|Y|Z])/ # パターン一列目の H
         gates << 'h'
         reduce_to << { dx: 0, dy: 1 - gates.length,
@@ -27,9 +29,14 @@ def parse_pattern(string)
         gates << '?,h'
         reduce_to << { dx: true, dy: 1 - gates.length,
                        block_type: Regexp.last_match(1) == 'I' ? '' : Regexp.last_match(1).downcase }
-      when /^│\sX\s│.*([I|X|Y|Z])/ # パターン一列目の X
+      when /^│\sX\s│─+●/, /^│\sX\s├─+●/ # CNOT
+        gates << 'cnot_x,control'
+      when /^│\sX\s│.*│\sX\s│.*\sI\s.*\sI/ # X X -> I I
+        gates << 'x,x'
+        reduce_to << { dx: 0, dy: 0, block_type: '' }
+        reduce_to << { dx: true, dy: 0, block_type: '' }
+      when /^│\sX\s│.*\s([I|X|Y|Z])/ # パターン一列目の X
         gates << 'x'
-        # reduce_to << { dx: 0, dy: 1 - gates.length, block_type: '' }
         reduce_to << { dx: 0, dy: 1 - gates.length,
                        block_type: Regexp.last_match(1) == 'I' ? '' : Regexp.last_match(1).downcase }
       when /^\s+│\sX\s│.*([I|X|Y|Z])/ # パターン二列目の X
@@ -54,6 +61,8 @@ def parse_pattern(string)
                        block_type: Regexp.last_match(1) == 'I' ? '' : Regexp.last_match(1).downcase }
       when /^\s\sX─+X/
         gates << 'swap,swap'
+      else
+        p each
       end
     end
   end
