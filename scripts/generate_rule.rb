@@ -35,6 +35,14 @@ def parse_pattern(string)
         gates << 'x,x'
         reduce_to << { dx: 0, dy: 0, block_type: '' }
         reduce_to << { dx: true, dy: 0, block_type: '' }
+      when /^│\sX\s│.*│\sY\s│.*\sI\s.*\sI/ # X Y -> I I
+        gates << 'x,y'
+        reduce_to << { dx: 0, dy: 0, block_type: '' }
+        reduce_to << { dx: true, dy: 0, block_type: '' }
+      when /^│\sY\s│.*│\sZ\s│.*\sI\s.*\sI/ # Y Z -> I I
+        gates << 'y,z'
+        reduce_to << { dx: 0, dy: 0, block_type: '' }
+        reduce_to << { dx: true, dy: 0, block_type: '' }
       when /^│\sX\s│.*\s([I|X|Y|Z])/ # パターン一列目の X
         gates << 'x'
         reduce_to << { dx: 0, dy: 1 - gates.length,
