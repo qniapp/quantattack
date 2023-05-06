@@ -29,8 +29,10 @@ def parse_pattern(string)
         gates << '?,h'
         reduce_to << { dx: true, dy: 1 - gates.length,
                        block_type: Regexp.last_match(1) == 'I' ? '' : Regexp.last_match(1).downcase }
-      when /^│\sX\s│─+●/, /^│\sX\s├─+●/ # CNOT
+      when /^│\sX\s│─+●/, /^│\sX\s├─+●/ # CNOT (コントロールが右)
         gates << 'cnot_x,control'
+      when /^\s\s●─+│\sX\s│/ # CNOT (コントロールが左)
+        gates << 'control,cnot_x'
       when /^│\sX\s│.*│\sX\s│.*\sI\s.*\sI/ # X X -> I I
         gates << 'x,x'
         reduce_to << { dx: 0, dy: 0, block_type: '' }
@@ -41,6 +43,10 @@ def parse_pattern(string)
         reduce_to << { dx: true, dy: 0, block_type: '' }
       when /^│\sY\s│.*│\sZ\s│.*\sI\s.*\sI/ # Y Z -> I I
         gates << 'y,z'
+        reduce_to << { dx: 0, dy: 0, block_type: '' }
+        reduce_to << { dx: true, dy: 0, block_type: '' }
+      when /^│\sZ\s│.*│\sZ\s│.*\sI\s.*\sI/ # Z Z -> I I
+        gates << 'z,z'
         reduce_to << { dx: 0, dy: 0, block_type: '' }
         reduce_to << { dx: true, dy: 0, block_type: '' }
       when /^│\sX\s│.*\s([I|X|Y|Z])/ # パターン一列目の X

@@ -572,7 +572,7 @@ reduction_rules = transform(
       y =
       "y\ny|,,\n,-1,|10&y\nswap,swap\n?,y|,,\ntrue,-2,|50&y,z\ncnot_x,control\ny|,,\ntrue,,\n,-2,|90",
       z =
-      "z\nz|,,\n,-1,|10&z,z\ncontrol,cnot_x\n?,z|,,\ntrue,,\ntrue,-2,|90&z\ncontrol,cnot_x\nz|,,\n,-2,|80&z\nswap,swap\n?,z|,,\ntrue,-2,|50",
+      "z\nz|,,\n,-1,|10&z\nswap,swap\n?,z|,,\ntrue,-2,|50&z\ncontrol,cnot_x\nz|,,\n,-2,|80&z,z\ncnot_x,control\nz|,,\ntrue,,\n,-2,|90",
       s =
       "s\ns|,,\n,-1,z|10&s\nx\ns|,,\n,-1,\n,-2,x|20&s\ny\ns|,,\n,-1,\n,-2,y|20&s\nz\ns|,,\n,-1,\n,-2,|20&s\nswap,swap\n?,s|,,z\ntrue,-2,|50&s\nx\nswap,swap\n?,s|,,\n,-1,x\ntrue,-3,|60&s\ny\nswap,swap\n?,s|,,\n,-1,y\ntrue,-3,|60&s\nz\nswap,swap\n?,s|,,\n,-1,\ntrue,-3,|60&s\nswap,swap\n?,x\n?,s|,,x\ntrue,-2,\ntrue,-3,|60&s\nswap,swap\n?,y\n?,s|,,y\ntrue,-2,\ntrue,-3,|60&s\nswap,swap\n?,z\n?,s|,,\ntrue,-2,\ntrue,-3,|60",
       t =
