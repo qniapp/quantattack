@@ -73,6 +73,14 @@ def parse_pattern(string)
         gates << '?,z'
         reduce_to << { dx: true, dy: 1 - gates.length,
                        block_type: Regexp.last_match(1) == 'I' ? '' : Regexp.last_match(1).downcase }
+      when /^│\sS\s│.*([I|X|Y|Z])/ # パターン一列目の S
+        gates << 's'
+        reduce_to << { dx: 0, dy: 1 - gates.length,
+                       block_type: Regexp.last_match(1) == 'I' ? '' : Regexp.last_match(1).downcase }
+      when /^\s+│\sS\s│.*([I|X|Y|Z])/ # パターン二列目の S
+        gates << '?,s'
+        reduce_to << { dx: true, dy: 1 - gates.length,
+                       block_type: Regexp.last_match(1) == 'I' ? '' : Regexp.last_match(1).downcase }
       when /^\s\sX─+X/
         gates << 'swap,swap'
       else
