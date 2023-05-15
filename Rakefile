@@ -59,6 +59,10 @@ task :test do
   sh './scripts/test.sh'
 end
 
+task "test:solo" do
+  sh './scripts/test.sh -m solo'
+end
+
 task :dupe do
   sh '~/Documents/GitHub/pmd-bin-6.52.0/bin/run.sh cpd --dir src/ --exclude src/**/*_utest.lua --language lua --minimum-tokens 10'
 end

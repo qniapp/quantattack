@@ -313,7 +313,7 @@ function block_class:is_hover()
 end
 
 function block_class.is_fallable(_ENV)
-  return not (type == "i" or type == "?" or is_swapping(_ENV) or is_freeze(_ENV))
+  return not (type == "i" or type == "?" or is_swapping(_ENV) or is_freeze(_ENV) or is_match(_ENV))
 end
 
 function block_class:is_falling()
