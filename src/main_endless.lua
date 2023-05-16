@@ -84,3 +84,5 @@ function _draw()
 
   sash:render()
 end
+
+require("lib/replay")
