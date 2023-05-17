@@ -6,12 +6,12 @@ ions = derived_class(effect_set)()
 --- イオン球エフェクトを作る
 --
 -- 例: (64, 64) から (10, 10) へ青色 (デフォルト) のイオン球を飛ばす
--- ions:create(64, 64, 10, 10, ions_callback)
+-- ions:create(64, 64, { 10, 10 }, ions_callback)
 --
-function ions:create(x, y, target_x, target_y, callback, ion_color)
+function ions:create(x, y, target, callback, ion_color)
   self:_add(function(_ENV)
     _from_x, _from_y, _target_x, _target_y, _callback, _tick, _color =
-        x, y, target_x, target_y, callback, 0, ion_color or 12
+        x, y, target[1], target[2], callback, 0, ion_color or 12
     sfx(20)
   end)
 end

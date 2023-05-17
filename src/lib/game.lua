@@ -16,12 +16,10 @@ end
 
 function game_class.combo_callback(combo_count, screen_x, screen_y, player, board, other_board)
   bubbles:create("combo", combo_count, screen_x, screen_y)
-  local ion_target_x, ion_target_y = unpack(board.attack_ion_target)
   ions:create(
     screen_x,
     screen_y,
-    ion_target_x,
-    ion_target_y,
+    board.attack_ion_target,
     function(target_x, target_y)
       sfx(21)
       particles:create(target_x, target_y,
@@ -43,12 +41,10 @@ function game_class.block_offset_callback(chain_count, screen_x, screen_y, playe
   local offset_height = chain_count
 
   if offset_height > 2 then
-    local ion_target_x, ion_target_y = unpack(board.block_offset_target)
     ions:create(
       screen_x,
       screen_y,
-      ion_target_x,
-      ion_target_y,
+      board.block_offset_target,
       function(target_x, target_y)
         sfx(21)
         particles:create(target_x, target_y,
@@ -73,12 +69,10 @@ function game_class.chain_callback(chain_id, chain_count, screen_x, screen_y, pl
   if chain_count > 1 then
     bubbles:create("chain", chain_count, screen_x, screen_y)
     if chain_count > 2 then
-      local ion_target_x, ion_target_y = unpack(board.attack_ion_target)
       ions:create(
         screen_x,
         screen_y,
-        ion_target_x,
-        ion_target_y,
+        board.attack_ion_target,
         function(target_x, target_y)
           sfx(21)
           particles:create(target_x, target_y,
