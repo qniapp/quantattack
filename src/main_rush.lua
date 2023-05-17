@@ -52,7 +52,8 @@ function _update60()
     if t() - game.game_over_time > 2 then
       if high_score:put(player.score) then
         sfx(22)
-        sash:create("high score!", 7, 8)
+        -- sash:create("high score!", 7, 8)
+        sash:create("high score!,7,8")
       end
 
       board.show_gameover_menu = true
@@ -69,10 +70,12 @@ function _update60()
       board.timeup = true
       game.game_over_time = t()
       sfx(16)
-      sash:create("time up!", 13, 7, function()
+      -- sash:create("time up!", 13, 7, function()
+      sash:create("time up!,13,7", function()
         if high_score:put(player.score) then
           sfx(22)
-          sash:create("high score!", 7, 8)
+          -- sash:create("high score!", 7, 8)
+          sash:create("high score!,7,8")
         end
       end)
     end

@@ -22,7 +22,8 @@ describe('sash', function()
 
   describe('create', function()
     before_each(function()
-      sash:create('sash', colors.white, colors.red)
+      -- sash:create('sash', colors.white, colors.red)
+      sash:create('sash,7,8')
     end)
 
     describe('current', function ()
@@ -35,11 +36,11 @@ describe('sash', function()
       end)
 
       it('text_color プロパティを持つ', function()
-        assert.are.equal(colors.white, sash.current.text_color)
+        assert.are.equal(colors.white, tonum(sash.current.text_color))
       end)
 
       it('background_color プロパティを持つ', function()
-        assert.are.equal(colors.red, sash.current.background_color)
+        assert.are.equal(colors.red, tonum(sash.current.background_color))
       end)
 
       it('文字列がスクリーン外', function()
@@ -58,7 +59,8 @@ describe('sash', function()
 
   describe('update', function()
     it('text_x を更新', function ()
-      sash:create('sash', 0, 0)
+      -- sash:create('sash', 0, 0)
+      sash:create('sash,0,0')
 
       sash:update()
 
@@ -66,7 +68,8 @@ describe('sash', function()
     end)
 
     it('何度か update すると中央でストップ', function ()
-      sash:create('sash', 0, 0)
+      -- sash:create('sash', 0, 0)
+      sash:create('sash,0,0')
 
       while (sash.current.text_x < sash.current.text_center_x) do
         sash:update()
@@ -76,7 +79,8 @@ describe('sash', function()
     end)
 
     it('画面右端から消えると :finished 状態になる', function ()
-      sash:create('sash', 0, 0)
+      -- sash:create('sash', 0, 0)
+      sash:create('sash,0,0')
 
       while (sash.current.text_x <= 127) do
         pico8.frames = pico8.frames + 1
@@ -98,7 +102,8 @@ describe('sash', function()
 
     describe('current がある場合', function()
       before_each(function()
-        sash:create('sash', 0, 0)
+        -- sash:create('sash', 0, 0)
+        sash:create('sash,0,0')
       end)
 
       it('エラーなく描画できる', function()

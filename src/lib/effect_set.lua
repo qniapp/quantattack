@@ -1,3 +1,5 @@
+---@diagnostic disable: lowercase-global
+
 effect_set = new_class()
 
 function effect_set:_init()

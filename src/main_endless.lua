@@ -45,7 +45,7 @@ function _update60()
       if not board.show_gameover_menu then
         if high_score:put(player.score) then
           sfx(22)
-          sash:create("high score!", 7, 8)
+          sash:create("high score!,7,8")
         end
       end
 

@@ -1,7 +1,7 @@
 ---@diagnostic disable: global-in-nil-env, lowercase-global
 
 -- メソッド:
---   sash:create(text, text_color, background_color, slideout_callback) 新しい sash を作る (シングルトン)
+--   sash:create("text,text_color,background_color", slideout_callback) 新しい sash を作る (シングルトン)
 --     - text: 表示するテキスト
 --     - text_color: テキストの色
 --     - background_color: sash の背景色
@@ -11,21 +11,21 @@
 --
 -- クラス変数
 --   sash.current 現在の sash
+
 local sash = new_class()
 
 function sash:_init()
   -- NOP
 end
 
-function sash.create(_ENV, _text, _text_color, _background_color, _slideout_callback)
+function sash.create(_ENV, properties, _slideout_callback)
   current = {}
 
   local _ENV = setmetatable(current, { __index = _ENV })
 
-  background_height, dh, ddh, background_color, slideout_callback,
-  text, text_x, text_dx, text_ddx, text_center_x, text_color, state =
-      0, 0.1, 0.2, _background_color, _slideout_callback,
-      _text, #_text * -4, 5, -0.14, 64 - #_text * 2, _text_color, ":slidein"
+  text, text_color, background_color = unpack_split(properties)
+  background_height, dh, ddh, slideout_callback, text_x, text_dx, text_ddx, text_center_x, state =
+      0, 0.1, 0.2, _slideout_callback, #text * -4, 5, -0.14, 64 - #text * 2, ":slidein"
 end
 
 function sash.update(_ENV)

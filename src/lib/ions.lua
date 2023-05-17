@@ -1,3 +1,5 @@
+---@diagnostic disable: lowercase-global
+
 ---
 -- 攻撃または相殺の時に表示するイオン球エフェクト
 

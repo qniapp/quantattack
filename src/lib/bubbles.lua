@@ -1,3 +1,5 @@
+---@diagnostic disable: lowercase-global
+
 ---
 -- 同時消しまたは連鎖の数を表示
 --
