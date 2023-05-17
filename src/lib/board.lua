@@ -1120,8 +1120,10 @@ function board_class.update(_ENV, game, player, other_board)
             blocks[y][x]._state = "over"
           elseif tick_over == 20 and not done_over_fx then
             blocks[y][x] = block_class("i")
-            particles:create(screen_x(_ENV, x), screen_y(_ENV, y),
-              "5,5,9,7,,,-0.03,-0.03,40|5,5,9,7,,,-0.03,-0.03,40|4,4,9,7,,,-0.03,-0.03,40|4,4,2,5,,,-0.03,-0.03,40|4,4,6,7,,,-0.03,-0.03,40|2,2,9,7,,,-0.03,-0.03,40|2,2,9,7,,,-0.03,-0.03,40|2,2,6,5,,,-0.03,-0.03,40|2,2,6,5,,,-0.03,-0.03,40|0,0,2,5,,,-0.03,-0.03,40")
+            particles:create(
+              { screen_x(_ENV, x), screen_y(_ENV, y) },
+              "5,5,9,7,,,-0.03,-0.03,40|5,5,9,7,,,-0.03,-0.03,40|4,4,9,7,,,-0.03,-0.03,40|4,4,2,5,,,-0.03,-0.03,40|4,4,6,7,,,-0.03,-0.03,40|2,2,9,7,,,-0.03,-0.03,40|2,2,9,7,,,-0.03,-0.03,40|2,2,6,5,,,-0.03,-0.03,40|2,2,6,5,,,-0.03,-0.03,40|0,0,2,5,,,-0.03,-0.03,40"
+            )
           end
         end
       end
@@ -1552,12 +1554,16 @@ function board_class.observable_update(_ENV, block, old_state)
     --#endif
 
     if right_block.type ~= "i" then
-      particles:create(screen_x(_ENV, x) - 2, screen_y(_ENV, y) + 3,
-        "1,1,10,10,-1,-0.8,0.05,0.05,3|1,1,10,10,-1,0,0.05,0,5|1,1,10,10,-1,0.8,0.05,-0.05,3")
+      particles:create(
+        { screen_x(_ENV, x) - 2, screen_y(_ENV, y) + 3 },
+        "1,1,10,10,-1,-0.8,0.05,0.05,3|1,1,10,10,-1,0,0.05,0,5|1,1,10,10,-1,0.8,0.05,-0.05,3"
+      )
     end
     if block.type ~= "i" then
-      particles:create(screen_x(_ENV, new_x) + 10, screen_y(_ENV, y) + 3,
-        "1,1,10,10,1,-0.8,-0.05,0.05,3|1,1,10,10,1,0,-0.05,0,5|1,1,10,10,1,0.8,-0.05,-0.05,3")
+      particles:create(
+        { screen_x(_ENV, new_x) + 10, screen_y(_ENV, y) + 3 },
+        "1,1,10,10,1,-0.8,-0.05,0.05,3|1,1,10,10,1,0,-0.05,0,5|1,1,10,10,1,0.8,-0.05,-0.05,3"
+      )
     end
 
     local right_block_other_x = right_block.other_x
@@ -1587,8 +1593,10 @@ function board_class.observable_update(_ENV, block, old_state)
   if old_state == "match" and block:is_idle() then
     sfx(11, -1, (block._match_index % 6 - 1) * 4, 4)
     put(_ENV, x, y, block.new_block)
-    particles:create(screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3,
-      "2,1,7,7,-1,-1,0.05,0.05,16|2,1,7,7,1,-1,-0.05,0.05,16|2,1,7,7,-1,1,0.05,-0.05,16|2,1,7,7,1,1,-0.05,-0.05,16")
+    particles:create(
+      { screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3 },
+      "2,1,7,7,-1,-1,0.05,0.05,16|2,1,7,7,1,-1,-0.05,0.05,16|2,1,7,7,-1,1,0.05,-0.05,16|2,1,7,7,1,1,-0.05,-0.05,16"
+    )
     return
   end
 

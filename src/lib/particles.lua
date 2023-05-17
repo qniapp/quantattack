@@ -7,9 +7,9 @@ particles = derived_class(effect_set)()
 -- @param x x 座標
 -- @param y y 座標
 -- @param data 各パーティクルのデータ文字列
-function particles:create(x, y, data)
+function particles:create(coord, data)
   foreach(split(data, "|"), function(each)
-    self:_create(x, y, unpack_split(each))
+    self:_create(coord[1], coord[2], unpack_split(each))
   end)
 end
 
