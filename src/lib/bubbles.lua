@@ -5,13 +5,9 @@
 bubbles = derived_class(effect_set)()
 
 --- バブルを作る
--- @param bubble_type バブル
--- @param count 同時消しまたは連鎖の数
--- @param x x 座標
--- @param y y 座標
-function bubbles:create(bubble_type, count, x, y)
+function bubbles:create(bubble_type, count, coord)
   self:_add(function(_ENV)
-    _type, _count, _x, _y, _tick = bubble_type, count, x, y - 8, 0
+    _type, _count, _x, _y, _tick = bubble_type, count, coord[1], coord[2] - 8, 0
   end)
 end
 

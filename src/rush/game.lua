@@ -15,7 +15,7 @@ function game.reduce_callback(score, player, board, contains_swap)
 end
 
 function game.combo_callback(combo_count, coord, player, board, other_board)
-  bubbles:create("combo", combo_count, coord[1], coord[2])
+  bubbles:create("combo", combo_count, coord)
   ions:create(
     coord,
     board.attack_ion_target,
@@ -36,12 +36,12 @@ function game.combo_callback(combo_count, coord, player, board, other_board)
   )
 end
 
-function game.block_offset_callback(chain_count, screen_x, screen_y, player, board, other_board)
+function game.block_offset_callback(chain_count, coord, player, board, other_board)
   local offset_height = chain_count
 
   if offset_height > 2 then
     ions:create(
-      { screen_x, screen_y },
+      coord,
       board.block_offset_target,
       function(target)
         sfx(21)
@@ -63,11 +63,11 @@ function game.block_offset_callback(chain_count, screen_x, screen_y, player, boa
   return offset_height
 end
 
-function game.chain_callback(chain_id, chain_count, screen_x, screen_y, player, board, other_board)
+function game.chain_callback(chain_id, chain_count, coord, player, board, other_board)
   if chain_count > 1 then
-    bubbles:create("chain", chain_count, screen_x, screen_y)
+    bubbles:create("chain", chain_count, coord)
     ions:create(
-      { screen_x, screen_y },
+      coord,
       board.attack_ion_target,
       function(target)
         sfx(21)

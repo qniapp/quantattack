@@ -771,15 +771,14 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
   -- 連鎖
   for chain_id, xy in pairs(chain_xy) do
-    local scr_x, scr_y = screen_x(_ENV, xy.x), screen_y(_ENV, xy.y)
+    local coord = { screen_x(_ENV, xy.x), screen_y(_ENV, xy.y) }
 
     if game and game.chain_callback then
       if #pending_garbage_blocks.all > 1 then
         local offset_height_left =
             game.block_offset_callback(
               _chain_count[chain_id],
-              scr_x,
-              scr_y,
+              coord,
               player,
               _ENV,
               other_board
@@ -790,8 +789,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
           game.chain_callback(
             chain_id,
             _chain_count[chain_id],
-            scr_x,
-            scr_y,
+            coord,
             player,
             _ENV,
             other_board
@@ -801,8 +799,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         game.chain_callback(
           chain_id,
           _chain_count[chain_id],
-          scr_x,
-          scr_y,
+          coord,
           player,
           _ENV,
           other_board

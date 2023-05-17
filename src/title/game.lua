@@ -31,17 +31,17 @@ function game()
       -- NOP
     end,
 
-    combo_callback = function(_combo_count, screen_x, screen_y, _player, board, _other_board)
-      ions:create({ screen_x, screen_y }, { 64, 36 }, attack_cube_callback)
+    combo_callback = function(_combo_count, coord, _player, board, _other_board)
+      ions:create(coord, { 64, 36 }, attack_cube_callback)
     end,
 
     block_offset_callback = function(chain_count)
       return chain_count
     end,
 
-    chain_callback = function(_chain_id, chain_count, screen_x, screen_y)
+    chain_callback = function(_chain_id, chain_count, coord)
       if chain_count > 1 then
-        ions:create({ screen_x, screen_y }, { 64, 36 }, attack_cube_callback)
+        ions:create(coord, { 64, 36 }, attack_cube_callback)
       end
     end,
 
