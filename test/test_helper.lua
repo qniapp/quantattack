@@ -1,6 +1,19 @@
 require("lib/helpers")
 require("lib/board")
 
+function dump(o)
+   if type(o) == 'table' then
+      local s = '{ '
+      for k,v in pairs(o) do
+         if type(k) ~= 'number' then k = '"'..k..'"' end
+         s = s .. '['..k..'] = ' .. dump(v) .. ','
+      end
+      return s .. '} '
+   else
+      return tostring(o)
+   end
+end
+
 function wait_swap_to_finish(board)
   for _ = 1, block_class.block_swap_animation_frame_count + 1 do
     board:update()
