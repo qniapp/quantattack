@@ -35,10 +35,9 @@ function game()
       ions:create(
         screen_x,
         screen_y,
-        attack_cube_callback,
-        12,
         64,
-        36
+        36,
+        attack_cube_callback
       )
     end,
 
@@ -51,10 +50,9 @@ function game()
         ions:create(
           screen_x,
           screen_y,
-          attack_cube_callback,
-          12,
           64,
-          36
+          36,
+          attack_cube_callback
         )
       end
     end,

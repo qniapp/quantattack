@@ -16,9 +16,12 @@ end
 
 function game.combo_callback(combo_count, screen_x, screen_y, player, board, other_board)
   bubbles:create("combo", combo_count, screen_x, screen_y)
+  local ion_target_x, ion_target_y = unpack(board.attack_ion_target)
   ions:create(
     screen_x,
     screen_y,
+    ion_target_x,
+    ion_target_y,
     function(target_x, target_y)
       sfx(21)
       particles:create(target_x, target_y,
@@ -32,9 +35,7 @@ function game.combo_callback(combo_count, screen_x, screen_y, player, board, oth
       if other_board then
         other_board:send_garbage(nil, combo_count > 6 and 6 or combo_count - 1, 1)
       end
-    end,
-    12,
-    unpack(board.attack_ion_target)
+    end
   )
 end
 
@@ -42,9 +43,12 @@ function game.block_offset_callback(chain_count, screen_x, screen_y, player, boa
   local offset_height = chain_count
 
   if offset_height > 2 then
+    local ion_target_x, ion_target_y = unpack(board.block_offset_target)
     ions:create(
       screen_x,
       screen_y,
+      ion_target_x,
+      ion_target_y,
       function(target_x, target_y)
         sfx(21)
         particles:create(target_x, target_y,
@@ -58,8 +62,7 @@ function game.block_offset_callback(chain_count, screen_x, screen_y, player, boa
           offset_height = pending_garbage_blocks:offset(offset_height)
         end
       end,
-      9,
-      unpack(board.block_offset_target)
+      9
     )
   end
 
@@ -69,9 +72,12 @@ end
 function game.chain_callback(chain_id, chain_count, screen_x, screen_y, player, board, other_board)
   if chain_count > 1 then
     bubbles:create("chain", chain_count, screen_x, screen_y)
+    local ion_target_x, ion_target_y = unpack(board.attack_ion_target)
     ions:create(
       screen_x,
       screen_y,
+      ion_target_x,
+      ion_target_y,
       function(target_x, target_y)
         sfx(21)
         particles:create(target_x, target_y,
@@ -85,9 +91,7 @@ function game.chain_callback(chain_id, chain_count, screen_x, screen_y, player, 
         if other_board then
           other_board:send_garbage(chain_id, 6, chain_count - 1 < 6 and chain_count - 1 or 5)
         end
-      end,
-      12,
-      unpack(board.attack_ion_target)
+      end
     )
   else
     local score = chain_bonus[chain_count] or 1800
