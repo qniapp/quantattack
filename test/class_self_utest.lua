@@ -10,7 +10,7 @@ end
 
 -- self を省略したいときの書きかた
 function foo_class.access_instance_variable(_ENV)
-  printh("state = " .. state)
+  local foo = "state = " .. state
 end
 
 -- こちらは失敗
