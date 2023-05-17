@@ -7,7 +7,5 @@ config.txt
 doc/
 intermediate/
 log.txt
-luacov.report.out
-luacov.stats.out
 profiler.log
 sdl_controllers.txt
