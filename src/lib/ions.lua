@@ -45,8 +45,8 @@ end
 --- イオン球を描画
 function ions._render(_ENV)
   fillp(23130.5)
-  circfill(_x, _y, 6 + 2 * sin(t()), _color)
+  circfill(_x, _y, 8 + 2 * sin(t()), _color)
   fillp()
-  circfill(_x, _y, 4 + 2 * sin(1.5 * t()), _color)
-  circfill(_x, _y, 3 + sin(2.5 * t()), 7)
+  circfill(_x, _y, 6 + 2 * sin(1.5 * t()), _color)
+  circfill(_x, _y, 5 + sin(2.5 * t()), 7)
 end
