@@ -625,8 +625,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
           combo_count = combo_count + #reduction.to
           game.combo_callback(
             combo_count,
-            screen_x(_ENV, x),
-            screen_y(_ENV, y),
+            { screen_x(_ENV, x), screen_y(_ENV, y) },
             player,
             _ENV,
             other_board
