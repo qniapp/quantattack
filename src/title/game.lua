@@ -18,10 +18,10 @@ function update_title_logo_bounce()
   end
 end
 
-local attack_cube_callback = function(target_x, target_y)
+local attack_cube_callback = function(target)
   bounce_title_logo()
   sfx(19)
-  particles:create(target_x, target_y,
+  particles:create(target[1], target[2],
     "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 end
 

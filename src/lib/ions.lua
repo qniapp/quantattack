@@ -10,8 +10,8 @@ ions = derived_class(effect_set)()
 --
 function ions:create(x, y, target, callback, ion_color)
   self:_add(function(_ENV)
-    _from_x, _from_y, _target_x, _target_y, _callback, _tick, _color =
-        x, y, target[1], target[2], callback, 0, ion_color or 12
+    _from_x, _from_y, _target, _callback, _tick, _color =
+        x, y, target, callback, 0, ion_color or 12
     sfx(20)
   end)
 end
@@ -24,15 +24,15 @@ function ions._update(_ENV, all)
   end
 
   if _tick == 60 then
-    _callback(_target_x, _target_y)
+    _callback(_target)
     del(all, _ENV)
   end
 
   _tick = _tick + 1
 
   _x, _y =
-      _quadratic_bezier(_from_x, _from_x > 64 and _from_x + 60 or _from_x - 60, _target_x),
-      _quadratic_bezier(_from_y, _from_y + 40, _target_y)
+    _quadratic_bezier(_from_x, _from_x > 64 and _from_x + 60 or _from_x - 60, _target[1]),
+      _quadratic_bezier(_from_y, _from_y + 40, _target[2])
 
   -- しっぽを追加
   if ceil_rnd(10) > 7 then

@@ -20,9 +20,9 @@ function game_class.combo_callback(combo_count, screen_x, screen_y, player, boar
     screen_x,
     screen_y,
     board.attack_ion_target,
-    function(target_x, target_y)
+    function(target)
       sfx(21)
-      particles:create(target_x, target_y,
+      particles:create(target[1], target[2],
         "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
       local score = combo_count * 10
@@ -45,9 +45,9 @@ function game_class.block_offset_callback(chain_count, screen_x, screen_y, playe
       screen_x,
       screen_y,
       board.block_offset_target,
-      function(target_x, target_y)
+      function(target)
         sfx(21)
-        particles:create(target_x, target_y,
+        particles:create(target[1], target[2],
           "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
         local score = chain_bonus[chain_count] or 1800
@@ -73,9 +73,9 @@ function game_class.chain_callback(chain_id, chain_count, screen_x, screen_y, pl
         screen_x,
         screen_y,
         board.attack_ion_target,
-        function(target_x, target_y)
+        function(target)
           sfx(21)
-          particles:create(target_x, target_y,
+          particles:create(target[1], target[2],
             "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
 
           local score = chain_bonus[chain_count] or 1800
