@@ -40,6 +40,11 @@ function ions._update(_ENV, all)
   _x, _y =
       _quadratic_bezier(_from_x, _from_x > 64 and _from_x + 60 or _from_x - 60, _target_x),
       _quadratic_bezier(_from_y, _from_y + 40, _target_y)
+
+  -- イオン君のしっぽを追加
+  if ceil_rnd(10) > 7 then
+    particles:create(_x, _y, "3,1,12,7,0,0,0,0,20")
+  end
 end
 
 --- イオン球を描画。
