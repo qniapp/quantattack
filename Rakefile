@@ -73,7 +73,7 @@ desc 'リリースビルド'
 task 'build:release' => carts.map { |each| "#{each}:release" }
 
 carts.each do |each|
-  task cart_data(each) => 'data.p8' do
+  file cart_data(each) => 'data.p8' do
     cp 'data.p8', cart_data(each)
   end
 end
@@ -167,6 +167,7 @@ carts.each do |each|
   CLOBBER.include p8_path(each, :release)
 end
 
+desc 'title カートを起動'
 task run: 'build:debug' do
   sh "/Applications/PICO-8.app/Contents/MacOS/pico8 -run #{p8_path 'title'} -screenshot_scale 4 -gif_scale 4"
 end
