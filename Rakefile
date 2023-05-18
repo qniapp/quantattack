@@ -3,6 +3,8 @@
 require 'bundler/setup'
 $LOAD_PATH.unshift File.expand_path('lib', __dir__)
 
+version = File.read("data/version.txt").chomp
+
 task :default do
   sh './scripts/build_and_install_all_cartridges.sh'
 end
@@ -48,7 +50,7 @@ task :vs_human do
 end
 
 task :run do
-  sh '/Applications/PICO-8.app/Contents/MacOS/pico8 -run build/v0.6.1_debug/quantattack_title.p8 -screenshot_scale 4 -gif_scale 4'
+  sh "/Applications/PICO-8.app/Contents/MacOS/pico8 -run build/v#{version}_debug/quantattack_title.p8 -screenshot_scale 4 -gif_scale 4"
 end
 
 task :data do
@@ -61,6 +63,16 @@ end
 
 task "test:solo" do
   sh './scripts/test.sh -m solo'
+end
+
+task :count do
+  sh "python ~/Documents/GitHub/shrinko8/shrinko8.py build/v#{version}_debug/quantattack_title.p8 --count"
+  sh "python ~/Documents/GitHub/shrinko8/shrinko8.py build/v#{version}_debug/quantattack_tutorial.p8 --count"
+  sh "python ~/Documents/GitHub/shrinko8/shrinko8.py build/v#{version}_debug/quantattack_endless.p8 --count"
+  sh "python ~/Documents/GitHub/shrinko8/shrinko8.py build/v#{version}_debug/quantattack_rush.p8 --count"
+  sh "python ~/Documents/GitHub/shrinko8/shrinko8.py build/v#{version}_debug/quantattack_vs_qpu.p8 --count"
+  sh "python ~/Documents/GitHub/shrinko8/shrinko8.py build/v#{version}_debug/quantattack_qpu_vs_qpu.p8 --count"
+  sh "python ~/Documents/GitHub/shrinko8/shrinko8.py build/v#{version}_debug/quantattack_vs_human.p8 --count"
 end
 
 task :dupe do

@@ -18,11 +18,13 @@ function update_title_logo_bounce()
   end
 end
 
-local attack_cube_callback = function(target_x, target_y)
+local attack_cube_callback = function(target)
   bounce_title_logo()
   sfx(19)
-  particles:create(target_x, target_y,
-    "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
+  particles:create(
+    target,
+    "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
+  )
 end
 
 function game()
@@ -31,31 +33,19 @@ function game()
       -- NOP
     end,
 
-    combo_callback = function(_combo_count, screen_x, screen_y, _player, board, _other_board)
-      ions:create(
-        screen_x,
-        screen_y,
-        attack_cube_callback,
-        12,
-        64,
-        36
-      )
+    combo_callback = function(combo_count, coord, _player, board, _other_board)
+      bubbles:create("combo", combo_count, coord)
+      ions:create(coord, { 64, 36 }, attack_cube_callback)
     end,
 
     block_offset_callback = function(chain_count)
       return chain_count
     end,
 
-    chain_callback = function(_chain_id, chain_count, screen_x, screen_y)
+    chain_callback = function(_chain_id, chain_count, coord)
       if chain_count > 1 then
-        ions:create(
-          screen_x,
-          screen_y,
-          attack_cube_callback,
-          12,
-          64,
-          36
-        )
+        bubbles:create("chain", chain_count, coord)
+        ions:create(coord, { 64, 36 }, attack_cube_callback)
       end
     end,
 

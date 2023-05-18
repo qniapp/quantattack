@@ -2,6 +2,7 @@ require("engine/test/bustedhelper")
 require("test/test_helper")
 require("lib/helpers")
 require("lib/game")
+require("lib/effects")
 require("lib/board")
 
 describe('コンボ (同時消し) のコールバック', function()
@@ -29,7 +30,7 @@ describe('コンボ (同時消し) のコールバック', function()
     board:update(game_class)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(4, board:screen_x(2), board:screen_y(2), _, _, _)
+    combo_callback.was_called_with(4, { board:screen_x(2), board:screen_y(2) }, _, _, _)
   end)
 
   it("5-コンボ発生でコールバックが呼ばれる", function()
@@ -49,7 +50,7 @@ describe('コンボ (同時消し) のコールバック', function()
     board:update(game_class)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(5, board:screen_x(1), board:screen_y(2), _, _, _)
+    combo_callback.was_called_with(5, { board:screen_x(1), board:screen_y(2) }, _, _, _)
   end)
 
   it("6-コンボ発生でコールバックが呼ばれる", function()
@@ -70,7 +71,7 @@ describe('コンボ (同時消し) のコールバック', function()
     board:update(game_class)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(6, board:screen_x(2), board:screen_y(3), _, _, _)
+    combo_callback.was_called_with(6, { board:screen_x(2), board:screen_y(3) }, _, _, _)
   end)
 
   it("7-コンボ発生でコールバックが呼ばれる", function()
@@ -93,6 +94,6 @@ describe('コンボ (同時消し) のコールバック', function()
     board:update(game_class)
 
     combo_callback.was_called(1)
-    combo_callback.was_called_with(7, board:screen_x(1), board:screen_y(3), _, _, _)
+    combo_callback.was_called_with(7, { board:screen_x(1), board:screen_y(3) }, _, _, _)
   end)
 end)

@@ -1,4 +1,4 @@
-local time, colors = 0, split("0,5,1,5,1")
+local time, colors = 0, split("0,5,12,5,12")
 
 function render_plasma()
   local t = time / 12

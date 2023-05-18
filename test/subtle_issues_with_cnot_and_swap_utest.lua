@@ -1,6 +1,7 @@
 require("engine/test/bustedhelper")
 require("engine/render/color")
 require("test/test_helper")
+require("lib/effects")
 require("lib/board")
 
 describe('CNOT や SWAP が残る/ちぎれる問題', function()

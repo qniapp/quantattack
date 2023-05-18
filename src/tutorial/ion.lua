@@ -19,8 +19,15 @@ function ion.update(_ENV)
     end
 
     _dx, _dy = 0, 0
-    _x, _y =
-    _quadratic_bezier(_ENV, 64, 128, 84), _quadratic_bezier(_ENV, 128, 64, 36)
+    _x, _y = _quadratic_bezier(_ENV, 64, 128, 84), _quadratic_bezier(_ENV, 128, 64, 36)
+
+    -- イオン君のしっぽを追加
+    if ceil_rnd(10) > 7 then
+      particles:create(
+        { _x, _y },
+        "3,1,12,7,0,0,0,0,20"
+      )
+    end
   elseif _state == ":shake" then
     if _tick == _max_tick then
       _state = "idle"

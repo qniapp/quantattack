@@ -1,9 +1,8 @@
 require("lib/helpers")
+require("lib/effects")
 require("lib/board")
 require("lib/player")
 require("lib/high_score")
-
-local sash = require("lib/sash")
 
 -- ハイスコア関係
 local high_score = high_score_class(0)
@@ -52,7 +51,8 @@ function _update60()
     if t() - game.game_over_time > 2 then
       if high_score:put(player.score) then
         sfx(22)
-        sash:create("high score!", 7, 8)
+        -- sash:create("high score!", 7, 8)
+        sash:create("high score!,7,8")
       end
 
       board.show_gameover_menu = true
@@ -69,16 +69,18 @@ function _update60()
       board.timeup = true
       game.game_over_time = t()
       sfx(16)
-      sash:create("time up!", 13, 7, function()
+      -- sash:create("time up!", 13, 7, function()
+      sash:create("time up!,13,7", function()
         if high_score:put(player.score) then
           sfx(22)
-          sash:create("high score!", 7, 8)
+          -- sash:create("high score!", 7, 8)
+          sash:create("high score!,7,8")
         end
       end)
     end
   end
 
-  sash:update()
+  sash:update_all()
 end
 
 function _draw()
@@ -103,5 +105,5 @@ function _draw()
     print_outlined("raise blocks", 81, 120, 7, 0)
   end
 
-  sash:render()
+  sash:render_all()
 end

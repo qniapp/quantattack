@@ -64,7 +64,7 @@ function game.update(_ENV)
   board:update(_ENV, player)
   cursor:update()
 
-  ripple:update()
+  ripple:update_all()
   particles:update_all()
   bubbles:update_all()
 end

@@ -1,4 +1,5 @@
 require("lib/helpers")
+require("lib/effects")
 require("lib/board")
 require("lib/qpu")
 require("title/game")
@@ -95,7 +96,7 @@ function _draw()
     if title_state == ":demo" then
       -- X start を表示
       if tick % 60 < 30 then
-        print_outlined("x start", 50, 50, 1)
+        print_outlined("x start", 50, 50, 1, 10)
       end
     else -- ":main_menu" or ":level_menu"
       -- メニューのウィンドウを表示

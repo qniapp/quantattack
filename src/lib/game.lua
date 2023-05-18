@@ -14,15 +14,17 @@ function game_class.reduce_callback(score, player, board, contains_swap)
   end
 end
 
-function game_class.combo_callback(combo_count, screen_x, screen_y, player, board, other_board)
-  bubbles:create("combo", combo_count, screen_x, screen_y)
+function game_class.combo_callback(combo_count, coord, player, board, other_board)
+  bubbles:create("combo", combo_count, coord)
   ions:create(
-    screen_x,
-    screen_y,
-    function(target_x, target_y)
+    coord,
+    board.attack_ion_target,
+    function(target)
       sfx(21)
-      particles:create(target_x, target_y,
-        "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
+      particles:create(
+        target,
+        "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
+      )
 
       local score = combo_count * 10
       local score_delta = score >> 16
@@ -32,23 +34,23 @@ function game_class.combo_callback(combo_count, screen_x, screen_y, player, boar
       if other_board then
         other_board:send_garbage(nil, combo_count > 6 and 6 or combo_count - 1, 1)
       end
-    end,
-    12,
-    unpack(board.attack_ion_target)
+    end
   )
 end
 
-function game_class.block_offset_callback(chain_count, screen_x, screen_y, player, board, other_board)
+function game_class.block_offset_callback(chain_count, coord, player, board, other_board)
   local offset_height = chain_count
 
   if offset_height > 2 then
     ions:create(
-      screen_x,
-      screen_y,
-      function(target_x, target_y)
+      coord,
+      board.block_offset_target,
+      function(target)
         sfx(21)
-        particles:create(target_x, target_y,
-          "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
+        particles:create(
+          target,
+          "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
+        )
 
         local score = chain_bonus[chain_count] or 1800
         local score_delta = score >> 16
@@ -58,25 +60,26 @@ function game_class.block_offset_callback(chain_count, screen_x, screen_y, playe
           offset_height = board.pending_garbage_blocks:offset(offset_height)
         end
       end,
-      9,
-      unpack(board.block_offset_target)
+      9
     )
   end
 
   return offset_height
 end
 
-function game_class.chain_callback(chain_id, chain_count, screen_x, screen_y, player, board, other_board)
+function game_class.chain_callback(chain_id, chain_count, coord, player, board, other_board)
   if chain_count > 1 then
-    bubbles:create("chain", chain_count, screen_x, screen_y)
+    bubbles:create("chain", chain_count, coord)
     if chain_count > 2 then
       ions:create(
-        screen_x,
-        screen_y,
-        function(target_x, target_y)
+        coord,
+        board.attack_ion_target,
+        function(target)
           sfx(21)
-          particles:create(target_x, target_y,
-            "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20")
+          particles:create(
+            target,
+            "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
+          )
 
           local score = chain_bonus[chain_count] or 1800
           local score_delta = score >> 16
@@ -86,9 +89,7 @@ function game_class.chain_callback(chain_id, chain_count, screen_x, screen_y, pl
           if other_board then
             other_board:send_garbage(chain_id, 6, chain_count - 1 < 6 and chain_count - 1 or 5)
           end
-        end,
-        12,
-        unpack(board.attack_ion_target)
+        end
       )
     end
   else
@@ -131,7 +132,7 @@ function game_class.add_player(_ENV, player, board, other_board)
 end
 
 function game_class.update(_ENV)
-  ripple:update()
+  ripple:update_all()
 
   if countdown then
     countdown = countdown - 1
@@ -262,7 +263,7 @@ function game_class.update(_ENV)
 end
 
 function game_class.render(_ENV) -- override
-  ripple:render()
+  ripple:render_all()
 
   for _, each in pairs(all_players_info) do
     local board = each.board

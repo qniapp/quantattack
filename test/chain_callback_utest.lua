@@ -1,5 +1,6 @@
 require("engine/test/bustedhelper")
 require("test/test_helper")
+require("lib/effects")
 require("lib/board")
 require("lib/player")
 require("lib/game")
@@ -42,7 +43,7 @@ describe('chain', function()
     end
 
     chain_callback.was_called(1)
-    chain_callback.was_called_with("2,3", 2, board:screen_x(2), board:screen_y(2), match._, match._, match._)
+    chain_callback.was_called_with("2,3", 2, { board:screen_x(2), board:screen_y(2) }, match._, match._, match._)
   end)
 
   it("コールバックが呼ばれる", function()
@@ -90,6 +91,6 @@ describe('chain', function()
     end
 
     chain_callback.was_called(1)
-    chain_callback.was_called_with("1,2", 2, board:screen_x(2), board:screen_y(2), match._, match._, match._)
+    chain_callback.was_called_with("1,2", 2, { board:screen_x(2), board:screen_y(2) }, match._, match._, match._)
   end)
 end)

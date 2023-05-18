@@ -1,10 +1,9 @@
 require("lib/helpers")
+require("lib/effects")
 require("lib/board")
 require("lib/game")
 require("lib/player")
 require("lib/high_score")
-
-local sash = require("lib/sash")
 
 -- ハイスコア関係
 local high_score = high_score_class(1)
@@ -45,7 +44,7 @@ function _update60()
       if not board.show_gameover_menu then
         if high_score:put(player.score) then
           sfx(22)
-          sash:create("high score!", 7, 8)
+          sash:create("high score!,7,8")
         end
       end
 
@@ -60,7 +59,7 @@ function _update60()
     end
   end
 
-  sash:update()
+  sash:update_all()
 end
 
 function _draw()
@@ -82,7 +81,7 @@ function _draw()
     print_outlined("raise blocks", 81, 120, 7, 0)
   end
 
-  sash:render()
+  sash:render_all()
 end
 
 require("lib/replay")
