@@ -3,6 +3,14 @@ require("lib/bubbles")
 require("lib/ions")
 require("lib/particles")
 
+--#if endless
+require("lib/sash")
+--#endif
+
+--#if rush
+require("lib/sash")
+--#endif
+
 --- 背景の波紋を描画するクラス
 local ripple_class = new_class()
 

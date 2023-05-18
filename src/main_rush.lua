@@ -2,7 +2,6 @@ require("lib/helpers")
 require("lib/board")
 require("lib/player")
 require("lib/high_score")
-require("lib/sash")
 
 -- ハイスコア関係
 local high_score = high_score_class(0)

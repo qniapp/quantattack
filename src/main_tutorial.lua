@@ -2,7 +2,6 @@ require("lib/helpers")
 require("tutorial/dtb")
 require("lib/board")
 require("lib/player")
-require("lib/sash")
 
 local game_class = require("tutorial/game")
 
@@ -169,7 +168,6 @@ function _update60()
   end
 
   tutorial_game:update()
-  sash:update_all()
   dtb_update()
   ion:update()
 end
@@ -179,7 +177,6 @@ function _draw()
 
   ripple:render()
   tutorial_game:render()
-  sash:render_all()
   dtb_draw()
   ion:draw()
 
