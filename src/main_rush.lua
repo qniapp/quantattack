@@ -2,8 +2,7 @@ require("lib/helpers")
 require("lib/board")
 require("lib/player")
 require("lib/high_score")
-
-local sash = require("lib/sash")
+require("lib/sash")
 
 -- ハイスコア関係
 local high_score = high_score_class(0)
@@ -81,7 +80,7 @@ function _update60()
     end
   end
 
-  sash:update()
+  sash:update_all()
 end
 
 function _draw()
@@ -106,5 +105,5 @@ function _draw()
     print_outlined("raise blocks", 81, 120, 7, 0)
   end
 
-  sash:render()
+  sash:render_all()
 end
