@@ -175,7 +175,7 @@ end
 function _draw()
   cls()
 
-  ripple:render()
+  ripple:render_all()
   tutorial_game:render()
   dtb_draw()
   ion:draw()

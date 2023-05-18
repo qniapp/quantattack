@@ -125,7 +125,7 @@ function game:add_player(player, board, other_board)
 end
 
 function game:update()
-  ripple:update()
+  ripple:update_all()
 
   if countdown then
     countdown = countdown - 1
@@ -239,7 +239,7 @@ function game:update()
 end
 
 function game:render() -- override
-  ripple:render()
+  ripple:render_all()
 
   for _, each in pairs(all_players_info) do
     local board = each.board
