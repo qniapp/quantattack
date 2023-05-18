@@ -177,13 +177,101 @@ end
 
 
 --#ifn title
-require("lib/effects/ripple")
+--- 背景の波紋を描画するクラス
+ripple = derived_class(effect_set)()
+
+function ripple:create()
+  self:_add(function(_ENV)
+    t1, t2, tick = 0, 0, 0
+  end)
+end
+
+--- 波紋の状態を更新
+function ripple._update(_ENV)
+  tick, t1, t2 =
+      tick + 1,
+      t1 - 1 / ((ripple.slow or ripple.freeze) and 3000 or 1500),
+      t2 - 1 / ((ripple.slow or ripple.freeze) and 300 or 150)
+end
+
+--- 波紋を描画
+function ripple._render(_ENV)
+  for i = -5, 5 do
+    for j = -5, 5 do
+      local ang, d = atan2(i, j), sqrt(i * i + j * j)
+      local r = 2 + 2 * sin(d / 4 + t2)
+      circfill(
+        64 + 12 * d * cos(ang + t1),
+        64 + 12 * d * sin(ang + t1) - 3 * r,
+        r,
+        ((ripple.slow or ripple.freeze) and r > 3 and tick % 2 == 0) and (ripple.slow and 13 or 12) or 1
+      )
+    end
+  end
+end
+
+ripple:create()
 --#endif
 
---#if endless
-require("lib/effects/sash")
---#endif
+--#if sash
+-- sash:create("text,text_color,background_color", slideout_callback) 新しい sash を作る (シングルトン)
+--   - text: 表示するテキスト
+--   - text_color: テキストの色
+--   - background_color: sash の背景色
+--   - slideout_callback: sash が右端から消えた時に呼ぶコールバック
 
---#if rush
-require("lib/effects/sash")
+sash = derived_class(effect_set)()
+
+function sash:create(properties, _slideout_callback)
+  self.all = {}
+  self:_add(function (_ENV)
+      text, text_color, background_color = unpack_split(properties)
+      background_height, dh, ddh, slideout_callback, text_x, text_dx, text_ddx, text_center_x, state =
+        0, 0.1, 0.2, _slideout_callback, #text * -4, 5, -0.14, 64 - #text * 2, ":slidein"
+  end)
+end
+
+function sash._update(_ENV)
+  if state == ":slidein" then
+    background_height, dh = background_height + dh, dh + ddh
+    if background_height > 10 then
+      background_height = 10
+    end
+
+    if text_x < text_center_x then
+      text_x, text_dx = text_x + text_dx, text_dx + text_ddx
+    end
+
+    if text_x > text_center_x then
+      text_x, time_stop, state = text_center_x, t(), ":stop"
+    end
+  end
+
+  if state == ":stop" then
+    if t() - time_stop > 1 then
+      dh, ddh, text_dx, text_ddx, state =
+          -0.1, -0.2, 3, 0.8, ":slideout"
+    end
+  end
+
+  if state == ":slideout" then
+    background_height, dh, text_x, text_dx =
+        background_height + dh, dh + ddh, text_x + text_dx, text_dx + text_ddx
+
+    if text_x > 127 then
+      if slideout_callback then
+        slideout_callback()
+      end
+
+      state = ":finished"
+    end
+  end
+end
+
+function sash._render(_ENV)
+  if background_height > 0 then
+    rectfill(0, 64 - background_height / 2, 127, 64 + background_height / 2, background_color)
+    print(text, text_x, 64 - 2, text_color)
+  end
+end
 --#endif

@@ -41,6 +41,22 @@ def cart_sources_and_data(name)
   cart_sources(name) + FileList[cart_data(name)]
 end
 
+def build_cartridge_command(name, build = :debug, *symbols)
+  symbols_option = if build == :debug
+                     ([:tostring, :dump, name] + symbols).uniq.join(',')
+                   else
+                     ([name] + symbols).join(',')
+                   end
+  "./pico-boots/scripts/build_cartridge.sh \"#{File.join(__dir__, './src')}\" main_#{name}.lua " \
+     "-d \"#{File.join(__dir__, "data/builtin_data_#{name}.p8")}\" " \
+     "-M \"#{File.join(__dir__, 'data/metadata.p8')}\" " \
+     "-a yasuhito -t \"quantattack v#{version} (#{build})\" " \
+     "-p \"#{File.join(__dir__, "build/v#{version}_#{build}")}\" " \
+     "-o quantattack_#{name} " \
+     "-s \"#{symbols_option}\" " \
+     '--minify-level 1'
+end
+
 def build_single_cartridge_sh
   './scripts/build_single_cartridge.sh'
 end
@@ -92,85 +108,85 @@ end
 
 task title: p8_path('title')
 file p8_path('title') => cart_sources_and_data('title') do
-  sh "#{build_single_cartridge_sh} title"
+  sh build_cartridge_command(:title)
   sh "#{install_single_cartridge_sh} title debug"
 end
 
 task tutorial: p8_path('tutorial')
 file p8_path('tutorial') => cart_sources_and_data('tutorial') do
-  sh "#{build_single_cartridge_sh} tutorial"
+  sh build_cartridge_command(:tutorial)
   sh "#{install_single_cartridge_sh} tutorial debug"
 end
 
 task endless: p8_path('endless')
 file p8_path('endless') => cart_sources_and_data('endless') do
-  sh "#{build_single_cartridge_sh} endless"
+  sh build_cartridge_command(:endless, :debug, :sash)
   sh "#{install_single_cartridge_sh} endless debug"
 end
 
 task rush: p8_path('rush')
 file p8_path('rush') => cart_sources_and_data('rush') do
-  sh "#{build_single_cartridge_sh} rush"
+  sh build_cartridge_command(:rush, :debug, :sash)
   sh "#{install_single_cartridge_sh} rush debug"
 end
 
 task vs_qpu: p8_path('vs_qpu')
 file p8_path('vs_qpu') => cart_sources_and_data('vs_qpu') do
-  sh "#{build_single_cartridge_sh} vs_qpu"
+  sh build_cartridge_command(:vs_qpu)
   sh "#{install_single_cartridge_sh} vs_qpu debug"
 end
 
 task qpu_vs_qpu: p8_path('qpu_vs_qpu')
 file p8_path('qpu_vs_qpu') => cart_sources_and_data('qpu_vs_qpu') do
-  sh "#{build_single_cartridge_sh} qpu_vs_qpu"
+  sh build_cartridge_command(:qpu_vs_qpu)
   sh "#{install_single_cartridge_sh} qpu_vs_qpu debug"
 end
 
 task vs_human: p8_path('vs_human')
 file p8_path('vs_human') => cart_sources_and_data('vs_human') do
-  sh "#{build_single_cartridge_sh} vs_human"
+  sh build_cartridge_command(:vs_human)
   sh "#{install_single_cartridge_sh} vs_human debug"
 end
 
 task 'title:release' => p8_path('title', :release)
 file p8_path('title', :release) => cart_sources_and_data('title') do
-  sh "#{build_single_cartridge_sh} title release"
+  sh build_cartridge_command(:title, :release)
   sh "#{install_single_cartridge_sh} title release"
 end
 
 task 'tutorial:release' => p8_path('tutorial', :release)
 file p8_path('tutorial', :release) => cart_sources_and_data('tutorial') do
-  sh "#{build_single_cartridge_sh} tutorial release"
+  sh build_cartridge_command(:tutorial, :release)
   sh "#{install_single_cartridge_sh} tutorial release"
 end
 
 task 'endless:release' => p8_path('endless', :release)
 file p8_path('endless', :release) => cart_sources_and_data('endless') do
-  sh "#{build_single_cartridge_sh} endless release"
+  sh build_cartridge_command(:endless, :release, :sash)
   sh "#{install_single_cartridge_sh} endless release"
 end
 
 task 'rush:release' => p8_path('rush', :release)
 file p8_path('rush', :release) => cart_sources_and_data('rush') do
-  sh "#{build_single_cartridge_sh} rush release"
+  sh build_cartridge_command(:rush, :release, :sash)
   sh "#{install_single_cartridge_sh} rush release"
 end
 
 task 'vs_qpu:release' => p8_path('vs_qpu', :release)
 file p8_path('vs_qpu', :release) => cart_sources_and_data('vs_qpu') do
-  sh "#{build_single_cartridge_sh} vs_qpu release"
+  sh build_cartridge_command(:vs_qpu, :release)
   sh "#{install_single_cartridge_sh} vs_qpu release"
 end
 
 task 'qpu_vs_qpu:release' => p8_path('qpu_vs_qpu', :release)
 file p8_path('qpu_vs_qpu', :release) => cart_sources_and_data('qpu_vs_qpu') do
-  sh "#{build_single_cartridge_sh} qpu_vs_qpu release"
+  sh build_cartridge_command(:qpu_vs_qpu, :release)
   sh "#{install_single_cartridge_sh} qpu_vs_qpu release"
 end
 
 task 'vs_human:release' => p8_path('vs_human', :release)
 file p8_path('vs_human', :release) => cart_sources_and_data('vs_human') do
-  sh "#{build_single_cartridge_sh} vs_human release"
+  sh build_cartridge_command(:vs_human, :release)
   sh "#{install_single_cartridge_sh} vs_human release"
 end
 
@@ -200,5 +216,5 @@ task count: 'build:debug' do
 end
 
 task :dupe do
-  sh "#{pmd_sh} cpd --dir src/ --exclude src/**/*_utest.lua --language lua --minimum-tokens 10"
+  sh "#{pmd_sh} cpd --dir src/ --language lua --minimum-tokens 10"
 end
