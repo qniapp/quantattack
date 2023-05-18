@@ -41,6 +41,18 @@ def cart_sources_and_data(name)
   cart_sources(name) + FileList[cart_data(name)]
 end
 
+def build_single_cartridge_sh
+  './scripts/build_single_cartridge.sh'
+end
+
+def install_single_cartridge_sh
+  './scripts/install_single_cartridge.sh'
+end
+
+def pmd_sh
+  '~/Documents/GitHub/pmd-bin-6.52.0/bin/run.sh'
+end
+
 desc '現在のバージョンを表示'
 task :version do
   puts version
@@ -80,86 +92,86 @@ end
 
 task title: p8_path('title')
 file p8_path('title') => cart_sources_and_data('title') do
-  sh './scripts/build_single_cartridge.sh title'
-  sh './scripts/install_single_cartridge.sh title debug'
+  sh "#{build_single_cartridge_sh} title"
+  sh "#{install_single_cartridge_sh} title debug"
 end
 
 task tutorial: p8_path('tutorial')
 file p8_path('tutorial') => cart_sources_and_data('tutorial') do
-  sh './scripts/build_single_cartridge.sh tutorial'
-  sh './scripts/install_single_cartridge.sh tutorial debug'
+  sh "#{build_single_cartridge_sh} tutorial"
+  sh "#{install_single_cartridge_sh} tutorial debug"
 end
 
 task endless: p8_path('endless')
 file p8_path('endless') => cart_sources_and_data('endless') do
-  sh './scripts/build_single_cartridge.sh endless'
-  sh './scripts/install_single_cartridge.sh endless debug'
+  sh "#{build_single_cartridge_sh} endless"
+  sh "#{install_single_cartridge_sh} endless debug"
 end
 
 task rush: p8_path('rush')
 file p8_path('rush') => cart_sources_and_data('rush') do
-  sh './scripts/build_single_cartridge.sh rush'
-  sh './scripts/install_single_cartridge.sh rush debug'
+  sh "#{build_single_cartridge_sh} rush"
+  sh "#{install_single_cartridge_sh} rush debug"
 end
 
 task vs_qpu: p8_path('vs_qpu')
 file p8_path('vs_qpu') => cart_sources_and_data('vs_qpu') do
-  sh './scripts/build_single_cartridge.sh vs_qpu'
-  sh './scripts/install_single_cartridge.sh vs_qpu debug'
+  sh "#{build_single_cartridge_sh} vs_qpu"
+  sh "#{install_single_cartridge_sh} vs_qpu debug"
 end
 
 task qpu_vs_qpu: p8_path('qpu_vs_qpu')
 file p8_path('qpu_vs_qpu') => cart_sources_and_data('qpu_vs_qpu') do
-  sh './scripts/build_single_cartridge.sh qpu_vs_qpu'
-  sh './scripts/install_single_cartridge.sh qpu_vs_qpu debug'
+  sh "#{build_single_cartridge_sh} qpu_vs_qpu"
+  sh "#{install_single_cartridge_sh} qpu_vs_qpu debug"
 end
 
 task vs_human: p8_path('vs_human')
 file p8_path('vs_human') => cart_sources_and_data('vs_human') do
-  sh './scripts/build_single_cartridge.sh vs_human'
-  sh './scripts/install_single_cartridge.sh vs_human debug'
+  sh "#{build_single_cartridge_sh} vs_human"
+  sh "#{install_single_cartridge_sh} vs_human debug"
 end
 
 task 'title:release' => p8_path('title', :release)
 file p8_path('title', :release) => cart_sources_and_data('title') do
-  sh './scripts/build_single_cartridge.sh title release'
-  sh './scripts/install_single_cartridge.sh title release'
+  sh "#{build_single_cartridge_sh} title release"
+  sh "#{install_single_cartridge_sh} title release"
 end
 
 task 'tutorial:release' => p8_path('tutorial', :release)
 file p8_path('tutorial', :release) => cart_sources_and_data('tutorial') do
-  sh './scripts/build_single_cartridge.sh tutorial release'
-  sh './scripts/install_single_cartridge.sh tutorial release'
+  sh "#{build_single_cartridge_sh} tutorial release"
+  sh "#{install_single_cartridge_sh} tutorial release"
 end
 
 task 'endless:release' => p8_path('endless', :release)
 file p8_path('endless', :release) => cart_sources_and_data('endless') do
-  sh './scripts/build_single_cartridge.sh endless release'
-  sh './scripts/install_single_cartridge.sh endless release'
+  sh "#{build_single_cartridge_sh} endless release"
+  sh "#{install_single_cartridge_sh} endless release"
 end
 
 task 'rush:release' => p8_path('rush', :release)
 file p8_path('rush', :release) => cart_sources_and_data('rush') do
-  sh './scripts/build_single_cartridge.sh rush release'
-  sh './scripts/install_single_cartridge.sh rush release'
+  sh "#{build_single_cartridge_sh} rush release"
+  sh "#{install_single_cartridge_sh} rush release"
 end
 
 task 'vs_qpu:release' => p8_path('vs_qpu', :release)
 file p8_path('vs_qpu', :release) => cart_sources_and_data('vs_qpu') do
-  sh './scripts/build_single_cartridge.sh vs_qpu release'
-  sh './scripts/install_single_cartridge.sh vs_qpu release'
+  sh "#{build_single_cartridge_sh} vs_qpu release"
+  sh "#{install_single_cartridge_sh} vs_qpu release"
 end
 
 task 'qpu_vs_qpu:release' => p8_path('qpu_vs_qpu', :release)
 file p8_path('qpu_vs_qpu', :release) => cart_sources_and_data('qpu_vs_qpu') do
-  sh './scripts/build_single_cartridge.sh qpu_vs_qpu release'
-  sh './scripts/install_single_cartridge.sh qpu_vs_qpu release'
+  sh "#{build_single_cartridge_sh} qpu_vs_qpu release"
+  sh "#{install_single_cartridge_sh} qpu_vs_qpu release"
 end
 
 task 'vs_human:release' => p8_path('vs_human', :release)
 file p8_path('vs_human', :release) => cart_sources_and_data('vs_human') do
-  sh './scripts/build_single_cartridge.sh vs_human release'
-  sh './scripts/install_single_cartridge.sh vs_human release'
+  sh "#{build_single_cartridge_sh} vs_human release"
+  sh "#{install_single_cartridge_sh} vs_human release"
 end
 
 carts.each do |each|
@@ -188,5 +200,5 @@ task count: 'build:debug' do
 end
 
 task :dupe do
-  sh '~/Documents/GitHub/pmd-bin-6.52.0/bin/run.sh cpd --dir src/ --exclude src/**/*_utest.lua --language lua --minimum-tokens 10'
+  sh "#{pmd_sh} cpd --dir src/ --exclude src/**/*_utest.lua --language lua --minimum-tokens 10"
 end
