@@ -1,5 +1,6 @@
 require("engine/test/bustedhelper")
 require("lib/helpers")
+require("lib/effects")
 require("lib/board")
 
 describe('particle', function()

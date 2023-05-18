@@ -1,5 +1,6 @@
 require("engine/test/bustedhelper")
 require("test/test_helper")
+require("lib/effects")
 require("lib/board")
 require("lib/player")
 require("lib/game")

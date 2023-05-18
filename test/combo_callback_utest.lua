@@ -2,6 +2,7 @@ require("engine/test/bustedhelper")
 require("test/test_helper")
 require("lib/helpers")
 require("lib/game")
+require("lib/effects")
 require("lib/board")
 
 describe('コンボ (同時消し) のコールバック', function()

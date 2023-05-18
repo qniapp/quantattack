@@ -2,7 +2,7 @@ require("engine/test/bustedhelper")
 require("engine/render/color")
 require("test/test_helper")
 require("lib/helpers")
-require("lib/sash")
+require("lib/effects")
 
 describe('sash', function()
   describe('create', function()
