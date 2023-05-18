@@ -1,5 +1,6 @@
 require("lib/helpers")
 require("tutorial/dtb")
+require("lib/effects")
 require("lib/board")
 require("lib/player")
 

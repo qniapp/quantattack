@@ -1,4 +1,5 @@
 require("lib/helpers")
+require("lib/effects")
 require("lib/board")
 require("lib/player")
 require("lib/high_score")

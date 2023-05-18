@@ -33,7 +33,8 @@ function game()
       -- NOP
     end,
 
-    combo_callback = function(_combo_count, coord, _player, board, _other_board)
+    combo_callback = function(combo_count, coord, _player, board, _other_board)
+      bubbles:create("combo", combo_count, coord)
       ions:create(coord, { 64, 36 }, attack_cube_callback)
     end,
 
@@ -43,6 +44,7 @@ function game()
 
     chain_callback = function(_chain_id, chain_count, coord)
       if chain_count > 1 then
+        bubbles:create("chain", chain_count, coord)
         ions:create(coord, { 64, 36 }, attack_cube_callback)
       end
     end,

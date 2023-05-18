@@ -1,5 +1,3 @@
-require("lib/effects")
-
 --- ユーザまたは QPU が操作するカーソルのクラス
 cursor_class = new_class()
 
