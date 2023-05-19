@@ -933,59 +933,63 @@
 	</script>
 
 	<STYLE TYPE="text/css">
-	 <!--
-	 .p8_menu_button{
-		 opacity:0.3;
-		 padding:4px;
-		 display:table;
-		 width:24px;
-		 height:24px;
-		 float:right;
-	 }
+	  <!--
+		   html{
+     		 background-image: url(./background.jpg);
+		   }
 
-	 @media screen and (min-width:512px) {
-		 .p8_menu_button{
-			 width:24px; margin-left:12px; margin-bottom:8px;
-		 }
-	 }
-	 .p8_menu_button:hover{
-		 opacity:1.0;
-		 cursor:pointer;
-	 }
+		   .p8_menu_button{
+		   opacity:0.3;
+		   padding:4px;
+		   display:table;
+		   width:24px;
+		   height:24px;
+		   float:right;
+		   }
 
-	 canvas{
-		 image-rendering: optimizeSpeed;
-		 image-rendering: -moz-crisp-edges;
-		 image-rendering: -webkit-optimize-contrast;
-		 image-rendering: optimize-contrast;
-		 image-rendering: pixelated;
+		   @media screen and (min-width:512px) {
+		   .p8_menu_button{
+		   width:24px; margin-left:12px; margin-bottom:8px;
+		   }
+		   }
+		   .p8_menu_button:hover{
+		   opacity:1.0;
+		   cursor:pointer;
+		   }
+
+		   canvas{
+		   image-rendering: optimizeSpeed;
+		   image-rendering: -moz-crisp-edges;
+		   image-rendering: -webkit-optimize-contrast;
+		   image-rendering: optimize-contrast;
+		   image-rendering: pixelated;
 		 -ms-interpolation-mode: nearest-neighbor;
-		 border: 0px;
-		 cursor: none;
-	 }
+		   border: 0px;
+		   cursor: none;
+		   }
 
 
-	 .p8_start_button{
-		 cursor:pointer;
-		 background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAIAAABMXPacAAAARUlEQVR4Ae3dgQAAAACAoP2pFymSAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACABsCAAAGB4kPcAAAAEHRFWHRMb2RlUE5HADIwMTEwMjIx41m2wQAAAABJRU5ErkJggg==");
+		   .p8_start_button{
+		   cursor:pointer;
+		   background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAIAAABMXPacAAAARUlEQVR4Ae3dgQAAAACAoP2pFymSAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACABsCAAAGB4kPcAAAAEHRFWHRMb2RlUE5HADIwMTEwMjIx41m2wQAAAABJRU5ErkJggg==");
 		 -repeat center;
 		 -webkit-background-size:cover; -moz-background-size:cover; -o-background-size:cover; background-size:cover;
-	 }
+		   }
 
-	 .button_gfx{
-		 stroke-width:2;
-		 stroke: #ffffff;
-		 stroke-opacity:0.4;
-		 fill-opacity:0.2;
-		 fill:black;
-	 }
+		   .button_gfx{
+		   stroke-width:2;
+		   stroke: #ffffff;
+		   stroke-opacity:0.4;
+		   fill-opacity:0.2;
+		   fill:black;
+		   }
 
-	 .button_gfx_icon{
-		 stroke-width:3;
-		 stroke: #909090;
-		 stroke-opacity:0.7;
-		 fill:none;
-	 }
+		   .button_gfx_icon{
+		   stroke-width:3;
+		   stroke: #909090;
+		   stroke-opacity:0.7;
+		   fill:none;
+		   }
 	 -->
 	</STYLE>
 
@@ -993,14 +997,14 @@
 	<script defer data-domain="qniapp.github.io/quantattack" src="https://plausible.io/js/script.js"></script>
   </head>
 
-  <body style="padding:0px; margin:0px; background-color:#222; color:#ccc">
+  <body style="padding:0px; margin:0px; color:#ccc">
 	<div id="body_0"> <!-- hide this when playing in mobile (p8_touch_detected) so that elements don't affect layout -->
 
 
 	  <!-- Add any content above the cart here -->
 
 	  <div style="max-width:800px; margin:auto;">
-		<img src="./logo.png" class="max-w-full h-auto mt-8 sm:mt-16">
+		<img src="./logo.png" class="max-w-full h-auto mt-8 sm:mt-16 mb-4">
 	  </div>
 
 	  <div id="p8_frame_0" style="max-width:800px; margin:auto;"> <!-- double function: limit size, and display only this div for touch devices -->
@@ -1101,8 +1105,8 @@
 
 	  <!-- Add content below the cart here -->
 
-	  <div style="max-width:800px; margin:auto;">
-		<div class="mx-4 mb-32">
+	  <div style="max-width:800px; margin:auto; background-color:#222">
+		<div class="mx-4 pb-32">
 		  <article class="prose prose-invert lg:prose-xl max-w-none">
 			<div style="max-width:640px; margin:auto">
 			  <img src="./controls.png" class="max-w-full h-auto">
