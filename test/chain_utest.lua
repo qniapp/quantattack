@@ -126,19 +126,19 @@ describe('連鎖 (chain)', function()
     for i = 1, block_class.block_match_animation_frame_count do
       board:update()
     end
-    assert.is_true(board:block_at(1, 3):is_freeze())
+    assert.is_true(board:block_at(1, 3).state == "freeze")
 
     -- おじゃまブロックの真ん中が分解
     for i = 1, block_class.block_match_delay_per_block do
       board:update()
     end
-    assert.is_true(board:block_at(2, 3):is_freeze())
+    assert.is_true(board:block_at(2, 3).state == "freeze")
 
     -- おじゃまブロックの一番右が分解
     for i = 1, block_class.block_match_delay_per_block do
       board:update()
     end
-    assert.is_true(board:block_at(3, 3):is_freeze())
+    assert.is_true(board:block_at(3, 3).state == "freeze")
 
     -- 分解してできたブロックすべてのフリーズ解除
     for i = 1, block_class.block_match_delay_per_block do
@@ -146,9 +146,9 @@ describe('連鎖 (chain)', function()
     end
     board:update()
 
-    assert.is_false(board:block_at(1, 3):is_freeze())
-    assert.is_false(board:block_at(2, 3):is_freeze())
-    assert.is_false(board:block_at(3, 3):is_freeze())
+    assert.is_false(board:block_at(1, 3).state == "freeze")
+    assert.is_false(board:block_at(2, 3).state == "freeze")
+    assert.is_false(board:block_at(3, 3).state == "freeze")
 
     assert.are_equal("1,2", board:block_at(1, 3).chain_id)
     assert.are_equal("1,2", board:block_at(2, 3).chain_id)

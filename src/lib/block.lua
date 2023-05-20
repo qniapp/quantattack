@@ -33,16 +33,11 @@ function block_class._init(_ENV, _type, _span, _height)
 end
 
 function block_class.is_fallable(_ENV)
-  return not (type == "i" or type == "?" or is_swapping(_ENV) or is_freeze(_ENV) or state == "match")
+  return not (type == "i" or type == "?" or is_swapping(_ENV) or state == "freeze" or state == "match")
 end
 
 function block_class.is_reducible(_ENV)
   return type ~= "i" and type ~= "?" and state == "idle"
-end
-
--- おじゃまブロックが小さいブロックに分解した後の硬直中かどうか
-function block_class:is_freeze()
-  return self.state == "freeze"
 end
 
 function block_class:is_swapping()
@@ -120,7 +115,7 @@ function block_class.update(_ENV)
         new_block:change_state("freeze")
       end
     end
-  elseif is_freeze(_ENV) then
+  elseif state == "freeze" then
     if _tick_freeze < _freeze_frame_count then
       _tick_freeze = _tick_freeze + 1
     else
