@@ -32,11 +32,6 @@ function block_class._init(_ENV, _type, _span, _height)
       _type, sprites[_type], _span or 1, _height or 1, "idle", 0
 end
 
---- 状態が idle かどうかを返す
-function block_class:is_idle()
-  return self._state == "idle"
-end
-
 function block_class:is_hover()
   return self._state == "hover"
 end
@@ -50,7 +45,7 @@ function block_class:is_falling()
 end
 
 function block_class.is_reducible(_ENV)
-  return type ~= "i" and type ~= "?" and is_idle(_ENV)
+  return type ~= "i" and type ~= "?" and _state == "idle"
 end
 
 function block_class:is_match()
@@ -75,7 +70,7 @@ function block_class:_is_swapping_with_right()
 end
 
 function block_class:is_swappable_state()
-  return self:is_idle() or self:is_falling()
+  return self._state == "idle" or self:is_falling()
 end
 
 function block_class:is_empty()
@@ -116,7 +111,7 @@ function block_class.replace_with(_ENV, other, match_index, _chain_id, garbage_s
 end
 
 function block_class.update(_ENV)
-  if is_idle(_ENV) then
+  if _state == "idle" then
     if _timer_landing > 0 then
       _timer_landing = _timer_landing - 1
     end
@@ -169,7 +164,7 @@ function block_class:render(screen_x, screen_y, screen_other_x)
       swap_screen_dx = -swap_screen_dx
     end
 
-    if is_idle(_ENV) and _timer_landing > 0 then
+    if _state == "idle" and _timer_landing > 0 then
       sprite = sprite_set.landing[_timer_landing]
     elseif is_match(_ENV) then
       local sequence = sprite_set.match

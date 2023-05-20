@@ -42,7 +42,7 @@ describe('連鎖 (chain)', function()
 
     repeat
       board:update()
-    until board:block_at(1, 1).type == "x" and board:block_at(1, 1):is_idle()
+    until board:block_at(1, 1).type == "x" and board:block_at(1, 1)._state == "idle"
 
     board:update()
 

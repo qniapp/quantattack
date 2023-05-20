@@ -20,9 +20,9 @@ describe('h_block', function()
     end)
   end)
 
-  describe("is_idle", function()
+  describe("_state", function()
     it("should return true", function()
-      assert.is_true(h:is_idle())
+      assert.is_true(h._state == "idle")
     end)
   end)
 

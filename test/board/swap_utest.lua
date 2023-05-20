@@ -48,8 +48,8 @@ describe('board', function()
 
         -- フレーム 4: idle 状態に遷移
         board:update()
-        assert.is_true(board:block_at(1, 1):is_idle())
-        assert.is_true(board:block_at(2, 1):is_idle())
+        assert.is_true(board:block_at(1, 1)._state == "idle")
+        assert.is_true(board:block_at(2, 1)._state == "idle")
       end)
 
       it("ブロックを入れ換える", function()

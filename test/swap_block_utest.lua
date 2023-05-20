@@ -21,9 +21,9 @@ describe('swap_block', function()
     end)
   end)
 
-  describe("is_idle", function()
+  describe("_state", function()
     it("should return true", function()
-      assert.is_true(swap:is_idle())
+      assert.is_true(swap._state == "idle")
     end)
   end)
 
