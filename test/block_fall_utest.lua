@@ -23,7 +23,7 @@ describe('ブロックの落下', function()
 
       board:update()
 
-      assert.is_true(block:is_hover())
+      assert.is_true(block.state == "hover")
     end)
 
     it("1 フレームで 1 ブロック落下する", function()
@@ -73,8 +73,8 @@ describe('ブロックの落下', function()
 
       board:update()
 
-      assert.is_true(block1:is_hover())
-      assert.is_true(block2:is_hover())
+      assert.is_true(block1.state == "hover")
+      assert.is_true(block2.state == "hover")
     end)
 
     it("1 フレームで 1 ブロック落下する", function()
@@ -85,14 +85,14 @@ describe('ブロックの落下', function()
       board:update()
 
       -- hover が 12 フレーム続く
-      assert.is_true(board:block_at(1, 3):is_hover())
-      assert.is_true(board:block_at(1, 2):is_hover())
+      assert.is_true(board:block_at(1, 3).state == "hover")
+      assert.is_true(board:block_at(1, 2).state == "hover")
 
       for i = 1, 12 do
         board:update()
 
-        assert.is_true(board:block_at(1, 3):is_hover())
-        assert.is_true(board:block_at(1, 2):is_hover())
+        assert.is_true(board:block_at(1, 3).state == "hover")
+        assert.is_true(board:block_at(1, 2).state == "hover")
       end
 
       -- falling 状態に遷移

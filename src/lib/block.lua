@@ -32,10 +32,6 @@ function block_class._init(_ENV, _type, _span, _height)
       _type, sprites[_type], _span or 1, _height or 1, "idle", 0
 end
 
-function block_class:is_hover()
-  return self.state == "hover"
-end
-
 function block_class.is_fallable(_ENV)
   return not (type == "i" or type == "?" or is_swapping(_ENV) or is_freeze(_ENV) or is_match(_ENV))
 end
@@ -118,7 +114,7 @@ function block_class.update(_ENV)
       chain_id = nil
       change_state(_ENV, "idle")
     end
-  elseif is_hover(_ENV) then
+  elseif state == "hover" then
     if timer > 0 then
       timer = timer - 1
     else

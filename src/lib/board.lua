@@ -750,11 +750,11 @@ function board_class._update_game(_ENV, game, player, other_board)
 
         -- 落下できるブロックをホバー状態にする
         if block.state ~= "falling" and
-            not block:is_hover() and
+            block.state ~= "hover" and
             is_block_fallable(_ENV, x, y) then
           if not block.other_x then -- 単体ブロックとおじゃまゲート
             block:hover()
-            if y > 1 and blocks[y - 1][x]:is_hover() then
+            if y > 1 and blocks[y - 1][x].state == "hover" then
               block.timer = blocks[y - 1][x].timer
             end
           else -- CNOT または SWAP
@@ -769,7 +769,7 @@ function board_class._update_game(_ENV, game, player, other_board)
         if _check_hover_flag[y][x] then
           _check_hover_flag[y][x] = false
 
-          if not block:is_hover() then
+          if block.state ~= "hover" then
             local hover_timer = propagatable_hover_timer(_ENV, x, y)
             if hover_timer then
               if not block.other_x then
@@ -966,7 +966,7 @@ function board_class.propagatable_hover_timer(_ENV, x, y)
   end
 
   for_all_nonempty_blocks_below(_ENV, x, y, function(each)
-    if each:is_hover() and hover_timer < each.timer then
+    if each.state == "hover" and hover_timer < each.timer then
       hover_timer = each.timer
     end
   end)
@@ -1076,7 +1076,7 @@ function board_class.observable_update(_ENV, block, old_state)
     return
   end
 
-  if block:is_hover() then
+  if block.state == "hover" then
     for each_y = y + 1, #blocks do
       for each_x = 1, cols do
         if _check_hover_flag[each_y] == nil then
