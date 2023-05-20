@@ -935,7 +935,7 @@
 	<STYLE TYPE="text/css">
 	  <!--
 		   html{
-     		 background-image: url(./background.jpg);
+     		 background-image: url(./background.png);
 		   }
 
 		   .p8_menu_button{
@@ -1108,75 +1108,86 @@
 	  <div style="max-width:800px; margin:auto;">
 		<div style="background-color:#222;" class="mx-4 pb-32">
 		  <article class="prose prose-invert lg:prose-xl max-w-none px-4 sm:px-8">
-			<div style="max-width:640px; margin:auto">
-			  <img src="./controls.png" class="max-w-full h-auto">
+			<div class="flex flex-col sm:flex-row">
+			  <div class="sm:w-2/3 sm:pr-8">
+				<img src="./controls.png" class="w-full h-auto">
+
+				<div class="sm:hidden">
+				  <div class="flex flex-col justify-evenly">
+					<img class="my-2" src="./qpu_vs_qpu.gif">
+					<img class="my-2" src="./title.gif">
+				  </div>
+				</div>
+
+				<div>
+				  <h2>How to Play</h2>
+
+				  <p>
+					QuantAttack is a match-2 type action puzzle game. Blocks are cleared by lining up two blocks of the same type vertically.
+				  </p>
+
+				  <p>
+					QuantAttack は「マッチ2」タイプのアクションパズルゲームです。同じ種類のブロックを縦に2つ並べることでブロックを消せます。
+				  </p>
+
+				  <div>
+					<img src="./HH.png" class="mx-auto">
+				  </div>
+
+				  <p>
+					While the basic rules are this simple, QuantAttack introduces a fresh twist on block-clearing puzzlers. Some blocks are unique, and players must discover hidden patterns to clear them.
+				  </p>
+
+				  <p>
+					基本的なルールはこのようにシンプルですが、QuantAttack はマッチパズルの世界に新しい要素を追加します。いくつかの特殊なブロックを消すためには、隠されたパターンを発見しなければなりません。
+				  </p>
+
+				  <img src="./cnots.png" class="max-w-full h-auto mx-auto">
+
+				  <p>
+					There are more than 40 patterns of such block combinations, and finding and mastering them is the fastest way to improve.
+				  </p>
+
+				  <p>
+					隠された組み合わせは 40 パターン以上あり、それらを見つけて使いこなすことが上達への早道です。
+				  </p>
+
+				  <h2>Hint</h2>
+
+				  <p>
+					These secret patterns are based on the rules of quantum mechanics: each block is a quantum computer instruction (quantum logic gate), which works exactly like an actual quantum computer instruction.
+				  </p>
+
+				  <p>
+					これらの秘密のパターンは、量子力学のルールに基づいています。各ブロックは量子コンピュータの命令 (量子論理ゲート) であり、実際の量子コンピュータの命令と全く同じ働きをします。
+				  </p>
+
+				  <img src="./XX_I.png" class="max-w-full h-auto mx-auto">
+
+				  <p>
+					<a href="https://en.wikipedia.org/wiki/Quantum_logic_gate" class="text-red-500">This article</a> on Wikipedia might help you get a better handle on the blocks.
+				  </p>
+
+				  <p>
+					ウィキペディアの<a href="https://en.wikipedia.org/wiki/Quantum_logic_gate" class="text-red-500">この記事</a>がブロック (量子論理ゲート) をより深く理解するのに役立つかもしれません。
+				  </p>
+
+				  <h2>Links</h2>
+
+				  <ul class="list-disc">
+					<li><a href="https://qniapp.net/" class="text-red-500">Qni</a> Quantum live-programming app that runs in your browser. <span class="block">Qni (キューニ): ブラウザで動く量子ライブプログラミング環境</span></li>
+					<li><a href="https://qniapp.github.io/qni/" class="text-red-500">Qni Tutorial</a> Quantum Computer Programming Tutorial for Beginners (in Japanese). <span class="block">Qni チュートリアル: 初心者向け量子コンピュータプログラミングチュートリアル</span></li>
+				  </ul>
+				</div>
+			  </div>
+
+			  <div class="hidden sm:block sm:w-1/3`">
+				<div class="flex flex-col justify-evenly">
+				  <img class="my-2" src="./qpu_vs_qpu.gif">
+				  <img class="my-2" src="./title.gif">
+				</div>
+			  </div>
 			</div>
-
-
-			<div class="flex flex-row flex-wrap justify-evenly">
-			  <img src="./qpu_vs_qpu.gif">
-			  <img src="./title.gif">
-			</div>
-
-			<h2>How to Play</h2>
-
-			<p>
-			  QuantAttack is a match-2 type action puzzle game. Blocks are cleared by lining up two blocks of the same type vertically.
-			</p>
-
-			<p>
-			  QuantAttack は「マッチ2」タイプのアクションパズルゲームです。同じ種類のブロックを縦に2つ並べることでブロックを消せます。
-			</p>
-
-			<img src="./HH.png" class="max-w-full h-auto mx-auto">
-
-			<p>
-			  While the basic rules are this simple, QuantAttack introduces a fresh twist on block-clearing puzzlers. Some blocks are unique, and players must discover hidden patterns to clear them.
-			</p>
-
-			<p>
-			  基本的なルールはこのようにシンプルですが、QuantAttack はマッチパズルの世界に新しい要素を追加します。いくつかの特殊なブロックを消すためには、隠されたパターンを発見しなければなりません。
-			</p>
-
-			<img src="./cnots.png" class="max-w-full h-auto mx-auto">
-
-			<p>
-			  There are more than 40 patterns of such block combinations, and finding and mastering them is the fastest way to improve.
-			</p>
-
-			<p>
-			  隠された組み合わせは 40 パターン以上あり、それらを見つけて使いこなすことが上達への早道です。
-			</p>
-
-			<div class="inline-flex items-center justify-center w-full">
-			  <hr class="w-64 h-px my-8 bg-gray-200 border-0">
-			  <span style="background-color:#222" class="absolute px-3 font-medium text-white -translate-x-1/2 left-1/2">HINT</span>
-			</div>
-
-			<p>
-			  These secret patterns are based on the rules of quantum mechanics: each block is a quantum computer instruction (quantum logic gate), which works exactly like an actual quantum computer instruction.
-			</p>
-
-			<p>
-			  これらの秘密のパターンは、量子力学のルールに基づいています。各ブロックは量子コンピュータの命令 (量子論理ゲート) であり、実際の量子コンピュータの命令と全く同じ働きをします。
-			</p>
-
-			<img src="./XX_I.png" class="max-w-full h-auto mx-auto">
-
-			<p>
-			  <a href="https://en.wikipedia.org/wiki/Quantum_logic_gate" class="text-red-500">This article</a> on Wikipedia might help you get a better handle on the blocks.
-			</p>
-
-			<p>
-			  ウィキペディアの<a href="https://en.wikipedia.org/wiki/Quantum_logic_gate" class="text-red-500">この記事</a>がブロック (量子論理ゲート) をより深く理解するのに役立つかもしれません。
-			</p>
-
-			<h2>Links</h2>
-
-			<ul class="list-disc">
-			  <li><a href="https://qniapp.net/" class="text-red-500">Qni</a> Quantum live-programming app that runs in your browser. <span class="block">Qni (キューニ): ブラウザで動く量子ライブプログラミング環境</span></li>
-			  <li><a href="https://qniapp.github.io/qni/" class="text-red-500">Qni Tutorial</a> Quantum Computer Programming Tutorial for Beginners (in Japanese). <span class="block">Qni チュートリアル: 初心者向け量子コンピュータプログラミングチュートリアル</span></li>
-			</ul>
 		  </article>
 		</div>
 	  </div>
