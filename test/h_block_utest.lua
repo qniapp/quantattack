@@ -38,9 +38,9 @@ describe('h_block', function()
     end)
   end)
 
-  describe("is_match", function()
+  describe(".state", function()
     it("should return false", function()
-      assert.is_false(h:is_match())
+      assert.is_false(h.state == "match")
     end)
   end)
 

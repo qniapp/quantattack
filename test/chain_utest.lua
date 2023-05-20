@@ -169,8 +169,8 @@ describe('連鎖 (chain)', function()
 
     -- YY がマッチ
     board:update()
-    assert.is_true(board:block_at(2, 2):is_match())
-    assert.is_true(board:block_at(2, 1):is_match())
+    assert.is_true(board:block_at(2, 2).state == "match")
+    assert.is_true(board:block_at(2, 1).state == "match")
 
     -- 全部で 2 連鎖
     assert.are_equal(2, board._chain_count["1,2"])

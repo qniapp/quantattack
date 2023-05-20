@@ -129,7 +129,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
           for chainable_y = y + dy + 1, #blocks do
             local block_to_fall = blocks[chainable_y][x + dx]
             if block_to_fall.type ~= "i" then
-              if block_to_fall:is_match() then
+              if block_to_fall.state == "match" then
                 goto next_reduction
               end
               block_to_fall.chain_id = chain_id
@@ -158,7 +158,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
           local adjacent_block = blocks[adj_y][adj_x]
 
-          if not adjacent_block:is_match() then
+          if adjacent_block.state ~= "match" then
             return false
           end
 
@@ -1102,7 +1102,7 @@ function board_class.observable_update(_ENV, block, old_state)
     _reduce_cache = {}
   end
 
-  if not (block:is_swapping() or block:is_match()) then
+  if not (block:is_swapping() or block.state == "match") then
     for i = y, #blocks do
       _is_block_fallable_cache[i] = {}
     end

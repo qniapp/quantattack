@@ -33,15 +33,11 @@ function block_class._init(_ENV, _type, _span, _height)
 end
 
 function block_class.is_fallable(_ENV)
-  return not (type == "i" or type == "?" or is_swapping(_ENV) or is_freeze(_ENV) or is_match(_ENV))
+  return not (type == "i" or type == "?" or is_swapping(_ENV) or is_freeze(_ENV) or state == "match")
 end
 
 function block_class.is_reducible(_ENV)
   return type ~= "i" and type ~= "?" and state == "idle"
-end
-
-function block_class:is_match()
-  return self.state == "match"
 end
 
 -- おじゃまブロックが小さいブロックに分解した後の硬直中かどうか
@@ -112,7 +108,7 @@ function block_class.update(_ENV)
     else
       change_state(_ENV, "idle")
     end
-  elseif is_match(_ENV) then
+  elseif state == "match" then
     if _tick_match <= block_match_animation_frame_count + _match_index * block_match_delay_per_block then
       _tick_match = _tick_match + 1
     else
@@ -150,7 +146,7 @@ function block_class:render(screen_x, screen_y, screen_other_x)
 
     if state == "idle" and _timer_landing > 0 then
       sprite = sprite_set.landing[_timer_landing]
-    elseif is_match(_ENV) then
+    elseif state == "match" then
       local sequence = sprite_set.match
       sprite = _tick_match <= block_match_delay_per_block and sequence[_tick_match] or sequence[#sequence]
     elseif state == "over" then
@@ -166,7 +162,7 @@ function block_class:render(screen_x, screen_y, screen_other_x)
         screen_y + 3,
         screen_other_x + 3,
         screen_y + 3,
-        is_match(_ENV) and 13 or 10
+        (state == "match") and 13 or 10
       )
     end
   end

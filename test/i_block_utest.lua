@@ -44,9 +44,9 @@ describe('i_block', function()
     end)
   end)
 
-  describe("is_match", function()
+  describe(".state", function()
     it("should return false", function()
-      assert.is_false(i:is_match())
+      assert.is_false(i.state == "match")
     end)
   end)
 
