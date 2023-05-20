@@ -33,9 +33,9 @@ describe('swap_block', function()
     end)
   end)
 
-  describe("is_falling", function()
+  describe(".state", function()
     it("should return false", function()
-      assert.is_false(swap:is_falling())
+      assert.is_false(swap.state == "falling")
     end)
   end)
 

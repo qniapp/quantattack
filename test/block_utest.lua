@@ -116,7 +116,7 @@ describe('block', function()
     it('should transition its state to falling', function()
       block:fall()
 
-      assert.is_true(block:is_falling())
+      assert.is_true(block.state == "falling")
     end)
   end)
 

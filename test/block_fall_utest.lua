@@ -39,7 +39,7 @@ describe('ブロックの落下', function()
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(block:is_falling())
+      assert.is_true(block.state == "falling")
       assert.are_equal("h", board:block_at(1, 1).type)
     end)
 
@@ -98,8 +98,8 @@ describe('ブロックの落下', function()
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(board:block_at(1, 2):is_falling())
-      assert.is_true(board:block_at(1, 1):is_falling())
+      assert.is_true(board:block_at(1, 2).state == "falling")
+      assert.is_true(board:block_at(1, 1).state == "falling")
 
       assert.are_equal("h", board:block_at(1, 2).type)
       assert.are_equal("x", board:block_at(1, 1).type)
@@ -144,8 +144,8 @@ describe('ブロックの落下', function()
 
       board:update()
 
-      assert.is_true(control:is_falling())
-      assert.is_true(cnot_x:is_falling())
+      assert.is_true(control.state == "falling")
+      assert.is_true(cnot_x.state == "falling")
     end)
 
     it("1 フレームで 1 ブロック落下する", function()
@@ -160,8 +160,8 @@ describe('ブロックの落下', function()
 
       board:update()
 
-      assert.is_true(control:is_falling())
-      assert.is_true(cnot_x:is_falling())
+      assert.is_true(control.state == "falling")
+      assert.is_true(cnot_x.state == "falling")
       assert.are_equal(control, board:block_at(1, 1))
       assert.are_equal(cnot_x, board:block_at(2, 1))
     end)
@@ -204,8 +204,8 @@ describe('ブロックの落下', function()
 
       board:update()
 
-      assert.is_true(swap_left:is_falling())
-      assert.is_true(swap_right:is_falling())
+      assert.is_true(swap_left.state == "falling")
+      assert.is_true(swap_right.state == "falling")
     end)
 
     it("1 フレームで 1 ブロック落下する", function()
@@ -220,8 +220,8 @@ describe('ブロックの落下', function()
 
       board:update()
 
-      assert.is_true(swap_left:is_falling())
-      assert.is_true(swap_right:is_falling())
+      assert.is_true(swap_left.state == "falling")
+      assert.is_true(swap_right.state == "falling")
       assert.are_equal(swap_left, board:block_at(1, 1))
       assert.are_equal(swap_right, board:block_at(2, 1))
     end)
@@ -293,7 +293,7 @@ describe('ブロックの落下', function()
 
       board:update()
 
-      assert.is_true(garbage:is_falling())
+      assert.is_true(garbage.state == "falling")
     end)
 
     it("1 フレームで 1 ブロック落下する", function()
@@ -307,7 +307,7 @@ describe('ブロックの落下', function()
 
       board:update()
 
-      assert.is_true(garbage:is_falling())
+      assert.is_true(garbage.state == "falling")
       assert.are_equal(garbage, board:block_at(1, 1))
     end)
 

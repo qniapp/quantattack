@@ -40,10 +40,6 @@ function block_class.is_fallable(_ENV)
   return not (type == "i" or type == "?" or is_swapping(_ENV) or is_freeze(_ENV) or is_match(_ENV))
 end
 
-function block_class:is_falling()
-  return self.state == "falling"
-end
-
 function block_class.is_reducible(_ENV)
   return type ~= "i" and type ~= "?" and state == "idle"
 end
@@ -70,7 +66,7 @@ function block_class:_is_swapping_with_right()
 end
 
 function block_class:is_swappable_state()
-  return self.state == "idle" or self:is_falling()
+  return self.state == "idle" or self.state == "falling"
 end
 
 function block_class:is_empty()
@@ -96,7 +92,7 @@ function block_class:fall()
   assert(self:is_fallable(), "block " .. self.type .. "(" .. self.x .. ", " .. self.y .. ")")
   --#endif
 
-  if self:is_falling() then
+  if self.state == "falling" then
     return
   end
 
@@ -212,7 +208,7 @@ end
 
 function block_class.change_state(_ENV, new_state)
   _timer_landing, _tick_swap =
-      is_falling(_ENV) and 12 or 0, 0
+    (state == "falling") and 12 or 0, 0
 
   local old_state = state
   state = new_state

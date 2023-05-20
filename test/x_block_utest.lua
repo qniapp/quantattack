@@ -32,9 +32,9 @@ describe('x_block', function()
     end)
   end)
 
-  describe(":is_falling", function()
+  describe(".state", function()
     it("should return false", function()
-      assert.is_false(x:is_falling())
+      assert.is_false(x.state == "falling")
     end)
   end)
 

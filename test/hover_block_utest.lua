@@ -40,7 +40,7 @@ describe('ブロックの hover 状態', function()
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(block:is_falling())
+      assert.is_true(block.state == "falling")
     end)
   end)
 
@@ -80,8 +80,8 @@ describe('ブロックの hover 状態', function()
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(board:block_at(1, 2):is_falling())
-      assert.is_true(board:block_at(1, 1):is_falling())
+      assert.is_true(board:block_at(1, 2).state == "falling")
+      assert.is_true(board:block_at(1, 1).state == "falling")
     end)
   end)
 
@@ -120,8 +120,8 @@ describe('ブロックの hover 状態', function()
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(control:is_falling())
-      assert.is_true(cnot_x:is_falling())
+      assert.is_true(control.state == "falling")
+      assert.is_true(cnot_x.state == "falling")
     end)
   end)
 
@@ -160,8 +160,8 @@ describe('ブロックの hover 状態', function()
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(swap_left:is_falling())
-      assert.is_true(swap_right:is_falling())
+      assert.is_true(swap_left.state == "falling")
+      assert.is_true(swap_right.state == "falling")
     end)
   end)
 
@@ -193,7 +193,7 @@ describe('ブロックの hover 状態', function()
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(garbage:is_falling())
+      assert.is_true(garbage.state == "falling")
     end)
   end)
 
@@ -229,8 +229,8 @@ describe('ブロックの hover 状態', function()
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(garbage1:is_falling())
-      assert.is_true(garbage2:is_falling())
+      assert.is_true(garbage1.state == "falling")
+      assert.is_true(garbage2.state == "falling")
     end)
   end)
 

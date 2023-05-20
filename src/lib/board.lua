@@ -749,7 +749,7 @@ function board_class._update_game(_ENV, game, player, other_board)
         end
 
         -- 落下できるブロックをホバー状態にする
-        if not block:is_falling() and
+        if block.state ~= "falling" and
             not block:is_hover() and
             is_block_fallable(_ENV, x, y) then
           if not block.other_x then -- 単体ブロックとおじゃまゲート
@@ -797,7 +797,7 @@ function board_class._update_game(_ENV, game, player, other_board)
           block.chain_id = nil
         end
 
-        if block:is_falling() then
+        if block.state == "falling" then
           if not is_block_fallable(_ENV, x, y) then
             if block.type == "g" then
               bounce(_ENV)
@@ -987,7 +987,7 @@ function board_class._is_block_fallable_nocache(_ENV, x, y)
   end
 
   for_all_nonempty_blocks_below(_ENV, x, y, function(each)
-    if not each:is_falling() then
+    if each.state ~= "falling" then
       fallable = false
     end
   end)

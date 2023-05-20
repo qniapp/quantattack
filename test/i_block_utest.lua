@@ -20,9 +20,9 @@ describe('i_block', function()
     end)
   end)
 
-  describe("is_falling", function()
+  describe(".state", function()
     it("should return false", function()
-      assert.is_false(i:is_falling())
+      assert.is_false(i.state == "falling")
     end)
   end)
 
