@@ -9,7 +9,7 @@ describe('i_block', function()
   end)
 
   describe(".state", function()
-    it("should return true", function()
+    it('should be "idle"', function()
       assert.is_true(i.state == "idle")
     end)
   end)
