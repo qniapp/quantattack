@@ -1026,7 +1026,7 @@ function board_class.observable_update(_ENV, block, old_state)
     local right_block = blocks[y][new_x]
 
     --#if assert
-    assert(right_block:_is_swapping_with_left(), right_block.state)
+    assert(right_block.state == "swapping_with_left", right_block.state)
     --#endif
 
     if right_block.type ~= "i" then

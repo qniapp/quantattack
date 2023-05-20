@@ -50,15 +50,7 @@ function block_class:is_freeze()
 end
 
 function block_class:is_swapping()
-  return self:_is_swapping_with_right() or self:_is_swapping_with_left()
-end
-
-function block_class:_is_swapping_with_left()
-  return self.state == "swapping_with_left"
-end
-
-function block_class:_is_swapping_with_right()
-  return self.state == "swapping_with_right"
+  return self.state == "swapping_with_right" or self.state == "swapping_with_left"
 end
 
 function block_class:is_swappable_state()
@@ -152,7 +144,7 @@ function block_class:render(screen_x, screen_y, screen_other_x)
     end
 
     swap_screen_dx = (_tick_swap or 0) * (8 / block_swap_animation_frame_count)
-    if _is_swapping_with_left(_ENV) then
+    if state == "swapping_with_left" then
       swap_screen_dx = -swap_screen_dx
     end
 
