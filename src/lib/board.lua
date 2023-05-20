@@ -416,7 +416,7 @@ function board_class.is_busy(_ENV)
   for x = 1, cols do
     for y = 1, #blocks do
       local block = blocks[y][x]
-      if not (block.state == "idle" or block:is_swapping()) then
+      if not (block.state == "idle" or block.state == "swap") then
         return true
       end
     end
@@ -1021,12 +1021,12 @@ end
 function board_class.observable_update(_ENV, block, old_state)
   local x, y = block.x, block.y
 
-  if old_state == "swapping_with_right" and block.state == "idle" then
+  if old_state == "swap" and block.swap_direction == "right" and block.state == "idle" then
     local new_x = x + 1
     local right_block = blocks[y][new_x]
 
     --#if assert
-    assert(right_block.state == "swapping_with_left", right_block.state)
+    assert(right_block.state == "swap" and right_block.swap_direction == "left", right_block.state)
     --#endif
 
     if right_block.type ~= "i" then
@@ -1102,7 +1102,7 @@ function board_class.observable_update(_ENV, block, old_state)
     _reduce_cache = {}
   end
 
-  if not (block:is_swapping() or block.state == "match") then
+  if not (block.state == "swap" or block.state == "match") then
     for i = y, #blocks do
       _is_block_fallable_cache[i] = {}
     end

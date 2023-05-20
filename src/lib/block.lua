@@ -33,15 +33,11 @@ function block_class._init(_ENV, _type, _span, _height)
 end
 
 function block_class.is_fallable(_ENV)
-  return not (type == "i" or type == "?" or is_swapping(_ENV) or state == "freeze" or state == "match")
+  return not (type == "i" or type == "?" or state == "swap" or state == "freeze" or state == "match")
 end
 
 function block_class.is_reducible(_ENV)
   return type ~= "i" and type ~= "?" and state == "idle"
-end
-
-function block_class:is_swapping()
-  return self.state == "swapping_with_right" or self.state == "swapping_with_left"
 end
 
 function block_class:is_swappable_state()
@@ -49,7 +45,7 @@ function block_class:is_swappable_state()
 end
 
 function block_class:is_empty()
-  return self.type == "i" and not self:is_swapping()
+  return self.type == "i" and self.state ~= "swap"
 end
 
 function block_class.is_single_block(_ENV)
@@ -58,7 +54,8 @@ end
 
 function block_class:swap_with(direction)
   self.chain_id = nil
-  self:change_state("swapping_with_" .. direction)
+  self.swap_direction = direction
+  self:change_state("swap")
 end
 
 function block_class:hover(timer)
@@ -90,7 +87,7 @@ function block_class.update(_ENV)
     if _timer_landing > 0 then
       _timer_landing = _timer_landing - 1
     end
-  elseif is_swapping(_ENV) then
+  elseif state == "swap" then
     if _tick_swap < block_swap_animation_frame_count then
       _tick_swap = _tick_swap + 1
     else
@@ -135,7 +132,7 @@ function block_class:render(screen_x, screen_y, screen_other_x)
     end
 
     swap_screen_dx = (_tick_swap or 0) * (8 / block_swap_animation_frame_count)
-    if state == "swapping_with_left" then
+    if state == "swap" and swap_direction == "left" then
       swap_screen_dx = -swap_screen_dx
     end
 
@@ -205,8 +202,6 @@ local type_string = {
 
 local state_string = {
   idle = " ",
-  swapping_with_left = "<",
-  swapping_with_right = ">",
   hover = "^",
   falling = "|",
   match = "*",
@@ -214,7 +209,17 @@ local state_string = {
 }
 
 function block_class:_tostring()
-  return (type_string[self.type] or self.type:upper()) .. state_string[self.state]
+  if self.state == "swap" then
+    if self.swap_direction == "left" then
+      return (type_string[self.type] or self.type:upper()) .. "<"
+    elseif self.swap_direction == "right" then
+      return (type_string[self.type] or self.type:upper()) .. ">"
+    else
+      assert(false, "Invalid state")
+    end
+  else
+    return (type_string[self.type] or self.type:upper()) .. state_string[self.state]
+  end
 end
 
 --#endif

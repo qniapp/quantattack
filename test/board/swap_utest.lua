@@ -24,7 +24,7 @@ describe('board', function()
       it('ブロックの状態を swapping にする', function()
         board:swap(1, 1)
 
-        assert.is_true(board:block_at(1, 1):is_swapping())
+        assert.is_true(board:block_at(1, 1).state == "swap")
       end)
 
       --  TODO: フレーム数のテストは別のテストに分離
@@ -33,18 +33,18 @@ describe('board', function()
 
         -- フレーム 1: swap 開始
         board:update()
-        assert.is_true(board:block_at(1, 1):is_swapping())
-        assert.is_true(board:block_at(2, 1):is_swapping())
+        assert.is_true(board:block_at(1, 1).state == "swap")
+        assert.is_true(board:block_at(2, 1).state == "swap")
 
         -- フレーム 2
         board:update()
-        assert.is_true(board:block_at(1, 1):is_swapping())
-        assert.is_true(board:block_at(2, 1):is_swapping())
+        assert.is_true(board:block_at(1, 1).state == "swap")
+        assert.is_true(board:block_at(2, 1).state == "swap")
 
         -- フレーム 3: swap 終了
         board:update()
-        assert.is_true(board:block_at(1, 1):is_swapping())
-        assert.is_true(board:block_at(2, 1):is_swapping())
+        assert.is_true(board:block_at(1, 1).state == "swap")
+        assert.is_true(board:block_at(2, 1).state == "swap")
 
         -- フレーム 4: idle 状態に遷移
         board:update()

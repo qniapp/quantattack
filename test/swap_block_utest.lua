@@ -27,9 +27,9 @@ describe('swap_block', function()
     end)
   end)
 
-  describe("is_swapping", function()
+  describe(".state", function()
     it("should return false", function()
-      assert.is_false(swap:is_swapping())
+      assert.is_false(swap.state == "swap")
     end)
   end)
 

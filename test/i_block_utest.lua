@@ -32,9 +32,9 @@ describe('i_block', function()
     end)
   end)
 
-  describe("is_swapping", function()
+  describe(".state", function()
     it("should return false", function()
-      assert.is_false(i:is_swapping())
+      assert.is_false(i.state == "swap")
     end)
   end)
 
