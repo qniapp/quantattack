@@ -8,9 +8,9 @@ describe('i_block', function()
     i = block_class("i")
   end)
 
-  describe("_state", function()
+  describe("state", function()
     it("should return true", function()
-      assert.is_true(i._state == "idle")
+      assert.is_true(i.state == "idle")
     end)
   end)
 

@@ -28,12 +28,12 @@ block_class.sprites = transform({
 end)
 
 function block_class._init(_ENV, _type, _span, _height)
-  type, sprite_set, span, height, _state, _timer_landing =
+  type, sprite_set, span, height, state, _timer_landing =
       _type, sprites[_type], _span or 1, _height or 1, "idle", 0
 end
 
 function block_class:is_hover()
-  return self._state == "hover"
+  return self.state == "hover"
 end
 
 function block_class.is_fallable(_ENV)
@@ -41,20 +41,20 @@ function block_class.is_fallable(_ENV)
 end
 
 function block_class:is_falling()
-  return self._state == "falling"
+  return self.state == "falling"
 end
 
 function block_class.is_reducible(_ENV)
-  return type ~= "i" and type ~= "?" and _state == "idle"
+  return type ~= "i" and type ~= "?" and state == "idle"
 end
 
 function block_class:is_match()
-  return self._state == "match"
+  return self.state == "match"
 end
 
 -- おじゃまブロックが小さいブロックに分解した後の硬直中かどうか
 function block_class:is_freeze()
-  return self._state == "freeze"
+  return self.state == "freeze"
 end
 
 function block_class:is_swapping()
@@ -62,15 +62,15 @@ function block_class:is_swapping()
 end
 
 function block_class:_is_swapping_with_left()
-  return self._state == "swapping_with_left"
+  return self.state == "swapping_with_left"
 end
 
 function block_class:_is_swapping_with_right()
-  return self._state == "swapping_with_right"
+  return self.state == "swapping_with_right"
 end
 
 function block_class:is_swappable_state()
-  return self._state == "idle" or self:is_falling()
+  return self.state == "idle" or self:is_falling()
 end
 
 function block_class:is_empty()
@@ -111,7 +111,7 @@ function block_class.replace_with(_ENV, other, match_index, _chain_id, garbage_s
 end
 
 function block_class.update(_ENV)
-  if _state == "idle" then
+  if state == "idle" then
     if _timer_landing > 0 then
       _timer_landing = _timer_landing - 1
     end
@@ -164,12 +164,12 @@ function block_class:render(screen_x, screen_y, screen_other_x)
       swap_screen_dx = -swap_screen_dx
     end
 
-    if _state == "idle" and _timer_landing > 0 then
+    if state == "idle" and _timer_landing > 0 then
       sprite = sprite_set.landing[_timer_landing]
     elseif is_match(_ENV) then
       local sequence = sprite_set.match
       sprite = _tick_match <= block_match_delay_per_block and sequence[_tick_match] or sequence[#sequence]
-    elseif _state == "over" then
+    elseif state == "over" then
       sprite = sprite_set.match[#sprite_set.match]
     else
       sprite = sprite_set.default
@@ -192,7 +192,7 @@ function block_class:render(screen_x, screen_y, screen_other_x)
     pal(13, self.body_color)
   end
 
-  if self._state == "over" then
+  if self.state == "over" then
     shake_dx, shake_dy = rnd(2) - 1, rnd(2) - 1
     pal(6, 9)
     pal(7, 1)
@@ -214,8 +214,8 @@ function block_class.change_state(_ENV, new_state)
   _timer_landing, _tick_swap =
       is_falling(_ENV) and 12 or 0, 0
 
-  local old_state = _state
-  _state = new_state
+  local old_state = state
+  state = new_state
 
   observer:observable_update(_ENV, old_state)
 end
@@ -239,7 +239,7 @@ local state_string = {
 }
 
 function block_class:_tostring()
-  return (type_string[self.type] or self.type:upper()) .. state_string[self._state]
+  return (type_string[self.type] or self.type:upper()) .. state_string[self.state]
 end
 
 --#endif
@@ -263,11 +263,11 @@ function garbage_block(_span, _height, _color, _chain_id, _tick_fall)
           screen_y + (1 - height) * 8,
           screen_x + span * 8 - 2,
           screen_y + 6,
-          _state ~= "over" and body_color or 9
+          state ~= "over" and body_color or 9
 
       _render_box(screen_x, y0 + 1, x1, y1 + 1, 5)                                                    -- 影
       _render_box(screen_x, y0, x1, y1, _body_color, _body_color)                                     -- 本体
-      _render_box(screen_x + 1, y0 + 1, x1 - 1, y1 - 1, _state ~= "over" and inner_border_color or 1) -- 内側の線
+      _render_box(screen_x + 1, y0 + 1, x1 - 1, y1 - 1, state ~= "over" and inner_border_color or 1) -- 内側の線
     end
   }, { __index = block_class("g", _span or 6, _height) })
 

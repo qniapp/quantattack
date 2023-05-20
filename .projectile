@@ -1,4 +1,5 @@
 -backup
 -build
 -intermediate
+-pico-boots
 -profiler.log

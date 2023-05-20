@@ -48,8 +48,8 @@ describe('board', function()
 
         -- フレーム 4: idle 状態に遷移
         board:update()
-        assert.is_true(board:block_at(1, 1)._state == "idle")
-        assert.is_true(board:block_at(2, 1)._state == "idle")
+        assert.is_true(board:block_at(1, 1).state == "idle")
+        assert.is_true(board:block_at(2, 1).state == "idle")
       end)
 
       it("ブロックを入れ換える", function()
@@ -181,7 +181,7 @@ describe('board', function()
       before_each(function()
         h_gate = block_class("h")
         board:put(2, 1, h_gate)
-        h_gate._state = "match"
+        h_gate.state = "match"
       end)
 
       it("左のブロックが match 状態の場合、swap は false を返す", function()
@@ -199,7 +199,7 @@ describe('board', function()
       before_each(function()
         h_gate = block_class("h")
         board:put(2, 16, h_gate)
-        h_gate._state = "freeze"
+        h_gate.state = "freeze"
       end)
 
       it("左のブロックが freeze 状態の場合、swap は false を返す", function()

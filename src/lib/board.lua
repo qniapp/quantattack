@@ -147,7 +147,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
     local matched_garbage_block_count = 0
 
     for _, each in pairs(_garbage_blocks) do
-      if each._state == "idle" then
+      if each.state == "idle" then
         local x, y, garbage_span, garbage_height = each.x, each.y, each.span, each.height
 
         -- 隣接ブロック adj_x, adj_y がマッチ中であるかを返す。
@@ -416,7 +416,7 @@ function board_class.is_busy(_ENV)
   for x = 1, cols do
     for y = 1, #blocks do
       local block = blocks[y][x]
-      if not (block._state == "idle" or block:is_swapping()) then
+      if not (block.state == "idle" or block:is_swapping()) then
         return true
       end
     end
@@ -593,7 +593,7 @@ function board_class.update(_ENV, game, player, other_board)
       for x = 1, cols do
         for y = 0, #blocks do
           if tick_over == 0 then
-            blocks[y][x]._state = "over"
+            blocks[y][x].state = "over"
           elseif tick_over == 20 and not done_over_fx then
             blocks[y][x] = block_class("i")
             particles:create(
@@ -793,7 +793,7 @@ function board_class._update_game(_ENV, game, player, other_board)
           top_block_y = y
         end
 
-        if block._state == "idle" and block.chain_id and blocks[y - 1][x].chain_id == nil then
+        if block.state == "idle" and block.chain_id and blocks[y - 1][x].chain_id == nil then
           block.chain_id = nil
         end
 
@@ -822,7 +822,7 @@ function board_class._update_game(_ENV, game, player, other_board)
                 put(_ENV, x, y - 1, block)
 
                 local other_block = blocks[y][block.other_x]
-                other_block._state = "falling"
+                other_block.state = "falling"
                 remove_block(_ENV, block.other_x, y)
                 put(_ENV, block.other_x, y - 1, other_block)
               end
@@ -1021,12 +1021,12 @@ end
 function board_class.observable_update(_ENV, block, old_state)
   local x, y = block.x, block.y
 
-  if old_state == "swapping_with_right" and block._state == "idle" then
+  if old_state == "swapping_with_right" and block.state == "idle" then
     local new_x = x + 1
     local right_block = blocks[y][new_x]
 
     --#if assert
-    assert(right_block:_is_swapping_with_left(), right_block._state)
+    assert(right_block:_is_swapping_with_left(), right_block.state)
     --#endif
 
     if right_block.type ~= "i" then
@@ -1066,7 +1066,7 @@ function board_class.observable_update(_ENV, block, old_state)
     block:fall()
   end
 
-  if old_state == "match" and block._state == "idle" then
+  if old_state == "match" and block.state == "idle" then
     sfx(11, -1, (block._match_index % 6 - 1) * 4, 4)
     put(_ENV, x, y, block.new_block)
     particles:create(

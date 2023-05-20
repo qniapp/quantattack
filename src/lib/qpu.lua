@@ -5,7 +5,7 @@ local function _is_empty(board, block_x, block_y)
     return false
   end
 
-  return board.blocks[block_y][block_x]._state == "idle" and board:is_block_empty(block_x, block_y)
+  return board.blocks[block_y][block_x].state == "idle" and board:is_block_empty(block_x, block_y)
 end
 
 local function _is_match(board, block_x, block_y, block)
@@ -14,7 +14,7 @@ local function _is_match(board, block_x, block_y, block)
   end
 
   local other_block = board.blocks[block_y][block_x]
-  return other_block.type == block.type and other_block._state == "idle"
+  return other_block.type == block.type and other_block.state == "idle"
 end
 
 local function _is_swappable(board, block_x, block_y)
@@ -23,7 +23,7 @@ local function _is_swappable(board, block_x, block_y)
   end
 
   local block = board.blocks[block_y][block_x]
-  return block._state == "idle" and (board:is_block_empty(block_x, block_y) or block:is_single_block())
+  return block.state == "idle" and (board:is_block_empty(block_x, block_y) or block:is_single_block())
 end
 
 -- singleton
