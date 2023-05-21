@@ -963,7 +963,7 @@ function board_class.propagatable_hover_timer(_ENV, x, y)
   -- y が最下段、または next block の場合、
   -- またはブロックが落下可能でない状態の場合、
   -- nil を返す
-  if y < 2 or not block:is_fallable() then
+  if y < 2 or block:is_not_fallable() then
     return nil
   end
 
@@ -984,7 +984,7 @@ end
 function board_class._is_block_fallable_nocache(_ENV, x, y)
   local block, fallable = blocks[y][x], true
 
-  if y < 2 or not block:is_fallable() then
+  if y < 2 or block:is_not_fallable() then
     return false
   end
 

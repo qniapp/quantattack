@@ -38,9 +38,9 @@ describe('h_block', function()
     end)
   end)
 
-  describe("is_fallable()", function()
-    it("should return true", function()
-      assert.is_true(h:is_fallable())
+  describe("is_not_fallable()", function()
+    it("should return false", function()
+      assert.is_false(h:is_not_fallable())
     end)
   end)
 

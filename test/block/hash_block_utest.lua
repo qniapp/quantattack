@@ -38,9 +38,9 @@ describe('hash_block', function()
     end)
   end)
 
-  describe("is_fallable()", function()
-    it("should return true", function()
-      assert.is_true(hash:is_fallable())
+  describe("is_not_fallable()", function()
+    it("should return false", function()
+      assert.is_false(hash:is_not_fallable())
     end)
   end)
 

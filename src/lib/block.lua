@@ -34,8 +34,11 @@ function block_class._init(_ENV, _type, _span, _height)
       _type, "idle", _span or 1, _height or 1, sprites[_type], 0
 end
 
-function block_class.is_fallable(_ENV)
-  return type ~= "i" and type ~= "?" and state ~= "swap" and state ~= "freeze" and state ~= "match"
+-- NOTE: board クラスでは「ブロックが落とせない状態か？」という判定しか行わないため、
+-- not block:is_fallable() ではなく block:is_not_fallable() と書けるようにする。
+-- これによって "not" のトークンを削減
+function block_class.is_not_fallable(_ENV)
+  return type == "i" or type == "?" or state == "swap" or state == "freeze" or state == "match"
 end
 
 function block_class.is_reducible(_ENV)
@@ -59,7 +62,7 @@ end
 
 function block_class:fall()
   --#if assert
-  assert(self:is_fallable(), "block " .. self.type)
+  assert(not self:is_not_fallable(), "block " .. self.type)
   assert(self.x, "x is not set")
   assert(self.y, "y is not set")
   --#endif

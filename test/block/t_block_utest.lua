@@ -38,9 +38,9 @@ describe('t_block', function()
     end)
   end)
 
-  describe("is_fallable()", function()
-    it("should return true", function()
-      assert.is_true(t:is_fallable())
+  describe("is_not_fallable()", function()
+    it("should return false", function()
+      assert.is_false(t:is_not_fallable())
     end)
   end)
 
