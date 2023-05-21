@@ -218,7 +218,7 @@ function game:update()
         self:_auto_raise(each)
       end
 
-      if board.contains_garbage_match_block then
+      if board.contains_q_block then
         ripple.slow = true
       end
     end

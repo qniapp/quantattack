@@ -33,7 +33,7 @@ function board_class.init(_ENV, _cols)
       {}, 0, 600, 0, 0
 
   -- 各種ブロックの取得
-  blocks, reducible_blocks, _garbage_blocks, contains_garbage_match_block = {}, {}, {}, false
+  blocks, reducible_blocks, _garbage_blocks, contains_q_block = {}, {}, {}, false
 
   tick, steps, pending_garbage_blocks, _flash_col_timer, _flash_col_colors, _check_hover_flag, _reduce_cache,
   _is_block_fallable_cache =
@@ -216,9 +216,9 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         for dx = 0, garbage_span - 1 do
           for dy = 0, garbage_height - 1 do
             -- 1. おじゃまブロック全体に ? ブロックをしきつめる
-            garbage_match_block = block_class("?")
-            garbage_match_block.body_color = each.body_color
-            put(_ENV, x + dx, y + dy, garbage_match_block)
+            q_block = block_class("?")
+            q_block.body_color = each.body_color
+            put(_ENV, x + dx, y + dy, q_block)
 
             -- 2. 以下のようにブロックを入れ換える
             --
@@ -735,7 +735,7 @@ function board_class._update_game(_ENV, game, player, other_board)
   --
   -- swap などのペアとなるブロックを正しく落とすために、
   -- 一番下の行から上に向かって順に処理
-  top_block_y, contains_garbage_match_block = 0, false
+  top_block_y, contains_q_block = 0, false
 
   for y = 1, #blocks do
     for x = 1, cols do
@@ -745,7 +745,7 @@ function board_class._update_game(_ENV, game, player, other_board)
 
       if block.type ~= "i" then
         if block.type == "?" then
-          contains_garbage_match_block = true
+          contains_q_block = true
         end
 
         -- 落下できるブロックをホバー状態にする

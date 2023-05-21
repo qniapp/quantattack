@@ -223,7 +223,7 @@ function game_class.update(_ENV)
       end
 
       -- もしどちらかの board でおじゃまブロックを分解中だった場合 "slow" にする
-      if board.contains_garbage_match_block then
+      if board.contains_q_block then
         ripple.slow = true
       end
 

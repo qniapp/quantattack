@@ -37,7 +37,3 @@ function swap_block(other_x)
   swap.other_x = other_x
   return swap
 end
-
-function garbage_match_block()
-  return block_class("?")
-end

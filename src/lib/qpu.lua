@@ -57,7 +57,7 @@ function qpu_class.update(_ENV)
     else
       return for_all_reducible_blocks(_ENV, _reduce_cnot) or
           for_all_reducible_blocks(_ENV, _flatten_block) or
-          board.contains_garbage_match_block or
+          board.contains_q_block or
           for_all_reducible_blocks(_ENV, _reduce_single_block)
     end
   end
