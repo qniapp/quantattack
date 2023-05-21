@@ -46,11 +46,6 @@ function block_class.is_empty(_ENV)
   return type == "i" and state ~= "swap"
 end
 
--- TODO: qpu.lua に移動
-function block_class.is_single_block(_ENV)
-  return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
-end
-
 function block_class:is_swappable_state()
   return self.state == "idle" or self.state == "falling"
 end
