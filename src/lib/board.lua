@@ -35,9 +35,9 @@ function board_class.init(_ENV, _cols)
   -- 各種ブロックの取得
   blocks, reducible_blocks, _garbage_blocks, contains_q_block = {}, {}, {}, false
 
-  tick, steps, pending_garbage_blocks, _flash_col_timer, _flash_col_colors, _check_hover_flag, _reduce_cache,
-  _is_block_fallable_cache =
-      0, 0, pending_garbage_blocks_class(), {}, split("1,1,1,1,1,1,5,5,5,5,5,13,13,7"), {}, {}, {}
+  tick, steps, pending_garbage_blocks, _flash_col_timer, _flash_col_colors, _check_hover_flag, cache_reduce,
+  cache_is_block_fallable, cache_is_empty =
+    0, 0, pending_garbage_blocks_class(), {}, split("1,1,1,1,1,1,5,5,5,5,5,13,13,7"), {}, {}, {}, {}
 
   for y = 0, rows do
     reducible_blocks[y], _check_hover_flag[y] = {}, {}
@@ -289,7 +289,7 @@ function board_class.reduce(_ENV, x, y, include_next_blocks)
   if include_next_blocks then
     return _reduce_nocache(_ENV, x, y, true)
   else
-    return _memoize(_ENV, _reduce_nocache, _reduce_cache, x, y)
+    return _memoize(_ENV, _reduce_nocache, cache_reduce, x, y)
   end
 end
 
@@ -865,9 +865,15 @@ function board_class._update_bounce(_ENV)
   end
 end
 
---- x, y が空かどうかを返す
+--- (x, y) が空かどうかを返す
 -- おじゃまユニタリと SWAP, CNOT ブロックも考慮する
+--
+-- NOTE: (x, y) がおじゃまユニタリや SWAP, CNOT の一部かどうかを判定する処理が重いためメモ化。
 function board_class.is_empty(_ENV, x, y)
+  return _memoize(_ENV, _is_empty_nocache, cache_is_empty, x, y)
+end
+
+function board_class._is_empty_nocache(_ENV, x, y)
   --#if assert
   assert(0 < x and x <= cols, "x = " .. x)
   assert(0 <= y, "y = " .. y)
@@ -876,12 +882,14 @@ function board_class.is_empty(_ENV, x, y)
   local block_xy = block_at(_ENV, x, y)
 
   return block_xy.type == "i" and block_xy.state ~= "swap" and -- (x, y) is empty
-      not (_is_part_of_garbage(_ENV, x, y) or
-      _is_part_of_cnot(_ENV, x, y) or
-      _is_part_of_swap(_ENV, x, y))
+      not (_garbage_head_block(_ENV, x, y) ~= nil or -- (x, y) is part of garbage
+           (_cnot_head_block(_ENV, x, y) ~= nil) or -- (x, y) is part of CNOT
+           (_swap_head_block(_ENV, x, y) ~= nil)) -- (x, y) is part of SWAP
 end
 
 -- x, y がおじゃまブロックの一部であるかどうかを返す
+--
+-- TODO: この関数をなくして _garbage_head_block(_ENV, x, y) ~= nil にインライン化する
 function board_class._is_part_of_garbage(_ENV, x, y)
   return _garbage_head_block(_ENV, x, y) ~= nil
 end
@@ -908,11 +916,6 @@ function board_class._garbage_head_block(_ENV, x, y)
   return nil
 end
 
--- x, y が CNOT の一部であるかどうかを返す
-function board_class._is_part_of_cnot(_ENV, x, y)
-  return _cnot_head_block(_ENV, x, y) ~= nil
-end
-
 -- x, y が CNOT の一部であった場合、
 -- CNOT 左端のブロック (control または cnot_x) を返す
 -- 一部でない場合は nil を返す
@@ -927,11 +930,6 @@ function board_class._cnot_head_block(_ENV, x, y)
 
   local block = blocks[y][x]
   return (block.type == "cnot_x" or block.type == "control") and block or nil
-end
-
--- x, y が SWAP ペアの一部であるかどうかを返す
-function board_class._is_part_of_swap(_ENV, x, y)
-  return _swap_head_block(_ENV, x, y) ~= nil
 end
 
 -- x, y が SWAP ペアの一部であった場合、
@@ -978,7 +976,7 @@ end
 
 -- ブロック x, y が x, y - 1 に落とせるかどうかを返す
 function board_class.is_block_fallable(_ENV, x, y)
-  return _memoize(_ENV, _is_block_fallable_nocache, _is_block_fallable_cache, x, y)
+  return _memoize(_ENV, _is_block_fallable_nocache, cache_is_block_fallable, x, y)
 end
 
 function board_class._is_block_fallable_nocache(_ENV, x, y)
@@ -1022,6 +1020,8 @@ end
 -- _changed フラグを立て各種キャッシュも更新・クリアする。
 function board_class.observable_update(_ENV, block, old_state)
   local x, y = block.x, block.y
+
+  cache_is_empty = {}
 
   if old_state == "swap" and block.swap_direction == "right" and block.state == "idle" then
     local new_x = x + 1
@@ -1115,12 +1115,12 @@ function board_class.observable_update(_ENV, block, old_state)
   _changed = true
 
   if block:is_reducible() then
-    _reduce_cache = {}
+    cache_reduce = {}
   end
 
   if not (block.state == "swap" or block.state == "match") then
     for i = y, #blocks do
-      _is_block_fallable_cache[i] = {}
+      cache_is_block_fallable[i] = {}
     end
   end
 end
