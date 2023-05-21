@@ -60,7 +60,7 @@ function board_class.put_random_blocks(_ENV)
       -- y = 0 (次のブロック) と、y = 1 .. 4 (下から 4 行) はブロックで埋める
       -- y >= 5 の行は確率的にブロックを置く
       if y < 5 or
-          (rnd(1) > 0.2 and (not is_block_empty(_ENV, x, y - 1))) then
+          (rnd(1) > 0.2 and (not is_empty(_ENV, x, y - 1))) then
         repeat
           put(_ENV, x, y, _random_single_block(_ENV))
         until #reduce(_ENV, x, y, true).to == 0
@@ -522,7 +522,7 @@ function board_class.insert_blocks_at_bottom(_ENV)
 
   -- 最下段の空いている部分に新しいブロックを置く
   for x = 1, cols do
-    if is_block_empty(_ENV, x, 0) then
+    if is_empty(_ENV, x, 0) then
       repeat
         put(_ENV, x, 0, _random_single_block(_ENV))
       until #reduce(_ENV, x, 1, true).to == 0
@@ -535,7 +535,7 @@ end
 function board_class.shift_all_blocks_up(_ENV)
   for y = #blocks, 0, -1 do
     for x = 1, cols do
-      if not is_block_empty(_ENV, x, y) then
+      if not is_empty(_ENV, x, y) then
         put(_ENV, x, y + 1, blocks[y][x])
         remove_block(_ENV, x, y)
       end
@@ -557,8 +557,8 @@ function board_class.swap(_ENV, x_left, y)
   if not (left_block:is_swappable_state() and right_block:is_swappable_state()) or
       (left_block.type == "#" or right_block.type == "#") or
       (_is_part_of_garbage(_ENV, x_left, y) or _is_part_of_garbage(_ENV, x_right, y)) or
-      (left_block.other_x and left_block.other_x < x_left and not is_block_empty(_ENV, x_right, y)) or
-      (not is_block_empty(_ENV, x_left, y) and right_block.other_x and x_right < right_block.other_x) then
+      (left_block.other_x and left_block.other_x < x_left and not is_empty(_ENV, x_right, y)) or
+      (not is_empty(_ENV, x_left, y) and right_block.other_x and x_right < right_block.other_x) then
     return false
   end
 
@@ -812,7 +812,7 @@ function board_class._update_game(_ENV, game, player, other_board)
               other_block:change_state("idle")
             end
           else
-            if is_block_empty(_ENV, x, y - 1) then
+            if is_empty(_ENV, x, y - 1) then
               -- 落下中のブロックをひとつ下に移動
               if not block.other_x then
                 remove_block(_ENV, x, y)
@@ -867,13 +867,15 @@ end
 
 --- x, y が空かどうかを返す
 -- おじゃまユニタリと SWAP, CNOT ブロックも考慮する
-function board_class.is_block_empty(_ENV, x, y)
+function board_class.is_empty(_ENV, x, y)
   --#if assert
   assert(0 < x and x <= cols, "x = " .. x)
   assert(0 <= y, "y = " .. y)
   --#endif
 
-  return block_at(_ENV, x, y):is_empty() and
+  local block_xy = block_at(_ENV, x, y)
+
+  return block_xy.type == "i" and block_xy.state ~= "swap" and -- (x, y) is empty
       not (_is_part_of_garbage(_ENV, x, y) or
       _is_part_of_cnot(_ENV, x, y) or
       _is_part_of_swap(_ENV, x, y))
@@ -1006,7 +1008,7 @@ function board_class.for_all_nonempty_blocks_below(_ENV, x, y, f)
   end
 
   for i = start_x, end_x do
-    if is_block_empty(_ENV, i, y - 1) then
+    if is_empty(_ENV, i, y - 1) then
       goto next_block
     end
 

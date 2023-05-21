@@ -69,12 +69,6 @@ describe('board', function()
         board:put(1, 1, block_class("h"))
       end)
 
-      it("swapping 状態の I ブロックは empty でない", function()
-        board:swap(1, 1)
-
-        assert.is_false(board:block_at(2, 1):is_empty())
-      end)
-
       it("ブロックを入れ換える", function()
         board:swap(1, 1)
         board:update() -- swapping (3 フレーム)

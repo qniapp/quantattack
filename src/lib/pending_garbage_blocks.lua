@@ -66,7 +66,7 @@ function pending_garbage_blocks_class.update(_ENV, board)
           ceil_rnd(board.cols - first_garbage_block.span + 1),
           board.rows + 1
 
-      if board:is_block_empty(x, y) then
+      if board:is_empty(x, y) then
         -- おじゃまブロックを落とす
         board:put(x, y, first_garbage_block)
         del(all, first_garbage_block)

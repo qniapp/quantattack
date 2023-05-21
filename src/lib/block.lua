@@ -35,15 +35,11 @@ function block_class._init(_ENV, _type, _span, _height)
 end
 
 function block_class.is_fallable(_ENV)
-  return not (type == "i" or type == "?" or state == "swap" or state == "freeze" or state == "match")
+  return type ~= "i" and type ~= "?" and state ~= "swap" and state ~= "freeze" and state ~= "match"
 end
 
 function block_class.is_reducible(_ENV)
   return state == "idle" and type ~= "i" and type ~= "?"
-end
-
-function block_class.is_empty(_ENV)
-  return type == "i" and state ~= "swap"
 end
 
 function block_class:is_swappable_state()
