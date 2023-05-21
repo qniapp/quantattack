@@ -27,9 +27,11 @@ block_class.sprites = transform({
   }
 end)
 
+-- TODO: span, height は garbage の特異プロパティにする？ 検討
+-- TODO: _timer_landing の初期化いる？ 検討
 function block_class._init(_ENV, _type, _span, _height)
-  type, sprite_set, span, height, state, _timer_landing =
-      _type, sprites[_type], _span or 1, _height or 1, "idle", 0
+  type, state, span, height, sprite_set, _timer_landing =
+      _type, "idle", _span or 1, _height or 1, sprites[_type], 0
 end
 
 function block_class.is_fallable(_ENV)
@@ -37,19 +39,20 @@ function block_class.is_fallable(_ENV)
 end
 
 function block_class.is_reducible(_ENV)
-  return type ~= "i" and type ~= "?" and state == "idle"
+  return state == "idle" and type ~= "i" and type ~= "?"
+end
+
+function block_class.is_empty(_ENV)
+  return type == "i" and state ~= "swap"
+end
+
+-- TODO: qpu.lua に移動
+function block_class.is_single_block(_ENV)
+  return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
 end
 
 function block_class:is_swappable_state()
   return self.state == "idle" or self.state == "falling"
-end
-
-function block_class:is_empty()
-  return self.type == "i" and self.state ~= "swap"
-end
-
-function block_class.is_single_block(_ENV)
-  return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
 end
 
 function block_class:swap_with(direction)
@@ -183,8 +186,7 @@ function block_class:attach(observer)
 end
 
 function block_class.change_state(_ENV, new_state)
-  _timer_landing, _tick_swap =
-    (state == "falling") and 12 or 0, 0
+  _timer_landing, _tick_swap = (state == "falling") and 12 or 0, 0
 
   local old_state = state
   state = new_state
@@ -245,8 +247,8 @@ function garbage_block(_span, _height, _color, _chain_id, _tick_fall)
           screen_y + 6,
           state ~= "over" and body_color or 9
 
-      _render_box(screen_x, y0 + 1, x1, y1 + 1, 5)                                                    -- 影
-      _render_box(screen_x, y0, x1, y1, _body_color, _body_color)                                     -- 本体
+      _render_box(screen_x, y0 + 1, x1, y1 + 1, 5)                                                   -- 影
+      _render_box(screen_x, y0, x1, y1, _body_color, _body_color)                                    -- 本体
       _render_box(screen_x + 1, y0 + 1, x1 - 1, y1 - 1, state ~= "over" and inner_border_color or 1) -- 内側の線
     end
   }, { __index = block_class("g", _span or 6, _height) })
