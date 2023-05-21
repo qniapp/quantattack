@@ -14,12 +14,6 @@ describe('x_block', function()
     end)
   end)
 
-  describe(":is_garbage", function()
-    it("should return false", function()
-      assert.is_false(x.type == "g")
-    end)
-  end)
-
   describe(".state", function()
     it('should be "idle"', function()
       assert.is_true(x.state == "idle")

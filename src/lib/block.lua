@@ -67,8 +67,11 @@ function block_class:hover(timer)
 end
 
 function block_class:fall()
+  print(self:is_fallable())
   --#if assert
-  assert(self:is_fallable(), "block " .. self.type .. "(" .. self.x .. ", " .. self.y .. ")")
+  assert(self:is_fallable(), "block " .. self.type)
+  assert(self.x, "x is not set")
+  assert(self.y, "y is not set")
   --#endif
 
   if self.state == "falling" then

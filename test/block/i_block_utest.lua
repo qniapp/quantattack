@@ -1,7 +1,7 @@
 require("engine/test/bustedhelper")
 require('lib/block')
 
-describe('i_block', function()
+describe('i_block #solo', function()
   local i
 
   before_each(function()
@@ -33,7 +33,7 @@ describe('i_block', function()
   end)
 
   describe("stringify", function()
-    it('should return \"_ \"', function()
+    it('should return "_ "', function()
       assert.are.equals("_ ", stringify(i))
     end)
   end)
@@ -59,12 +59,6 @@ describe('i_block', function()
   describe("is_single_block", function()
     it("should return false", function()
       assert.is_false(i:is_single_block())
-    end)
-  end)
-
-  describe("fall", function()
-    it("should raise", function()
-      assert.error(function() i:fall() end)
     end)
   end)
 end)

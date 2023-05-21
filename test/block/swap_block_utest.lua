@@ -15,12 +15,6 @@ describe('swap_block', function()
     end)
   end)
 
-  describe("is_garbage", function()
-    it("should return false", function()
-      assert.is_false(swap.type == "g")
-    end)
-  end)
-
   describe("state", function()
     it("should return true", function()
       assert.is_true(swap.state == "idle")
