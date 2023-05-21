@@ -1062,9 +1062,23 @@ function board_class.observable_update(_ENV, block, old_state)
     return
   end
 
-  -- hover が完了して下のブロックが空または falling の場合、
-  -- パネルの状態を ":falling" にする
+  -- 状態が hover から idle になった時、もし
+  --   1. 下のブロックが空、または
+  --   2. falling 状態の場合
+  -- なら、ブロックを落とす
+  --
+  --  (1)        (2)
+  -- ┌───┐      ┌───┐
+  -- │ H │      │ H │
+  -- └───┘  or  ├───┤
+  --            │ ↓ │
+  --            └───┘
+  --
   if old_state == "hover" and is_block_fallable(_ENV, x, y) then
+    --#if assert
+    assert(block.state == "idle", "ブロックの状態遷移がおかしい")
+    --#endif
+
     block:fall()
   end
 
