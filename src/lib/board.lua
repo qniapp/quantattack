@@ -556,7 +556,7 @@ function board_class.swap(_ENV, x_left, y)
   --  4. CNOT または SWAP の一部と単一ブロックを入れ替えようとしている場合
   if not (left_block:is_swappable_state() and right_block:is_swappable_state()) or
       (left_block.type == "#" or right_block.type == "#") or
-      (_is_part_of_garbage(_ENV, x_left, y) or _is_part_of_garbage(_ENV, x_right, y)) or
+      (_garbage_head_block(_ENV, x_left, y) ~= nil or _garbage_head_block(_ENV, x_right, y) ~= nil) or
       (left_block.other_x and left_block.other_x < x_left and not is_empty(_ENV, x_right, y)) or
       (not is_empty(_ENV, x_left, y) and right_block.other_x and x_right < right_block.other_x) then
     return false
@@ -868,30 +868,24 @@ end
 --- (x, y) が空かどうかを返す
 -- おじゃまユニタリと SWAP, CNOT ブロックも考慮する
 --
--- NOTE: (x, y) がおじゃまユニタリや SWAP, CNOT の一部かどうかを判定する処理が重いためメモ化。
+-- NOTE: (x, y) がおじゃまユニタリや SWAP, CNOT の一部かどうかを判定する処理が重いため、
+-- メモ化していることに注意。
 function board_class.is_empty(_ENV, x, y)
-  return _memoize(_ENV, _is_empty_nocache, cache_is_empty, x, y)
-end
-
-function board_class._is_empty_nocache(_ENV, x, y)
   --#if assert
   assert(0 < x and x <= cols, "x = " .. x)
   assert(0 <= y, "y = " .. y)
   --#endif
 
-  local block_xy = block_at(_ENV, x, y)
+  return _memoize(_ENV, _is_empty_nocache, cache_is_empty, x, y)
+end
 
-  return block_xy.type == "i" and block_xy.state ~= "swap" and -- (x, y) is empty
+function board_class._is_empty_nocache(_ENV, x, y)
+  local block = block_at(_ENV, x, y)
+
+  return block.type == "i" and block.state ~= "swap" and -- (x, y) is empty
       not (_garbage_head_block(_ENV, x, y) ~= nil or -- (x, y) is part of garbage
            (_cnot_head_block(_ENV, x, y) ~= nil) or -- (x, y) is part of CNOT
            (_swap_head_block(_ENV, x, y) ~= nil)) -- (x, y) is part of SWAP
-end
-
--- x, y がおじゃまブロックの一部であるかどうかを返す
---
--- TODO: この関数をなくして _garbage_head_block(_ENV, x, y) ~= nil にインライン化する
-function board_class._is_part_of_garbage(_ENV, x, y)
-  return _garbage_head_block(_ENV, x, y) ~= nil
 end
 
 function board_class._block_or_its_head_block(_ENV, x, y)
@@ -1149,7 +1143,7 @@ function board_class._tostring(_ENV)
       local block = block_at(_ENV, x, y)
 
       if block.type == "i" and
-          _is_part_of_garbage(_ENV, x, y) then
+          _garbage_head_block(_ENV, x, y) ~= nil then
         str = str .. "g " .. " "
       else
         str = str .. block:_tostring() .. " "
