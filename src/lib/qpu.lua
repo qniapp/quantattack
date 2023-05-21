@@ -1,11 +1,15 @@
 ---@diagnostic disable: lowercase-global, global-in-nil-env
 
+function is_single_block(_ENV)
+  return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
+end
+
 local function _is_empty(board, block_x, block_y)
   if block_x < 1 or board.cols < block_x or board.rows < block_y then
     return false
   end
 
-  return board.blocks[block_y][block_x]:is_idle() and board:is_block_empty(block_x, block_y)
+  return board.blocks[block_y][block_x].state == "idle" and board:is_empty(block_x, block_y)
 end
 
 local function _is_match(board, block_x, block_y, block)
@@ -14,7 +18,7 @@ local function _is_match(board, block_x, block_y, block)
   end
 
   local other_block = board.blocks[block_y][block_x]
-  return other_block.type == block.type and other_block:is_idle()
+  return other_block.type == block.type and other_block.state == "idle"
 end
 
 local function _is_swappable(board, block_x, block_y)
@@ -23,7 +27,7 @@ local function _is_swappable(board, block_x, block_y)
   end
 
   local block = board.blocks[block_y][block_x]
-  return block:is_idle() and (board:is_block_empty(block_x, block_y) or block:is_single_block())
+  return block.state == "idle" and (board:is_empty(block_x, block_y) or is_single_block(block))
 end
 
 -- singleton
@@ -57,7 +61,7 @@ function qpu_class.update(_ENV)
     else
       return for_all_reducible_blocks(_ENV, _reduce_cnot) or
           for_all_reducible_blocks(_ENV, _flatten_block) or
-          board.contains_garbage_match_block or
+          board.contains_q_block or
           for_all_reducible_blocks(_ENV, _reduce_single_block)
     end
   end
@@ -65,7 +69,7 @@ end
 
 function qpu_class._flatten_block(_ENV, each, each_x, each_y)
   -- 二列目より上のブロックについて、空のブロックがあればそこに落とす
-  if 1 < each_y and each:is_single_block() then
+  if 1 < each_y and is_single_block(each) then
     if find_left_and_right(_ENV, _is_empty, each, false, true) then
       return true
     end
@@ -73,7 +77,7 @@ function qpu_class._flatten_block(_ENV, each, each_x, each_y)
 end
 
 function qpu_class._reduce_single_block(_ENV, each, each_x, each_y)
-  if each:is_single_block() then
+  if is_single_block(each) then
     -- 下の行とマッチするか走査
     if each_y > 1 then
       if find_left_and_right(_ENV, _is_match, each) then
@@ -95,7 +99,7 @@ function qpu_class._reduce_cnot(_ENV, each, each_x, each_y)
   each_y < board.rows and board:reducible_block_at(each_x, each_y + 1) or block_class("i"),
       each_y > 1 and board:reducible_block_at(each_x, each_y - 1) or block_class("i")
 
-  if not each:is_single_block() then
+  if not is_single_block(each) then
     -- d-2. 上の X-C を左にずらす
     --
     -- [X--]-C

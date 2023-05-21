@@ -22,7 +22,7 @@ describe('ブロックの hover 状態', function()
 
       board:update()
 
-      assert.is_true(block:is_hover())
+      assert.is_true(block.state == "hover")
     end)
 
     it("hover 状態は 12 フレーム継続する", function()
@@ -34,13 +34,13 @@ describe('ブロックの hover 状態', function()
       for i = 1, 12 do
         board:update()
 
-        assert.is_true(block:is_hover())
+        assert.is_true(block.state == "hover")
       end
 
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(block:is_falling())
+      assert.is_true(block.state == "falling")
     end)
   end)
 
@@ -58,8 +58,8 @@ describe('ブロックの hover 状態', function()
 
       board:update()
 
-      assert.is_true(block1:is_hover())
-      assert.is_true(block2:is_hover())
+      assert.is_true(block1.state == "hover")
+      assert.is_true(block2.state == "hover")
     end)
 
     it("hover 状態は 12 フレーム継続する", function()
@@ -73,15 +73,15 @@ describe('ブロックの hover 状態', function()
       for i = 1, 12 do
         board:update()
 
-        assert.is_true(board:block_at(1, 3):is_hover())
-        assert.is_true(board:block_at(1, 2):is_hover())
+        assert.is_true(board:block_at(1, 3).state == "hover")
+        assert.is_true(board:block_at(1, 2).state == "hover")
       end
 
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(board:block_at(1, 2):is_falling())
-      assert.is_true(board:block_at(1, 1):is_falling())
+      assert.is_true(board:block_at(1, 2).state == "falling")
+      assert.is_true(board:block_at(1, 1).state == "falling")
     end)
   end)
 
@@ -99,8 +99,8 @@ describe('ブロックの hover 状態', function()
 
       board:update()
 
-      assert.is_true(control:is_hover())
-      assert.is_true(cnot_x:is_hover())
+      assert.is_true(control.state == "hover")
+      assert.is_true(cnot_x.state == "hover")
     end)
 
     it("hover 状態は 12 フレーム継続する", function()
@@ -113,15 +113,15 @@ describe('ブロックの hover 状態', function()
       for i = 1, 12 do
         board:update()
 
-        assert.is_true(control:is_hover())
-        assert.is_true(cnot_x:is_hover())
+        assert.is_true(control.state == "hover")
+        assert.is_true(cnot_x.state == "hover")
       end
 
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(control:is_falling())
-      assert.is_true(cnot_x:is_falling())
+      assert.is_true(control.state == "falling")
+      assert.is_true(cnot_x.state == "falling")
     end)
   end)
 
@@ -139,8 +139,8 @@ describe('ブロックの hover 状態', function()
 
       board:update()
 
-      assert.is_true(swap_left:is_hover())
-      assert.is_true(swap_right:is_hover())
+      assert.is_true(swap_left.state == "hover")
+      assert.is_true(swap_right.state == "hover")
     end)
 
     it("hover 状態は 12 フレーム継続する", function()
@@ -153,15 +153,15 @@ describe('ブロックの hover 状態', function()
       for i = 1, 12 do
         board:update()
 
-        assert.is_true(swap_left:is_hover())
-        assert.is_true(swap_right:is_hover())
+        assert.is_true(swap_left.state == "hover")
+        assert.is_true(swap_right.state == "hover")
       end
 
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(swap_left:is_falling())
-      assert.is_true(swap_right:is_falling())
+      assert.is_true(swap_left.state == "falling")
+      assert.is_true(swap_right.state == "falling")
     end)
   end)
 
@@ -177,7 +177,7 @@ describe('ブロックの hover 状態', function()
 
       board:update()
 
-      assert.is_true(garbage:is_hover())
+      assert.is_true(garbage.state == "hover")
     end)
 
     it("hover 状態は 12 フレーム継続する", function()
@@ -193,7 +193,7 @@ describe('ブロックの hover 状態', function()
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(garbage:is_falling())
+      assert.is_true(garbage.state == "falling")
     end)
   end)
 
@@ -211,8 +211,8 @@ describe('ブロックの hover 状態', function()
 
       board:update()
 
-      assert.is_true(garbage1:is_hover())
-      assert.is_true(garbage2:is_hover())
+      assert.is_true(garbage1.state == "hover")
+      assert.is_true(garbage2.state == "hover")
     end)
 
     it("hover 状態は 12 フレーム継続する", function()
@@ -229,8 +229,8 @@ describe('ブロックの hover 状態', function()
       -- falling 状態に遷移
       board:update()
 
-      assert.is_true(garbage1:is_falling())
-      assert.is_true(garbage2:is_falling())
+      assert.is_true(garbage1.state == "falling")
+      assert.is_true(garbage2.state == "falling")
     end)
   end)
 

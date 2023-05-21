@@ -1,5 +1,5 @@
 require("engine/test/bustedhelper")
-require("lib/board")
+require("lib/cursor")
 
 describe('cursor', function()
   local cursor

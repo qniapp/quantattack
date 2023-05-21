@@ -24,7 +24,7 @@ describe('board', function()
       it('ブロックの状態を swapping にする', function()
         board:swap(1, 1)
 
-        assert.is_true(board:block_at(1, 1):is_swapping())
+        assert.is_true(board:block_at(1, 1).state == "swap")
       end)
 
       --  TODO: フレーム数のテストは別のテストに分離
@@ -33,23 +33,23 @@ describe('board', function()
 
         -- フレーム 1: swap 開始
         board:update()
-        assert.is_true(board:block_at(1, 1):is_swapping())
-        assert.is_true(board:block_at(2, 1):is_swapping())
+        assert.is_true(board:block_at(1, 1).state == "swap")
+        assert.is_true(board:block_at(2, 1).state == "swap")
 
         -- フレーム 2
         board:update()
-        assert.is_true(board:block_at(1, 1):is_swapping())
-        assert.is_true(board:block_at(2, 1):is_swapping())
+        assert.is_true(board:block_at(1, 1).state == "swap")
+        assert.is_true(board:block_at(2, 1).state == "swap")
 
         -- フレーム 3: swap 終了
         board:update()
-        assert.is_true(board:block_at(1, 1):is_swapping())
-        assert.is_true(board:block_at(2, 1):is_swapping())
+        assert.is_true(board:block_at(1, 1).state == "swap")
+        assert.is_true(board:block_at(2, 1).state == "swap")
 
         -- フレーム 4: idle 状態に遷移
         board:update()
-        assert.is_true(board:block_at(1, 1):is_idle())
-        assert.is_true(board:block_at(2, 1):is_idle())
+        assert.is_true(board:block_at(1, 1).state == "idle")
+        assert.is_true(board:block_at(2, 1).state == "idle")
       end)
 
       it("ブロックを入れ換える", function()
@@ -67,12 +67,6 @@ describe('board', function()
     describe('単一ブロックと I ブロックの入れ換え', function()
       before_each(function()
         board:put(1, 1, block_class("h"))
-      end)
-
-      it("swapping 状態の I ブロックは empty でない", function()
-        board:swap(1, 1)
-
-        assert.is_false(board:block_at(2, 1):is_empty())
       end)
 
       it("ブロックを入れ換える", function()
@@ -181,7 +175,7 @@ describe('board', function()
       before_each(function()
         h_gate = block_class("h")
         board:put(2, 1, h_gate)
-        h_gate._state = "match"
+        h_gate.state = "match"
       end)
 
       it("左のブロックが match 状態の場合、swap は false を返す", function()
@@ -199,7 +193,7 @@ describe('board', function()
       before_each(function()
         h_gate = block_class("h")
         board:put(2, 16, h_gate)
-        h_gate._state = "freeze"
+        h_gate.state = "freeze"
       end)
 
       it("左のブロックが freeze 状態の場合、swap は false を返す", function()

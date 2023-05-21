@@ -4,6 +4,7 @@ require("test/test_helper")
 require("lib/effects")
 require("lib/board")
 
+
 describe('CNOT や SWAP が残る/ちぎれる問題', function()
   local board
 

@@ -74,7 +74,7 @@ describe('block', function()
     it('should transition its state to swapping', function()
       block:swap_with("left")
 
-      assert.is_true(block:is_swapping())
+      assert.is_true(block.state == "swap")
     end)
   end)
 
@@ -95,7 +95,7 @@ describe('block', function()
     it('should transition its state to swapping', function()
       block:swap_with("right")
 
-      assert.is_true(block:is_swapping())
+      assert.is_true(block.state == "swap")
     end)
   end)
 
@@ -116,7 +116,7 @@ describe('block', function()
     it('should transition its state to falling', function()
       block:fall()
 
-      assert.is_true(block:is_falling())
+      assert.is_true(block.state == "falling")
     end)
   end)
 

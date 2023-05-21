@@ -1,492 +1,7 @@
---- ユーザまたは QPU が操作するカーソルのクラス
-cursor_class = new_class()
-
-function cursor_class._init(_ENV)
-  init(_ENV)
-end
-
---- カーソルの初期化
-function cursor_class.init(_ENV)
-  x, y, _tick = 3, 6, 0
-end
-
---- カーソルを左に移動
-function cursor_class.move_left(_ENV)
-  if x > 1 then
-    x = x - 1
-  end
-end
-
---- カーソルを右に移動
-function cursor_class.move_right(_ENV, cols)
-  if x < cols - 1 then
-    x = x + 1
-  end
-end
-
---- カーソルを上に移動
-function cursor_class.move_up(_ENV, rows)
-  if y < rows then
-    y = y + 1
-  end
-end
-
---- カーソルを下に移動
-function cursor_class.move_down(_ENV)
-  if y > 1 then
-    y = y - 1
-  end
-end
-
---- カーソルの状態を更新
-function cursor_class.update(_ENV)
-  _tick = (_tick + 1) % 28
-end
-
---- カーソルを描画
-function cursor_class.render(_ENV, screen_x, screen_y)
-  if _tick < 14 then
-    sspr(32, 32, 19, 11, screen_x - 2, screen_y - 2)
-  else
-    sspr(56, 32, 21, 13, screen_x - 3, screen_y - 3)
-  end
-end
-
---- ブロック (量子ゲート) クラス
-block_class = new_class()
-block_class.block_match_animation_frame_count = 45
-block_class.block_match_delay_per_block = 8
-block_class.block_swap_animation_frame_count = 3
-block_class.sprites = transform({
-  -- default|landing|match
-  h = "0|1,1,1,2,2,2,3,3,1,1,1,1|24,24,24,25,25,25,24,24,24,26,26,26,0,0,0,27",
-  x = "16|17,17,17,18,18,18,19,19,17,17,17,17|40,40,40,41,41,41,40,40,40,42,42,42,16,16,16,43",
-  y = "32|33,33,33,34,34,34,35,35,33,33,33,33|56,56,56,57,57,57,56,56,56,58,58,58,32,32,32,59",
-  z = "48|49,49,49,50,50,50,51,51,49,49,49,49|12,12,12,13,13,13,12,12,12,14,14,14,48,48,48,15",
-  s = "4|5,5,5,6,6,6,7,7,5,5,5,5|28,28,28,29,29,29,28,28,28,30,30,30,4,4,4,31",
-  t = "20|21,21,21,22,22,22,23,23,21,21,21,21|44,44,44,45,45,45,44,44,44,46,46,46,20,20,20,47",
-  control = "36|37,37,37,38,38,38,39,39,37,37,37,37|60,60,60,61,61,61,60,60,60,62,62,62,36,36,36,63",
-  cnot_x = "52|53,53,53,54,54,54,55,55,53,53,53,53|64,64,64,65,65,65,64,64,64,66,66,66,52,52,52,67",
-  swap = "8|9,9,9,10,10,10,11,11,9,9,9,9|80,80,80,81,81,81,80,80,80,82,82,82,8,8,8,83",
-  ["?"] = "98|98,98,98,98,98,98,98,98,98,98,98,98|98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98",
-  ["#"] = "113|113,113,113,113,113,113,113,113,113,113,113,113|113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113"
-}, function(each)
-  local default, landing, match = unpack(split(each, "|"))
-  return {
-    default = default,
-    landing = split(landing),
-    match = split(match)
-  }
-end)
-
-function block_class._init(_ENV, _type, _span, _height)
-  type, sprite_set, span, height, _state, _timer_landing =
-      _type, sprites[_type], _span or 1, _height or 1, "idle", 0
-end
-
---- 状態が idle かどうかを返す
-function block_class:is_idle()
-  return self._state == "idle"
-end
-
-function block_class:is_hover()
-  return self._state == "hover"
-end
-
-function block_class.is_fallable(_ENV)
-  return not (type == "i" or type == "?" or is_swapping(_ENV) or is_freeze(_ENV) or is_match(_ENV))
-end
-
-function block_class:is_falling()
-  return self._state == "falling"
-end
-
-function block_class.is_reducible(_ENV)
-  return type ~= "i" and type ~= "?" and is_idle(_ENV)
-end
-
-function block_class:is_match()
-  return self._state == "match"
-end
-
--- おじゃまブロックが小さいブロックに分解した後の硬直中かどうか
-function block_class:is_freeze()
-  return self._state == "freeze"
-end
-
-function block_class:is_swapping()
-  return self:_is_swapping_with_right() or self:_is_swapping_with_left()
-end
-
-function block_class:_is_swapping_with_left()
-  return self._state == "swapping_with_left"
-end
-
-function block_class:_is_swapping_with_right()
-  return self._state == "swapping_with_right"
-end
-
-function block_class:is_swappable_state()
-  return self:is_idle() or self:is_falling()
-end
-
-function block_class:is_empty()
-  return self.type == "i" and not self:is_swapping()
-end
-
-function block_class.is_single_block(_ENV)
-  return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
-end
-
-function block_class:swap_with(direction)
-  self.chain_id = nil
-  self:change_state("swapping_with_" .. direction)
-end
-
-function block_class:hover(timer)
-  self.timer = timer or 12
-  self:change_state("hover")
-end
-
-function block_class:fall()
-  --#if assert
-  assert(self:is_fallable(), "block " .. self.type .. "(" .. self.x .. ", " .. self.y .. ")")
-  --#endif
-
-  if self:is_falling() then
-    return
-  end
-
-  self:change_state("falling")
-end
-
-function block_class.replace_with(_ENV, other, match_index, _chain_id, garbage_span, garbage_height)
-  new_block, _match_index, _tick_match, chain_id, other.chain_id, _garbage_span, _garbage_height =
-      other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height
-
-  change_state(_ENV, "match")
-end
-
-function block_class.update(_ENV)
-  if is_idle(_ENV) then
-    if _timer_landing > 0 then
-      _timer_landing = _timer_landing - 1
-    end
-  elseif is_swapping(_ENV) then
-    if _tick_swap < block_swap_animation_frame_count then
-      _tick_swap = _tick_swap + 1
-    else
-      chain_id = nil
-      change_state(_ENV, "idle")
-    end
-  elseif is_hover(_ENV) then
-    if timer > 0 then
-      timer = timer - 1
-    else
-      change_state(_ENV, "idle")
-    end
-  elseif is_match(_ENV) then
-    if _tick_match <= block_match_animation_frame_count + _match_index * block_match_delay_per_block then
-      _tick_match = _tick_match + 1
-    else
-      change_state(_ENV, "idle")
-
-      if _garbage_span then
-        new_block._tick_freeze = 0
-        new_block._freeze_frame_count = (_garbage_span * _garbage_height - _match_index) * block_match_delay_per_block
-        new_block:change_state("freeze")
-      end
-    end
-  elseif is_freeze(_ENV) then
-    if _tick_freeze < _freeze_frame_count then
-      _tick_freeze = _tick_freeze + 1
-    else
-      change_state(_ENV, "idle")
-    end
-  end
-end
-
-function block_class:render(screen_x, screen_y, screen_other_x)
-  local shake_dx, shake_dy, swap_screen_dx, sprite = 0, 0
-
-  do
-    local _ENV = self
-
-    if type == "i" then
-      return
-    end
-
-    swap_screen_dx = (_tick_swap or 0) * (8 / block_swap_animation_frame_count)
-    if _is_swapping_with_left(_ENV) then
-      swap_screen_dx = -swap_screen_dx
-    end
-
-    if is_idle(_ENV) and _timer_landing > 0 then
-      sprite = sprite_set.landing[_timer_landing]
-    elseif is_match(_ENV) then
-      local sequence = sprite_set.match
-      sprite = _tick_match <= block_match_delay_per_block and sequence[_tick_match] or sequence[#sequence]
-    elseif _state == "over" then
-      sprite = sprite_set.match[#sprite_set.match]
-    else
-      sprite = sprite_set.default
-    end
-
-    -- CNOT または SWAP の接続を描画
-    if other_x and x < other_x then
-      line(
-        screen_x + 3,
-        screen_y + 3,
-        screen_other_x + 3,
-        screen_y + 3,
-        is_match(_ENV) and 13 or 10
-      )
-    end
-  end
-
-  if self.type == "?" then
-    palt(0, false)
-    pal(13, self.body_color)
-  end
-
-  if self._state == "over" then
-    shake_dx, shake_dy = rnd(2) - 1, rnd(2) - 1
-    pal(6, 9)
-    pal(7, 1)
-  end
-
-  spr(sprite, screen_x + swap_screen_dx + shake_dx, screen_y + shake_dy)
-
-  palt(0, true)
-  pal(13, 13)
-  pal(6, 6)
-  pal(7, 7)
-end
-
-function block_class:attach(observer)
-  self.observer = observer
-end
-
-function block_class.change_state(_ENV, new_state)
-  _timer_landing, _tick_swap =
-      is_falling(_ENV) and 12 or 0, 0
-
-  local old_state = _state
-  _state = new_state
-
-  observer:observable_update(_ENV, old_state)
-end
-
---#if debug
-local type_string = {
-  i = '_',
-  control = '●',
-  cnot_x = '+',
-  swap = 'X'
-}
-
-local state_string = {
-  idle = " ",
-  swapping_with_left = "<",
-  swapping_with_right = ">",
-  hover = "^",
-  falling = "|",
-  match = "*",
-  freeze = "f",
-}
-
-function block_class:_tostring()
-  return (type_string[self.type] or self.type:upper()) .. state_string[self._state]
-end
-
---#endif
-
---- おじゃまブロック
-
-local garbage_block_colors = { 2, 3, 4 }
-local inner_border_colors = { nil, 14, 11, 9 }
-
---- 新しいおじゃまブロックを作る
-function garbage_block(_span, _height, _color, _chain_id, _tick_fall)
-  local garbage = setmetatable({
-    body_color = _color or garbage_block_colors[ceil_rnd(#garbage_block_colors)],
-    chain_id = _chain_id,
-    tick_fall = _tick_fall,
-    dy = 0,
-    first_drop = true,
-    _render_box = draw_rounded_box,
-    render = function(_ENV, screen_x, screen_y)
-      local y0, x1, y1, _body_color =
-          screen_y + (1 - height) * 8,
-          screen_x + span * 8 - 2,
-          screen_y + 6,
-          _state ~= "over" and body_color or 9
-
-      _render_box(screen_x, y0 + 1, x1, y1 + 1, 5)                                                    -- 影
-      _render_box(screen_x, y0, x1, y1, _body_color, _body_color)                                     -- 本体
-      _render_box(screen_x + 1, y0 + 1, x1 - 1, y1 - 1, _state ~= "over" and inner_border_color or 1) -- 内側の線
-    end
-  }, { __index = block_class("g", _span or 6, _height) })
-
-  --#if assert
-  assert(garbage.body_color == 2 or garbage.body_color == 3 or garbage.body_color == 4,
-    "invalid color: " .. garbage.body_color)
-  assert(2 < garbage.span, "span must be greater than 2")
-  assert(garbage.span < 7, "span must be less than 7")
-  --#endif
-
-  garbage.inner_border_color = inner_border_colors[garbage.body_color]
-
-  return garbage
-end
-
---- ブロックのマッチパターン
-reduction_rules = transform(
-  transform(
-  -- NOTE: ルールの行数を昇り順にならべておくことで、
-  -- マッチする時に途中で探索を切り上げることができるようにする
-    {
-      h =
-      "h\nh|,,\n,-1,|10&h\nx\nh|,,\n,-1,\n,-2,z|20&h\ny\nh|,,\n,-1,\n,-2,y|20&h\nz\nh|,,\n,-1,\n,-2,x|20&h\nswap,swap\n?,h|,,\ntrue,-2,|50&h\nx\nswap,swap\n?,h|,,\n,-1,z\ntrue,-3,|60&h\ny\nswap,swap\n?,h|,,\n,-1,y\ntrue,-3,|60&h\nswap,swap\n?,x\n?,h|,,z\ntrue,-2,\ntrue,-3,|60&h\nswap,swap\n?,y\n?,h|,,y\ntrue,-2,\ntrue,-3,|60&h\nz\nswap,swap\n?,h|,,\n,-1,x\ntrue,-3,|60&h\nswap,swap\n?,z\n?,h|,,x\ntrue,-2,\ntrue,-3,|60",
-      x =
-      "x\nx|,,\n,-1,|10&x,x\ncontrol,cnot_x\nx|,,\ntrue,,\n,-2,|90&x,x\ncnot_x,control\nx|,,\ntrue,,\n,-2,|90&x\ncnot_x,control\nx|,,\n,-2,|80&x\nswap,swap\n?,x|,,\ntrue,-2,|50",
-      y =
-      "y\ny|,,\n,-1,|10&y\nswap,swap\n?,y|,,\ntrue,-2,|50&y,x\ncontrol,cnot_x\ny|,,\ntrue,,\n,-2,|90&y,z\ncnot_x,control\ny|,,\ntrue,,\n,-2,|90",
-      z =
-      "z\nz|,,\n,-1,|10&z,z\ncontrol,cnot_x\n?,z|,,\ntrue,,\ntrue,-2,|90&z\ncontrol,cnot_x\nz|,,\n,-2,|80&z\nswap,swap\n?,z|,,\ntrue,-2,|50",
-      s =
-      "s\ns|,,\n,-1,z|10&s\nx\ns|,,\n,-1,\n,-2,x|20&s\ny\ns|,,\n,-1,\n,-2,y|20&s\nz\ns|,,\n,-1,\n,-2,|20&s\nswap,swap\n?,s|,,z\ntrue,-2,|50&s\nx\nswap,swap\n?,s|,,\n,-1,x\ntrue,-3,|60&s\ny\nswap,swap\n?,s|,,\n,-1,y\ntrue,-3,|60&s\nz\nswap,swap\n?,s|,,\n,-1,\ntrue,-3,|60&s\nswap,swap\n?,x\n?,s|,,x\ntrue,-2,\ntrue,-3,|60&s\nswap,swap\n?,y\n?,s|,,y\ntrue,-2,\ntrue,-3,|60&s\nswap,swap\n?,z\n?,s|,,\ntrue,-2,\ntrue,-3,|60",
-      t =
-      "t\nt|,,\n,-1,s|10&t\ns\nt|,,\n,-1,\n,-2,z|20&t\nswap,swap\n?,t|,,s\ntrue,-2,|50&t\nz\ns\nt|,,\n,-1,\n,-2,\n,-3,|30&t\ns\nz\nt|,,\n,-1,\n,-2,\n,-3,|30&t\ns\nswap,swap\n?,t|,,\n,-1,z\ntrue,-3,|60&t\nswap,swap\n?,s\n?,t|,,z\ntrue,-2,\ntrue,-3,|60&t\nswap,swap\n?,z\n?,s\n?,t|,,\ntrue,-2,\ntrue,-3,\ntrue,-4,|70&t\nswap,swap\n?,s\n?,z\n?,t|,,\ntrue,-2,\ntrue,-3,\ntrue,-4,|70&t\nz\nswap,swap\n?,s\n?,t|,,\n,-1,\ntrue,-3,\ntrue,-4,|70&t\ns\nswap,swap\n?,z\n?,t|,,\n,-1,\ntrue,-3,\ntrue,-4,|70&t\nz\ns\nswap,swap\n?,t|,,\n,-1,\n,-2,\ntrue,-4,|70&t\ns\nz\nswap,swap\n?,t|,,\n,-1,\n,-2,\ntrue,-4,|70",
-      control = "control,cnot_x\nswap,swap\ncnot_x,control|,,\ntrue,,\n,-2,\ntrue,-2,|200",
-      cnot_x =
-      "cnot_x,control\ncnot_x,control|,,\ntrue,,\n,-1,\ntrue,-1,|40&cnot_x,control\ncontrol,cnot_x\ncnot_x,control|,,\ntrue,,\n,-1,\ntrue,-1,\n,-2,swap\ntrue,-2,swap|100",
-      swap = "swap,swap\nswap,swap|,,\ntrue,,\n,-1,\ntrue,-1,|300"
-    },
-    function(rule_string) return split(rule_string, "&") end),
-  function(gate_rules)
-    return transform(
-      gate_rules,
-      function(each)
-        local pattern, reduce_to, score = unpack(split(each, "|"))
-
-        return {
-          transform(split(pattern, "\n"), split),
-          transform(split(reduce_to, "\n"), function(to)
-            local attrs = split(to)
-            return {
-              dx = attrs[1] ~= "",
-              dy = attrs[2] == "" and nil or tonum(attrs[2]),
-              block_type = attrs[3] == "" and 'i' or attrs[3]
-            }
-          end),
-          tonum(score)
-        }
-      end
-    )
-  end
-)
-
---- 待機中のおじゃまブロック
-pending_garbage_blocks_class = new_class()
-
-function pending_garbage_blocks_class._init(_ENV)
-  all = {}
-end
-
-function pending_garbage_blocks_class.add_garbage(_ENV, span, height, chain_id)
-  -- 同じ chain_id のおじゃまブロックをまとめる
-  for _, each in pairs(all) do
-    if each.chain_id == chain_id and each.span == 6 then
-      if each.height <= height then
-        -- 同じ chain_id でより低いおじゃまブロックがすでにプールに入っている場合、消す
-        del(all, each)
-      else
-        -- 同じ chain_id でより高いおじゃまブロックがすでにプールに入っている場合、何もしない
-        return
-      end
-    end
-  end
-
-  add(all, garbage_block(span, height, nil, chain_id, 60))
-end
-
---- おじゃまブロックの相殺
-function pending_garbage_blocks_class.offset(_ENV, chain_count)
-  local offset_height = chain_count
-
-  for _, each in pairs(all) do
-    if each.span == 6 then
-      if not each.tick_fall then
-        if each.height > offset_height then
-          each.height = each.height - offset_height
-          break
-        else
-          offset_height = offset_height - each.height
-          del(all, each)
-        end
-      end
-    else
-      offset_height = offset_height - 1
-      del(all, each)
-    end
-  end
-
-  return offset_height
-end
-
-function pending_garbage_blocks_class.update(_ENV, board)
-  local first_garbage_block = all[1]
-
-  if first_garbage_block then
-    if first_garbage_block.tick_fall > 0 then
-      if first_garbage_block.tick_fall < 30 then
-        first_garbage_block.dy = ceil_rnd(2) - 1
-      end
-      first_garbage_block.tick_fall = first_garbage_block.tick_fall - 1
-    else
-      -- おじゃまブロックが幅いっぱいの場合、x = 1
-      -- そうでない場合、
-      -- x + span - 1 <= board.cols を満たす x をランダムに決める
-      local x, y = first_garbage_block.span == board.cols and
-          1 or
-          ceil_rnd(board.cols - first_garbage_block.span + 1),
-          board.rows + 1
-
-      if board:is_block_empty(x, y) then
-        -- おじゃまブロックを落とす
-        board:put(x, y, first_garbage_block)
-        del(all, first_garbage_block)
-      end
-    end
-  end
-end
-
-function pending_garbage_blocks_class.render(_ENV, board)
-  for i, each in pairs(all) do
-    if i < 6 then
-      local x0, y0 = board.offset_x + 1 + (i - 1) * 9, each.dy
-
-      if each.tick_fall then
-        pal(7, each.inner_border_color)
-        pal(6, each.inner_border_color)
-      end
-
-      if each.span < 6 then
-        draw_rounded_box(x0, y0 + 4, x0 + 12, y0 + 9, 7, 7)
-        draw_rounded_box(x0 + 1, y0 + 5, x0 + 11, y0 + 8, 0, 0)
-      else
-        draw_rounded_box(x0, y0 + 1, x0 + 12, y0 + 9, 7, 7)
-        draw_rounded_box(x0 + 1, y0 + 2, x0 + 11, y0 + 8, 0, 0)
-
-        cursor(x0 + 5, y0 + 3)
-        print(each.height, 6)
-      end
-
-      pal()
-    end
-  end
-end
+require("lib/cursor")
+require("lib/block")
+require("lib/reduction_rules")
+require("lib/pending_garbage_blocks")
 
 --- ボードのクラス
 board_class = new_class()
@@ -518,7 +33,7 @@ function board_class.init(_ENV, _cols)
       {}, 0, 600, 0, 0
 
   -- 各種ブロックの取得
-  blocks, reducible_blocks, _garbage_blocks, contains_garbage_match_block = {}, {}, {}, false
+  blocks, reducible_blocks, _garbage_blocks, contains_q_block = {}, {}, {}, false
 
   tick, steps, pending_garbage_blocks, _flash_col_timer, _flash_col_colors, _check_hover_flag, _reduce_cache,
   _is_block_fallable_cache =
@@ -545,7 +60,7 @@ function board_class.put_random_blocks(_ENV)
       -- y = 0 (次のブロック) と、y = 1 .. 4 (下から 4 行) はブロックで埋める
       -- y >= 5 の行は確率的にブロックを置く
       if y < 5 or
-          (rnd(1) > 0.2 and (not is_block_empty(_ENV, x, y - 1))) then
+          (rnd(1) > 0.2 and (not is_empty(_ENV, x, y - 1))) then
         repeat
           put(_ENV, x, y, _random_single_block(_ENV))
         until #reduce(_ENV, x, y, true).to == 0
@@ -614,7 +129,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
           for chainable_y = y + dy + 1, #blocks do
             local block_to_fall = blocks[chainable_y][x + dx]
             if block_to_fall.type ~= "i" then
-              if block_to_fall:is_match() then
+              if block_to_fall.state == "match" then
                 goto next_reduction
               end
               block_to_fall.chain_id = chain_id
@@ -632,7 +147,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
     local matched_garbage_block_count = 0
 
     for _, each in pairs(_garbage_blocks) do
-      if each:is_idle() then
+      if each.state == "idle" then
         local x, y, garbage_span, garbage_height = each.x, each.y, each.span, each.height
 
         -- 隣接ブロック adj_x, adj_y がマッチ中であるかを返す。
@@ -643,7 +158,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
           local adjacent_block = blocks[adj_y][adj_x]
 
-          if not adjacent_block:is_match() then
+          if adjacent_block.state ~= "match" then
             return false
           end
 
@@ -701,9 +216,9 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         for dx = 0, garbage_span - 1 do
           for dy = 0, garbage_height - 1 do
             -- 1. おじゃまブロック全体に ? ブロックをしきつめる
-            garbage_match_block = block_class("?")
-            garbage_match_block.body_color = each.body_color
-            put(_ENV, x + dx, y + dy, garbage_match_block)
+            q_block = block_class("?")
+            q_block.body_color = each.body_color
+            put(_ENV, x + dx, y + dy, q_block)
 
             -- 2. 以下のようにブロックを入れ換える
             --
@@ -901,7 +416,7 @@ function board_class.is_busy(_ENV)
   for x = 1, cols do
     for y = 1, #blocks do
       local block = blocks[y][x]
-      if not (block:is_idle() or block:is_swapping()) then
+      if not (block.state == "idle" or block.state == "swap") then
         return true
       end
     end
@@ -1007,7 +522,7 @@ function board_class.insert_blocks_at_bottom(_ENV)
 
   -- 最下段の空いている部分に新しいブロックを置く
   for x = 1, cols do
-    if is_block_empty(_ENV, x, 0) then
+    if is_empty(_ENV, x, 0) then
       repeat
         put(_ENV, x, 0, _random_single_block(_ENV))
       until #reduce(_ENV, x, 1, true).to == 0
@@ -1020,7 +535,7 @@ end
 function board_class.shift_all_blocks_up(_ENV)
   for y = #blocks, 0, -1 do
     for x = 1, cols do
-      if not is_block_empty(_ENV, x, y) then
+      if not is_empty(_ENV, x, y) then
         put(_ENV, x, y + 1, blocks[y][x])
         remove_block(_ENV, x, y)
       end
@@ -1042,8 +557,8 @@ function board_class.swap(_ENV, x_left, y)
   if not (left_block:is_swappable_state() and right_block:is_swappable_state()) or
       (left_block.type == "#" or right_block.type == "#") or
       (_is_part_of_garbage(_ENV, x_left, y) or _is_part_of_garbage(_ENV, x_right, y)) or
-      (left_block.other_x and left_block.other_x < x_left and not is_block_empty(_ENV, x_right, y)) or
-      (not is_block_empty(_ENV, x_left, y) and right_block.other_x and x_right < right_block.other_x) then
+      (left_block.other_x and left_block.other_x < x_left and not is_empty(_ENV, x_right, y)) or
+      (not is_empty(_ENV, x_left, y) and right_block.other_x and x_right < right_block.other_x) then
     return false
   end
 
@@ -1078,7 +593,7 @@ function board_class.update(_ENV, game, player, other_board)
       for x = 1, cols do
         for y = 0, #blocks do
           if tick_over == 0 then
-            blocks[y][x]._state = "over"
+            blocks[y][x].state = "over"
           elseif tick_over == 20 and not done_over_fx then
             blocks[y][x] = block_class("i")
             particles:create(
@@ -1220,7 +735,7 @@ function board_class._update_game(_ENV, game, player, other_board)
   --
   -- swap などのペアとなるブロックを正しく落とすために、
   -- 一番下の行から上に向かって順に処理
-  top_block_y, contains_garbage_match_block = 0, false
+  top_block_y, contains_q_block = 0, false
 
   for y = 1, #blocks do
     for x = 1, cols do
@@ -1230,16 +745,16 @@ function board_class._update_game(_ENV, game, player, other_board)
 
       if block.type ~= "i" then
         if block.type == "?" then
-          contains_garbage_match_block = true
+          contains_q_block = true
         end
 
         -- 落下できるブロックをホバー状態にする
-        if not block:is_falling() and
-            not block:is_hover() and
+        if block.state ~= "falling" and
+            block.state ~= "hover" and
             is_block_fallable(_ENV, x, y) then
           if not block.other_x then -- 単体ブロックとおじゃまゲート
             block:hover()
-            if y > 1 and blocks[y - 1][x]:is_hover() then
+            if y > 1 and blocks[y - 1][x].state == "hover" then
               block.timer = blocks[y - 1][x].timer
             end
           else -- CNOT または SWAP
@@ -1254,7 +769,7 @@ function board_class._update_game(_ENV, game, player, other_board)
         if _check_hover_flag[y][x] then
           _check_hover_flag[y][x] = false
 
-          if not block:is_hover() then
+          if block.state ~= "hover" then
             local hover_timer = propagatable_hover_timer(_ENV, x, y)
             if hover_timer then
               if not block.other_x then
@@ -1278,11 +793,11 @@ function board_class._update_game(_ENV, game, player, other_board)
           top_block_y = y
         end
 
-        if block:is_idle() and block.chain_id and blocks[y - 1][x].chain_id == nil then
+        if block.state == "idle" and block.chain_id and blocks[y - 1][x].chain_id == nil then
           block.chain_id = nil
         end
 
-        if block:is_falling() then
+        if block.state == "falling" then
           if not is_block_fallable(_ENV, x, y) then
             if block.type == "g" then
               bounce(_ENV)
@@ -1297,7 +812,7 @@ function board_class._update_game(_ENV, game, player, other_board)
               other_block:change_state("idle")
             end
           else
-            if is_block_empty(_ENV, x, y - 1) then
+            if is_empty(_ENV, x, y - 1) then
               -- 落下中のブロックをひとつ下に移動
               if not block.other_x then
                 remove_block(_ENV, x, y)
@@ -1307,7 +822,7 @@ function board_class._update_game(_ENV, game, player, other_board)
                 put(_ENV, x, y - 1, block)
 
                 local other_block = blocks[y][block.other_x]
-                other_block._state = "falling"
+                other_block.state = "falling"
                 remove_block(_ENV, block.other_x, y)
                 put(_ENV, block.other_x, y - 1, other_block)
               end
@@ -1352,13 +867,15 @@ end
 
 --- x, y が空かどうかを返す
 -- おじゃまユニタリと SWAP, CNOT ブロックも考慮する
-function board_class.is_block_empty(_ENV, x, y)
+function board_class.is_empty(_ENV, x, y)
   --#if assert
   assert(0 < x and x <= cols, "x = " .. x)
   assert(0 <= y, "y = " .. y)
   --#endif
 
-  return block_at(_ENV, x, y):is_empty() and
+  local block_xy = block_at(_ENV, x, y)
+
+  return block_xy.type == "i" and block_xy.state ~= "swap" and -- (x, y) is empty
       not (_is_part_of_garbage(_ENV, x, y) or
       _is_part_of_cnot(_ENV, x, y) or
       _is_part_of_swap(_ENV, x, y))
@@ -1451,7 +968,7 @@ function board_class.propagatable_hover_timer(_ENV, x, y)
   end
 
   for_all_nonempty_blocks_below(_ENV, x, y, function(each)
-    if each:is_hover() and hover_timer < each.timer then
+    if each.state == "hover" and hover_timer < each.timer then
       hover_timer = each.timer
     end
   end)
@@ -1472,7 +989,7 @@ function board_class._is_block_fallable_nocache(_ENV, x, y)
   end
 
   for_all_nonempty_blocks_below(_ENV, x, y, function(each)
-    if not each:is_falling() then
+    if each.state ~= "falling" then
       fallable = false
     end
   end)
@@ -1491,7 +1008,7 @@ function board_class.for_all_nonempty_blocks_below(_ENV, x, y, f)
   end
 
   for i = start_x, end_x do
-    if is_block_empty(_ENV, i, y - 1) then
+    if is_empty(_ENV, i, y - 1) then
       goto next_block
     end
 
@@ -1506,12 +1023,12 @@ end
 function board_class.observable_update(_ENV, block, old_state)
   local x, y = block.x, block.y
 
-  if old_state == "swapping_with_right" and block:is_idle() then
+  if old_state == "swap" and block.swap_direction == "right" and block.state == "idle" then
     local new_x = x + 1
     local right_block = blocks[y][new_x]
 
     --#if assert
-    assert(right_block:_is_swapping_with_left(), right_block._state)
+    assert(right_block.state == "swap" and right_block.swap_direction == "left", right_block.state)
     --#endif
 
     if right_block.type ~= "i" then
@@ -1545,13 +1062,27 @@ function board_class.observable_update(_ENV, block, old_state)
     return
   end
 
-  -- hover が完了して下のブロックが空または falling の場合、
-  -- パネルの状態を ":falling" にする
+  -- 状態が hover から idle になった時、もし
+  --   1. 下のブロックが空、または
+  --   2. falling 状態の場合
+  -- なら、ブロックを落とす
+  --
+  --  (1)        (2)
+  -- ┌───┐      ┌───┐
+  -- │ H │      │ H │
+  -- └───┘  or  ├───┤
+  --            │ ↓ │
+  --            └───┘
+  --
   if old_state == "hover" and is_block_fallable(_ENV, x, y) then
+    --#if assert
+    assert(block.state == "idle", "ブロックの状態遷移がおかしい")
+    --#endif
+
     block:fall()
   end
 
-  if old_state == "match" and block:is_idle() then
+  if old_state == "match" and block.state == "idle" then
     sfx(11, -1, (block._match_index % 6 - 1) * 4, 4)
     put(_ENV, x, y, block.new_block)
     particles:create(
@@ -1561,7 +1092,7 @@ function board_class.observable_update(_ENV, block, old_state)
     return
   end
 
-  if block:is_hover() then
+  if block.state == "hover" then
     for each_y = y + 1, #blocks do
       for each_x = 1, cols do
         if _check_hover_flag[each_y] == nil then
@@ -1587,7 +1118,7 @@ function board_class.observable_update(_ENV, block, old_state)
     _reduce_cache = {}
   end
 
-  if not (block:is_swapping() or block:is_match()) then
+  if not (block.state == "swap" or block.state == "match") then
     for i = y, #blocks do
       _is_block_fallable_cache[i] = {}
     end

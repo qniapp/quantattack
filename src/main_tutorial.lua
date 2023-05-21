@@ -28,7 +28,7 @@ function tutorial_game.reduce_callback(_score, _player)
   for _y = 1, board.rows do
     for _x = 1, board.cols do
       local block_xy = board.blocks[_y][_x]
-      if block_xy:is_idle() and not (block_xy.type == "i" or block_xy.type == "#") then
+      if block_xy.state == "idle" and not (block_xy.type == "i" or block_xy.type == "#") then
         return
       end
     end
