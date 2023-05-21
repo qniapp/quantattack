@@ -1,7 +1,7 @@
 require("engine/test/bustedhelper")
 require('lib/block')
 
-describe('i_block #solo', function()
+describe('i_block', function()
   local i
 
   before_each(function()

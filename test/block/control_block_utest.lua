@@ -2,7 +2,7 @@ require("engine/test/bustedhelper")
 require("test/test_helper")
 require("lib/block")
 
-describe('control_block #solo', function()
+describe('control_block', function()
   local control
 
   before_each(function()

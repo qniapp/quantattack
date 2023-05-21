@@ -1,7 +1,7 @@
 require("engine/test/bustedhelper")
 require("lib/board")
 
-describe('h_block #solo', function()
+describe('h_block', function()
   local h
 
   before_each(function()

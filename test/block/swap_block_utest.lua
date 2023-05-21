@@ -2,7 +2,7 @@ require("engine/test/bustedhelper")
 require("test/test_helper")
 require("lib/block")
 
-describe('swap_block #solo', function()
+describe('swap_block', function()
   local swap
 
   before_each(function()

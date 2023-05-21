@@ -1,7 +1,7 @@
 require("engine/test/bustedhelper")
 require("lib/block")
 
-describe('hash_block #solo', function()
+describe('hash_block', function()
   local hash
 
   before_each(function()

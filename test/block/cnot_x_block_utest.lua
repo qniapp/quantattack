@@ -2,7 +2,7 @@ require("engine/test/bustedhelper")
 require("test/test_helper")
 require("lib/block")
 
-describe('cnot_x_block #solo', function()
+describe('cnot_x_block', function()
   local cnot_x
 
   before_each(function()

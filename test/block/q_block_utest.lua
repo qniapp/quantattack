@@ -1,7 +1,7 @@
 require("engine/test/bustedhelper")
 require("lib/block")
 
-describe('q_block #solo', function()
+describe('q_block', function()
   local q
 
   before_each(function()
