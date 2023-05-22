@@ -36,7 +36,7 @@ describe('CNOT や SWAP が残る/ちぎれる問題', function()
       board:update()
     end
 
-    assert.are_equal("i", board:block_at(3, 1).type)
-    assert.are_equal("i", board:block_at(4, 1).type)
+    assert.are.equal("i", board:block_at(3, 1).type)
+    assert.are.equal("i", board:block_at(4, 1).type)
   end)
 end)

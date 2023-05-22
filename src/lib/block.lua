@@ -46,7 +46,7 @@ function block_class.is_reducible(_ENV)
 end
 
 function block_class:is_swappable_state()
-  return self.state == "idle" or self.state == "falling"
+  return self.state == "idle" or self.state == "fall"
 end
 
 function block_class:swap_with(direction)
@@ -56,7 +56,7 @@ function block_class:swap_with(direction)
 end
 
 function block_class:hover(timer)
-  self.timer = timer or 12
+  self.timer = timer or 12 -- ホバー状態はデフォルトで 12 フレーム
   self:change_state("hover")
 end
 
@@ -67,11 +67,11 @@ function block_class:fall()
   assert(self.y, "y is not set")
   --#endif
 
-  if self.state == "falling" then
+  if self.state == "fall" then
     return
   end
 
-  self:change_state("falling")
+  self:change_state("fall")
 end
 
 function block_class.replace_with(_ENV, other, match_index, _chain_id, garbage_span, garbage_height)
@@ -182,7 +182,7 @@ function block_class:attach(observer)
 end
 
 function block_class.change_state(_ENV, new_state)
-  _timer_landing, _tick_swap = (state == "falling") and 12 or 0, 0
+  _timer_landing, _tick_swap = (state == "fall") and 12 or 0, 0
 
   local old_state = state
   state = new_state
@@ -201,7 +201,7 @@ local type_string = {
 local state_string = {
   idle = " ",
   hover = "^",
-  falling = "|",
+  fall = "|",
   match = "*",
   freeze = "f",
 }

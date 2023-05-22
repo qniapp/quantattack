@@ -59,8 +59,8 @@ describe('board', function()
         board:update()
         board:update() -- idle 状態に遷移
 
-        assert.are_equal("x", board:block_at(1, 1).type)
-        assert.are_equal("h", board:block_at(2, 1).type)
+        assert.are.equal("x", board:block_at(1, 1).type)
+        assert.are.equal("h", board:block_at(2, 1).type)
       end)
     end)
 
@@ -76,8 +76,8 @@ describe('board', function()
         board:update()
         board:update() -- idle 状態に遷移
 
-        assert.are_equal("i", board:block_at(1, 1).type)
-        assert.are_equal("h", board:block_at(2, 1).type)
+        assert.are.equal("i", board:block_at(1, 1).type)
+        assert.are.equal("h", board:block_at(2, 1).type)
       end)
     end)
 
@@ -151,7 +151,7 @@ describe('board', function()
       end)
     end)
 
-    describe("falling 状態のブロックとの入れ替え", function()
+    describe("fall 状態のブロックとの入れ替え", function()
       local h_gate
 
       before_each(function()
@@ -160,11 +160,11 @@ describe('board', function()
         h_gate:fall()
       end)
 
-      it("左のブロックが falling 状態の場合、swap は true を返す", function()
+      it("左のブロックが fall 状態の場合、swap は true を返す", function()
         assert.is_true(board:swap(2, 16))
       end)
 
-      it("右のブロックが falling 状態の場合、swap は true を返す", function()
+      it("右のブロックが fall 状態の場合、swap は true を返す", function()
         assert.is_true(board:swap(1, 16))
       end)
     end)

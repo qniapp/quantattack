@@ -58,7 +58,7 @@ describe('連鎖 (chain)', function()
 
     board:update()
 
-    assert.are_equal(1, board._chain_count["1,2"])
+    assert.are.equal(1, board._chain_count["1,2"])
   end)
 
   it("2 連鎖", function()
@@ -75,7 +75,7 @@ describe('連鎖 (chain)', function()
       board:update()
     end
 
-    assert.are_equal(2, board._chain_count["1,3"])
+    assert.are.equal(2, board._chain_count["1,3"])
   end)
 
   it("2 連鎖 (ほかのブロックに変化したものとさらにマッチ)", function()
@@ -90,7 +90,7 @@ describe('連鎖 (chain)', function()
       board:update()
     end
 
-    assert.are_equal(2, board._chain_count["1,2"])
+    assert.are.equal(2, board._chain_count["1,2"])
   end)
 
   it("3 連鎖 (ほかのブロックに変化したものとさらにマッチ)", function()
@@ -107,7 +107,7 @@ describe('連鎖 (chain)', function()
       board:update()
     end
 
-    assert.are_equal(3, board._chain_count["1,2"])
+    assert.are.equal(3, board._chain_count["1,2"])
   end)
 
   -- G G G      X Y Z
@@ -150,9 +150,9 @@ describe('連鎖 (chain)', function()
     assert.is_false(board:block_at(2, 3).state == "freeze")
     assert.is_false(board:block_at(3, 3).state == "freeze")
 
-    assert.are_equal("1,2", board:block_at(1, 3).chain_id)
-    assert.are_equal("1,2", board:block_at(2, 3).chain_id)
-    assert.are_equal("1,2", board:block_at(3, 3).chain_id)
+    assert.are.equal("1,2", board:block_at(1, 3).chain_id)
+    assert.are.equal("1,2", board:block_at(2, 3).chain_id)
+    assert.are.equal("1,2", board:block_at(3, 3).chain_id)
 
     -- 下の Y とマッチするように
     -- おじゃまブロック真ん中が分解してできたブロックを Y にする
@@ -173,7 +173,7 @@ describe('連鎖 (chain)', function()
     assert.is_true(board:block_at(2, 1).state == "match")
 
     -- 全部で 2 連鎖
-    assert.are_equal(2, board._chain_count["1,2"])
+    assert.are.equal(2, board._chain_count["1,2"])
   end)
 
   it("chaina_id を持つブロックが接地すると chain_id が消える", function()

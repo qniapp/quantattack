@@ -10,7 +10,7 @@ describe('player', function()
 
   describe('constructor', function()
     it("creates a player with score = 0", function()
-      assert.are_equal(0, player.score)
+      assert.are.equal(0, player.score)
     end)
   end)
 
@@ -20,7 +20,7 @@ describe('player', function()
 
       player:init()
 
-      assert.are_equal(0, player.score)
+      assert.are.equal(0, player.score)
     end)
   end)
 end)

@@ -552,7 +552,7 @@ function board_class.swap(_ENV, x_left, y)
   local left_block, right_block = block_at(_ENV, x_left, y), block_at(_ENV, x_right, y)
 
   -- 入れ替えできない場合
-  --  1. 左または右の状態が idle や falling でない
+  --  1. 左または右の状態が idle や fall でない
   --  2. 左または右が # ブロック
   --  3. 左または右がおじゃまブロックの一部
   --  4. CNOT または SWAP の一部と単一ブロックを入れ替えようとしている場合
@@ -751,16 +751,16 @@ function board_class._update_game(_ENV, game, player, other_board)
         end
 
         -- 落下できるブロックをホバー状態にする
-        if block.state ~= "falling" and
+        if block.state ~= "fall" and
             block.state ~= "hover" and
-            is_block_fallable(_ENV, x, y) then
+            _is_block_fallable(_ENV, x, y) then
           if not block.other_x then -- 単体ブロックとおじゃまゲート
             block:hover()
             if y > 1 and blocks[y - 1][x].state == "hover" then
               block.timer = blocks[y - 1][x].timer
             end
           else -- CNOT または SWAP
-            if x < block.other_x and is_block_fallable(_ENV, block.other_x, y) then
+            if x < block.other_x and _is_block_fallable(_ENV, block.other_x, y) then
               block:hover()
               blocks[y][block.other_x]:hover(block.timer + 1)
             end
@@ -799,8 +799,8 @@ function board_class._update_game(_ENV, game, player, other_board)
           block.chain_id = nil
         end
 
-        if block.state == "falling" then
-          if not is_block_fallable(_ENV, x, y) then
+        if block.state == "fall" then
+          if not _is_block_fallable(_ENV, x, y) then
             if block.type == "g" then
               bounce(_ENV)
               sfx(9)
@@ -824,7 +824,7 @@ function board_class._update_game(_ENV, game, player, other_board)
                 put(_ENV, x, y - 1, block)
 
                 local other_block = blocks[y][block.other_x]
-                other_block.state = "falling"
+                other_block.state = "fall"
                 remove_block(_ENV, block.other_x, y)
                 put(_ENV, block.other_x, y - 1, other_block)
               end
@@ -957,7 +957,9 @@ function board_class.propagatable_hover_timer(_ENV, x, y)
 end
 
 -- ブロック x, y が x, y - 1 に落とせるかどうかを返す
-function board_class.is_block_fallable(_ENV, x, y)
+--
+-- TODO: プライベートメソッドなので、名前を _is_block_fallable に変更
+function board_class._is_block_fallable(_ENV, x, y)
   return _memoize(_ENV, _is_block_fallable_nocache, cache_is_block_fallable, x, y)
 end
 
@@ -969,7 +971,7 @@ function board_class._is_block_fallable_nocache(_ENV, x, y)
   end
 
   for_all_nonempty_blocks_below(_ENV, x, y, function(each)
-    if each.state ~= "falling" then
+    if each.state ~= "fall" then
       fallable = false
     end
   end)
@@ -1046,7 +1048,7 @@ function board_class.observable_update(_ENV, block, old_state)
 
   -- 状態が hover から idle になった時、もし
   --   1. 下のブロックが空、または
-  --   2. falling 状態の場合
+  --   2. fall 状態の場合
   -- なら、ブロックを落とす
   --
   --  (1)        (2)
@@ -1056,7 +1058,7 @@ function board_class.observable_update(_ENV, block, old_state)
   --            │ ↓ │
   --            └───┘
   --
-  if old_state == "hover" and is_block_fallable(_ENV, x, y) then
+  if old_state == "hover" and _is_block_fallable(_ENV, x, y) then
     --#if assert
     assert(block.state == "idle", "ブロックの状態遷移がおかしい")
     --#endif

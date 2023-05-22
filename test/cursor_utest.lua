@@ -10,8 +10,8 @@ describe('cursor', function()
 
   describe('constructor', function()
     it('should be placed at x = 3, y = 6 by default', function()
-      assert.are_equal(3, cursor.x)
-      assert.are_equal(6, cursor.y)
+      assert.are.equal(3, cursor.x)
+      assert.are.equal(6, cursor.y)
     end)
   end)
 
@@ -19,8 +19,8 @@ describe('cursor', function()
     it("should move left", function()
       cursor:move_left()
 
-      assert.are_equal(2, cursor.x)
-      assert.are_equal(6, cursor.y)
+      assert.are.equal(2, cursor.x)
+      assert.are.equal(6, cursor.y)
     end)
 
     it("should not move any further to the left when reaching the left edge", function()
@@ -29,8 +29,8 @@ describe('cursor', function()
 
       cursor:move_left()
 
-      assert.are_equal(1, cursor.x)
-      assert.are_equal(6, cursor.y)
+      assert.are.equal(1, cursor.x)
+      assert.are.equal(6, cursor.y)
     end)
   end)
 
@@ -38,8 +38,8 @@ describe('cursor', function()
     it("should move right", function()
       cursor:move_right(6)
 
-      assert.are_equal(4, cursor.x)
-      assert.are_equal(6, cursor.y)
+      assert.are.equal(4, cursor.x)
+      assert.are.equal(6, cursor.y)
     end)
 
     it("should not move any further to the right when reaching the right edge", function()
@@ -48,8 +48,8 @@ describe('cursor', function()
 
       cursor:move_right(6)
 
-      assert.are_equal(5, cursor.x)
-      assert.are_equal(6, cursor.y)
+      assert.are.equal(5, cursor.x)
+      assert.are.equal(6, cursor.y)
     end)
   end)
 
@@ -57,8 +57,8 @@ describe('cursor', function()
     it("should move up", function()
       cursor:move_up(12)
 
-      assert.are_equal(3, cursor.x)
-      assert.are_equal(7, cursor.y)
+      assert.are.equal(3, cursor.x)
+      assert.are.equal(7, cursor.y)
     end)
 
     it("should not move any upper when reaching the dead line", function()
@@ -71,8 +71,8 @@ describe('cursor', function()
 
       cursor:move_up(12)
 
-      assert.are_equal(3, cursor.x)
-      assert.are_equal(12, cursor.y)
+      assert.are.equal(3, cursor.x)
+      assert.are.equal(12, cursor.y)
     end)
   end)
 
@@ -80,8 +80,8 @@ describe('cursor', function()
     it("should move down", function()
       cursor:move_down()
 
-      assert.are_equal(3, cursor.x)
-      assert.are_equal(5, cursor.y)
+      assert.are.equal(3, cursor.x)
+      assert.are.equal(5, cursor.y)
     end)
 
     it("should not move any further down when reaching the bottom", function()
@@ -93,8 +93,8 @@ describe('cursor', function()
 
       cursor:move_down()
 
-      assert.are_equal(3, cursor.x)
-      assert.are_equal(1, cursor.y)
+      assert.are.equal(3, cursor.x)
+      assert.are.equal(1, cursor.y)
     end)
   end)
 
@@ -104,7 +104,7 @@ describe('cursor', function()
 
       cursor:update()
 
-      assert.are_equal(tick + 1, cursor._tick)
+      assert.are.equal(tick + 1, cursor._tick)
     end)
   end)
 end)

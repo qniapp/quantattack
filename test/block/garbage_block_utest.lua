@@ -7,13 +7,13 @@ describe('garbage_block', function()
     it("幅はデフォルトで 6", function()
       local garbage = garbage_block()
 
-      assert.are_equal(6, garbage.span)
+      assert.are.equal(6, garbage.span)
     end)
 
     it("幅 (span) を指定して生成", function()
       local garbage = garbage_block(3)
 
-      assert.are_equal(3, garbage.span)
+      assert.are.equal(3, garbage.span)
     end)
 
     it("幅を 2 以下に指定するとエラー", function()
@@ -29,13 +29,13 @@ describe('garbage_block', function()
     it("高さはデフォルトで 1", function()
       local garbage = garbage_block(3)
 
-      assert.are_equal(1, garbage.height)
+      assert.are.equal(1, garbage.height)
     end)
 
     it("高さ (height) を指定して生成", function()
       local garbage = garbage_block(3, 4)
 
-      assert.are_equal(4, garbage.height)
+      assert.are.equal(4, garbage.height)
     end)
   end)
 
@@ -44,13 +44,13 @@ describe('garbage_block', function()
       local garbage
 
       garbage = garbage_block(6, 1, 2)
-      assert.are_equal(2, garbage.body_color)
+      assert.are.equal(2, garbage.body_color)
 
       garbage = garbage_block(6, 1, 3)
-      assert.are_equal(3, garbage.body_color)
+      assert.are.equal(3, garbage.body_color)
 
       garbage = garbage_block(6, 1, 4)
-      assert.are_equal(4, garbage.body_color)
+      assert.are.equal(4, garbage.body_color)
     end)
 
     it("色が正しくない場合エラー", function()
@@ -70,9 +70,9 @@ describe('garbage_block', function()
     end)
 
     it("色に応じて inner_border_color をセットする", function()
-      assert.are_equal(14, garbage_block(6, 1, 2).inner_border_color)
-      assert.are_equal(11, garbage_block(6, 1, 3).inner_border_color)
-      assert.are_equal(9, garbage_block(6, 1, 4).inner_border_color)
+      assert.are.equal(14, garbage_block(6, 1, 2).inner_border_color)
+      assert.are.equal(11, garbage_block(6, 1, 3).inner_border_color)
+      assert.are.equal(9, garbage_block(6, 1, 4).inner_border_color)
     end)
   end)
 

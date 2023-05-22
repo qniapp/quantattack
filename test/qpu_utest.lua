@@ -10,7 +10,7 @@ describe('qpu', function()
     it("creates a qpu with score = 0", function()
       local qpu = qpu_class()
 
-      assert.are_equal(0, qpu.score)
+      assert.are.equal(0, qpu.score)
     end)
   end)
 
@@ -21,7 +21,7 @@ describe('qpu', function()
 
       qpu:_init()
 
-      assert.are_equal(0, qpu.score)
+      assert.are.equal(0, qpu.score)
     end)
   end)
 
@@ -48,11 +48,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
 
       -- [C-]-X
@@ -64,11 +64,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
 
       -- [C-X]
@@ -80,11 +80,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
 
       -- X-[C ]
@@ -96,11 +96,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
 
       -- [  X]-C
@@ -116,11 +116,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
 
       --  X[--C]
@@ -136,11 +136,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
 
       --  X-C  ■
@@ -156,11 +156,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
 
       --  X-C ■
@@ -176,11 +176,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
     end)
 
@@ -195,11 +195,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
 
       --        [  T]
@@ -212,11 +212,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
 
       --   [T  ]
@@ -230,11 +230,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
 
       --       [  T]
@@ -248,11 +248,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
 
       -- [  T]
@@ -266,12 +266,12 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(5, #qpu.commands)
-        assert.are_equal("right", qpu.commands[1])
-        assert.are_equal("x", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
-        assert.are_equal("sleep", qpu.commands[5])
+        assert.are.equal(5, #qpu.commands)
+        assert.are.equal("right", qpu.commands[1])
+        assert.are.equal("x", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
+        assert.are.equal("sleep", qpu.commands[5])
       end)
 
       --         [T  ]
@@ -285,12 +285,12 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(5, #qpu.commands)
-        assert.are_equal("left", qpu.commands[1])
-        assert.are_equal("x", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
-        assert.are_equal("sleep", qpu.commands[5])
+        assert.are.equal(5, #qpu.commands)
+        assert.are.equal("left", qpu.commands[1])
+        assert.are.equal("x", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
+        assert.are.equal("sleep", qpu.commands[5])
       end)
 
       --     [T  ]
@@ -304,12 +304,12 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(5, #qpu.commands)
-        assert.are_equal("left", qpu.commands[1])
-        assert.are_equal("x", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
-        assert.are_equal("sleep", qpu.commands[5])
+        assert.are.equal(5, #qpu.commands)
+        assert.are.equal("left", qpu.commands[1])
+        assert.are.equal("x", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
+        assert.are.equal("sleep", qpu.commands[5])
       end)
 
       --     [  T]
@@ -323,12 +323,12 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(5, #qpu.commands)
-        assert.are_equal("right", qpu.commands[1])
-        assert.are_equal("x", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
-        assert.are_equal("sleep", qpu.commands[5])
+        assert.are.equal(5, #qpu.commands)
+        assert.are.equal("right", qpu.commands[1])
+        assert.are.equal("x", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
+        assert.are.equal("sleep", qpu.commands[5])
       end)
     end)
 
@@ -348,11 +348,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
 
       --         [  T]
@@ -370,11 +370,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
 
       --   [T  ]
@@ -392,11 +392,11 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(4, #qpu.commands)
-        assert.are_equal("x", qpu.commands[1])
-        assert.are_equal("sleep", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
+        assert.are.equal(4, #qpu.commands)
+        assert.are.equal("x", qpu.commands[1])
+        assert.are.equal("sleep", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
       end)
 
       --         [T  ]
@@ -414,12 +414,12 @@ describe('qpu', function()
 
         qpu:update()
 
-        assert.are_equal(5, #qpu.commands)
-        assert.are_equal("left", qpu.commands[1])
-        assert.are_equal("x", qpu.commands[2])
-        assert.are_equal("sleep", qpu.commands[3])
-        assert.are_equal("sleep", qpu.commands[4])
-        assert.are_equal("sleep", qpu.commands[5])
+        assert.are.equal(5, #qpu.commands)
+        assert.are.equal("left", qpu.commands[1])
+        assert.are.equal("x", qpu.commands[2])
+        assert.are.equal("sleep", qpu.commands[3])
+        assert.are.equal("sleep", qpu.commands[4])
+        assert.are.equal("sleep", qpu.commands[5])
       end)
     end)
 
@@ -442,13 +442,13 @@ describe('qpu', function()
 
     --   qpu:update()
 
-    --   assert.are_equal(6, #qpu.commands)
-    --   assert.are_equal("left", qpu.commands[1])
-    --   assert.are_equal("x", qpu.commands[2])
-    --   assert.are_equal("sleep", qpu.commands[3])
-    --   assert.are_equal("sleep", qpu.commands[4])
-    --   assert.are_equal("sleep", qpu.commands[5])
-    --   assert.are_equal("sleep", qpu.commands[6])
+    --   assert.are.equal(6, #qpu.commands)
+    --   assert.are.equal("left", qpu.commands[1])
+    --   assert.are.equal("x", qpu.commands[2])
+    --   assert.are.equal("sleep", qpu.commands[3])
+    --   assert.are.equal("sleep", qpu.commands[4])
+    --   assert.are.equal("sleep", qpu.commands[5])
+    --   assert.are.equal("sleep", qpu.commands[6])
     -- end)
 
     -- -- ボードが次のようになっているとき、
@@ -470,12 +470,12 @@ describe('qpu', function()
 
     --   qpu:update()
 
-    --   -- assert.are_equal(5, #qpu.commands)
-    --   assert.are_equal("x", qpu.commands[1])
-    --   assert.are_equal("sleep", qpu.commands[2])
-    --   assert.are_equal("sleep", qpu.commands[3])
-    --   assert.are_equal("sleep", qpu.commands[4])
-    --   assert.are_equal("sleep", qpu.commands[5])
+    --   -- assert.are.equal(5, #qpu.commands)
+    --   assert.are.equal("x", qpu.commands[1])
+    --   assert.are.equal("sleep", qpu.commands[2])
+    --   assert.are.equal("sleep", qpu.commands[3])
+    --   assert.are.equal("sleep", qpu.commands[4])
+    --   assert.are.equal("sleep", qpu.commands[5])
     -- end)
 
     -- ボードが次のようになっているとき、
@@ -495,11 +495,11 @@ describe('qpu', function()
 
       qpu:update()
 
-      assert.are_equal(4, #qpu.commands)
-      assert.are_equal("x", qpu.commands[1])
-      assert.are_equal("sleep", qpu.commands[2])
-      assert.are_equal("sleep", qpu.commands[3])
-      assert.are_equal("sleep", qpu.commands[4])
+      assert.are.equal(4, #qpu.commands)
+      assert.are.equal("x", qpu.commands[1])
+      assert.are.equal("sleep", qpu.commands[2])
+      assert.are.equal("sleep", qpu.commands[3])
+      assert.are.equal("sleep", qpu.commands[4])
     end)
 
     -- -- ボードが次のようになっているとき、
@@ -520,12 +520,12 @@ describe('qpu', function()
 
     --   qpu:update()
 
-    --   assert.are_equal(5, #qpu.commands)
-    --   assert.are_equal("x", qpu.commands[1])
-    --   assert.are_equal("sleep", qpu.commands[2])
-    --   assert.are_equal("sleep", qpu.commands[3])
-    --   assert.are_equal("sleep", qpu.commands[4])
-    --   assert.are_equal("sleep", qpu.commands[5])
+    --   assert.are.equal(5, #qpu.commands)
+    --   assert.are.equal("x", qpu.commands[1])
+    --   assert.are.equal("sleep", qpu.commands[2])
+    --   assert.are.equal("sleep", qpu.commands[3])
+    --   assert.are.equal("sleep", qpu.commands[4])
+    --   assert.are.equal("sleep", qpu.commands[5])
     -- end)
 
     -- -- ボードが次のようになっているとき、
@@ -542,12 +542,12 @@ describe('qpu', function()
 
     --   qpu:update()
 
-    --   assert.are_equal(5, #qpu.commands)
-    --   assert.are_equal("x", qpu.commands[1])
-    --   assert.are_equal("sleep", qpu.commands[2])
-    --   assert.are_equal("sleep", qpu.commands[3])
-    --   assert.are_equal("sleep", qpu.commands[4])
-    --   assert.are_equal("sleep", qpu.commands[5])
+    --   assert.are.equal(5, #qpu.commands)
+    --   assert.are.equal("x", qpu.commands[1])
+    --   assert.are.equal("sleep", qpu.commands[2])
+    --   assert.are.equal("sleep", qpu.commands[3])
+    --   assert.are.equal("sleep", qpu.commands[4])
+    --   assert.are.equal("sleep", qpu.commands[5])
     -- end)
   end)
 end)

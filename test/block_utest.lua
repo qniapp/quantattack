@@ -7,7 +7,7 @@ describe('block', function()
     it("type を指定", function()
       local g = block_class("i")
 
-      assert.are_equal("i", g.type)
+      assert.are.equal("i", g.type)
     end)
 
     it("すべての type のブロックを作る", function()
@@ -28,21 +28,21 @@ describe('block', function()
 
   describe('span', function()
     it("幅はデフォルトで 1", function()
-      assert.are_equal(1, block_class("i").span)
+      assert.are.equal(1, block_class("i").span)
     end)
 
     it("幅 (span) を指定", function()
-      assert.are_equal(3, block_class("g", 3).span)
+      assert.are.equal(3, block_class("g", 3).span)
     end)
   end)
 
   describe('height', function()
     it("高さはデフォルトで 1", function()
-      assert.are_equal(1, block_class("i").height)
+      assert.are.equal(1, block_class("i").height)
     end)
 
     it("高さ (height) を指定", function()
-      assert.are_equal(4, block_class("g", 1, 4).height)
+      assert.are.equal(4, block_class("g", 1, 4).height)
     end)
   end)
 
@@ -113,10 +113,10 @@ describe('block', function()
       assert.has_no.errors(function() block:fall() end)
     end)
 
-    it('should transition its state to falling', function()
+    it('should transition its state to fall', function()
       block:fall()
 
-      assert.is_true(block.state == "falling")
+      assert.is_true(block.state == "fall")
     end)
   end)
 
@@ -128,6 +128,6 @@ describe('block', function()
 
     block:replace_with(other_block)
 
-    assert.are_equal(other_block, block.new_block)
+    assert.are.equal(other_block, block.new_block)
   end)
 end)
