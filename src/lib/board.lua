@@ -37,7 +37,7 @@ function board_class.init(_ENV, _cols)
 
   tick, steps, pending_garbage_blocks, _flash_col_timer, _flash_col_colors, _check_hover_flag, cache_reduce,
   cache_is_block_fallable, cache_is_empty =
-    0, 0, pending_garbage_blocks_class(), {}, split("1,1,1,1,1,1,5,5,5,5,5,13,13,7"), {}, {}, {}, {}
+      0, 0, pending_garbage_blocks_class(), {}, split("1,1,1,1,1,1,5,5,5,5,5,13,13,7"), {}, {}, {}, {}
 
   for y = 0, rows do
     reducible_blocks[y], _check_hover_flag[y] = {}, {}
@@ -230,8 +230,8 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
             blocks[y + dy][x + dx]:replace_with(
               dy == 0 and _random_single_block(_ENV) or
               ((dy == 1 and dx == 0) and
-              garbage_block(garbage_span, garbage_height - 1, each.body_color) or
-              block_class("i")),
+                garbage_block(garbage_span, garbage_height - 1, each.body_color) or
+                block_class("i")),
               dx + dy * garbage_span,
               dy == 0 and each.chain_id or nil,
               garbage_span,
@@ -882,64 +882,55 @@ end
 function board_class._is_empty_nocache(_ENV, x, y)
   local block = block_at(_ENV, x, y)
 
-  return block.type == "i" and block.state ~= "swap" and -- (x, y) is empty
-      not (_garbage_head_block(_ENV, x, y) ~= nil or -- (x, y) is part of garbage
-           (_cnot_head_block(_ENV, x, y) ~= nil) or -- (x, y) is part of CNOT
-           (_swap_head_block(_ENV, x, y) ~= nil)) -- (x, y) is part of SWAP
+  -- 次の 1 〜 4 をすべて満たすならば、(x, y) は空
+  --
+  -- 1. ブロックのない場所 (I) であり、入れ替え中でない
+  -- 2. CNOT や SWAP の一部でない
+  -- 3. おじゃまブロックの上でない
+  return block.type == "i" and block.state ~= "swap" and -- 1
+      _cnot_or_swap_head_block(_ENV, x, y) == nil and    -- 2
+      _garbage_head_block(_ENV, x, y) == nil             -- 3
 end
 
-function board_class._block_or_its_head_block(_ENV, x, y)
-  return _garbage_head_block(_ENV, x, y) or
-      _cnot_head_block(_ENV, x, y) or
-      _swap_head_block(_ENV, x, y) or
-      blocks[y][x]
-end
-
--- x, y がおじゃまブロックの一部であった場合、
--- おじゃまブロック先頭のブロックを返す
+-- (x, y) が CNOT または SWAP の一部であった場合、
+-- 左端のブロック (control または cnot_x または swap) を返す
 -- 一部でない場合は nil を返す
+function board_class._cnot_or_swap_head_block(_ENV, x, y)
+  local block = blocks[y][x]
+  if block.type == "cnot_x" or block.type == "control" or block.type == "swap" then
+    return block
+  end
+
+  for tmp_x = 1, x - 1 do
+    local block = blocks[y][tmp_x]
+
+    if (block.type == "cnot_x" or block.type == "control" or block.type == "swap") and
+      x < block.other_x then
+      return block
+    end
+  end
+end
+
+--- (x, y) がおじゃまブロックの一部であった場合、おじゃまブロック先頭のブロックを返す
+-- そうでない場合は nil を返す
 function board_class._garbage_head_block(_ENV, x, y)
   for _, each in pairs(_garbage_blocks) do
-    local garbage_x, garbage_y = each.x, each.y
-    if garbage_x <= x and x <= garbage_x + each.span - 1 and     -- 幅に x が含まれる
-        garbage_y <= y and y <= garbage_y + each.height - 1 then -- 高さに y が含まれる
+    -- NOTE: 以下のように each.x, each.y に一時変数を割り当てるよりも、
+    -- 直接書いたほうが 3 トークン小さい
+    --
+    --   local garbage_x, garbage_y = each.x, each.y
+    --
+    if each.x <= x and x <= each.x + each.span - 1 and     -- 幅に x が含まれる
+        each.y <= y and y <= each.y + each.height - 1 then -- 高さに y が含まれる
       return each
     end
   end
-
-  return nil
 end
 
--- x, y が CNOT の一部であった場合、
--- CNOT 左端のブロック (control または cnot_x) を返す
--- 一部でない場合は nil を返す
-function board_class._cnot_head_block(_ENV, x, y)
-  for tmp_x = 1, x - 1 do
-    local block = blocks[y][tmp_x]
-
-    if (block.type == "cnot_x" or block.type == "control") and x < block.other_x then
-      return block
-    end
-  end
-
-  local block = blocks[y][x]
-  return (block.type == "cnot_x" or block.type == "control") and block or nil
-end
-
--- x, y が SWAP ペアの一部であった場合、
--- SWAP ペア左端のブロックを返す
--- 一部でない場合は nil を返す
-function board_class._swap_head_block(_ENV, x, y)
-  for tmp_x = 1, x - 1 do
-    local block = blocks[y][tmp_x]
-
-    if block.type == "swap" and x < block.other_x then
-      return block
-    end
-  end
-
-  local block = blocks[y][x]
-  return block.type == "swap" and block or nil
+function board_class._block_or_its_head_block(_ENV, x, y)
+  return _cnot_or_swap_head_block(_ENV, x, y) or
+    _garbage_head_block(_ENV, x, y) or
+    blocks[y][x]
 end
 
 --- ブロック x, y の直下のブロックでホバー状態にあるもののうち、
