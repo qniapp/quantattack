@@ -4,7 +4,7 @@ require("engine/test/bustedhelper")
 require("test/test_helper")
 require("lib/board")
 
-describe('board:is_empty() #solo', function()
+describe('board:is_empty()', function()
   local board
 
   before_each(function()
