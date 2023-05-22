@@ -1,3 +1,5 @@
+---@diagnostic disable: lowercase-global
+
 require("lib/cursor")
 require("lib/block")
 require("lib/reduction_rules")
@@ -896,16 +898,11 @@ end
 -- 左端のブロック (control または cnot_x または swap) を返す
 -- 一部でない場合は nil を返す
 function board_class._cnot_or_swap_head_block(_ENV, x, y)
-  local block = blocks[y][x]
-  if block.type == "cnot_x" or block.type == "control" or block.type == "swap" then
-    return block
-  end
-
   for tmp_x = 1, x - 1 do
     local block = blocks[y][tmp_x]
 
     if (block.type == "cnot_x" or block.type == "control" or block.type == "swap") and
-      x < block.other_x then
+      (tmp_x == x or x < block.other_x) then
       return block
     end
   end
@@ -980,7 +977,7 @@ function board_class._is_block_fallable_nocache(_ENV, x, y)
   return fallable
 end
 
--- x, y で指定するブロックの下にあるすべてのブロックに対して、f を適用する
+-- x, y で指定するブロックの直下にあるすべてのブロックに対して、f を適用する
 function board_class.for_all_nonempty_blocks_below(_ENV, x, y, f)
   local block = blocks[y][x]
 
