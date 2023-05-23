@@ -134,7 +134,12 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
               if block_to_fall.state == "match" then
                 goto next_reduction
               end
-              block_to_fall.chain_id = chain_id
+
+              if block_to_fall.chain_id == nil or
+                _chain_count[block_to_fall.chain_id] == nil or
+                (_chain_count[chain_id] and _chain_count[chain_id] > _chain_count[block_to_fall.chain_id]) then
+                block_to_fall.chain_id = chain_id
+              end
             end
           end
 
@@ -226,7 +231,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
             --
             --                    ┌─────────────┐
             --                    │ i  i  i  i  │
-            -- new garbage head ──┼▶g  i  i  i  │
+            -- new garbage head ──┼>g  i  i  i  │
             --       (x=0,dy=1)   │ ██ ██ ██ ██ │ random block (dy=0)
             --                    └─────────────┘
             blocks[y + dy][x + dx]:replace_with(
@@ -235,7 +240,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
                 garbage_block(garbage_span, garbage_height - 1, each.body_color) or
                 block_class("i")),
               dx + dy * garbage_span,
-              dy == 0 and each.chain_id or nil,
+              (dy == 0 or (dy == 1 and dx == 0)) and each.chain_id or nil,
               garbage_span,
               garbage_height
             )
