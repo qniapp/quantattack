@@ -50,7 +50,7 @@ def build_cartridge_command(name, build = :debug, *symbols)
   "./pico-boots/scripts/build_cartridge.sh \"#{File.join(__dir__, './src')}\" main_#{name}.lua " \
      "-d \"#{File.join(__dir__, "data/builtin_data_#{name}.p8")}\" " \
      "-M \"#{File.join(__dir__, 'data/metadata.p8')}\" " \
-     "-a yasuhito -t \"quantattack v#{version} (#{build})\" " \
+     "-a yasuhito -t \"quantattack v#{version} (#{name})\" " \
      "-p \"#{File.join(__dir__, "build/v#{version}_#{build}")}\" " \
      "-o quantattack_#{name} " \
      "-s \"#{symbols_option}\" " \
