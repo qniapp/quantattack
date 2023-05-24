@@ -4,7 +4,7 @@ require("lib/effects")
 require("test/test_helper")
 require("lib/board")
 
-describe('連鎖 (chain) #solo', function()
+describe('連鎖 (chain)', function()
   local board
 
   local put = function(x, y, block_or_block_type, other_x)
@@ -53,7 +53,7 @@ describe('連鎖 (chain) #solo', function()
     assert.are.equal("1,2", chain_id_at(1, 1))
   end)
 
-  it("chain_id が付いたブロックは、着地すると chain_id が消える #solo", function()
+  it("chain_id が付いたブロックは、着地すると chain_id が消える", function()
     --  ┌───┐
     --  │ T │
     --  ├───┤
@@ -104,7 +104,7 @@ describe('連鎖 (chain) #solo', function()
     assert.are.equal(1, board._chain_count["1,2"])
   end)
 
-  it("2 連鎖 #solo", function()
+  it("2 連鎖", function()
     --  ┌───┐
     --  │ X │
     --  ├───┤
@@ -377,7 +377,7 @@ describe('連鎖 (chain) #solo', function()
   -- g g g g g g
   --   X       Y
   -- # X # # # #
-  it("連鎖バグ？ つぶし", function()
+  it("おじゃまブロックに chain_id を付ける", function()
     put(1, 3, garbage_block(6, 2))
     put(2, 2, 'x')
     put(6, 2, 'y')
@@ -434,6 +434,38 @@ describe('連鎖 (chain) #solo', function()
 
     -- ここで 2 連鎖
     assert.are.equal(2, board._chain_count["2,2"])
+
+    -- おじゃまブロックの下段が落ちるまで待つ
+    repeat
+      board:update()
+    until block_at(1, 2).type == "z"
+
+    -- おじゃまブロックの上段が分解しフリーズ状態になるまで待つ
+    repeat
+      board:update()
+    until block_at(6, 4).state == "freeze"
+
+    -- おじゃまブロック上段が分解してできたブロックの種類を適切にセット
+    block_at(1, 4).type = "x"
+    block_at(2, 4).type = "x"
+    block_at(3, 4).type = "x"
+    block_at(4, 4).type = "x"
+    block_at(5, 4).type = "x"
+    block_at(6, 4).type = "x"
+
+    -- おじゃまブロックの上段が落ちるまで待つ
+    repeat
+      board:update()
+    until block_at(2, 2).type == 'x' and block_at(2, 2).state == "idle"
+    board:update()
+
+    -- 落ちてきたおじゃまブロックの上段の chain_id が nil になる
+    assert.is_nil(block_at(1, 3).chain_id)
+    assert.is_nil(block_at(2, 2).chain_id)
+    assert.is_nil(block_at(3, 3).chain_id)
+    assert.is_nil(block_at(4, 2).chain_id)
+    assert.is_nil(block_at(5, 3).chain_id)
+    assert.is_nil(block_at(6, 3).chain_id)
   end)
 
   it("chaina_id を持つブロックが接地すると chain_id が消える", function()
