@@ -800,7 +800,8 @@ function board_class._update_game(_ENV, game, player, other_board)
           top_block_y = y
         end
 
-        if block.state == "idle" and block.chain_id and blocks[y - 1][x].chain_id == nil then
+        -- 着地したブロックの chain_id を消す
+        if block.state == "idle" and block._timer_landing ~= 0 and blocks[y - 1][x].chain_id == nil then
           block.chain_id = nil
         end
 
