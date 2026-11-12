@@ -50,11 +50,14 @@ So the same build plus the same script always gives the same frames. Run it with
 Script tokens are separated by spaces, and `#` starts a comment. The game runs at 60 frames per second.
 
 - `N`: wait N frames.
-- `x`, `o`, `left`, `right`, `up`, `down`: hold for one frame, which is one press. `x:30` holds
-  for 30 frames, which also triggers btnp's key repeat. `left+x` holds both together.
-  `p2.x` is player 2 (vs_human).
+- `x`, `o`, `left`, `right`, `up`, `down`: hold for one frame, which is one press. `x:N` holds
+  for N frames. While held, btnp repeats on held frames 31, 39, 47 and so on (PICO-8's default).
+  `left+x` holds both together. `p2.x` is player 2 (vs_human).
+  Consecutive button tokens stay held, so `x x` is a single 2-frame hold. Use `x 1 x` for two taps.
 - `shot`: save the next frame as `DIR/frame-NNNNN.png` (512x512). `rec:N` saves the next N frames
-  as a GIF.
+  as a real-time GIF (every second frame). Frame counts must be positive, a `rec` may not start
+  inside another, and the script must still have frames after its last `shot`/`rec`.
+  A frame that loads another cart draws nothing, so it gets no screenshot. `qa-run` says so.
 - `--param` is what the title menu passes to the next cart (`stat(6)`). vs_qpu needs it: 1 is the
   hardest QPU, 3 the easiest.
 
@@ -64,7 +67,8 @@ For example, the title demo, then the menu, then endless, then one swap:
 echo '300 shot 1 x 30 right 10 x 400 shot 1 left:3 right 10 x 200 shot 1' | .ultimate/bin/qa-run title -
 ```
 
-Then read the PNGs in `build/qa/title/` to look at the screen. `trace.txt` holds one
+Then read the PNGs in `build/qa/title/` to look at the screen. The default `--out` is
+`build/qa/<cart>`, and a run replaces only its own files there. `trace.txt` holds one
 `frame hash` line per frame. A frame that loads another cart reads `frame jump`. `log.txt` holds
 anything else PICO-8 printed, such as runtime errors.
 
