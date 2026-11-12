@@ -28,18 +28,16 @@ function board_class.init(_ENV, _cols)
       "play", false, false, false, 0, false, false, false
 
   -- ゲームオーバーの線 etc.
-  top_line_start_x, freeze_timer = 0, 0
-
+  top_line_start_x, freeze_timer,
   _chain_count, _topped_out_frame_count, _topped_out_delay_frame_count, _bounce_speed,
-  _bounce_screen_dy =
-      {}, 0, 600, 0, 0
-
+  _bounce_screen_dy,
   -- 各種ブロックの取得
-  blocks, reducible_blocks, _garbage_blocks, contains_q_block = {}, {}, {}, false
+  blocks, reducible_blocks, _garbage_blocks, contains_q_block =
+      0, 0, {}, 0, 600, 0, 0, {}, {}, {}, false
 
   tick, steps, pending_garbage_blocks, _flash_col_timer, _flash_col_colors, _check_hover_flag, cache_reduce,
   cache_is_block_fallable, cache_is_empty =
-      0, 0, pending_garbage_blocks_class(), {}, split("1,1,1,1,1,1,5,5,5,5,5,13,13,7"), {}, {}, {}, {}
+      0, 0, pending_garbage_blocks_class(), {}, split"1,1,1,1,1,1,5,5,5,5,5,13,13,7", {}, {}, {}, {}
 
   for y = 0, rows do
     reducible_blocks[y], _check_hover_flag[y] = {}, {}
@@ -49,8 +47,8 @@ function board_class.init(_ENV, _cols)
 end
 
 function board_class.block_at(_ENV, x, y)
-  if blocks[y] == nil or blocks[y][x] == nil then
-    put(_ENV, x, y, block_class("i"))
+  if not blocks[y] or not blocks[y][x] then
+    put(_ENV, x, y, block_class"i")
   end
 
   return blocks[y][x]
@@ -61,8 +59,7 @@ function board_class.put_random_blocks(_ENV)
     for x = 1, cols do
       -- y = 0 (次のブロック) と、y = 1 .. 4 (下から 4 行) はブロックで埋める
       -- y >= 5 の行は確率的にブロックを置く
-      if y < 5 or
-          (rnd(1) > 0.2 and (not is_empty(_ENV, x, y - 1))) then
+      if y < 5 or rnd(1) > 0.2 and not is_empty(_ENV, x, y - 1) then
         repeat
           put(_ENV, x, y, _random_single_block(_ENV))
         until #reduce(_ENV, x, y, true).to == 0
@@ -75,7 +72,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
   local chain_xy, combo_count = {}
 
   for y = #reducible_blocks, 1, -1 do
-    for x, _ in pairs(reducible_blocks[y] or {}) do
+    for x in pairs(reducible_blocks[y] or {}) do
       local reduction = reduce(_ENV, x, y)
 
       if player then
@@ -91,12 +88,10 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         local chain_id = reduction.chain_id
 
         -- 新しい chain_id の場合 _chain_count を 1 に初期化する
-        if _chain_count[chain_id] == nil then
-          _chain_count[chain_id] = 1
-        else
-          _chain_count[chain_id] = _chain_count[chain_id] + 1
+        if _chain_count[chain_id] then
           chain_xy[chain_id] = { x = x, y = y }
         end
+        _chain_count[chain_id] = (_chain_count[chain_id] or 0) + 1
 
         if combo_count and game.combo_callback then
           -- 同時消し
@@ -115,29 +110,29 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         for index, r in pairs(reduction.to) do
           sfx(35)
 
-          local dx, dy, new_block = r.dx and reduction.dx or 0, r.dy or 0, block_class(r.block_type)
+          local target_x, target_y, new_block = x + (r.dx and reduction.dx or 0), y + (r.dy or 0), block_class(r.block_type)
 
           if new_block.type == "swap" or new_block.type == "cnot_x" or new_block.type == "control" then
             new_block.other_x = x + (r.dx and 0 or reduction.dx)
           end
 
-          if blocks[y + dy] == nil then
-            put(_ENV, y + dy, x + dx, block_class("i"))
+          if not blocks[target_y] then
+            put(_ENV, target_y, target_x, block_class"i")
           end
-          blocks[y + dy][x + dx]:replace_with(new_block, index, chain_id)
-          _flash_col_timer[x + dx] = #_flash_col_colors + 1
+          blocks[target_y][target_x]:replace_with(new_block, index, chain_id)
+          _flash_col_timer[target_x] = #_flash_col_colors + 1
 
           -- ブロックが消える、または変化するとき、その上にあるブロックすべてに chain_id をセット
-          for chainable_y = y + dy + 1, #blocks do
-            local block_to_fall = blocks[chainable_y][x + dx]
+          for chainable_y = target_y + 1, #blocks do
+            local block_to_fall = blocks[chainable_y][target_x]
             if block_to_fall.type ~= "i" then
               if block_to_fall.state == "match" then
                 goto next_reduction
               end
 
-              if block_to_fall.chain_id == nil or
-                _chain_count[block_to_fall.chain_id] == nil or
-                (_chain_count[chain_id] and _chain_count[chain_id] > _chain_count[block_to_fall.chain_id]) then
+              if not block_to_fall.chain_id or
+                not _chain_count[block_to_fall.chain_id] or
+                _chain_count[chain_id] and _chain_count[chain_id] > _chain_count[block_to_fall.chain_id] then
                 block_to_fall.chain_id = chain_id
               end
             end
@@ -151,7 +146,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
   -- おじゃまブロックのマッチ
   repeat
-    local matched_garbage_block_count = 0
+    local matched_garbage_block = false
 
     for _, each in pairs(_garbage_blocks) do
       if each.state == "idle" then
@@ -169,12 +164,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
             return false
           end
 
-          if adjacent_block.type == "?" then
-            if each.body_color == adjacent_block.body_color then
-              each.chain_id = adjacent_block.chain_id
-              return true
-            end
-          else
+          if adjacent_block.type ~= "?" or each.body_color == adjacent_block.body_color then
             each.chain_id = adjacent_block.chain_id
             return true
           end
@@ -195,7 +185,6 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         for gx = x, x + garbage_span - 1 do
           if match_with(gx, y + garbage_height) or
               match_with(gx, y - 1) then
-            matched_garbage_block_count = matched_garbage_block_count + 1
             goto matched
           end
         end
@@ -212,7 +201,6 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         for dy = 0, garbage_height - 1 do
           if match_with(x - 1, y + dy) or
               match_with(x + garbage_span, y + dy) then
-            matched_garbage_block_count = matched_garbage_block_count + 1
             goto matched
           end
         end
@@ -220,10 +208,11 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         goto next_garbage_block
 
         ::matched::
+        matched_garbage_block = true
         for dx = 0, garbage_span - 1 do
           for dy = 0, garbage_height - 1 do
             -- 1. おじゃまブロック全体に ? ブロックをしきつめる
-            q_block = block_class("?")
+            q_block = block_class"?"
             q_block.body_color = each.body_color
             put(_ENV, x + dx, y + dy, q_block)
 
@@ -236,11 +225,11 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
             --                    └─────────────┘
             blocks[y + dy][x + dx]:replace_with(
               dy == 0 and _random_single_block(_ENV) or
-              ((dy == 1 and dx == 0) and
+              (dy == 1 and dx == 0 and
                 garbage_block(garbage_span, garbage_height - 1, each.body_color) or
-                block_class("i")),
+                block_class"i"),
               dx + dy * garbage_span,
-              (dy == 0 or (dy == 1 and dx == 0)) and each.chain_id or nil,
+              (dy == 0 or dy == 1 and dx == 0) and each.chain_id or nil,
               garbage_span,
               garbage_height
             )
@@ -250,42 +239,19 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
       ::next_garbage_block::
     end
-  until matched_garbage_block_count == 0
+  until not matched_garbage_block
 
   -- 連鎖
   for chain_id, xy in pairs(chain_xy) do
     local coord = { screen_x(_ENV, xy.x), screen_y(_ENV, xy.y) }
 
     if game and game.chain_callback then
-      if #pending_garbage_blocks.all > 1 then
-        local offset_height_left =
-            game.block_offset_callback(
-              _chain_count[chain_id],
-              coord,
-              player,
-              _ENV,
-              other_board
-            )
-
-        -- 相殺しても残っていれば、相手に攻撃
-        if offset_height_left > 0 then
-          game.chain_callback(
-            chain_id,
-            _chain_count[chain_id],
-            coord,
-            player,
-            _ENV,
-            other_board
-          )
-        end
-      else
+      -- 相殺しても残っていれば、相手に攻撃
+      if #pending_garbage_blocks.all <= 1 or game.block_offset_callback(
+        _chain_count[chain_id], coord, player, _ENV, other_board
+      ) > 0 then
         game.chain_callback(
-          chain_id,
-          _chain_count[chain_id],
-          coord,
-          player,
-          _ENV,
-          other_board
+          chain_id, _chain_count[chain_id], coord, player, _ENV, other_board
         )
       end
     end
@@ -295,48 +261,43 @@ end
 function board_class.reduce(_ENV, x, y, include_next_blocks)
   if include_next_blocks then
     return _reduce_nocache(_ENV, x, y, true)
-  else
-    return _memoize(_ENV, _reduce_nocache, cache_reduce, x, y)
   end
+  return _memoize(_ENV, _reduce_nocache, cache_reduce, x, y)
 end
 
 function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
   local reduction, block = { to = {}, score = 0 }, blocks[y][x]
-  local rules = reduction_rules[block.type] or {}
-
-  for _, rule in pairs(rules) do
+  for _, rule in pairs(reduction_rules[block.type] or {}) do
     -- other_x と dx を決める
-    local block_pattern_rows, other_x, dx = rule[1]
+    local block_pattern_rows, score, other_x, dx = rule[1], rule[3]
 
-    if (include_next_blocks and y - #block_pattern_rows < -1) or
-        (not include_next_blocks and y - #block_pattern_rows < 0) then
+    if y - #block_pattern_rows < (include_next_blocks and -1 or 0) then
       return reduction
     end
 
     for i, block_types in pairs(block_pattern_rows) do
-      if y - i + 1 < 0 then
+      local current_y, first = y - i + 1, block_types[1]
+      if current_y < 0 then
         goto next_rule
       end
 
       -- other_x と dx を決める際に、パターンにマッチしないブロックがあれば
       -- 先にここではじいておく
-      if block_types[1] ~= "?" then
-        if reducible_block_at(_ENV, x, y - i + 1).type ~= block_types[1] then
-          goto next_rule
-        end
+      if first ~= "?" and
+          reducible_block_at(_ENV, x, current_y).type ~= first then
+        goto next_rule
       end
 
       if block_types[2] then
-        local current_block = reducible_block_at(_ENV, x, y - i + 1)
+        local current_block = reducible_block_at(_ENV, x, current_y)
 
         if current_block.other_x then
-          if current_block.type == block_types[1] then
-            other_x = current_block.other_x
-            dx = other_x - x
-            goto check_match
-          else
+          if current_block.type ~= first then
             goto next_rule
           end
+          other_x = current_block.other_x
+          dx = other_x - x
+          goto check_match
         end
       end
     end
@@ -347,22 +308,22 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
 
     -- マッチするかチェック
     for i, block_types in pairs(block_pattern_rows) do
-      local current_y = y - i + 1
+      local current_y, first, second = y - i + 1, block_types[1], block_types[2]
 
       if current_y < 0 then
         goto next_rule
       end
 
-      if block_types[1] ~= "?" then
+      if first ~= "?" then
         local block1 = reducible_block_at(_ENV, x, current_y)
 
-        if block1.type ~= block_types[1] or
-            (block1.other_x and block1.other_x ~= other_x) then
+        if block1.type ~= first or
+            block1.other_x and block1.other_x ~= other_x then
           goto next_rule
         end
 
         -- SWAP を含むパターンの点数かどうかをチェック
-        if rule[3] == 50 or rule[3] == 60 or rule[3] == 70 or rule[3] == 200 or rule[3] == 300 then
+        if score == 50 or score == 60 or score == 70 or score == 200 or score == 300 then
           contains_swap = true
         end
 
@@ -371,10 +332,10 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
         end
       end
 
-      if block_types[2] then
+      if second then
         local block2 = reducible_block_at(_ENV, other_x, current_y)
-        if block2.type ~= block_types[2] or
-            (block2.other_x and block2.other_x ~= x) then
+        if block2.type ~= second or
+            block2.other_x and block2.other_x ~= x then
           goto next_rule
         end
 
@@ -387,7 +348,7 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
     reduction = {
       to = rule[2],
       dx = dx,
-      score = rule[3],
+      score = score,
       chain_id = chain_id,
       contains_swap = contains_swap
     }
@@ -412,7 +373,7 @@ function board_class.screen_y(_ENV, y)
 end
 
 function board_class._random_single_block(_ENV)
-  return block_class(rnd(split('h,x,y,z,s,t')))
+  return block_class(rnd(split'h,x,y,z,s,t'))
 end
 
 -------------------------------------------------------------------------------
@@ -446,7 +407,7 @@ function board_class.reducible_block_at(_ENV, x, y)
   assert(0 <= y, "y = " .. y)
   --#endif
 
-  return reducible_blocks[y][x] or block_class("i")
+  return reducible_blocks[y][x] or block_class"i"
 end
 
 -- x, y に block を配置し、block.x と block.y をセットする
@@ -463,25 +424,24 @@ function board_class.put(_ENV, x, y, block)
   for tmp_y = 0, y + block.height do
     -- 新しい行 y を追加
     -- TODO: 後で別関数に切り出す
-    if blocks[tmp_y] == nil then
+    if not blocks[tmp_y] then
       blocks[tmp_y] = {}
       for tmp_x = 1, cols do
-        local i_block = block_class("i")
+        local i_block = block_class"i"
         blocks[tmp_y][tmp_x] = i_block
         i_block.x, i_block.y = tmp_x, tmp_y
         i_block:attach(_ENV)
       end
     end
 
-    if _check_hover_flag[tmp_y] == nil then
-      _check_hover_flag[tmp_y] = {}
-    end
+    _check_hover_flag[tmp_y] = _check_hover_flag[tmp_y] or {}
   end
 
   -- おじゃまブロックを分解する時 (= garbage_match ブロックと置き換える時)、
   -- おじゃまブロックキャッシュから消す
-  if blocks[y][x] and blocks[y][x].type == "g" then
-    del(_garbage_blocks, blocks[y][x])
+  local previous = blocks[y][x]
+  if previous and previous.type == "g" then
+    del(_garbage_blocks, previous)
   end
 
   -- 新たにおじゃまブロックを置く場合
@@ -498,7 +458,7 @@ function board_class.put(_ENV, x, y, block)
 end
 
 function board_class.remove_block(_ENV, x, y)
-  put(_ENV, x, y, block_class("i"))
+  put(_ENV, x, y, block_class"i")
 end
 
 function board_class.send_garbage(_ENV, chain_id, span, _height)
@@ -517,10 +477,10 @@ function board_class.insert_blocks_at_bottom(_ENV)
       control_x, cnot_x_x = ceil_rnd(cols), ceil_rnd(cols)
     until control_x ~= cnot_x_x
 
-    local control_block = block_class("control")
+    local control_block = block_class"control"
     control_block.other_x = cnot_x_x
 
-    local cnot_x_block = block_class("cnot_x")
+    local cnot_x_block = block_class"cnot_x"
     cnot_x_block.other_x = control_x
 
     put(_ENV, control_x, 0, control_block)
@@ -562,15 +522,15 @@ function board_class.swap(_ENV, x_left, y)
   --  3. 左または右がおじゃまブロックの一部
   --  4. CNOT または SWAP の一部と単一ブロックを入れ替えようとしている場合
   if not (left_block:is_swappable_state() and right_block:is_swappable_state()) or
-      (left_block.type == "#" or right_block.type == "#") or
-      (_garbage_head_block(_ENV, x_left, y) ~= nil or _garbage_head_block(_ENV, x_right, y) ~= nil) or
-      (left_block.other_x and left_block.other_x < x_left and not is_empty(_ENV, x_right, y)) or
-      (not is_empty(_ENV, x_left, y) and right_block.other_x and x_right < right_block.other_x) then
+      left_block.type == "#" or right_block.type == "#" or
+      _garbage_head_block(_ENV, x_left, y) or _garbage_head_block(_ENV, x_right, y) or
+      left_block.other_x and left_block.other_x < x_left and not is_empty(_ENV, x_right, y) or
+      not is_empty(_ENV, x_left, y) and right_block.other_x and x_right < right_block.other_x then
     return false
   end
 
-  left_block:swap_with("right")
-  right_block:swap_with("left")
+  left_block:swap_with"right"
+  right_block:swap_with"left"
   return true
 end
 
@@ -602,7 +562,7 @@ function board_class.update(_ENV, game, player, other_board)
           if tick_over == 0 then
             blocks[y][x].state = "over"
           elseif tick_over == 20 and not done_over_fx then
-            blocks[y][x] = block_class("i")
+            blocks[y][x] = block_class"i"
             particles:create(
               { screen_x(_ENV, x), screen_y(_ENV, y) },
               "5,5,9,7,,,-0.03,-0.03,40|5,5,9,7,,,-0.03,-0.03,40|4,4,9,7,,,-0.03,-0.03,40|4,4,2,5,,,-0.03,-0.03,40|4,4,6,7,,,-0.03,-0.03,40|2,2,9,7,,,-0.03,-0.03,40|2,2,9,7,,,-0.03,-0.03,40|2,2,6,5,,,-0.03,-0.03,40|2,2,6,5,,,-0.03,-0.03,40|0,0,2,5,,,-0.03,-0.03,40"
@@ -679,16 +639,14 @@ function board_class.render(_ENV)
 
   -- ブロック上限の線を描画
   if not is_game_over(_ENV) then
-    if show_top_line then
-      if top_line_start_x < 73 then
-        line(
-          max(offset_x - 1, offset_x + top_line_start_x - 25),
-          40,
-          min(offset_x + 48, offset_x + top_line_start_x + 5),
-          40,
-          freeze_timer > 0 and 12 or (is_topped_out(_ENV) and 8 or 1)
-        )
-      end
+    if show_top_line and top_line_start_x < 73 then
+      line(
+        max(offset_x - 1, offset_x + top_line_start_x - 25),
+        40,
+        min(offset_x + 48, offset_x + top_line_start_x + 5),
+        40,
+        freeze_timer > 0 and 12 or is_topped_out(_ENV) and 8 or 1
+      )
     end
 
     -- カーソルを描画
@@ -708,10 +666,10 @@ function board_class.render(_ENV)
   -- try again, title を描画
   if show_gameover_menu then
     spr(99, offset_x, 97)
-    print_outlined("try again", offset_x + 11, 98, 1, 7)
+    print_outlined("try again", offset_x + 11, unpack_split"98,1,7")
 
     spr(112, offset_x, 110)
-    print_outlined("title", offset_x + 11, 111, 1, 7)
+    print_outlined("title", offset_x + 11, unpack_split"111,1,7")
   end
 end
 
@@ -745,8 +703,9 @@ function board_class._update_game(_ENV, game, player, other_board)
   top_block_y, contains_q_block = 0, false
 
   for y = 1, #blocks do
+    local row = blocks[y]
     for x = 1, cols do
-      local block = blocks[y][x]
+      local block = row[x]
 
       block:update()
 
@@ -767,7 +726,7 @@ function board_class._update_game(_ENV, game, player, other_board)
           else -- CNOT または SWAP
             if x < block.other_x and _is_block_fallable(_ENV, block.other_x, y) then
               block:hover()
-              blocks[y][block.other_x]:hover(block.timer + 1)
+              row[block.other_x]:hover(block.timer + 1)
             end
           end
         end
@@ -779,13 +738,11 @@ function board_class._update_game(_ENV, game, player, other_board)
           if block.state ~= "hover" then
             local hover_timer = propagatable_hover_timer(_ENV, x, y)
             if hover_timer then
-              if not block.other_x then
-                -- 単体ブロックとおじゃまゲート
+              if not block.other_x or x < block.other_x then
                 block:hover(hover_timer)
-              elseif x < block.other_x then
-                -- CNOT または SWAP
-                block:hover(hover_timer)
-                blocks[y][block.other_x]:hover(hover_timer + 1)
+                if block.other_x then
+                  row[block.other_x]:hover(hover_timer + 1)
+                end
               end
             end
           end
@@ -801,7 +758,7 @@ function board_class._update_game(_ENV, game, player, other_board)
         end
 
         -- 着地したブロックの chain_id を消す
-        if block.state == "idle" and block._timer_landing ~= 0 and blocks[y - 1][x].chain_id == nil then
+        if block.state == "idle" and block._timer_landing ~= 0 and not blocks[y - 1][x].chain_id then
           block.chain_id = nil
         end
 
@@ -813,26 +770,24 @@ function board_class._update_game(_ENV, game, player, other_board)
               block.first_drop = false
             end
 
-            block:change_state("idle")
+            block:change_state"idle"
 
             if block.other_x and x < block.other_x then
-              local other_block = blocks[y][block.other_x]
-              other_block:change_state("idle")
+              row[block.other_x]:change_state"idle"
             end
           else
             if is_empty(_ENV, x, y - 1) then
               -- 落下中のブロックをひとつ下に移動
-              if not block.other_x then
-                remove_block(_ENV, x, y)
-                put(_ENV, x, y - 1, block)
-              elseif x < block.other_x then
+              if not block.other_x or x < block.other_x then
                 remove_block(_ENV, x, y)
                 put(_ENV, x, y - 1, block)
 
-                local other_block = blocks[y][block.other_x]
-                other_block.state = "fall"
-                remove_block(_ENV, block.other_x, y)
-                put(_ENV, block.other_x, y - 1, other_block)
+                if block.other_x then
+                  local other_block = row[block.other_x]
+                  other_block.state = "fall"
+                  remove_block(_ENV, block.other_x, y)
+                  put(_ENV, block.other_x, y - 1, other_block)
+                end
               end
             end
           end
@@ -841,7 +796,7 @@ function board_class._update_game(_ENV, game, player, other_board)
     end
   end
 
-  for chain_id, _ in pairs(_chain_count) do
+  for chain_id in pairs(_chain_count) do
     -- 連鎖可能フラグ (chain_id) の立ったブロックが 1 つもなかった場合、
     -- _chain_count をリセット
     for x = 1, cols do
@@ -896,8 +851,8 @@ function board_class._is_empty_nocache(_ENV, x, y)
   -- 2. CNOT や SWAP の一部でない
   -- 3. おじゃまブロックの上でない
   return block.type == "i" and block.state ~= "swap" and -- 1
-      _cnot_or_swap_head_block(_ENV, x, y) == nil and    -- 2
-      _garbage_head_block(_ENV, x, y) == nil             -- 3
+      not _cnot_or_swap_head_block(_ENV, x, y) and     -- 2
+      not _garbage_head_block(_ENV, x, y)              -- 3
 end
 
 -- (x, y) が CNOT または SWAP の一部であった場合、
@@ -908,7 +863,7 @@ function board_class._cnot_or_swap_head_block(_ENV, x, y)
     local block = blocks[y][tmp_x]
 
     if (block.type == "cnot_x" or block.type == "control" or block.type == "swap") and
-      (tmp_x == x or x < block.other_x) then
+      x < block.other_x then
       return block
     end
   end
@@ -987,22 +942,18 @@ end
 
 -- x, y で指定するブロックの直下にあるすべてのブロックに対して、f を適用する
 function board_class.for_all_nonempty_blocks_below(_ENV, x, y, f)
-  local block = blocks[y][x]
+  local block, start_x = blocks[y][x], x
 
   -- ブロックの幅 (x 座標の start と end) を得る
-  local start_x, end_x = x, x + block.span - 1
+  local end_x = x + block.span - 1
   if block.other_x then
     start_x, end_x = min(x, block.other_x), max(x, block.other_x)
   end
 
   for i = start_x, end_x do
-    if is_empty(_ENV, i, y - 1) then
-      goto next_block
+    if not is_empty(_ENV, i, y - 1) then
+      f(_block_or_its_head_block(_ENV, i, y - 1))
     end
-
-    f(_block_or_its_head_block(_ENV, i, y - 1))
-
-    ::next_block::
   end
 end
 
@@ -1047,7 +998,7 @@ function board_class.observable_update(_ENV, block, old_state)
     put(_ENV, new_x, y, block)
     put(_ENV, x, y, right_block)
 
-    right_block:change_state("idle")
+    right_block:change_state"idle"
 
     return
   end
@@ -1085,22 +1036,14 @@ function board_class.observable_update(_ENV, block, old_state)
   if block.state == "hover" then
     for each_y = y + 1, #blocks do
       for each_x = 1, cols do
-        if _check_hover_flag[each_y] == nil then
-          _check_hover_flag[each_y] = {}
-        end
+        _check_hover_flag[each_y] = _check_hover_flag[each_y] or {}
         _check_hover_flag[each_y][each_x] = true
       end
     end
   end
 
-  if reducible_blocks[y] == nil then
-    reducible_blocks[y] = {}
-  end
-  if block:is_reducible() then
-    reducible_blocks[y][x] = block
-  else
-    reducible_blocks[y][x] = nil
-  end
+  reducible_blocks[y] = reducible_blocks[y] or {}
+  reducible_blocks[y][x] = block:is_reducible() and block or nil
 
   _changed = true
 
@@ -1116,9 +1059,7 @@ function board_class.observable_update(_ENV, block, old_state)
 end
 
 function board_class._memoize(_ENV, f, cache, x, y)
-  if cache[y] == nil then
-    cache[y] = {}
-  end
+  cache[y] = cache[y] or {}
 
   local result = cache[y][x]
 
@@ -1139,8 +1080,8 @@ function board_class._tostring(_ENV)
       local block = block_at(_ENV, x, y)
 
       if block.type == "i" and
-          _garbage_head_block(_ENV, x, y) ~= nil then
-        str = str .. "g " .. " "
+          _garbage_head_block(_ENV, x, y) then
+        str = str .. "g  "
       else
         str = str .. block:_tostring() .. " "
       end
