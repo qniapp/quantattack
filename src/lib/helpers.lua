@@ -43,15 +43,7 @@ end
 
 --- クラスを作る
 function new_class()
-  local class = {}
-  class.__index = class
-
-  setmetatable(class, {
-    __index = _ENV,
-    __call = new
-  })
-
-  return class
+  return derived_class(_ENV)
 end
 
 --- 継承したクラスを返す

@@ -146,12 +146,12 @@ function particles:create(coord, data)
       if dx == "" then
         -- move to the left
         if ceil_rnd(2) == 1 then
-          _dx, _ddx = _dx * -1, _ddx * -1
+          _dx, _ddx = -_dx, -_ddx
         end
 
         -- move upwards
         if ceil_rnd(2) == 1 then
-          _dy, _ddy = _dy * -1, _ddy * -1
+          _dy, _ddy = -_dy, -_ddy
         end
       end
     end)
@@ -204,7 +204,7 @@ function ripple._render(_ENV)
         64 + 12 * d * cos(ang + t1),
         64 + 12 * d * sin(ang + t1) - 3 * r,
         r,
-        ((ripple.slow or ripple.freeze) and r > 3 and tick % 2 == 0) and (ripple.slow and 13 or 12) or 1
+        (ripple.slow or ripple.freeze) and r > 3 and tick % 2 == 0 and (ripple.slow and 13 or 12) or 1
       )
     end
   end
@@ -247,11 +247,9 @@ function sash._update(_ENV)
     end
   end
 
-  if state == ":stop" then
-    if t() - time_stop > 1 then
-      dh, ddh, text_dx, text_ddx, state =
-          -0.1, -0.2, 3, 0.8, ":slideout"
-    end
+  if state == ":stop" and t() - time_stop > 1 then
+    dh, ddh, text_dx, text_ddx, state =
+        -0.1, -0.2, 3, 0.8, ":slideout"
   end
 
   if state == ":slideout" then
