@@ -20,14 +20,13 @@ window. Don't use Xvfb or xdotool, and don't take screenshots of the desktop.
 
 ## Set up and build
 
-- `.ultimate/bin/qa-setup` installs picotool and shrinko8 (in a per-user venv) and luamin
-  (npm, in the pico-boots submodule). Run it once per machine, and again if a build says
-  `Run .ultimate/bin/qa-setup first` or luamin is missing.
+- `.ultimate/bin/qa-setup` installs the pinned shrinko8 in a per-user venv. Run it once per
+  machine, and again if a build says `Run .ultimate/bin/qa-setup first`.
 - `.ultimate/bin/qa-build <cart|all> [debug|release|harness]` builds to `build/v<version>_<config>/`.
-  It uses the same symbols and flags as the Rakefile, and installs debug and release carts into
-  the PICO-8 carts folder.
+  Both it and the Rakefile build with `scripts/build_cart.py` (preprocess, bundle `require`s,
+  `shrinko8 --minify-safe-only`). It installs debug and release carts into the PICO-8 carts folder.
 - `.ultimate/bin/qa-build count` prints release token counts. The limit is 8192. vs_qpu is
-  closest, at 8047.
+  closest, at 8018.
 - The carts are listed in `data/cartridges.txt`: title, tutorial, rush, endless, vs_qpu,
   qpu_vs_qpu, vs_human. `title` jumps to the others with `load()`, and they jump back.
 
@@ -100,6 +99,6 @@ title to endless to title cart jumps.
 
 ## When the harness cart is too large
 
-The harness adds about 130 tokens. vs_qpu's harness build is 8177 of 8192. If a game change
+The harness adds about 130 tokens. vs_qpu's harness build is 8146 of 8192. If a game change
 pushes a harness cart over the limit, `qa-run` fails with `program too large` in its log. Shrink
 the harness first; never change the game to make room.

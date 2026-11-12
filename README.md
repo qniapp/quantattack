@@ -32,8 +32,8 @@ PICO-8 のトークン数制限のため、ゲームはモードごとに 7 つ�
 | `test/` | busted によるユニットテスト |
 | `data.p8` | スプライトと音の編集用カート。ビルド時に `data/builtin_data_<cart>.p8` にコピーされる |
 | `data/` | カートごとのデータ、ラベル画像 (`metadata.p8`)、バージョン番号 |
-| `scripts/` | ビルド、インストール、リリース、テスト用のスクリプト |
-| `pico-boots/` | ビルドとテストに使う [pico-boots](https://github.com/hsandt/pico-boots) (git submodule) |
+| `scripts/` | ビルド (`build_cart.py`)、インストール、リリース、テスト用のスクリプト |
+| `pico-boots/` | ユニットテストに使う [pico-boots](https://github.com/hsandt/pico-boots) (git submodule) |
 | `assets/` | スプライトや画像の Aseprite ソース |
 | `index.html` ほか | GitHub Pages で公開している Web 版 (`quantattack_v*_release.js` と画像、アイコン) |
 
@@ -45,10 +45,11 @@ PICO-8 のトークン数制限のため、ゲームはモードごとに 7 つ�
 - Ruby と Rake (`.tool-versions` に Ruby のバージョンを記載。mise や asdf で入る)
 - Lua 5.4、[busted](https://lunarmodules.github.io/busted/)、luacov、bit32 (テスト用)
 - [luacheck](https://github.com/lunarmodules/luacheck) (lint 用、任意)
-- ビルド用: pico-boots が使う [picotool](https://github.com/dansanderson/picotool) (`p8tool`)、npm でインストールする luamin、Python 3
+- ビルド用: Python 3 と [shrinko8](https://github.com/thisismypassport/shrinko8)
 
 ```sh
 git submodule update --init
+pip install git+https://github.com/thisismypassport/shrinko8.git@d26c7d0abd6561b998ed6f530fed0ed3bc2216c9
 luarocks --lua-version 5.4 install busted
 luarocks --lua-version 5.4 install luacov
 luarocks --lua-version 5.4 install bit32
@@ -68,14 +69,14 @@ luarocks --lua-version 5.4 install luacheck
 
 | コマンド | 内容 |
 | --- | --- |
-| `rake` | 全カートをデバッグビルドし、PICO-8 の carts フォルダにインストール |
+| `rake` | 全カートをデバッグビルドし、PICO-8 の carts フォルダにインストール (`scripts/build_cart.py` が `--#if` の前処理、`require` の結合、shrinko8 による minify をする) |
 | `rake build:release` | 全カートをリリースビルド |
 | `rake run` | ビルドして title カートを起動 |
 | `rake data` | `data.p8` を PICO-8 で開く (スプライトと音の編集) |
 | `rake test` | ユニットテストを実行 |
 | `rake test:solo` | `solo` タグのついたテストだけ実行 |
 | `rake lint` | luacheck で `src/` を検査 |
-| `rake count` | 各カートのトークン数を表示 (要 [shrinko8](https://github.com/thisismypassport/shrinko8)) |
+| `rake count` | 各カートのトークン数を表示 |
 | `rake dupe` | PMD CPD で重複コードを検出 |
 | `rake -T` | タスクの一覧 |
 

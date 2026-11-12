@@ -18,11 +18,6 @@ def carts
   File.readlines('data/cartridges.txt', chomp: true).reject(&:empty?)
 end
 
-# Carts that need extra preprocessor symbols
-def cart_symbols(name)
-  %w[endless rush].include?(name) ? [:sash] : []
-end
-
 def p8_path(name, build = :debug)
   "build/v#{version}_#{build}/quantattack_#{name}.p8"
 end
@@ -51,20 +46,8 @@ def cart_sources_and_data(name)
   cart_sources(name) + FileList[cart_data(name)]
 end
 
-def build_cartridge_command(name, build = :debug, *symbols)
-  symbols_option = if build == :debug
-                     ([:tostring, :dump, name] + symbols).uniq.join(',')
-                   else
-                     ([name] + symbols).join(',')
-                   end
-  "./pico-boots/scripts/build_cartridge.sh \"#{File.join(__dir__, './src')}\" main_#{name}.lua " \
-     "-d \"#{File.join(__dir__, "data/builtin_data_#{name}.p8")}\" " \
-     "-M \"#{File.join(__dir__, 'data/metadata.p8')}\" " \
-     "-a yasuhito -t \"quantattack v#{version} (#{name})\" " \
-     "-p \"#{File.join(__dir__, "build/v#{version}_#{build}")}\" " \
-     "-o quantattack_#{name} " \
-     "-s \"#{symbols_option}\" " \
-     '--minify-level 1'
+def build_cartridge_command(name, build = :debug)
+  "python3 scripts/build_cart.py #{name} #{build} #{p8_path(name, build)}"
 end
 
 def install_single_cartridge_sh
@@ -114,7 +97,7 @@ carts.each do |each|
 
     task task_name => p8_path(each, build)
     file p8_path(each, build) => cart_sources_and_data(each) do
-      sh build_cartridge_command(each, build, *cart_symbols(each))
+      sh build_cartridge_command(each, build)
       sh "#{install_single_cartridge_sh} #{each} #{build}"
     end
 

@@ -130,7 +130,8 @@ function block_class:render(screen_x, screen_y, screen_other_x)
       return
     end
 
-    swap_screen_dx = (_tick_swap or 0) * (8 / block_swap_animation_frame_count)
+    -- 8 / 3 で割り切れないので、先に掛けてから割る (順序を変えると固定小数点の丸めで描画位置がずれる)
+    swap_screen_dx = (_tick_swap or 0) * 8 / block_swap_animation_frame_count
     if state == "swap" and swap_direction == "left" then
       swap_screen_dx = -swap_screen_dx
     end

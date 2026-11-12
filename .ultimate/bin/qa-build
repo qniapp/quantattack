@@ -32,9 +32,7 @@ if [[ "$request" != all ]]; then
   "$valid" || usage
   carts=("$request")
 fi
-for tool in p8tool shrinko8; do
-  command -v "$tool" >/dev/null || { echo 'Run .ultimate/bin/qa-setup first.' >&2; exit 1; }
-done
+command -v shrinko8 >/dev/null || { echo 'Run .ultimate/bin/qa-setup first.' >&2; exit 1; }
 output="build/v${version}_${config}"
 install_dir="$HOME/.lexaloffle/pico-8/carts/quantattack/v${version}_${config}"
 src="$PWD/src"
@@ -46,20 +44,13 @@ if [[ "$config" == harness ]]; then
   rsync -a --delete src/ "$src/"
 fi
 for cart in "${carts[@]}"; do
-  symbols=$cart
-  [[ "$config" != debug ]] || symbols="tostring,dump,$symbols"
-  case "$cart" in endless|rush) symbols+=,sash ;; esac
   main="main_${cart}.lua"
   if [[ "$config" == harness ]]; then
     main="qa_main_${cart}.lua"
-    # Concatenated, not required: picotool fails to wrap a main file as a module.
     cat .ultimate/harness/qa_pre.lua "src/main_${cart}.lua" .ultimate/harness/qa_post.lua > "$src/$main"
   fi
-  # Match Rakefile's build_cartridge_command, including metadata and minification.
-  ./pico-boots/scripts/build_cartridge.sh "$src" "$main" \
-    -d "$PWD/data/builtin_data_${cart}.p8" -M "$PWD/data/metadata.p8" \
-    -a yasuhito -t "quantattack v${version} (${cart})" \
-    -p "$PWD/$output" -o "quantattack_${cart}" -s "$symbols" --minify-level 1
+  # The same build as the Rakefile's.
+  python3 scripts/build_cart.py "$cart" "$config" "$output/quantattack_${cart}.p8" --src "$src" --main "$main"
   if [[ "$config" != harness ]]; then
     mkdir -p "$install_dir"
     cp "$output/quantattack_${cart}.p8" "$install_dir/"
