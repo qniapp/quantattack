@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Usage: qa-build <cart|all> [debug|release|harness]; qa-build count
+set -euo pipefail
+
+usage() {
+  echo 'Usage: qa-build <cart|all> [debug|release|harness]; qa-build count' >&2
+  exit 1
+}
+[[ $# -ge 1 && $# -le 2 ]] || usage
+cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+export PATH="$HOME/.local/share/quantattack-tools/venv/bin:$PATH"
+mapfile -t carts < data/cartridges.txt
+version=$(<data/version.txt)
+request=$1
+config=${2:-debug}
+count=false
+if [[ "$request" == count ]]; then
+  [[ $# == 1 ]] || usage
+  config=release
+  count=true
+  request=all
+fi
+case "$config" in
+  debug|release) ;;
+  harness) echo 'harness: not implemented yet' >&2; exit 1 ;;
+  *) usage ;;
+esac
+if [[ "$request" != all ]]; then
+  valid=false
+  for cart in "${carts[@]}"; do
+    [[ "$request" != "$cart" ]] || valid=true
+  done
+  "$valid" || usage
+  carts=("$request")
+fi
+for tool in p8tool shrinko8; do
+  command -v "$tool" >/dev/null || { echo 'Run .ultimate/bin/qa-setup first.' >&2; exit 1; }
+done
+output="build/v${version}_${config}"
+install_dir="$HOME/.lexaloffle/pico-8/carts/quantattack/v${version}_${config}"
+for cart in "${carts[@]}"; do
+  symbols=$cart
+  [[ "$config" != debug ]] || symbols="tostring,dump,$symbols"
+  case "$cart" in endless|rush) symbols+=,sash ;; esac
+  # Match Rakefile's build_cartridge_command, including metadata and minification.
+  ./pico-boots/scripts/build_cartridge.sh "$PWD/src" "main_${cart}.lua" \
+    -d "$PWD/data/builtin_data_${cart}.p8" -M "$PWD/data/metadata.p8" \
+    -a yasuhito -t "quantattack v${version} (${cart})" \
+    -p "$PWD/$output" -o "quantattack_${cart}" -s "$symbols" --minify-level 1
+  mkdir -p "$install_dir"
+  cp "$output/quantattack_${cart}.p8" "$install_dir/"
+  if "$count"; then
+    stats=$(shrinko8 "$output/quantattack_${cart}.p8" --parsable-count --count)
+    if [[ "$stats" =~ count:None:tokens:([0-9]+) ]]; then
+      printf '%s: %s tokens\n' "$cart" "${BASH_REMATCH[1]}"
+    else
+      echo "Invalid shrinko8 output for $cart: $stats" >&2
+      exit 1
+    fi
+  fi
+done
