@@ -3,5 +3,9 @@
     "worktree": {
       "setup": ["sh -e .ultimate/worktree-setup.sh"]
     }
+  },
+  "lander": {
+    "checks": [{ "command": "sh .ultimate/test.sh", "timeout": 300 }],
+    "push": ""
   }
 }
