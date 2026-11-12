@@ -11,3 +11,4 @@ luacov.report.out
 luacov.stats.out
 profiler.log
 sdl_controllers.txt
+luacov.stats.out

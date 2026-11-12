@@ -1,16 +1,26 @@
 # frozen_string_literal: true
 
-require 'bundler/setup'
-$LOAD_PATH.unshift File.expand_path('lib', __dir__)
-
 require 'rake/clean'
+
+# Tool paths. Override with environment variables, e.g. PICO8=/opt/pico-8/pico8 rake run
+PICO8 = ENV.fetch('PICO8') do
+  RUBY_PLATFORM.include?('darwin') ? '/Applications/PICO-8.app/Contents/MacOS/pico8' : 'pico8'
+end
+SHRINKO8 = ENV.fetch('SHRINKO8', 'shrinko8')
+LUACHECK = ENV.fetch('LUACHECK', 'luacheck')
+PMD = ENV.fetch('PMD', 'pmd')
 
 def version
   File.read('data/version.txt').chomp
 end
 
 def carts
-  %w[title tutorial endless rush vs_qpu qpu_vs_qpu vs_human]
+  File.readlines('data/cartridges.txt', chomp: true).reject(&:empty?)
+end
+
+# Carts that need extra preprocessor symbols
+def cart_symbols(name)
+  %w[endless rush].include?(name) ? [:sash] : []
 end
 
 def p8_path(name, build = :debug)
@@ -57,16 +67,8 @@ def build_cartridge_command(name, build = :debug, *symbols)
      '--minify-level 1'
 end
 
-def build_single_cartridge_sh
-  './scripts/build_single_cartridge.sh'
-end
-
 def install_single_cartridge_sh
   './scripts/install_single_cartridge.sh'
-end
-
-def pmd_sh
-  '~/Documents/GitHub/pmd-bin-6.52.0/bin/run.sh'
 end
 
 desc '現在のバージョンを表示'
@@ -81,15 +83,17 @@ task release: 'build:release' do
   sh './scripts/export_and_patch_cartridge_release.sh'
 end
 
-desc 'data カートを起動'
+desc 'data カートを起動 (スプライトと音の編集用)'
 task :data do
-  sh '/Applications/PICO-8.app/Contents/MacOS/pico8 -run data.p8 -screenshot_scale 4 -gif_scale 4'
+  sh "#{PICO8} -run data.p8 -screenshot_scale 4 -gif_scale 4"
 end
 
+desc 'ユニットテスト'
 task :test do
   sh './scripts/test.sh'
 end
 
+desc 'solo タグのついたユニットテストだけ実行'
 task 'test:solo' do
   sh './scripts/test.sh -m solo'
 end
@@ -104,108 +108,30 @@ carts.each do |each|
   file cart_data(each) => 'data.p8' do
     cp 'data.p8', cart_data(each)
   end
-end
 
-task title: p8_path('title')
-file p8_path('title') => cart_sources_and_data('title') do
-  sh build_cartridge_command(:title)
-  sh "#{install_single_cartridge_sh} title debug"
-end
+  %i[debug release].each do |build|
+    task_name = build == :debug ? each : "#{each}:release"
 
-task tutorial: p8_path('tutorial')
-file p8_path('tutorial') => cart_sources_and_data('tutorial') do
-  sh build_cartridge_command(:tutorial)
-  sh "#{install_single_cartridge_sh} tutorial debug"
-end
+    task task_name => p8_path(each, build)
+    file p8_path(each, build) => cart_sources_and_data(each) do
+      sh build_cartridge_command(each, build, *cart_symbols(each))
+      sh "#{install_single_cartridge_sh} #{each} #{build}"
+    end
 
-task endless: p8_path('endless')
-file p8_path('endless') => cart_sources_and_data('endless') do
-  sh build_cartridge_command(:endless, :debug, :sash)
-  sh "#{install_single_cartridge_sh} endless debug"
-end
-
-task rush: p8_path('rush')
-file p8_path('rush') => cart_sources_and_data('rush') do
-  sh build_cartridge_command(:rush, :debug, :sash)
-  sh "#{install_single_cartridge_sh} rush debug"
-end
-
-task vs_qpu: p8_path('vs_qpu')
-file p8_path('vs_qpu') => cart_sources_and_data('vs_qpu') do
-  sh build_cartridge_command(:vs_qpu)
-  sh "#{install_single_cartridge_sh} vs_qpu debug"
-end
-
-task qpu_vs_qpu: p8_path('qpu_vs_qpu')
-file p8_path('qpu_vs_qpu') => cart_sources_and_data('qpu_vs_qpu') do
-  sh build_cartridge_command(:qpu_vs_qpu)
-  sh "#{install_single_cartridge_sh} qpu_vs_qpu debug"
-end
-
-task vs_human: p8_path('vs_human')
-file p8_path('vs_human') => cart_sources_and_data('vs_human') do
-  sh build_cartridge_command(:vs_human)
-  sh "#{install_single_cartridge_sh} vs_human debug"
-end
-
-task 'title:release' => p8_path('title', :release)
-file p8_path('title', :release) => cart_sources_and_data('title') do
-  sh build_cartridge_command(:title, :release)
-  sh "#{install_single_cartridge_sh} title release"
-end
-
-task 'tutorial:release' => p8_path('tutorial', :release)
-file p8_path('tutorial', :release) => cart_sources_and_data('tutorial') do
-  sh build_cartridge_command(:tutorial, :release)
-  sh "#{install_single_cartridge_sh} tutorial release"
-end
-
-task 'endless:release' => p8_path('endless', :release)
-file p8_path('endless', :release) => cart_sources_and_data('endless') do
-  sh build_cartridge_command(:endless, :release, :sash)
-  sh "#{install_single_cartridge_sh} endless release"
-end
-
-task 'rush:release' => p8_path('rush', :release)
-file p8_path('rush', :release) => cart_sources_and_data('rush') do
-  sh build_cartridge_command(:rush, :release, :sash)
-  sh "#{install_single_cartridge_sh} rush release"
-end
-
-task 'vs_qpu:release' => p8_path('vs_qpu', :release)
-file p8_path('vs_qpu', :release) => cart_sources_and_data('vs_qpu') do
-  sh build_cartridge_command(:vs_qpu, :release)
-  sh "#{install_single_cartridge_sh} vs_qpu release"
-end
-
-task 'qpu_vs_qpu:release' => p8_path('qpu_vs_qpu', :release)
-file p8_path('qpu_vs_qpu', :release) => cart_sources_and_data('qpu_vs_qpu') do
-  sh build_cartridge_command(:qpu_vs_qpu, :release)
-  sh "#{install_single_cartridge_sh} qpu_vs_qpu release"
-end
-
-task 'vs_human:release' => p8_path('vs_human', :release)
-file p8_path('vs_human', :release) => cart_sources_and_data('vs_human') do
-  sh build_cartridge_command(:vs_human, :release)
-  sh "#{install_single_cartridge_sh} vs_human release"
-end
-
-carts.each do |each|
-  CLOBBER.include p8_path(each)
-  CLOBBER.include p8_path(each, :release)
+    CLOBBER.include p8_path(each, build)
+  end
 end
 
 desc 'title カートを起動'
 task run: 'build:debug' do
-  sh "/Applications/PICO-8.app/Contents/MacOS/pico8 -run #{p8_path 'title'} -screenshot_scale 4 -gif_scale 4"
+  sh "#{PICO8} -run #{p8_path 'title'} -screenshot_scale 4 -gif_scale 4"
 end
 
+desc '各カートのトークン数を表示'
 task count: 'build:debug' do
-  shrinko8 = 'python ~/Documents/GitHub/shrinko8/shrinko8.py'
-
   carts.each do |each|
-    output = `#{shrinko8} #{p8_path each} --parsable-count --count`
-    if /count:None:tokens:(\d+)/=~ output
+    output = `#{SHRINKO8} #{p8_path each} --parsable-count --count`
+    if /count:None:tokens:(\d+)/ =~ output
       tokens = Regexp.last_match(1).to_i
 
       puts "#{each}: #{tokens} (#{(tokens / 8192.0 * 100).round(1)} %)"
@@ -215,6 +141,12 @@ task count: 'build:debug' do
   end
 end
 
+desc 'luacheck で src/ を検査'
+task :lint do
+  sh "#{LUACHECK} src"
+end
+
+desc 'PMD CPD でコードの重複を検出'
 task :dupe do
-  sh "#{pmd_sh} cpd --dir src/ --language lua --minimum-tokens 10"
+  sh "#{PMD} cpd --dir src/ --language lua --minimum-tokens 10"
 end
