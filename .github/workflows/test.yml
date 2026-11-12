@@ -1,0 +1,35 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - uses: leafo/gh-actions-lua@v13
+        with:
+          luaVersion: "5.4"
+
+      - uses: leafo/gh-actions-luarocks@v6
+
+      - name: Install busted, luacov, bit32 and luacheck
+        run: |
+          luarocks install busted
+          luarocks install luacov
+          luarocks install bit32
+          luarocks install luacheck
+
+      - name: Unit tests
+        run: ./scripts/test.sh
+
+      # Report only until the findings are cleaned up (each removal proven by replay)
+      - name: Lint
+        continue-on-error: true
+        run: luacheck src

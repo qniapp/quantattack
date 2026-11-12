@@ -79,6 +79,8 @@ luarocks --lua-version 5.4 install luacheck
 | `rake dupe` | PMD CPD で重複コードを検出 |
 | `rake -T` | タスクの一覧 |
 
+GitHub Actions (`.github/workflows/test.yml`) が push と pull request ごとにユニットテストを実行します。luacheck の結果は今のところ報告だけで、失敗にはしません。
+
 カートは `build/v<version>_<debug|release>/` に出力され、`~/.lexaloffle/pico-8/carts/quantattack/v<version>_<debug|release>/` にインストールされます (インストール先は Linux の carts フォルダに固定)。カート同士は名前で `load()` し合うので、遊ぶときはインストール先のカートを使ってください。
 
 ## 既知の問題
