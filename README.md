@@ -37,6 +37,30 @@ PICO-8 のトークン数制限のため、ゲームはモードごとに 7 つ�
 | `assets/` | スプライトや画像の Aseprite ソース |
 | `index.html` ほか | GitHub Pages で公開している Web 版 (`quantattack_v*_release.js` と画像、アイコン) |
 
+### 共通コードとカート専用コード
+
+7 つのカートはどれも PICO-8 の上限 8192 トークンの近くにあるので、各カートには実際に使うコードだけを入れます。`build_cart.py` は `main_<cart>.lua` から `require` をたどって必要なモジュールだけを集め、`--#if <記号>` / `--#ifn <記号>` ... `--#endif` の範囲を記号に応じて残すか消します。記号はカート名、`endless` と `rush` の `sash`、デバッグビルドの `tostring,dump` です。
+
+| モジュール | 使うカート |
+| --- | --- |
+| `lib/helpers` `lib/effects` `lib/board` `lib/cursor` `lib/block` `lib/reduction_rules` `lib/pending_garbage_blocks` | 全カート |
+| `lib/player` | tutorial, rush, endless, vs_qpu, vs_human |
+| `lib/game` | endless, vs_qpu, qpu_vs_qpu, vs_human |
+| `lib/qpu` | title (デモ), vs_qpu, qpu_vs_qpu |
+| `lib/high_score` | title (メニュー), rush, endless |
+| `lib/replay` | endless |
+| `title/*` `tutorial/*` `rush/*` | そのカートだけ |
+
+共通モジュールの中でも、一部のカートでは実行されない部分は外しています。
+
+| 範囲 | 外すカート | 理由 |
+| --- | --- | --- |
+| おじゃまブロック (`board.lua` のマッチ・配置・`send_garbage`、`block.lua` の `garbage_block`、`pending_garbage_blocks.lua` の処理) | title, tutorial | どちらもおじゃまブロックを送らない |
+| 背景の波紋 `ripple` (`effects.lua`) | title | タイトルは独自の背景 (`title/plasma`) を描く |
+| 帯のメッセージ `sash` (`effects.lua`) | `sash` 記号のない全カート | 使うのは endless と rush だけ |
+
+外す範囲を増やすときは、そのカートから到達できないことをコードで確かめ、`qa-check` で動作が変わらないことを確認します。
+
 ルートにある `index.html`、`quantattack_v*_release.js`、`*.png`、`*.gif`、アイコン類と `manifest.webmanifest` は公開サイトそのものです。GitHub Pages は `main` ブランチのルートを配信しているので、移動や削除をするとサイトが壊れます。
 
 ## 必要なもの
