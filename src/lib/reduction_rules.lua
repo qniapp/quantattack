@@ -2,7 +2,6 @@
 
 --- ブロックのマッチパターン
 reduction_rules = transform(
-  transform(
   -- NOTE: ルールの行数を昇り順にならべておくことで、
   -- マッチする時に途中で探索を切り上げることができるようにする
     {
@@ -23,21 +22,20 @@ reduction_rules = transform(
       "cnot_x,control\ncnot_x,control|,,\ntrue,,\n,-1,\ntrue,-1,|40&cnot_x,control\ncontrol,cnot_x\ncnot_x,control|,,\ntrue,,\n,-1,\ntrue,-1,\n,-2,swap\ntrue,-2,swap|100",
       swap = "swap,swap\nswap,swap|,,\ntrue,,\n,-1,\ntrue,-1,|300"
     },
-    function(rule_string) return split(rule_string, "&") end),
   function(gate_rules)
     return transform(
-      gate_rules,
+      split(gate_rules, "&"),
       function(each)
         local pattern, reduce_to, score = unpack(split(each, "|"))
 
         return {
           transform(split(pattern, "\n"), split),
           transform(split(reduce_to, "\n"), function(to)
-            local attrs = split(to)
+            local dx, dy, block_type = unpack(split(to))
             return {
-              dx = attrs[1] ~= "",
-              dy = attrs[2] == "" and nil or tonum(attrs[2]),
-              block_type = attrs[3] == "" and 'i' or attrs[3]
+              dx = dx ~= "",
+              dy = tonum(dy),
+              block_type = block_type == "" and 'i' or block_type
             }
           end),
           tonum(score)

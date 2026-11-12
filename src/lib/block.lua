@@ -45,33 +45,30 @@ function block_class.is_reducible(_ENV)
   return state == "idle" and type ~= "i" and type ~= "?"
 end
 
-function block_class:is_swappable_state()
-  return self.state == "idle" or self.state == "fall"
+function block_class.is_swappable_state(_ENV)
+  return state == "idle" or state == "fall"
 end
 
-function block_class:swap_with(direction)
-  self.chain_id = nil
-  self.swap_direction = direction
-  self:change_state("swap")
+function block_class.swap_with(_ENV, direction)
+  chain_id, swap_direction = nil, direction
+  change_state(_ENV, "swap")
 end
 
-function block_class:hover(timer)
-  self.timer = timer or 12 -- ホバー状態はデフォルトで 12 フレーム
-  self:change_state("hover")
+function block_class.hover(_ENV, _timer)
+  timer = _timer or 12 -- ホバー状態はデフォルトで 12 フレーム
+  change_state(_ENV, "hover")
 end
 
-function block_class:fall()
+function block_class.fall(_ENV)
   --#if assert
-  assert(not self:is_not_fallable(), "block " .. self.type)
-  assert(self.x, "x is not set")
-  assert(self.y, "y is not set")
+  assert(not is_not_fallable(_ENV), "block " .. type)
+  assert(x, "x is not set")
+  assert(y, "y is not set")
   --#endif
 
-  if self.state == "fall" then
-    return
+  if state ~= "fall" then
+    change_state(_ENV, "fall")
   end
-
-  self:change_state("fall")
 end
 
 function block_class.replace_with(_ENV, other, match_index, _chain_id, garbage_span, garbage_height)
@@ -178,8 +175,8 @@ function block_class:render(screen_x, screen_y, screen_other_x)
   pal(7, 7)
 end
 
-function block_class:attach(observer)
-  self.observer = observer
+function block_class.attach(_ENV, _observer)
+  observer = _observer
 end
 
 function block_class.change_state(_ENV, new_state)
@@ -207,17 +204,17 @@ local state_string = {
   freeze = "f",
 }
 
-function block_class:_tostring()
-  if self.state == "swap" then
-    if self.swap_direction == "left" then
-      return (type_string[self.type] or self.type:upper()) .. "<"
-    elseif self.swap_direction == "right" then
-      return (type_string[self.type] or self.type:upper()) .. ">"
+function block_class._tostring(_ENV)
+  if state == "swap" then
+    if swap_direction == "left" then
+      return (type_string[type] or type:upper()) .. "<"
+    elseif swap_direction == "right" then
+      return (type_string[type] or type:upper()) .. ">"
     else
       assert(false, "Invalid state")
     end
   else
-    return (type_string[self.type] or self.type:upper()) .. state_string[self.state]
+    return (type_string[type] or type:upper()) .. state_string[state]
   end
 end
 
@@ -225,13 +222,12 @@ end
 
 --- おじゃまブロック
 
-local garbage_block_colors = { 2, 3, 4 }
 local inner_border_colors = { nil, 14, 11, 9 }
 
 --- 新しいおじゃまブロックを作る
 function garbage_block(_span, _height, _color, _chain_id, _tick_fall)
   local garbage = setmetatable({
-    body_color = _color or garbage_block_colors[ceil_rnd(#garbage_block_colors)],
+    body_color = _color or ceil_rnd(3) + 1,
     chain_id = _chain_id,
     tick_fall = _tick_fall,
     dy = 0,

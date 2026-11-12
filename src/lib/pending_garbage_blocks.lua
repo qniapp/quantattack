@@ -25,8 +25,7 @@ function pending_garbage_blocks_class.add_garbage(_ENV, span, height, chain_id)
 end
 
 --- おじゃまブロックの相殺
-function pending_garbage_blocks_class.offset(_ENV, chain_count)
-  local offset_height = chain_count
+function pending_garbage_blocks_class.offset(_ENV, offset_height)
 
   for _, each in pairs(all) do
     if each.span == 6 then
