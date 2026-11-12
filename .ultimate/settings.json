@@ -1,0 +1,7 @@
+{
+  "isolates": {
+    "worktree": {
+      "setup": ["sh -e .ultimate/worktree-setup.sh"]
+    }
+  }
+}
