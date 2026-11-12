@@ -48,8 +48,19 @@ for i in "${!scenarios[@]}"; do
   else
     echo -n "$name: "
     .ultimate/bin/qa-run compare ".ultimate/qa/golden/$name.txt" "build/qa/$name/trace.txt" || status=1
-    echo -n "  "
-    .ultimate/bin/qa-run slow ".ultimate/qa/golden/$name.cpu.txt" "build/qa/$name/cpu.txt" || status=1
+    golden_cpu=".ultimate/qa/golden/$name.cpu.txt"
+    if ! .ultimate/bin/qa-run slow "$golden_cpu" "build/qa/$name/cpu.txt" > "build/qa-$name.slow"; then
+      # A garbage collection pause sometimes lands on another frame: replay once and keep only
+      # frames that are newly slow in both runs.
+      file=".ultimate/qa/scenarios/$name.txt"
+      read -r _ _ cart _ param < <(head -1 "$file")
+      args=(--out "build/qa/$name.rerun")
+      [[ -z "${param:-}" ]] || args+=(--param "$param")
+      .ultimate/bin/qa-run "${args[@]}" "$cart" "$file" > /dev/null 2>&1 || true
+      .ultimate/bin/qa-run slow "$golden_cpu" "build/qa/$name/cpu.txt" "build/qa/$name.rerun/cpu.txt" \
+        > "build/qa-$name.slow" || status=1
+    fi
+    sed 's/^/  /' "build/qa-$name.slow"
   fi
 done
 exit "$status"

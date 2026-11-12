@@ -23,7 +23,7 @@ identical runs; a frame that loads another cart reads 'frame jump'), cpu.txt (on
 per frame: stat(1), PICO-8's simulated CPU load, deterministic; over 1 drops frames in a real run),
 log.txt (PICO-8's other output), images.
 
-  qa-run slow GOLDEN_CPU CPU   frames over 1 in CPU that are not in GOLDEN_CPU, exit 1 if any
+  qa-run slow GOLDEN_CPU CPU...   frames over 1 in every CPU run that are not in GOLDEN_CPU, exit 1 if any
 """
 import os
 import re
@@ -226,17 +226,20 @@ def compare(path_a, path_b):
     print(f"identical ({len(a)} frames)")
 
 
-def slow(path_golden, path_new):
+def slow(path_golden, *paths_new):
     # stat(1) wobbles by up to ~0.001 between identical runs (seen: 0.0006), so a frame counts as
-    # newly slow only when it is over 1 now and was at most 0.99 in the reference.
+    # newly slow only when it is over 1 now and was at most 0.99 in the reference. Lua's garbage
+    # collector also lands on a neighbouring frame now and then (seen once in about ten runs: 0.90
+    # -> 1.84 with identical pixels), so with several runs a frame must be newly slow in all of them.
     def load(path):
         frames = (line.split() for line in Path(path).read_text().splitlines())
         return {int(f): float(c) for f, c in frames if c != "jump"}
 
-    golden, new = load(path_golden), load(path_new)
-    added = sorted(f for f, c in new.items() if c > 1 and golden.get(f, 0) <= 0.99)
+    golden, runs = load(path_golden), [load(p) for p in paths_new]
+    added = sorted(set.intersection(*(
+        {f for f, c in new.items() if c > 1 and golden.get(f, 0) <= 0.99} for new in runs)))
     golden = [f for f, c in golden.items() if c > 1]
-    new = [f for f, c in new.items() if c > 1]
+    new = [f for f, c in runs[0].items() if c > 1]
     print(f"slow frames: {len(new)} (reference {len(golden)}, new {len(added)})")
     if added:
         print(f"newly over 1: frames {added[:20]}{' ...' if len(added) > 20 else ''}")
@@ -246,7 +249,7 @@ def slow(path_golden, path_new):
 if __name__ == "__main__":
     if sys.argv[1:2] == ["compare"] and len(sys.argv) == 4:
         compare(sys.argv[2], sys.argv[3])
-    elif sys.argv[1:2] == ["slow"] and len(sys.argv) == 4:
-        slow(sys.argv[2], sys.argv[3])
+    elif sys.argv[1:2] == ["slow"] and len(sys.argv) >= 4:
+        slow(*sys.argv[2:])
     else:
         run(sys.argv[1:])
