@@ -9,3 +9,4 @@ intermediate/
 log.txt
 profiler.log
 sdl_controllers.txt
+luacov.stats.out
