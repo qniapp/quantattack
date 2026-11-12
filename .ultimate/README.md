@@ -14,10 +14,9 @@ Headless play and behaviour checks (skill: `skills/quantattack-play/SKILL.md`): 
 builds the release code wrapped by `harness/` (fixed seed, scripted buttons, a screen hash per frame);
 `bin/qa-run` plays a cart with a script (PICO-8 always headless and muted), saving traces and
 screenshots; `bin/qa-check` plays `qa/scenarios/` and compares with `qa/golden/`.
-Setup needs Git, Node/npm (via mise), rsync and `/usr/bin/python3` with venv/pip; pinned
-picotool and shrinko8 live in `~/.local/share/quantattack-tools/venv`, with no shell changes.
-A venv-local `python3.6 -> python3` link supports pico-boots' unchanged shebangs.
-Build symbols match the Rakefile, including `sash` for endless/rush. Data is built in;
+Setup needs Git, rsync and `/usr/bin/python3` with venv/pip; the pinned shrinko8 lives in
+`~/.local/share/quantattack-tools/venv`, with no shell changes. Carts are built by
+`scripts/build_cart.py` (also used by the Rakefile). Data is built in;
 the only named data cart, `quantattack_replay.p8`, is created by the game at runtime.
 
 Machine prerequisites (Linux): `pico8` 0.2.7 on PATH (`~/.local/bin/pico8`), and

@@ -1,6 +1,5 @@
 -- quantattack test harness, part 1 of 2: `qa-build <cart> harness` puts it before the cart's main code
--- (and qa_post.lua after it). Kept tiny: vs_qpu has only ~145 tokens to spare.
--- Plain Lua syntax only: picotool cannot parse PICO-8 shorthands such as \ $ <<> ..=
+-- (and qa_post.lua after it). Kept tiny: vs_qpu has only ~175 tokens to spare.
 -- Fixed seed: the same build with the same input gives the same run.
 srand(0)
 printh("qa:start")
