@@ -236,6 +236,8 @@ def slow(path_golden, *paths_new):
         return {int(f): float(c) for f, c in frames if c != "jump"}
 
     golden, runs = load(path_golden), [load(p) for p in paths_new]
+    if any(len(run) != len(runs[0]) for run in runs):
+        fail("slow: the CPU traces have different frame counts")
     added = sorted(set.intersection(*(
         {f for f, c in new.items() if c > 1 and golden.get(f, 0) <= 0.99} for new in runs)))
     golden = [f for f, c in golden.items() if c > 1]

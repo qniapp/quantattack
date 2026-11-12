@@ -56,9 +56,15 @@ for i in "${!scenarios[@]}"; do
       read -r _ _ cart _ param < <(head -1 "$file")
       args=(--out "build/qa/$name.rerun")
       [[ -z "${param:-}" ]] || args+=(--param "$param")
-      .ultimate/bin/qa-run "${args[@]}" "$cart" "$file" > /dev/null 2>&1 || true
-      .ultimate/bin/qa-run slow "$golden_cpu" "build/qa/$name/cpu.txt" "build/qa/$name.rerun/cpu.txt" \
-        > "build/qa-$name.slow" || status=1
+      if ! .ultimate/bin/qa-run "${args[@]}" "$cart" "$file" > "build/qa-$name.rerun.log" 2>&1; then
+        # An incomplete rerun has no CPU data for its missing frames: keep the first verdict.
+        echo "rerun failed:" >> "build/qa-$name.slow"
+        cat "build/qa-$name.rerun.log" >> "build/qa-$name.slow"
+        status=1
+      elif ! .ultimate/bin/qa-run slow "$golden_cpu" "build/qa/$name/cpu.txt" "build/qa/$name.rerun/cpu.txt" \
+        > "build/qa-$name.slow"; then
+        status=1
+      fi
     fi
     sed 's/^/  /' "build/qa-$name.slow"
   fi
