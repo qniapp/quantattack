@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Usage: qa-setup - install the Linux build tools without changing shell config.
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+for tool in git node npm rsync; do
+  command -v "$tool" >/dev/null || { echo "Missing prerequisite: $tool" >&2; exit 1; }
+done
+git submodule update --init pico-boots
+venv="$HOME/.local/share/quantattack-tools/venv"
+/usr/bin/python3 -m venv "$venv"
+# Force reinstall so an existing p8tool 0.1 from another commit cannot mask the pin.
+# This commit predates the upstream formatter refactor that broke listrawlua.
+"$venv/bin/python" -m pip install --force-reinstall \
+  'git+https://github.com/dansanderson/picotool.git@1599d6357571067ef8c70160d2eb84e726cc77b2' \
+  'git+https://github.com/thisismypassport/shrinko8.git@d26c7d0abd6561b998ed6f530fed0ed3bc2216c9'
+
+# Unmodified pico-boots scripts use an env python3.6 shebang; they run on Python 3.
+ln -sfn python3 "$venv/bin/python3.6"
+
+# Keep the submodule's tracked lockfile unchanged with modern npm.
+(cd pico-boots/scripts/npm && npm install --package-lock=false)
+git -C pico-boots diff --exit-code
+printf 'Toolchain ready. Build with .ultimate/bin/qa-build <cart|all> [debug|release].\n'

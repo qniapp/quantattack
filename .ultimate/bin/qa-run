@@ -1,0 +1,226 @@
+#!/usr/bin/python3 -I
+"""Play quantattack headless and muted with scripted input; record a per-frame trace.
+
+Usage:
+  qa-run [--carts DIR] [--out DIR] [--param P] CART SCRIPT   run SCRIPT (file, or '-' for stdin)
+  qa-run compare TRACE_A TRACE_B                             first differing frame, exit 1 if any
+
+CART is a cart name from data/cartridges.txt (title starts the real menu flow; cart jumps work).
+The carts come from `qa-build all harness` (default DIR: build/v<version>_harness). PICO-8 never
+opens a window or plays sound: it always runs with SDL's dummy video and audio drivers, in a
+fresh PICO-8 home (so no saved high scores carry over between runs).
+
+SCRIPT tokens, whitespace separated, '#' starts a comment; each frame-taking token advances time:
+  N             N frames with no button held
+  BTN[+BTN][:N] hold buttons for N frames (default 1). BTN: left right up down o x,
+                or p2.left ... p2.x for player 2. A tap is one held frame: 'x 1 x' taps x twice.
+  shot          dump the screen of the next frame to <out>/frame-NNNNN.png
+  rec:N         dump the next N frames into <out>/rec-NNNNN.gif (real time, every second frame)
+
+Output in --out (default build/qa/<cart>): trace.txt (one 'frame hash' line per frame; the hash
+covers the screen only, since PICO-8's sound state runs on a real-time thread and differs between
+identical runs; a frame that loads another cart reads 'frame jump'), log.txt (PICO-8's other
+output), images.
+"""
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import threading
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+PICO8 = shutil.which("pico8") or str(Path.home() / ".local/bin/pico8")
+BUTTONS = {"left": 0, "right": 1, "up": 2, "down": 3, "o": 4, "x": 5}
+PALETTE = [
+    (0, 0, 0), (29, 43, 83), (126, 37, 83), (0, 135, 81), (171, 82, 54), (95, 87, 79),
+    (194, 195, 199), (255, 241, 232), (255, 0, 77), (255, 163, 0), (255, 236, 39),
+    (0, 228, 54), (41, 173, 255), (131, 118, 156), (255, 119, 168), (255, 204, 170),
+]
+DUMP = 0x8000  # bit 7 of the second (player 2) byte: dump this frame's screen
+STALL_SECONDS = 10
+
+
+def fail(message):
+    sys.exit(f"qa-run: {message}")
+
+
+def parse_script(text):
+    """Return (frames, shots, recs): frames is a list of 16-bit masks."""
+    frames, shots, recs, pending_shot, pending_rec = [], [], [], False, 0
+
+    def frame_count(value, token):
+        if not value.isdigit() or int(value) < 1:
+            fail(f"'{token}' needs a positive frame count")
+        return int(value)
+
+    for token in re.sub(r"#.*", "", text).split():
+        if token == "shot":
+            pending_shot = True
+            continue
+        if token.startswith("rec:"):
+            if pending_rec:
+                fail(f"'{token}' starts before the previous rec ends")
+            pending_rec = frame_count(token[4:], token)
+            recs.append([])
+            continue
+        if token.isdigit():
+            mask, count = 0, frame_count(token, token)
+        else:
+            names, colon, count = token.partition(":")
+            count = frame_count(count, token) if colon else 1
+            mask = 0
+            for name in names.split("+"):
+                player, _, button = name.rpartition(".")
+                if player not in ("", "p1", "p2") or button not in BUTTONS:
+                    fail(f"unknown button '{name}' in '{token}'")
+                mask |= 1 << (BUTTONS[button] + (8 if player == "p2" else 0))
+        for _ in range(count):
+            if pending_shot:
+                shots.append(len(frames))
+                pending_shot = False
+            if pending_rec:
+                recs[-1].append(len(frames))
+                pending_rec -= 1
+            frames.append(mask)
+    if pending_shot or pending_rec:
+        fail("the script ends before its last shot or rec is taken")
+    return frames, shots, recs
+
+
+def screen_image(data, scale=4):
+    from PIL import Image
+
+    image = Image.new("P", (128, 128))
+    image.putpalette([c for rgb in PALETTE for c in rgb])
+    pixels = bytearray()
+    for byte in data:
+        pixels += bytes((byte & 15, byte >> 4))
+    image.putdata(pixels)
+    return image.resize((128 * scale, 128 * scale), Image.NEAREST)
+
+
+def run(args):
+    out, carts, param = None, None, None
+    while args and args[0].startswith("--"):
+        option, value, args = args[0], args[1], args[2:]
+        if option == "--out":
+            out = Path(value)
+        elif option == "--carts":
+            carts = Path(value)
+        elif option == "--param":
+            param = value
+        else:
+            fail(f"unknown option {option}")
+    if len(args) != 2:
+        fail(__doc__)
+    cart, script = args
+    if cart not in (ROOT / "data/cartridges.txt").read_text().split():
+        fail(f"unknown cart '{cart}'")
+    version = (ROOT / "data/version.txt").read_text().strip()
+    carts = carts or ROOT / f"build/v{version}_harness"
+    if not (carts / f"quantattack_{cart}.p8").exists():
+        fail(f"no harness carts in {carts}: run .ultimate/bin/qa-build all harness")
+    out = out or ROOT / f"build/qa/{cart}"
+    text = sys.stdin.read() if script == "-" else Path(script).read_text()
+    frames, shots, recs = parse_script(text)
+    if not frames:
+        fail("the script has no frames")
+    dumps = set(shots) | {f for rec in recs for f in rec}
+    stream = b"".join(
+        ((mask | (DUMP if i in dumps else 0)) & 0xFFFF).to_bytes(2, "little")
+        for i, mask in enumerate(frames)
+    )
+
+    out.mkdir(parents=True, exist_ok=True)
+    for old in [*out.glob("frame-*.png"), *out.glob("rec-*.gif"), out / "trace.txt", out / "log.txt"]:
+        old.unlink(missing_ok=True)
+    home = Path(tempfile.mkdtemp(prefix="qa-run-"))
+    try:
+        shutil.copytree(carts, home / "carts")
+        command = ["stdbuf", "-o0", PICO8, "-home", str(home), "-run", str(home / f"carts/quantattack_{cart}.p8")]
+        if param is not None:
+            command += ["-p", param]
+        env = dict(os.environ, SDL_VIDEODRIVER="dummy", SDL_AUDIODRIVER="dummy")
+        process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT, env=env)
+        threading.Thread(target=lambda: (process.stdin.write(stream), process.stdin.flush()), daemon=True).start()
+        watchdog = threading.Timer(STALL_SECONDS + len(frames) / 30, process.kill)
+        watchdog.start()
+        hashes, screens, log, started = [], {}, [], False
+        try:
+            while len(hashes) < len(frames):
+                line = process.stdout.readline()
+                if not line:
+                    break
+                if line == b"qa:start\n":
+                    # A cart starts. After the first, the previous frame ran load() and printed nothing.
+                    if started:
+                        hashes.append("jump")
+                    started = True
+                elif line.startswith(b"qa "):
+                    hashes.append(line[3:].strip().decode())
+                    if len(hashes) - 1 in dumps:
+                        data = b""
+                        while len(data) < 8192:
+                            chunk = process.stdout.read(8192 - len(data))
+                            if not chunk:
+                                break
+                            data += chunk
+                        if len(data) < 8192:
+                            break  # PICO-8 died mid-dump: the frame count check below fails the run
+                        screens[len(hashes) - 1] = data
+                else:
+                    log.append(line.decode(errors="replace"))
+        finally:
+            watchdog.cancel()
+            process.kill()
+            process.wait()
+    finally:
+        shutil.rmtree(home)
+
+    (out / "trace.txt").write_text("".join(f"{i + 1} {h}\n" for i, h in enumerate(hashes)))
+    (out / "log.txt").write_text("".join(log))
+    errors = [line for line in log if "error" in line.lower() or "too large" in line]
+    print(f"{len(hashes)}/{len(frames)} frames -> {out}")
+    if errors or len(hashes) < len(frames) or len(screens) < len(dumps) - jumps(hashes, dumps):
+        sys.stdout.write("".join(log[-12:]))
+        fail("PICO-8 stopped early (see log.txt)")
+    for frame in shots:
+        if frame in screens:
+            screen_image(screens[frame]).save(out / f"frame-{frame + 1:05d}.png")
+    for rec in recs:
+        # Every second frame, delays 30, 30, 40 ms (100 ms per 6 game frames): real-time playback,
+        # since GIF delays come in 10 ms steps and viewers slow down anything under 20 ms.
+        images = [screen_image(screens[f], 2) for f in rec[::2] if f in screens]
+        if images:
+            images[0].save(out / f"rec-{rec[0] + 1:05d}.gif", save_all=True, append_images=images[1:],
+                           duration=[(30, 30, 40)[i % 3] for i in range(len(images))], loop=0)
+    skipped = sorted(f + 1 for f in dumps if hashes[f] == "jump")
+    if skipped:
+        print(f"no screen for frames {skipped}: they load another cart and draw nothing")
+
+
+def jumps(hashes, dumps):
+    return sum(1 for f in dumps if f < len(hashes) and hashes[f] == "jump")
+
+
+def compare(path_a, path_b):
+    a, b = Path(path_a).read_text().splitlines(), Path(path_b).read_text().splitlines()
+    for line_a, line_b in zip(a, b):
+        if line_a != line_b:
+            print(f"differ at frame {line_a.split()[0]}: {line_a.split()[1]} != {line_b.split()[1]}")
+            sys.exit(1)
+    if len(a) != len(b):
+        print(f"same for {min(len(a), len(b))} frames, then lengths differ: {len(a)} != {len(b)}")
+        sys.exit(1)
+    print(f"identical ({len(a)} frames)")
+
+
+if __name__ == "__main__":
+    if sys.argv[1:2] == ["compare"] and len(sys.argv) == 4:
+        compare(sys.argv[2], sys.argv[3])
+    else:
+        run(sys.argv[1:])

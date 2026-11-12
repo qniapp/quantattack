@@ -1,0 +1,5 @@
+# cart: title
+# Title demo, menu, endless chosen (cart jump), a few moves, back to title (cart jump).
+300 shot 1 x 30 right 10 x 400 shot 1 left:3 right 10 x 200 shot 1
+up right:3 right right x right 10 10 10 o:20 down right 10 left o:20 o:20 right:3 right left 10 x down right:3 right right x left left left left:3 left left o:20 down o:20 left left:3 left down 10 10 left:3 left down x down down 10 x left o:20 left:3 left right up x right x left:3 left o:20 left:3 left down x x right:3 right 10 left:3 left o:20 right:3 right left 10 down o:20 o:20 up x left:3 left x right 10 left:3 left right up left:3 left o:20 x 10 left 10 left x right:3 right right:3 right right:3 right o:20 up up left:3 left down left down left:3 left left:3 left down o:20 left:3 left x right:3 right x 10 x left:3 left right:3 right left o:20 left:3 left up left:3 left left:3 left down o:20 left 10 x right:3 right left:3 left down
+o:900 300 o 120 shot 1

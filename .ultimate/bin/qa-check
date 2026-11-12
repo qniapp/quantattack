@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Usage: qa-check [--record] [SCENARIO...]
+# Builds the harness carts, plays every scenario in .ultimate/qa/scenarios headless (in parallel)
+# and compares each trace with its golden trace in .ultimate/qa/golden. Exit 1 on any difference.
+# --record rewrites the golden traces instead: only from a commit whose game behaviour is the reference.
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+record=false
+if [[ "${1:-}" == --record ]]; then
+  record=true
+  shift
+fi
+scenarios=("$@")
+if [[ ${#scenarios[@]} == 0 ]]; then
+  for file in .ultimate/qa/scenarios/*.txt; do
+    scenarios+=("$(basename "$file" .txt)")
+  done
+fi
+
+mkdir -p build
+.ultimate/bin/qa-build all harness > build/qa-build.log 2>&1 || { tail -20 build/qa-build.log; exit 1; }
+
+pids=()
+for name in "${scenarios[@]}"; do
+  file=".ultimate/qa/scenarios/$name.txt"
+  read -r _ _ cart _ param < <(head -1 "$file")
+  args=(--out "build/qa/$name")
+  [[ -z "${param:-}" ]] || args+=(--param "$param")
+  .ultimate/bin/qa-run "${args[@]}" "$cart" "$file" > "build/qa-$name.log" 2>&1 &
+  pids+=($!)
+done
+
+status=0
+for i in "${!scenarios[@]}"; do
+  name=${scenarios[$i]}
+  if ! wait "${pids[$i]}"; then
+    echo "$name: run failed"
+    cat "build/qa-$name.log"
+    status=1
+  elif "$record"; then
+    mkdir -p .ultimate/qa/golden
+    cp "build/qa/$name/trace.txt" ".ultimate/qa/golden/$name.txt"
+    echo "$name: recorded $(wc -l < ".ultimate/qa/golden/$name.txt") frames"
+  else
+    echo -n "$name: "
+    .ultimate/bin/qa-run compare ".ultimate/qa/golden/$name.txt" "build/qa/$name/trace.txt" || status=1
+  fi
+done
+exit "$status"
