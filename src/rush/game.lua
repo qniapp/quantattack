@@ -176,7 +176,7 @@ function game:update()
   -- もしどちらかの board でおじゃまブロックを分解中だった場合 "slow" にする
   ripple.slow = false
 
-  for index, each in pairs(all_players_info) do
+  for _, each in pairs(all_players_info) do
     local player = each.player
     local board = each.board
     local cursor = board.cursor

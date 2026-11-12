@@ -19,7 +19,6 @@ function dtb_disp(txt, callback)
   local lines = {}
   local currline = ""
   local curword = ""
-  local curchar = ""
   local upt = function()
     if #curword + #currline > 27 then
       add(lines, currline)
@@ -29,7 +28,7 @@ function dtb_disp(txt, callback)
     curword = ""
   end
   for i = 1, #txt do
-    curchar = sub(txt, i, i)
+    local curchar = sub(txt, i, i)
     curword = curword .. curchar
     if curchar == " " then
       upt()
@@ -52,7 +51,7 @@ end
 -- functions with an underscore prefix are ment for internal use, don't worry about them.
 function _dtb_clean()
   dtb_dislines = {}
-  for i = 1, dtb_numlines do
+  for _ = 1, dtb_numlines do
     add(dtb_dislines, "")
   end
   dtb_curline = 0

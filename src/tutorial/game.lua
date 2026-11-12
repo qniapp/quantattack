@@ -7,7 +7,6 @@ local _state
 
 function game._init(_ENV)
   _state = ":initial"
-  show_board = false
   move_cursor = false
 end
 

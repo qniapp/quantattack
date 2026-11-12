@@ -29,11 +29,11 @@ end
 
 function game()
   return setmetatable({
-    reduce_callback = function(_score, _player)
+    reduce_callback = function()
       -- NOP
     end,
 
-    combo_callback = function(combo_count, coord, _player, board, _other_board)
+    combo_callback = function(combo_count, coord)
       bubbles:create("combo", combo_count, coord)
       ions:create(coord, { 64, 36 }, attack_cube_callback)
     end,
