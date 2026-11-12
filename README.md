@@ -41,7 +41,7 @@ PICO-8 のトークン数制限のため、ゲームはモードごとに 7 つ�
 
 ## 必要なもの
 
-- [PICO-8](https://www.lexaloffle.com/pico-8.php) 0.2.5c 以降
+- [PICO-8](https://www.lexaloffle.com/pico-8.php) 0.2.7 (以前のリリースは 0.2.5c)
 - Ruby と Rake (`.tool-versions` に Ruby のバージョンを記載。mise や asdf で入る)
 - Lua 5.4、[busted](https://lunarmodules.github.io/busted/)、luacov、bit32 (テスト用)
 - [luacheck](https://github.com/lunarmodules/luacheck) (lint 用、任意)
@@ -71,6 +71,7 @@ luarocks --lua-version 5.4 install luacheck
 | --- | --- |
 | `rake` | 全カートをデバッグビルドし、PICO-8 の carts フォルダにインストール (`scripts/build_cart.py` が `--#if` の前処理、`require` の結合、shrinko8 による minify をする) |
 | `rake build:release` | 全カートをリリースビルド |
+| `rake release` | リリースビルドし、`build/v<version>_export/` に Web 版 (`web/`)、バイナリ (`bin/`) を書き出す |
 | `rake run` | ビルドして title カートを起動 |
 | `rake data` | `data.p8` を PICO-8 で開く (スプライトと音の編集) |
 | `rake test` | ユニットテストを実行 |
@@ -84,9 +85,9 @@ GitHub Actions (`.github/workflows/test.yml`) が push と pull request ごと�
 
 カートは `build/v<version>_<debug|release>/` に出力され、`~/.lexaloffle/pico-8/carts/quantattack/v<version>_<debug|release>/` にインストールされます (インストール先は Linux の carts フォルダに固定)。カート同士は名前で `load()` し合うので、遊ぶときはインストール先のカートを使ってください。
 
-## 既知の問題
+## 公開サイトの更新
 
-- `rake release` (PNG、バイナリ、Web 版の書き出し) は動きません。`scripts/export_and_patch_cartridge_release.sh` が、pico-boots の固定バージョンに含まれない `adapt_for_png.py` を呼んでいるためです。
+`rake release` の後、`build/v<version>_export/web/` の `index.html` と `quantattack_v<version>_release.js` をリポジトリのルートにコピーして commit します (古いバージョンの js は削除)。`index.html` は `plates/crtplate.html` から生成されるので、ページの内容を変えるときは `plates/crtplate.html` を編集します。
 
 ## ライセンス
 

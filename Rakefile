@@ -61,9 +61,9 @@ end
 
 task default: 'build:debug'
 
-desc 'リリース'
+desc 'リリース (Web 版、バイナリを build/v<version>_export/ に書き出す)'
 task release: 'build:release' do
-  sh './scripts/export_and_patch_cartridge_release.sh'
+  sh({ 'PICO8' => PICO8 }, './scripts/export_release.sh')
 end
 
 desc 'data カートを起動 (スプライトと音の編集用)'
