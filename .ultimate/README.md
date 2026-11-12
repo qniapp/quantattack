@@ -1,6 +1,6 @@
 # Ultimate setup for quantattack
 
-- `settings.json`: worktree setup (pico-boots submodule) and the lander check `sh .ultimate/test.sh`.
+- `settings.json`: worktree setup (pico-boots submodule) and the lander check `sh .ultimate/test.sh`; each landing is pushed to `origin`.
 - `worktree-setup.sh`: runs in every new worktree.
 - `test.sh`: runs the busted unit tests on Lua 5.4 from the per-user rocks tree `~/.luarocks54`.
   `.busted` preloads `test/pico8_compat.lua`, the PICO-8 builtins (`split`) that pico-boots' test API lacks.

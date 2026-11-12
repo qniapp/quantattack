@@ -6,6 +6,6 @@
   },
   "lander": {
     "checks": [{ "command": "sh .ultimate/test.sh", "timeout": 300 }],
-    "push": ""
+    "push": "origin"
   }
 }
