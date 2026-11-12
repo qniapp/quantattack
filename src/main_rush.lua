@@ -52,7 +52,7 @@ function _update60()
       if high_score:put(player.score) then
         sfx(22)
         -- sash:create("high score!", 7, 8)
-        sash:create("high score!,7,8")
+        sash:create"high score!,7,8"
       end
 
       board.show_gameover_menu = true
@@ -61,23 +61,21 @@ function _update60()
         current_high_score = high_score:get()
         _init()
       elseif btnp(4) then -- z でタイトルへ戻る
-        jump('quantattack_title')
+        jump'quantattack_title'
       end
     end
-  else
-    if game.time_left <= 0 then
-      board.timeup = true
-      game.game_over_time = t()
-      sfx(16)
-      -- sash:create("time up!", 13, 7, function()
-      sash:create("time up!,13,7", function()
-        if high_score:put(player.score) then
-          sfx(22)
-          -- sash:create("high score!", 7, 8)
-          sash:create("high score!,7,8")
-        end
-      end)
-    end
+  elseif game.time_left <= 0 then
+    board.timeup = true
+    game.game_over_time = t()
+    sfx(16)
+    -- sash:create("time up!", 13, 7, function()
+    sash:create("time up!,13,7", function()
+      if high_score:put(player.score) then
+        sfx(22)
+        -- sash:create("high score!", 7, 8)
+        sash:create"high score!,7,8"
+      end
+    end)
   end
 
   sash:update_all()
@@ -100,9 +98,9 @@ function _draw()
 
   if not game:is_game_over() then
     spr(99, base_x, 109)
-    print_outlined("swap blocks", 81, 110, 7, 0)
+    print_outlined(unpack_split"swap blocks,81,110,7,0")
     spr(112, base_x, 119)
-    print_outlined("raise blocks", 81, 120, 7, 0)
+    print_outlined(unpack_split"raise blocks,81,120,7,0")
   end
 
   sash:render_all()

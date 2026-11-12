@@ -4,10 +4,7 @@ require("lib/helpers")
 local ion = new_class()
 
 function ion._init(_ENV)
-  _x = 84
-  _y = 36
-  _dx = 0
-  _dy = 0
+  _x, _y, _dx, _dy = 84, 36, 0, 0
 end
 
 function ion.update(_ENV)
@@ -47,9 +44,7 @@ function ion.update(_ENV)
 end
 
 function ion.draw(_ENV)
-  local x = _x + _dx
-  local y = _y + _dy
-  local angle = t()
+  local x, y, angle = _x + _dx, _y + _dy, t()
 
   fillp(23130.5)
   circfill(x, y, 8 + 2 * sin(angle), 12)
@@ -60,19 +55,13 @@ end
 
 -- 画面外から定位置に登場
 function ion.appear(_ENV, callback)
-  _state = ":appear"
-  _tick = 0
-  _max_tick = 60
-  _appear_callback = callback
+  _state, _tick, _max_tick, _appear_callback = ":appear", 0, 60, callback
   sfx(20)
 end
 
 -- 左右に素早くゆれる
 function ion.shake(_ENV, callback)
-  _state = ":shake"
-  _tick = 0
-  _max_tick = 30
-  _shake_callback = callback
+  _state, _tick, _max_tick, _shake_callback = ":shake", 0, 30, callback
   sfx(20)
 end
 

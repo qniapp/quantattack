@@ -29,7 +29,7 @@ function _update60()
         sfx(15)
         game:init()
       elseif btnp(4) then -- c でタイトルへ戻る
-        jump('quantattack_title')
+        jump'quantattack_title'
       end
     end
   end

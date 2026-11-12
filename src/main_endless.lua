@@ -39,23 +39,19 @@ function _update60()
     last_steps = board.steps
   end
 
-  if game:is_game_over() then
-    if t() - game.game_over_time > 2 then
-      if not board.show_gameover_menu then
-        if high_score:put(player.score) then
-          sfx(22)
-          sash:create("high score!,7,8")
-        end
-      end
+  if game:is_game_over() and t() - game.game_over_time > 2 then
+    if not board.show_gameover_menu and high_score:put(player.score) then
+      sfx(22)
+      sash:create"high score!,7,8"
+    end
 
-      board.show_gameover_menu = true
-      if btnp(5) then -- x でリプレイ
-        sfx(15)
-        current_high_score = high_score:get()
-        game:init()
-      elseif btnp(4) then -- c でタイトルへ戻る
-        jump('quantattack_title')
-      end
+    board.show_gameover_menu = true
+    if btnp(5) then -- x でリプレイ
+      sfx(15)
+      current_high_score = high_score:get()
+      game:init()
+    elseif btnp(4) then -- c でタイトルへ戻る
+      jump'quantattack_title'
     end
   end
 
@@ -76,9 +72,9 @@ function _draw()
 
   if not game:is_game_over() then
     spr(99, base_x, 109)
-    print_outlined("swap blocks", 81, 110, 7, 0)
+    print_outlined(unpack_split"swap blocks,81,110,7,0")
     spr(112, base_x, 119)
-    print_outlined("raise blocks", 81, 120, 7, 0)
+    print_outlined(unpack_split"raise blocks,81,120,7,0")
   end
 
   sash:render_all()
