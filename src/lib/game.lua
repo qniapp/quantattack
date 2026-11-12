@@ -5,8 +5,7 @@ game_class = new_class()
 local chain_bonus = transform(split("0,50,80,150,300,400,500,700,900,1100,1300,1500,1800"), tonum)
 
 function game_class.reduce_callback(score, player, board, contains_swap)
-  local score_delta = score >> 16
-  player.score = player.score + score_delta
+  player.score = player.score + (score >> 16)
 
   if contains_swap then
     board.freeze_timer = 120
@@ -26,9 +25,7 @@ function game_class.combo_callback(combo_count, coord, player, board, other_boar
         "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
       )
 
-      local score = combo_count * 10
-      local score_delta = score >> 16
-      player.score = player.score + score_delta
+      player.score = player.score + ((combo_count * 10) >> 16)
 
       -- 対戦相手がいる時、おじゃまブロックを送る
       if other_board then
@@ -52,9 +49,7 @@ function game_class.block_offset_callback(chain_count, coord, player, board, oth
           "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
         )
 
-        local score = chain_bonus[chain_count] or 1800
-        local score_delta = score >> 16
-        player.score = player.score + score_delta
+        player.score = player.score + ((chain_bonus[chain_count] or 1800) >> 16)
 
         if other_board then
           offset_height = board.pending_garbage_blocks:offset(offset_height)
@@ -81,9 +76,7 @@ function game_class.chain_callback(chain_id, chain_count, coord, player, board, 
             "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
           )
 
-          local score = chain_bonus[chain_count] or 1800
-          local score_delta = score >> 16
-          player.score = player.score + score_delta
+          player.score = player.score + ((chain_bonus[chain_count] or 1800) >> 16)
 
           -- 対戦相手がいる時、おじゃまブロックを送る
           if other_board then
@@ -93,9 +86,7 @@ function game_class.chain_callback(chain_id, chain_count, coord, player, board, 
       )
     end
   else
-    local score = chain_bonus[chain_count] or 1800
-    local score_delta = score >> 16
-    player.score = player.score + score_delta
+    player.score = player.score + ((chain_bonus[chain_count] or 1800) >> 16)
   end
 end
 
@@ -272,9 +263,8 @@ function game_class.render(_ENV) -- override
 
     -- カウントダウンの数字はカーソルの上に表示
     if board.countdown then
-      local countdown_sprite_x = { 32, 16, 0 }
       sspr(
-        countdown_sprite_x[board.countdown],
+        48 - board.countdown * 16,
         80,
         16,
         16,
@@ -320,7 +310,7 @@ end
 
 -- ゲーム経過時間を文字列で返す (e.g., "01:23")
 function game_class.elapsed_time_string(_ENV)
-  local length2_number_string_0filled = function(num)
+  local function length2_number_string_0filled(num)
     return (num < 10) and "0" .. num or num
   end
 
