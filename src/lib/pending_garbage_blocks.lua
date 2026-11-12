@@ -7,6 +7,9 @@ function pending_garbage_blocks_class._init(_ENV)
   all = {}
 end
 
+-- title/tutorial の空の all は更新・描画とも副作用がない。
+--#ifn title
+--#ifn tutorial
 function pending_garbage_blocks_class.add_garbage(_ENV, span, height, chain_id)
   -- 同じ chain_id のおじゃまブロックをまとめる
   for _, each in pairs(all) do
@@ -99,3 +102,5 @@ function pending_garbage_blocks_class.render(_ENV, board)
     end
   end
 end
+--#endif
+--#endif

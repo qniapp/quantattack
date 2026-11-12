@@ -144,9 +144,11 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
     end
   end
 
+  --#ifn title
+  --#ifn tutorial
   -- おじゃまブロックのマッチ
   repeat
-    local matched_garbage_block = false
+    local matched_garbage_block
 
     for _, each in pairs(_garbage_blocks) do
       if each.state == "idle" then
@@ -160,11 +162,8 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
           local adjacent_block = blocks[adj_y][adj_x]
 
-          if adjacent_block.state ~= "match" then
-            return false
-          end
-
-          if adjacent_block.type ~= "?" or each.body_color == adjacent_block.body_color then
+          if adjacent_block.state == "match" and
+              (adjacent_block.type ~= "?" or each.body_color == adjacent_block.body_color) then
             each.chain_id = adjacent_block.chain_id
             return true
           end
@@ -240,6 +239,8 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
       ::next_garbage_block::
     end
   until not matched_garbage_block
+  --#endif
+  --#endif
 
   -- 連鎖
   for chain_id, xy in pairs(chain_xy) do
@@ -327,9 +328,7 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
           contains_swap = true
         end
 
-        if block1.chain_id then
-          chain_id = block1.chain_id
-        end
+        chain_id = block1.chain_id or chain_id
       end
 
       if second then
@@ -339,9 +338,7 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
           goto next_rule
         end
 
-        if block2.chain_id then
-          chain_id = block2.chain_id
-        end
+        chain_id = block2.chain_id or chain_id
       end
     end
 
@@ -352,12 +349,11 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
       chain_id = chain_id,
       contains_swap = contains_swap
     }
-    goto matched
+    break
 
     ::next_rule::
   end
 
-  ::matched::
   return reduction
 end
 
@@ -437,6 +433,8 @@ function board_class.put(_ENV, x, y, block)
     _check_hover_flag[tmp_y] = _check_hover_flag[tmp_y] or {}
   end
 
+  --#ifn title
+  --#ifn tutorial
   -- おじゃまブロックを分解する時 (= garbage_match ブロックと置き換える時)、
   -- おじゃまブロックキャッシュから消す
   local previous = blocks[y][x]
@@ -449,6 +447,8 @@ function board_class.put(_ENV, x, y, block)
   if block.type == "g" then
     add(_garbage_blocks, block)
   end
+  --#endif
+  --#endif
 
   blocks[y][x] = block
   block:attach(_ENV)
@@ -461,9 +461,13 @@ function board_class.remove_block(_ENV, x, y)
   put(_ENV, x, y, block_class"i")
 end
 
+--#ifn title
+--#ifn tutorial
 function board_class.send_garbage(_ENV, chain_id, span, _height)
   pending_garbage_blocks:add_garbage(span, _height, chain_id)
 end
+--#endif
+--#endif
 
 function board_class.insert_blocks_at_bottom(_ENV)
   shift_all_blocks_up(_ENV)
@@ -535,7 +539,11 @@ function board_class.swap(_ENV, x_left, y)
 end
 
 function board_class.update(_ENV, game, player, other_board)
+  --#ifn title
+  --#ifn tutorial
   pending_garbage_blocks:update(_ENV)
+  --#endif
+  --#endif
   _update_bounce(_ENV)
   freeze_timer = max(freeze_timer - 1, 0)
   if freeze_timer == 0 then
@@ -635,7 +643,11 @@ function board_class.render(_ENV)
   end
 
   -- 待機中のおじゃまブロックを描画
+  --#ifn title
+  --#ifn tutorial
   pending_garbage_blocks:render(_ENV)
+  --#endif
+  --#endif
 
   -- ブロック上限の線を描画
   if not is_game_over(_ENV) then
@@ -723,11 +735,9 @@ function board_class._update_game(_ENV, game, player, other_board)
             if y > 1 and blocks[y - 1][x].state == "hover" then
               block.timer = blocks[y - 1][x].timer
             end
-          else -- CNOT または SWAP
-            if x < block.other_x and _is_block_fallable(_ENV, block.other_x, y) then
-              block:hover()
-              row[block.other_x]:hover(block.timer + 1)
-            end
+          elseif x < block.other_x and _is_block_fallable(_ENV, block.other_x, y) then -- CNOT または SWAP
+            block:hover()
+            row[block.other_x]:hover(block.timer + 1)
           end
         end
 
@@ -737,12 +747,10 @@ function board_class._update_game(_ENV, game, player, other_board)
 
           if block.state ~= "hover" then
             local hover_timer = propagatable_hover_timer(_ENV, x, y)
-            if hover_timer then
-              if not block.other_x or x < block.other_x then
-                block:hover(hover_timer)
-                if block.other_x then
-                  row[block.other_x]:hover(hover_timer + 1)
-                end
+            if hover_timer and (not block.other_x or x < block.other_x) then
+              block:hover(hover_timer)
+              if block.other_x then
+                row[block.other_x]:hover(hover_timer + 1)
               end
             end
           end
@@ -775,20 +783,16 @@ function board_class._update_game(_ENV, game, player, other_board)
             if block.other_x and x < block.other_x then
               row[block.other_x]:change_state"idle"
             end
-          else
-            if is_empty(_ENV, x, y - 1) then
-              -- 落下中のブロックをひとつ下に移動
-              if not block.other_x or x < block.other_x then
-                remove_block(_ENV, x, y)
-                put(_ENV, x, y - 1, block)
+          elseif is_empty(_ENV, x, y - 1) and (not block.other_x or x < block.other_x) then
+            -- 落下中のブロックをひとつ下に移動
+            remove_block(_ENV, x, y)
+            put(_ENV, x, y - 1, block)
 
-                if block.other_x then
-                  local other_block = row[block.other_x]
-                  other_block.state = "fall"
-                  remove_block(_ENV, block.other_x, y)
-                  put(_ENV, block.other_x, y - 1, other_block)
-                end
-              end
+            if block.other_x then
+              local other_block = row[block.other_x]
+              other_block.state = "fall"
+              remove_block(_ENV, block.other_x, y)
+              put(_ENV, block.other_x, y - 1, other_block)
             end
           end
         end
@@ -872,6 +876,8 @@ end
 --- (x, y) がおじゃまブロックの一部であった場合、おじゃまブロック先頭のブロックを返す
 -- そうでない場合は nil を返す
 function board_class._garbage_head_block(_ENV, x, y)
+  --#ifn title
+  --#ifn tutorial
   for _, each in pairs(_garbage_blocks) do
     -- NOTE: 以下のように each.x, each.y に一時変数を割り当てるよりも、
     -- 直接書いたほうが 3 トークン小さい
@@ -883,6 +889,8 @@ function board_class._garbage_head_block(_ENV, x, y)
       return each
     end
   end
+  --#endif
+  --#endif
 end
 
 function board_class._block_or_its_head_block(_ENV, x, y)

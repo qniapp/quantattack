@@ -220,6 +220,8 @@ end
 
 --#endif
 
+--#ifn title
+--#ifn tutorial
 --- おじゃまブロック
 
 local inner_border_colors = { nil, 14, 11, 9 }
@@ -257,3 +259,5 @@ function garbage_block(_span, _height, _color, _chain_id, _tick_fall)
 
   return garbage
 end
+--#endif
+--#endif
