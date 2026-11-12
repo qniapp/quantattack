@@ -144,6 +144,8 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
     end
   end
 
+  --#ifn title
+  --#ifn tutorial
   -- おじゃまブロックのマッチ
   repeat
     local matched_garbage_block = false
@@ -240,6 +242,8 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
       ::next_garbage_block::
     end
   until not matched_garbage_block
+  --#endif
+  --#endif
 
   -- 連鎖
   for chain_id, xy in pairs(chain_xy) do
@@ -437,6 +441,8 @@ function board_class.put(_ENV, x, y, block)
     _check_hover_flag[tmp_y] = _check_hover_flag[tmp_y] or {}
   end
 
+  --#ifn title
+  --#ifn tutorial
   -- おじゃまブロックを分解する時 (= garbage_match ブロックと置き換える時)、
   -- おじゃまブロックキャッシュから消す
   local previous = blocks[y][x]
@@ -449,6 +455,8 @@ function board_class.put(_ENV, x, y, block)
   if block.type == "g" then
     add(_garbage_blocks, block)
   end
+  --#endif
+  --#endif
 
   blocks[y][x] = block
   block:attach(_ENV)
@@ -461,9 +469,13 @@ function board_class.remove_block(_ENV, x, y)
   put(_ENV, x, y, block_class"i")
 end
 
+--#ifn title
+--#ifn tutorial
 function board_class.send_garbage(_ENV, chain_id, span, _height)
   pending_garbage_blocks:add_garbage(span, _height, chain_id)
 end
+--#endif
+--#endif
 
 function board_class.insert_blocks_at_bottom(_ENV)
   shift_all_blocks_up(_ENV)
@@ -535,7 +547,11 @@ function board_class.swap(_ENV, x_left, y)
 end
 
 function board_class.update(_ENV, game, player, other_board)
+  --#ifn title
+  --#ifn tutorial
   pending_garbage_blocks:update(_ENV)
+  --#endif
+  --#endif
   _update_bounce(_ENV)
   freeze_timer = max(freeze_timer - 1, 0)
   if freeze_timer == 0 then
@@ -635,7 +651,11 @@ function board_class.render(_ENV)
   end
 
   -- 待機中のおじゃまブロックを描画
+  --#ifn title
+  --#ifn tutorial
   pending_garbage_blocks:render(_ENV)
+  --#endif
+  --#endif
 
   -- ブロック上限の線を描画
   if not is_game_over(_ENV) then
@@ -872,6 +892,8 @@ end
 --- (x, y) がおじゃまブロックの一部であった場合、おじゃまブロック先頭のブロックを返す
 -- そうでない場合は nil を返す
 function board_class._garbage_head_block(_ENV, x, y)
+  --#ifn title
+  --#ifn tutorial
   for _, each in pairs(_garbage_blocks) do
     -- NOTE: 以下のように each.x, each.y に一時変数を割り当てるよりも、
     -- 直接書いたほうが 3 トークン小さい
@@ -883,6 +905,8 @@ function board_class._garbage_head_block(_ENV, x, y)
       return each
     end
   end
+  --#endif
+  --#endif
 end
 
 function board_class._block_or_its_head_block(_ENV, x, y)
