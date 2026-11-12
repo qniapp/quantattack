@@ -3,11 +3,10 @@ local game = new_class()
 
 local all_players_info, countdown
 
-local chain_bonus = transform(split("0,50,80,150,300,400,500,700,900,1100,1300,1500,1800"), tonum)
+local chain_bonus = transform(split"0,50,80,150,300,400,500,700,900,1100,1300,1500,1800", tonum)
 
 function game.reduce_callback(score, player, board, contains_swap)
-  local score_delta = score >> 16
-  player.score = player.score + score_delta
+  player.score = player.score + (score >> 16)
 
   if contains_swap then
     board.freeze_timer = 120
@@ -26,9 +25,7 @@ function game.combo_callback(combo_count, coord, player, board, other_board)
         "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
       )
 
-      local score = combo_count * 10
-      local score_delta = score >> 16
-      player.score = player.score + score_delta
+      player.score = player.score + ((combo_count * 10) >> 16)
 
       -- 対戦相手がいる時、おじゃまブロックを送る
       if other_board then
@@ -52,9 +49,7 @@ function game.block_offset_callback(chain_count, coord, player, board, other_boa
           "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
         )
 
-        local score = chain_bonus[chain_count] or 1800
-        local score_delta = score >> 16
-        player.score = player.score + score_delta
+        player.score = player.score + ((chain_bonus[chain_count] or 1800) >> 16)
 
         if other_board then
           offset_height = pending_garbage_blocks:offset(offset_height)
@@ -80,9 +75,7 @@ function game.chain_callback(chain_id, chain_count, coord, player, board, other_
           "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
         )
 
-        local score = chain_bonus[chain_count] or 1800
-        local score_delta = score >> 16
-        player.score = player.score + score_delta
+        player.score = player.score + ((chain_bonus[chain_count] or 1800) >> 16)
 
         -- 対戦相手がいる時、おじゃまブロックを送る
         if other_board then
@@ -91,26 +84,22 @@ function game.chain_callback(chain_id, chain_count, coord, player, board, other_
       end
     )
   else
-    local score = chain_bonus[chain_count] or 1800
-    local score_delta = score >> 16
-    player.score = player.score + score_delta
+    player.score = player.score + ((chain_bonus[chain_count] or 1800) >> 16)
   end
 end
 
-function game:is_game_over()
-  return self.game_over_time ~= nil
+function game.is_game_over(_ENV)
+  return game_over_time ~= nil
 end
 
-function game:_init()
-  self.auto_raise_frame_count = 10
+function game._init(_ENV)
+  auto_raise_frame_count = 10
 end
 
-function game:init()
-  all_players_info = {}
-  countdown = 240
-  self.start_time = t()
-  self.game_over_time = nil
-  self.time_left = nil
+function game.init(_ENV)
+  all_players_info, countdown = {}, 240
+  start_time = t()
+  game_over_time, time_left = nil, nil
 
   music(-1) -- stop the music
 end
@@ -124,7 +113,7 @@ function game:add_player(player, board, other_board)
   })
 end
 
-function game:update()
+function game.update(_ENV)
   ripple:update_all()
 
   if countdown then
@@ -132,7 +121,7 @@ function game:update()
     local countdown_number = flr(countdown / 60 + 1)
 
     if countdown > 0 then
-      self.start_time = t()
+      start_time = t()
 
       if countdown_number < 4 then
         for _, each in pairs(all_players_info) do
@@ -177,12 +166,10 @@ function game:update()
   ripple.slow = false
 
   for _, each in pairs(all_players_info) do
-    local player = each.player
-    local board = each.board
+    local player, board, other_board = each.player, each.board, each.other_board
     local cursor = board.cursor
-    local other_board = each.other_board
 
-    if self:is_game_over() then
+    if is_game_over(_ENV) then
       board:update()
       ripple.slow = false
     else
@@ -208,14 +195,14 @@ function game:update()
         sfx(10)
       end
       if player.o and not countdown and board.top_block_y > 2 then
-        self:_raise(each)
+        _raise(_ENV, each)
       end
 
-      board:update(self, player, other_board)
+      board:update(_ENV, player, other_board)
       cursor:update()
 
       if not countdown then
-        self:_auto_raise(each)
+        _auto_raise(_ENV, each)
       end
 
       if board.contains_q_block then
@@ -229,12 +216,12 @@ function game:update()
   ions:update_all()
 
   if all_players_info[1].board:is_game_over() then
-    if self.game_over_time == nil then
-      self.game_over_time = t()
+    if game_over_time == nil then
+      game_over_time = t()
     end
   else
     -- ゲーム中だけ time_left を更新
-    game.time_left = 120 - (t() - self.start_time)
+    game.time_left = 120 - (t() - start_time)
   end
 end
 
@@ -276,28 +263,28 @@ function game:_raise(player_info, force)
 end
 
 -- 可能な場合ブロックを自動的にせりあげる
-function game:_auto_raise(player_info)
+function game._auto_raise(_ENV, player_info)
   if player_info.board.freeze_timer > 0 or player_info.board:is_busy() then
     return
   end
 
   player_info.tick = player_info.tick + 1
 
-  if player_info.tick > self.auto_raise_frame_count then
-    self:_raise(player_info, true)
+  if player_info.tick > auto_raise_frame_count then
+    _raise(_ENV, player_info, true)
     player_info.tick = 0
   end
 end
 
 -- 残り時間を文字列で返す (e.g., "01:23")
-function game:time_left_string()
-  return length2_number_string_0filled(flr(self.time_left / 60)) ..
+function game.time_left_string(_ENV)
+  return length2_number_string_0filled(flr(time_left / 60)) ..
       ":" ..
-      length2_number_string_0filled(ceil(self.time_left) % 60)
+      length2_number_string_0filled(ceil(time_left) % 60)
 end
 
 function length2_number_string_0filled(num)
-  return (num < 10) and "0" .. num or num
+  return num < 10 and "0" .. num or num
 end
 
 return game

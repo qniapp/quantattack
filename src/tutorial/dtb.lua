@@ -5,20 +5,13 @@ require("lib/helpers")
 -- call this before you start using dtb.
 -- optional parameter is the number of lines that are displayed. default is 3.
 function dtb_init(numlines)
-  dtb_queu = {}
-  dtb_queuf = {}
-  dtb_numlines = 3
-  if numlines then
-    dtb_numlines = numlines
-  end
+  dtb_queu, dtb_queuf, dtb_numlines = {}, {}, numlines or 3
   _dtb_clean()
 end
 
 -- this will add a piece of text to the queu. the queu is processed automatically.
 function dtb_disp(txt, callback)
-  local lines = {}
-  local currline = ""
-  local curword = ""
+  local lines, currline, curword = {}, "", ""
   local upt = function()
     if #curword + #currline > 27 then
       add(lines, currline)
@@ -54,8 +47,7 @@ function _dtb_clean()
   for _ = 1, dtb_numlines do
     add(dtb_dislines, "")
   end
-  dtb_curline = 0
-  dtb_ltime = 0
+  dtb_curline, dtb_ltime = 0, 0
 end
 
 function _dtb_nextline()
@@ -110,10 +102,8 @@ function dtb_update()
         if btnp(5) then
           dtb_dislines[dislineslength] = curlines[dtb_curline]
         end
-      else
-        if btnp(5) then
-          _dtb_nextline()
-        end
+      elseif btnp(5) then
+        _dtb_nextline()
       end
     end
   end

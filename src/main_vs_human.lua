@@ -21,13 +21,12 @@ function _update60()
   game:update()
 
   if game:is_game_over() and t() - game.game_over_time > 2 then
-    board0.show_gameover_menu = true
-    board1.show_gameover_menu = true
+    board0.show_gameover_menu, board1.show_gameover_menu = true, true
     if btnp(5, 0) or btnp(5, 1) then -- x でリプレイ
       sfx(15)
       _init()
     elseif btnp(4, 0) or btnp(4, 1) then -- c でタイトルへ戻る
-      jump('quantattack_title')
+      jump'quantattack_title'
     end
   end
 end
@@ -37,6 +36,6 @@ function _draw()
 
   game:render()
 
-  print_outlined(unpack_split("time,57,106,7,0"))
-  print_outlined(game:elapsed_time_string(), unpack_split("55,114,7,0"))
+  print_outlined(unpack_split"time,57,106,7,0")
+  print_outlined(game:elapsed_time_string(), unpack_split"55,114,7,0")
 end

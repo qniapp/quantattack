@@ -23,8 +23,7 @@ local level_menu = menu_class(
 -- :demo デモプレイ
 -- :main_menu メニューを表示した状態
 -- :level_menu QPU のレベル選択
-local title_state = ":logo_slidein"
-local tick = 0
+local title_state, tick = ":logo_slidein", 0
 
 function _init()
   local qpu_board = board_class(cursor_class(), 0, 16)
@@ -77,7 +76,7 @@ function _draw()
       title_state = ":board_fadein"
     end
   elseif title_state == ":board_fadein" then
-    sspr(unpack_split("0,64,128,16,0,24"))
+    sspr(unpack_split"0,64,128,16,0,24")
 
     if tick <= 90 then
       fadein((tick - 26) / 3)
@@ -100,9 +99,9 @@ function _draw()
       end
     else -- ":main_menu" or ":level_menu"
       -- メニューのウィンドウを表示
-      draw_rounded_box(unpack_split("1,46,125,108,0,0")) -- ふちどり
-      draw_rounded_box(unpack_split("2,47,124,107,12,12")) -- 枠線
-      draw_rounded_box(unpack_split("4,49,122,105,1,1")) -- 本体
+      draw_rounded_box(unpack_split"1,46,125,108,0,0") -- ふちどり
+      draw_rounded_box(unpack_split"2,47,124,107,12,12") -- 枠線
+      draw_rounded_box(unpack_split"4,49,122,105,1,1") -- 本体
 
       -- メニューを表示
       main_menu:draw(8, 72)

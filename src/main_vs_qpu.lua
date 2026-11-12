@@ -27,7 +27,7 @@ function _update60()
       sfx(15)
       _init()
     elseif btnp(4) then -- c でタイトルへ戻る
-      jump('quantattack_title')
+      jump'quantattack_title'
     end
   end
 end
@@ -37,6 +37,6 @@ function _draw()
 
   game:render()
 
-  print_outlined(unpack_split("time,57,106,7,0"))
-  print_outlined(game:elapsed_time_string(), unpack_split("55,114,7,0"))
+  print_outlined(unpack_split"time,57,106,7,0")
+  print_outlined(game:elapsed_time_string(), unpack_split"55,114,7,0")
 end

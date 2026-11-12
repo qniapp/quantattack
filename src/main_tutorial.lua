@@ -35,7 +35,7 @@ function tutorial_game.reduce_callback(_score, _player)
   end
 
   wait(1, function()
-    dtb_disp(({ "awesome!", "great!", "nice!" })[flr(rnd(3)) + 1])
+    dtb_disp(split"awesome!,great!,nice!"[flr(rnd(3)) + 1])
     ion:shake()
     show_legends = false
     tutorial_game.move_cursor = false
@@ -46,49 +46,14 @@ end
 _main_state = nil
 dtb_init()
 
-local board_data_h = {
-  { "#", "#", "h", "i", "#", "#" },
-  { "#", "#", "#", "h", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" }
-}
+local function board_data(rows)
+  return transform(split(rows, "|"), function(row) return split(row, ";", false) end)
+end
 
-local board_data_xy = {
-  { "i", "y", "i", "i", "i", "y" },
-  { "#", "#", "x", "i", "#", "#" },
-  { "#", "#", "#", "x", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" }
-}
-
-local board_data_s = {
-  { "s", "s", "i", "i", "i", "s" },
-  { "#", "#", "#", "i", "#", "#" },
-  { "#", "#", "#", "s", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" }
-}
-
-local board_data_cnot = {
-  { "cnot_x,5", "i", "i", "i", "control,1", "i" },
-  { "i", "control,3", "cnot_x,2", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" },
-  { "#", "#", "#", "#", "#", "#" }
-}
+local board_data_h = board_data"#;#;h;i;#;#|#;#;#;h;#;#|#;#;#;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#"
+local board_data_xy = board_data"i;y;i;i;i;y|#;#;x;i;#;#|#;#;#;x;#;#|#;#;#;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#"
+local board_data_s = board_data"s;s;i;i;i;s|#;#;#;i;#;#|#;#;#;s;#;#|#;#;#;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#"
+local board_data_cnot = board_data"cnot_x,5;i;i;i;control,1;i|i;control,3;cnot_x,2;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#|#;#;#;#;#;#"
 
 function _init()
   _main_state = ":ion_appear"
@@ -119,8 +84,8 @@ end
 
 function _update60()
   if _main_state == ":how_to_play" then
-    dtb_disp("your mission is to clear these blocks so they do not reach the top.")
-    dtb_disp("first, let's clear the two red h blocks.")
+    dtb_disp"your mission is to clear these blocks so they do not reach the top."
+    dtb_disp"first, let's clear the two red h blocks."
     dtb_disp("line up these two h blocks vertically by swapping the blocks.", function()
       _main_state = ":try_h_h"
       show_legends = true
@@ -152,18 +117,18 @@ function _update60()
       tutorial_game:raise_stack(board_data_cnot)
       _next_state_after_clear = ":fin"
     end)
-    dtb_disp("this is two connected blocks, and they're not easy to clear.")
+    dtb_disp"this is two connected blocks, and they're not easy to clear."
     dtb_disp("can you clear them?", function()
       show_legends = true
       tutorial_game.move_cursor = true
     end)
     _main_state = "idle"
   elseif _main_state == ":fin" then
-    dtb_disp("wow. you are catching on fast!")
-    dtb_disp("i have given you all the basic rules.")
-    dtb_disp("there are many secret rules hidden in the game, so discover them.")
+    dtb_disp"wow. you are catching on fast!"
+    dtb_disp"i have given you all the basic rules."
+    dtb_disp"there are many secret rules hidden in the game, so discover them."
     dtb_disp("well, see you around!", function()
-      jump("quantattack_title")
+      jump"quantattack_title"
     end)
     _main_state = "idle"
   end
@@ -183,6 +148,6 @@ function _draw()
 
   if show_legends then
     spr(99, 70, 119)
-    print_outlined("swap blocks", 81, 120, 7, 0)
+    print_outlined(unpack_split"swap blocks,81,120,7,0")
   end
 end

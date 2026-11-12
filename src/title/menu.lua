@@ -46,9 +46,8 @@ function menu_class.update(_ENV)
         stale = true
         return selected_menu_item.target_state
       else
-        cart_to_load = selected_menu_item.target_cart
-        cart_load_param = selected_menu_item.cart_load_param
-        cart_load_delay = 30
+        cart_to_load, cart_load_param, cart_load_delay =
+            selected_menu_item.target_cart, selected_menu_item.cart_load_param, 30
       end
     elseif btnp(4) then -- c
       sfx(8)

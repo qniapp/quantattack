@@ -2,11 +2,6 @@
 
 title_logo_bounce_speed, title_logo_bounce_screen_dy = 0, 0
 
--- タイトルロゴを跳ねさせる
-local function bounce_title_logo()
-  title_logo_bounce_screen_dy, title_logo_bounce_speed = 0, -5
-end
-
 function update_title_logo_bounce()
   if title_logo_bounce_speed ~= 0 then
     title_logo_bounce_speed = title_logo_bounce_speed + 0.9
@@ -19,7 +14,7 @@ function update_title_logo_bounce()
 end
 
 local attack_cube_callback = function(target)
-  bounce_title_logo()
+  title_logo_bounce_screen_dy, title_logo_bounce_speed = 0, -5
   sfx(19)
   particles:create(
     target,

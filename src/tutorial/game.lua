@@ -6,8 +6,7 @@ local game = new_class()
 local _state
 
 function game._init(_ENV)
-  _state = ":initial"
-  move_cursor = false
+  _state, move_cursor = ":initial", false
 end
 
 function game.update(_ENV)
@@ -77,14 +76,12 @@ function game.render(_ENV)
 end
 
 function game.raise_stack(_ENV, board_data, callback)
-  _state = ":raise_stack"
-  _rows_raised = 0
-  _board_data = board_data
-  _raise_stack_callback = callback or function() end
+  _state, _rows_raised, _board_data, _raise_stack_callback =
+      ":raise_stack", 0, board_data, callback or function() end
 
   for x = 1, board.cols do
     for y = 0, board.rows do
-      board:put(x, y, block_class("i"))
+      board:put(x, y, block_class"i")
     end
   end
 end
