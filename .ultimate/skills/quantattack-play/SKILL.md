@@ -1,0 +1,101 @@
+---
+name: quantattack-play
+description: Build, play and look at quantattack (PICO-8) headless with scripted input, and prove a change keeps game behaviour identical with golden frame traces. Use before and after any change to src/, data/, the build or the cart layout, to play a mode and screenshot it, or to count tokens.
+---
+
+# Play and verify quantattack
+
+All commands run from the repository root. Game behaviour must not change (memory
+`game-behaviour-frozen`): every change to the game, build or cart layout ends with a green
+`qa-check`.
+
+## Never open a window, never play sound
+
+The user said: 「pico-8 はヘッドレスで起動できるならそうしてください。音量もミュートできるならそうしてください。画面をひらいてしまうとこちらの画面が見えなくなってしまうので。」
+
+So never run `pico8` yourself. Launch it only through `.ultimate/bin/qa-run` (and `qa-check`,
+which calls it). They always set `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy`, so no window
+opens and no sound plays. Screenshots and GIFs come from the cart's screen memory, not from a
+window. Don't use Xvfb or xdotool, and don't take screenshots of the desktop.
+
+## Set up and build
+
+- `.ultimate/bin/qa-setup` installs picotool and shrinko8 (in a per-user venv) and luamin
+  (npm, in the pico-boots submodule). Run it once per machine, and again if a build says
+  `Run .ultimate/bin/qa-setup first` or luamin is missing.
+- `.ultimate/bin/qa-build <cart|all> [debug|release|harness]` builds to `build/v<version>_<config>/`.
+  It uses the same symbols and flags as the Rakefile, and installs debug and release carts into
+  the PICO-8 carts folder.
+- `.ultimate/bin/qa-build count` prints release token counts. The limit is 8192. vs_qpu is
+  closest, at 8047.
+- The carts are listed in `data/cartridges.txt`: title, tutorial, rush, endless, vs_qpu,
+  qpu_vs_qpu, vs_human. `title` jumps to the others with `load()`, and they jump back.
+
+## Play a mode
+
+`qa-run` plays the `harness` build: the release code plus `.ultimate/harness/qa_pre.lua`
+(before the cart's main file) and `qa_post.lua` (after it). In that build:
+
+- `srand(0)` fixes the seed;
+- buttons come from a script instead of the keyboard;
+- update and draw run once per frame, with no frame skipping.
+
+So the same build plus the same script always gives the same frames. Run it with:
+
+```sh
+.ultimate/bin/qa-build all harness
+.ultimate/bin/qa-run [--param P] [--out DIR] CART SCRIPT   # SCRIPT is a file, or - for stdin
+```
+
+Script tokens are separated by spaces, and `#` starts a comment. The game runs at 60 frames per second.
+
+- `N`: wait N frames.
+- `x`, `o`, `left`, `right`, `up`, `down`: hold for one frame, which is one press. `x:30` holds
+  for 30 frames, which also triggers btnp's key repeat. `left+x` holds both together.
+  `p2.x` is player 2 (vs_human).
+- `shot`: save the next frame as `DIR/frame-NNNNN.png` (512x512). `rec:N` saves the next N frames
+  as a GIF.
+- `--param` is what the title menu passes to the next cart (`stat(6)`). vs_qpu needs it: 1 is the
+  hardest QPU, 3 the easiest.
+
+For example, the title demo, then the menu, then endless, then one swap:
+
+```sh
+echo '300 shot 1 x 30 right 10 x 400 shot 1 left:3 right 10 x 200 shot 1' | .ultimate/bin/qa-run title -
+```
+
+Then read the PNGs in `build/qa/title/` to look at the screen. `trace.txt` holds one
+`frame hash` line per frame. A frame that loads another cart reads `frame jump`. `log.txt` holds
+anything else PICO-8 printed, such as runtime errors.
+
+Timing: frames run in real time, 60 per second, plus about 4 s of startup. Several `qa-run`s
+can run in parallel.
+
+## Prove behaviour is unchanged
+
+```sh
+.ultimate/bin/qa-check            # all scenarios, about 2.5 min; exit 1 on the first differing frame
+.ultimate/bin/qa-check endless    # just one scenario
+```
+
+`qa-check` rebuilds the harness carts and plays every script in `.ultimate/qa/scenarios/` (the
+first line names the cart and param). It compares each trace with `.ultimate/qa/golden/`. The
+scenarios cover every mode, both vs_qpu ends, two-player input, retry after game over, and the
+title to endless to title cart jumps.
+
+- Each hash covers the whole screen of that frame, so any change in game logic, randomness or
+  drawing shows up within a few frames. For example, a swap animation one frame longer differs
+  at frame 241.
+- Sound is not compared. PICO-8 mixes audio on a real-time thread, so `stat(46..57)` differ
+  between identical runs. Check sound changes by reading the code.
+- Real-time behaviour the harness pins down (frame skipping, `t()` drift on slow machines)
+  is not covered.
+- `--record` rewrites the goldens. Record only from the reference behaviour, for example on
+  `main` before a refactor, never to make a failing check pass. A new scenario needs its
+  golden recorded on the reference commit first.
+
+## When the harness cart is too large
+
+The harness adds about 130 tokens. vs_qpu's harness build is 8177 of 8192. If a game change
+pushes a harness cart over the limit, `qa-run` fails with `program too large` in its log. Shrink
+the harness first; never change the game to make room.

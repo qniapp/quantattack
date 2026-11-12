@@ -1,0 +1,3 @@
+# cart: qpu_vs_qpu
+# QPU vs QPU: no input, watch the AIs play.
+2400 shot 1 3600 shot 1
