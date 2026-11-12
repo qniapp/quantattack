@@ -91,6 +91,11 @@ title to endless to title cart jumps.
   at frame 241.
 - Sound is not compared. PICO-8 mixes audio on a real-time thread, so `stat(46..57)` differ
   between identical runs. Check sound changes by reading the code.
+- CPU load is compared too. Each frame's `stat(1)` goes to `cpu.txt`, and `qa-check` fails when
+  a frame goes over 1 (a dropped frame in a real run) that was at most 0.99 in
+  `golden/<scenario>.cpu.txt`. Use `qa-run slow GOLDEN NEW` to compare two runs. The current game
+  already goes over 1 on some frames (vs_human about 2100, qpu_vs_qpu about 2000). The game is frozen, so leave those alone;
+  only frames that newly go over 1 count. `stat(1)` varies by up to about 0.001 between identical runs.
 - Real-time behaviour the harness pins down (frame skipping, `t()` drift on slow machines)
   is not covered.
 - `--record` rewrites the goldens. Record only from the reference behaviour, for example on

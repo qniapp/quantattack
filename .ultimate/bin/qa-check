@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Usage: qa-check [--record] [SCENARIO...]
 # Builds the harness carts, plays every scenario in .ultimate/qa/scenarios headless (in parallel)
-# and compares each trace with its golden trace in .ultimate/qa/golden. Exit 1 on any difference.
-# --record rewrites the golden traces instead: only from a commit whose game behaviour is the reference.
+# and compares each trace with its golden trace in .ultimate/qa/golden, and each frame's CPU load
+# (stat(1)) with its golden: a frame over 1 that was not over 1 before would drop in a real run.
+# Exit 1 on any difference or new slow frame.
+# --record rewrites the goldens instead: only from a commit whose game behaviour is the reference.
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
@@ -41,10 +43,13 @@ for i in "${!scenarios[@]}"; do
   elif "$record"; then
     mkdir -p .ultimate/qa/golden
     cp "build/qa/$name/trace.txt" ".ultimate/qa/golden/$name.txt"
+    cp "build/qa/$name/cpu.txt" ".ultimate/qa/golden/$name.cpu.txt"
     echo "$name: recorded $(wc -l < ".ultimate/qa/golden/$name.txt") frames"
   else
     echo -n "$name: "
     .ultimate/bin/qa-run compare ".ultimate/qa/golden/$name.txt" "build/qa/$name/trace.txt" || status=1
+    echo -n "  "
+    .ultimate/bin/qa-run slow ".ultimate/qa/golden/$name.cpu.txt" "build/qa/$name/cpu.txt" || status=1
   fi
 done
 exit "$status"

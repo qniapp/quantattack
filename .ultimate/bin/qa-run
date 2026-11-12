@@ -19,8 +19,11 @@ SCRIPT tokens, whitespace separated, '#' starts a comment; each frame-taking tok
 
 Output in --out (default build/qa/<cart>): trace.txt (one 'frame hash' line per frame; the hash
 covers the screen only, since PICO-8's sound state runs on a real-time thread and differs between
-identical runs; a frame that loads another cart reads 'frame jump'), log.txt (PICO-8's other
-output), images.
+identical runs; a frame that loads another cart reads 'frame jump'), cpu.txt (one 'frame cpu' line
+per frame: stat(1), PICO-8's simulated CPU load, deterministic; over 1 drops frames in a real run),
+log.txt (PICO-8's other output), images.
+
+  qa-run slow GOLDEN_CPU CPU   frames over 1 in CPU that are not in GOLDEN_CPU, exit 1 if any
 """
 import os
 import re
@@ -135,7 +138,7 @@ def run(args):
     )
 
     out.mkdir(parents=True, exist_ok=True)
-    for old in [*out.glob("frame-*.png"), *out.glob("rec-*.gif"), out / "trace.txt", out / "log.txt"]:
+    for old in [*out.glob("frame-*.png"), *out.glob("rec-*.gif"), out / "trace.txt", out / "cpu.txt", out / "log.txt"]:
         old.unlink(missing_ok=True)
     home = Path(tempfile.mkdtemp(prefix="qa-run-"))
     try:
@@ -149,7 +152,7 @@ def run(args):
         threading.Thread(target=lambda: (process.stdin.write(stream), process.stdin.flush()), daemon=True).start()
         watchdog = threading.Timer(STALL_SECONDS + len(frames) / 30, process.kill)
         watchdog.start()
-        hashes, screens, log, started = [], {}, [], False
+        hashes, cpu, screens, log, started = [], [], {}, [], False
         try:
             while len(hashes) < len(frames):
                 line = process.stdout.readline()
@@ -159,9 +162,12 @@ def run(args):
                     # A cart starts. After the first, the previous frame ran load() and printed nothing.
                     if started:
                         hashes.append("jump")
+                        cpu.append("jump")
                     started = True
                 elif line.startswith(b"qa "):
-                    hashes.append(line[3:].strip().decode())
+                    frame_hash, frame_cpu = line[3:].decode().split()
+                    hashes.append(frame_hash)
+                    cpu.append(frame_cpu)
                     if len(hashes) - 1 in dumps:
                         data = b""
                         while len(data) < 8192:
@@ -182,6 +188,7 @@ def run(args):
         shutil.rmtree(home)
 
     (out / "trace.txt").write_text("".join(f"{i + 1} {h}\n" for i, h in enumerate(hashes)))
+    (out / "cpu.txt").write_text("".join(f"{i + 1} {c}\n" for i, c in enumerate(cpu)))
     (out / "log.txt").write_text("".join(log))
     errors = [line for line in log if "error" in line.lower() or "too large" in line]
     print(f"{len(hashes)}/{len(frames)} frames -> {out}")
@@ -219,8 +226,27 @@ def compare(path_a, path_b):
     print(f"identical ({len(a)} frames)")
 
 
+def slow(path_golden, path_new):
+    # stat(1) wobbles by up to ~0.001 between identical runs (seen: 0.0006), so a frame counts as
+    # newly slow only when it is over 1 now and was at most 0.99 in the reference.
+    def load(path):
+        frames = (line.split() for line in Path(path).read_text().splitlines())
+        return {int(f): float(c) for f, c in frames if c != "jump"}
+
+    golden, new = load(path_golden), load(path_new)
+    added = sorted(f for f, c in new.items() if c > 1 and golden.get(f, 0) <= 0.99)
+    golden = [f for f, c in golden.items() if c > 1]
+    new = [f for f, c in new.items() if c > 1]
+    print(f"slow frames: {len(new)} (reference {len(golden)}, new {len(added)})")
+    if added:
+        print(f"newly over 1: frames {added[:20]}{' ...' if len(added) > 20 else ''}")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     if sys.argv[1:2] == ["compare"] and len(sys.argv) == 4:
         compare(sys.argv[2], sys.argv[3])
+    elif sys.argv[1:2] == ["slow"] and len(sys.argv) == 4:
+        slow(sys.argv[2], sys.argv[3])
     else:
         run(sys.argv[1:])
