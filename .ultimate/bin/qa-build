@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Usage: qa-build <cart|all> [debug|release|harness]; qa-build count
+# Usage: qa-build <cart|all> [debug|release|harness|prof]; qa-build count
 set -euo pipefail
 
 usage() {
-  echo 'Usage: qa-build <cart|all> [debug|release|harness]; qa-build count' >&2
+  echo 'Usage: qa-build <cart|all> [debug|release|harness|prof]; qa-build count' >&2
   exit 1
 }
 [[ $# -ge 1 && $# -le 2 ]] || usage
@@ -21,7 +21,7 @@ if [[ "$request" == count ]]; then
   request=all
 fi
 case "$config" in
-  debug|release|harness) ;;
+  debug|release|harness|prof) ;;
   *) usage ;;
 esac
 if [[ "$request" != all ]]; then
@@ -36,24 +36,30 @@ command -v shrinko8 >/dev/null || { echo 'Run .ultimate/bin/qa-setup first.' >&2
 output="build/v${version}_${config}"
 install_dir="$HOME/.lexaloffle/pico-8/carts/quantattack/v${version}_${config}"
 src="$PWD/src"
-if [[ "$config" == harness ]]; then
+harness=false
+[[ "$config" != harness && "$config" != prof ]] || harness=true
+if "$harness"; then
   # Release code wrapped by .ultimate/harness (see qa-run), built from a staged copy of src/.
-  # Not installed: qa-run copies build/v<version>_harness into a throwaway PICO-8 home.
-  src="$PWD/build/harness_src"
+  # prof wraps it with qa_prof.lua (see qa-prof) instead of qa_post.lua.
+  # Not installed: qa-run copies build/v<version>_<config> into a throwaway PICO-8 home.
+  src="$PWD/build/${config}_src"
   mkdir -p build
   rsync -a --delete src/ "$src/"
 fi
 for cart in "${carts[@]}"; do
   main="main_${cart}.lua"
-  if [[ "$config" == harness ]]; then
+  if "$harness"; then
     main="qa_main_${cart}.lua"
+    post=.ultimate/harness/qa_post.lua
+    [[ "$config" != prof ]] || post=.ultimate/harness/qa_prof.lua
     # qa_<cart>.lua, when present, adds harness code to that cart only.
-    cat .ultimate/harness/qa_pre.lua "src/main_${cart}.lua" .ultimate/harness/qa_post.lua \
+    cat .ultimate/harness/qa_pre.lua "src/main_${cart}.lua" "$post" \
       $(ls .ultimate/harness/qa_"$cart".lua 2>/dev/null) > "$src/$main"
   fi
   # The same build as the Rakefile's.
-  python3 scripts/build_cart.py "$cart" "$config" "$output/quantattack_${cart}.p8" --src "$src" --main "$main"
-  if [[ "$config" != harness ]]; then
+  python3 scripts/build_cart.py "$cart" "$("$harness" && echo harness || echo "$config")" \
+    "$output/quantattack_${cart}.p8" --src "$src" --main "$main"
+  if ! "$harness"; then
     mkdir -p "$install_dir"
     cp "$output/quantattack_${cart}.p8" "$install_dir/"
   fi

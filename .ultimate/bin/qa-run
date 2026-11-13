@@ -23,7 +23,8 @@ identical runs; a frame that loads another cart reads 'frame jump'), cpu.txt (on
 per frame: stat(1), PICO-8's simulated CPU load, deterministic; over 1 drops frames in a real run),
 log.txt (PICO-8's other output), images.
 
-  qa-run slow GOLDEN_CPU CPU...   frames over 1 in every CPU run that are not in GOLDEN_CPU, exit 1 if any
+  qa-run slow GOLDEN_CPU CPU...   exit 1 if every CPU run has more frames over 1 than GOLDEN_CPU,
+                                  or more than 0.1% more total CPU
 """
 import os
 import re
@@ -32,6 +33,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -150,12 +152,21 @@ def run(args):
         process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT, env=env)
         threading.Thread(target=lambda: (process.stdin.write(stream), process.stdin.flush()), daemon=True).start()
-        watchdog = threading.Timer(STALL_SECONDS + len(frames) / 30, process.kill)
-        watchdog.start()
+        # Kill PICO-8 once it prints nothing for STALL_SECONDS: slow carts (qa-prof) just take longer.
+        last_output = [time.monotonic()]
+
+        def watch():
+            while process.poll() is None:
+                if time.monotonic() - last_output[0] > STALL_SECONDS:
+                    process.kill()
+                time.sleep(1)
+
+        threading.Thread(target=watch, daemon=True).start()
         hashes, cpu, screens, log, started = [], [], {}, [], False
         try:
             while len(hashes) < len(frames):
                 line = process.stdout.readline()
+                last_output[0] = time.monotonic()
                 if not line:
                     break
                 if line == b"qa:start\n":
@@ -181,7 +192,6 @@ def run(args):
                 else:
                     log.append(line.decode(errors="replace"))
         finally:
-            watchdog.cancel()
             process.kill()
             process.wait()
     finally:
@@ -227,24 +237,29 @@ def compare(path_a, path_b):
 
 
 def slow(path_golden, *paths_new):
-    # stat(1) wobbles by up to ~0.001 between identical runs (seen: 0.0006), so a frame counts as
-    # newly slow only when it is over 1 now and was at most 0.99 in the reference. Lua's garbage
-    # collector also lands on a neighbouring frame now and then (seen once in about ten runs: 0.90
-    # -> 1.84 with identical pixels), so with several runs a frame must be newly slow in all of them.
+    # The run as a whole must not get slower: no more frames over 1 (a dropped frame in a real run)
+    # and no more than 0.1% more total stat(1) than the reference. Which frames go over 1 is not
+    # compared: the game already has hundreds of frames that read about twice their neighbours,
+    # and a change of a few hundred cycles moves them to other frames even when every frame got
+    # faster. qa-prof compare checks that no single function got slower.
+    # stat(1) wobbles by up to ~0.001 between identical runs, so a reference frame over 0.999
+    # counts as over 1. Several runs (a replay): the scenario passes when one of them does.
     def load(path):
         frames = (line.split() for line in Path(path).read_text().splitlines())
-        return {int(f): float(c) for f, c in frames if c != "jump"}
+        return [float(c) for _, c in frames if c != "jump"]
 
-    golden, runs = load(path_golden), [load(p) for p in paths_new]
-    if any(len(run) != len(runs[0]) for run in runs):
-        fail("slow: the CPU traces have different frame counts")
-    added = sorted(set.intersection(*(
-        {f for f, c in new.items() if c > 1 and golden.get(f, 0) <= 0.99} for new in runs)))
-    golden = [f for f, c in golden.items() if c > 1]
-    new = [f for f, c in runs[0].items() if c > 1]
-    print(f"slow frames: {len(new)} (reference {len(golden)}, new {len(added)})")
-    if added:
-        print(f"newly over 1: frames {added[:20]}{' ...' if len(added) > 20 else ''}")
+    golden = load(path_golden)
+    golden_slow, golden_total = sum(c > 0.999 for c in golden), sum(golden)
+    verdicts = []
+    for path in paths_new:
+        new = load(path)
+        if len(new) != len(golden):
+            fail("slow: the CPU traces have different frame counts")
+        new_slow, rise = sum(c > 1 for c in new), sum(new) / golden_total - 1
+        verdicts.append(new_slow <= golden_slow and rise <= 0.001)
+        print(f"frames over 1: {new_slow} (reference {golden_slow}), total CPU {rise:+.3%}"
+              f"{'' if verdicts[-1] else ' SLOWER'}")
+    if not any(verdicts):
         sys.exit(1)
 
 

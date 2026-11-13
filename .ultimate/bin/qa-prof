@@ -1,0 +1,119 @@
+#!/usr/bin/python3 -I
+"""Measure how much of each frame every quantattack function takes, headless and muted.
+
+Usage:
+  qa-prof [--no-build] SCENARIO...      profile .ultimate/qa/scenarios/SCENARIO.txt, in parallel
+  qa-prof show PROF [N]                 the N (default 25) costliest functions of a profile
+  qa-prof compare GOLDEN PROF           functions slower than in GOLDEN, exit 1 if any
+
+`qa-build all prof` builds the release code wrapped by .ultimate/harness/qa_prof.lua instead of
+qa_post.lua; the run itself goes through qa-run (same input, same frames). Each scenario writes
+build/prof/SCENARIO/prof.txt: one line per function, "name self calls", both per frame. self is
+the function's own time (without the wrapped functions it calls) in thousandths of a frame
+(1000 = all of stat(1) 1.0), averaged over every frame of the run. The wrappers make the cart
+about three times slower; their cost is measured in the same run (qa_cal) and subtracted, so the
+numbers are close to an unwrapped run. Only functions stored in global tables are wrapped
+(classes, effect sets); time outside them (main's _update60/_draw, plain global helpers) is
+counted in their callers.
+
+compare fails when a function present in both takes more than 1% and more than 0.5 thousandths
+of a frame longer per frame than in GOLDEN: a slower spot that a faster run overall could hide.
+"""
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+RISE, FLOOR = 0.01, 0.5
+
+
+def fail(message):
+    sys.exit(f"qa-prof: {message}")
+
+
+def profile(names, build=True):
+    version = (ROOT / "data/version.txt").read_text().strip()
+    if build:
+        subprocess.run([ROOT / ".ultimate/bin/qa-build", "all", "prof"], check=True, stdout=subprocess.DEVNULL)
+    runs = []
+    for name in names:
+        script = ROOT / f".ultimate/qa/scenarios/{name}.txt"
+        if not script.exists():
+            fail(f"no scenario {name}")
+        text = script.read_text()
+        _, _, cart, *rest = text.splitlines()[0].split()
+        out = ROOT / f"build/prof/{name}"
+        out.mkdir(parents=True, exist_ok=True)
+        # qa_prof.lua sends no screens: drop shot and rec:N (rec's frames are played as waits).
+        text = re.sub(r"#.*", "", text)
+        text = re.sub(r"(?<!\S)shot(?!\S)", "", re.sub(r"(?<!\S)rec:(\d+)(?!\S)", "", text))
+        (out / "script.txt").write_text(text)
+        command = [ROOT / ".ultimate/bin/qa-run", "--carts", ROOT / f"build/v{version}_prof", "--out", out]
+        if rest:
+            command += ["--param", rest[1]]
+        log = open(ROOT / f"build/prof/{name}.log", "w")
+        runs.append((name, out, log, subprocess.Popen(command + [cart, out / "script.txt"], stdout=log,
+                                                      stderr=subprocess.STDOUT)))
+    status = 0
+    for name, out, log, process in runs:
+        if process.wait():
+            print(f"{name}: run failed (build/prof/{name}.log)")
+            status = 1
+            continue
+        totals = summarize(out / "log.txt", sum(1 for _ in open(out / "cpu.txt")))
+        (out / "prof.txt").write_text("".join(f"{n} {s:.3f} {c:.2f}\n" for n, (s, c) in totals))
+        print(f"{name}: {out / 'prof.txt'}")
+    return status
+
+
+def summarize(log, frames):
+    """Return [(name, (self, calls))] per frame, costliest first, with the wrapper cost removed."""
+    raw = {}
+    for line in open(log):
+        if line.startswith("p "):
+            _, name, slf, calls, kids = line.split()
+            s, c, k = raw.get(name, (0, 0, 0))
+            raw[name] = (s + float(slf), c + float(calls), k + float(kids))
+    if "qa_cal.a" not in raw:
+        fail(f"{log}: no calibration (did the run reach frame 60?)")
+    callee = raw["qa_cal.b"][0] / raw["qa_cal.b"][1]  # a wrapped call's cost inside the callee
+    caller = raw.pop("qa_cal.a")[0] / raw.pop("qa_cal.b")[1]  # and inside its caller
+    totals = {n: ((s - c * callee - k * caller) * 1000 / frames, c / frames) for n, (s, c, k) in raw.items() if c}
+    return sorted(totals.items(), key=lambda item: -item[1][0])
+
+
+def load(path):
+    return {n: (float(s), float(c)) for n, s, c in (line.split() for line in open(path))}
+
+
+def show(path, count=25):
+    prof = load(path)
+    total = sum(s for s, _ in prof.values())
+    print(f"{path}: {total:.1f} thousandths of a frame in wrapped functions")
+    for name, (slf, calls) in list(prof.items())[:count]:
+        print(f"  {name:44s} {slf:7.2f}  {100 * slf / total:5.1f}%  {calls:8.2f} calls/frame")
+
+
+def compare(golden_path, new_path):
+    golden, new = load(golden_path), load(new_path)
+    slower = [(n, golden[n][0], s) for n, (s, _) in new.items()
+              if n in golden and s - golden[n][0] > max(FLOOR, RISE * golden[n][0])]
+    print(f"functions slower: {len(slower)} (of {len(set(golden) & set(new))})")
+    for name, before, after in slower:
+        print(f"  {name}: {before:.2f} -> {after:.2f} thousandths of a frame")
+    return 1 if slower else 0
+
+
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    if args[:1] == ["show"] and len(args) in (2, 3):
+        show(args[1], *(int(a) for a in args[2:]))
+    elif args[:1] == ["compare"] and len(args) == 3:
+        sys.exit(compare(args[1], args[2]))
+    elif args[:1] == ["--no-build"] and len(args) > 1:
+        sys.exit(profile(args[1:], build=False))
+    elif args and not args[0].startswith("-") and args[0] not in ("show", "compare"):
+        sys.exit(profile(args))
+    else:
+        fail(__doc__)

@@ -22,11 +22,14 @@ window. Don't use Xvfb or xdotool, and don't take screenshots of the desktop.
 
 - `.ultimate/bin/qa-setup` installs the pinned shrinko8 in a per-user venv. Run it once per
   machine, and again if a build says `Run .ultimate/bin/qa-setup first`.
-- `.ultimate/bin/qa-build <cart|all> [debug|release|harness]` builds to `build/v<version>_<config>/`.
+- `.ultimate/bin/qa-build <cart|all> [debug|release|harness|prof]` builds to `build/v<version>_<config>/`.
   Both it and the Rakefile build with `scripts/build_cart.py` (preprocess, bundle `require`s,
   `shrinko8 --minify-safe-only`). It installs debug and release carts into the PICO-8 carts folder.
+- src/ is standard Lua, because the unit tests run it on Lua 5.4. `build_cart.py` writes
+  `x = x + e` as PICO-8's `x += e` (one token less, same cycles) where that cannot change the
+  result, so write the long form in src/.
 - `.ultimate/bin/qa-build count` prints release token counts. The limit is 8192. vs_qpu is
-  closest, at 7938.
+  closest.
 - The carts are listed in `data/cartridges.txt`: title, tutorial, rush, endless, vs_qpu,
   qpu_vs_qpu, vs_human. `title` jumps to the others with `load()`, and they jump back.
 
@@ -81,11 +84,11 @@ can run in parallel.
 ## Prove behaviour is unchanged
 
 ```sh
-.ultimate/bin/qa-check            # all scenarios, about 2.5 min; exit 1 on the first differing frame
+.ultimate/bin/qa-check            # all scenarios, about 4 min; exit 1 on the first differing frame
 .ultimate/bin/qa-check endless    # just one scenario
 ```
 
-`qa-check` rebuilds the harness carts and plays every script in `.ultimate/qa/scenarios/` (the
+`qa-check` rebuilds the harness and prof carts and plays every script in `.ultimate/qa/scenarios/` (the
 first line names the cart and param). It compares each trace with `.ultimate/qa/golden/`. The
 scenarios cover every mode, both vs_qpu ends, two-player input, retry after game over, and the
 title to endless to title cart jumps.
@@ -95,14 +98,17 @@ title to endless to title cart jumps.
   at frame 241.
 - Sound is not compared. PICO-8 mixes audio on a real-time thread, so `stat(46..57)` differ
   between identical runs. Check sound changes by reading the code.
-- CPU load is compared too. Each frame's `stat(1)` goes to `cpu.txt`, and `qa-check` fails when
-  a frame goes over 1 (a dropped frame in a real run) that was at most 0.99 in
-  `golden/<scenario>.cpu.txt`. Use `qa-run slow GOLDEN NEW` to compare two runs. The current game
-  already goes over 1 on some frames (vs_human about 2100, qpu_vs_qpu about 2000). The game is frozen, so leave those alone;
-  only frames that newly go over 1 count. `stat(1)` varies by up to about 0.001 between identical runs,
-  and a garbage collection pause occasionally lands on a neighbouring frame (0.90 to 1.84 with
-  identical pixels). So when a scenario shows new slow frames, `qa-check` replays it once and fails
-  only on frames that are newly slow in both runs.
+- CPU load is compared too: the user's rule is that a change must not make the game drop more
+  frames. Each frame's `stat(1)` goes to `cpu.txt`. `qa-check` fails when a run has more frames
+  over 1 (a dropped frame in a real run) than `golden/<scenario>.cpu.txt`, or more than 0.1% more
+  total `stat(1)` (`qa-run slow GOLDEN NEW`). It does not compare which frames go over 1: the game
+  already has about 1300 frames in qpu_vs_qpu that read about twice their neighbours, and a
+  change of a few hundred cycles moves them to other frames even when every frame got faster.
+  `stat(1)` varies by about 0.001 between identical runs, and a garbage collection pause now and
+  then lands on another frame, so a failing scenario is replayed once and passes if either run does.
+- Function times are compared too (`qa-prof compare`, below): no function may take more than 1%
+  (and 0.5 thousandths of a frame) longer per frame than in `golden/<scenario>.prof.txt`. This
+  catches a slower spot hidden inside a run that is faster overall.
 - Real-time behaviour the harness pins down (frame skipping, `t()` drift on slow machines)
   is not covered.
 - `--record` rewrites the goldens. Record only from the reference behaviour, for example on
@@ -111,8 +117,26 @@ title to endless to title cart jumps.
   user approved (issue #125) re-recorded only the CPU goldens whose spikes moved, with pixel
   goldens untouched.
 
+## Measure where the CPU goes
+
+```sh
+.ultimate/bin/qa-prof vs_qpu_1 qpu_vs_qpu          # build prof carts, play scenarios (3x slower)
+.ultimate/bin/qa-prof show build/prof/vs_qpu_1/prof.txt 20
+.ultimate/bin/qa-prof compare .ultimate/qa/golden/vs_qpu_1.prof.txt build/prof/vs_qpu_1/prof.txt
+```
+
+The `prof` build wraps every function stored in a global table (classes, effect sets) with
+`.ultimate/harness/qa_prof.lua` and measures its own time per frame, in thousandths of a frame
+(1000 = `stat(1)` 1.0), and its calls per frame. The wrappers' cost is measured in the same run
+and subtracted, and the numbers are deterministic. Drawing takes 55-73% of the time
+(`board_class.render`, `block_class.render`, `ripple._render`), the board update most of the
+rest; reduction and QPU code take a few percent. Before cutting tokens in a function, look at
+its share: code that runs rarely can be shortened freely, and code that runs hundreds of times a
+frame (`block_at`, `screen_x`, `block_class.render`) must not get slower. In hot code, avoid
+new tables, closures and strings each frame.
+
 ## When the harness cart is too large
 
-The harness adds about 135 tokens. vs_qpu's harness build is 8073 of 8192. If a game change
-pushes a harness cart over the limit, `qa-run` fails with `program too large` in its log. Shrink
-the harness first; never change the game to make room.
+The harness adds about 135 tokens, the prof harness about 250; vs_qpu is the largest. If a game
+change pushes a harness or prof cart over the limit, `qa-run` fails with `program too large` in
+its log. Shrink the harness first; never change the game to make room.

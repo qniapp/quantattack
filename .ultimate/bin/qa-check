@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Usage: qa-check [--record] [SCENARIO...]
-# Builds the harness carts, plays every scenario in .ultimate/qa/scenarios headless (in parallel)
-# and compares each trace with its golden trace in .ultimate/qa/golden, and each frame's CPU load
-# (stat(1)) with its golden: a frame over 1 that was not over 1 before would drop in a real run.
-# Exit 1 on any difference or new slow frame.
+# Builds the harness and prof carts and plays every scenario in .ultimate/qa/scenarios headless,
+# all in parallel. Compares with .ultimate/qa/golden:
+# - each frame's screen hash with its golden trace (any difference fails);
+# - the run's CPU load (stat(1) per frame): fails when more frames go over 1 (dropped frames in a
+#   real run) or the total grows by more than 0.1% (qa-run slow);
+# - each function's time per frame (qa-prof): fails when one gets slower (qa-prof compare).
 # --record rewrites the goldens instead: only from a commit whose game behaviour is the reference.
 set -euo pipefail
 
@@ -21,52 +23,60 @@ if [[ ${#scenarios[@]} == 0 ]]; then
 fi
 
 mkdir -p build
-.ultimate/bin/qa-build all harness > build/qa-build.log 2>&1 || { tail -20 build/qa-build.log; exit 1; }
+for config in harness prof; do
+  .ultimate/bin/qa-build all "$config" > "build/qa-build-$config.log" 2>&1 ||
+    { tail -20 "build/qa-build-$config.log"; exit 1; }
+done
+
+play() { # name out-dir: play one scenario on the harness carts
+  local file=".ultimate/qa/scenarios/$1.txt" cart param
+  read -r _ _ cart _ param < <(head -1 "$file")
+  local args=(--out "$2")
+  [[ -z "${param:-}" ]] || args+=(--param "$param")
+  .ultimate/bin/qa-run "${args[@]}" "$cart" "$file"
+}
 
 pids=()
 for name in "${scenarios[@]}"; do
-  file=".ultimate/qa/scenarios/$name.txt"
-  read -r _ _ cart _ param < <(head -1 "$file")
-  args=(--out "build/qa/$name")
-  [[ -z "${param:-}" ]] || args+=(--param "$param")
-  .ultimate/bin/qa-run "${args[@]}" "$cart" "$file" > "build/qa-$name.log" 2>&1 &
+  play "$name" "build/qa/$name" > "build/qa-$name.log" 2>&1 &
   pids+=($!)
 done
+.ultimate/bin/qa-prof --no-build "${scenarios[@]}" > build/qa-prof.log 2>&1 &
+prof_pid=$!
 
 status=0
+wait "$prof_pid" || { echo "qa-prof failed:"; cat build/qa-prof.log; status=1; }
 for i in "${!scenarios[@]}"; do
   name=${scenarios[$i]}
+  golden=".ultimate/qa/golden/$name"
   if ! wait "${pids[$i]}"; then
     echo "$name: run failed"
     cat "build/qa-$name.log"
     status=1
   elif "$record"; then
     mkdir -p .ultimate/qa/golden
-    cp "build/qa/$name/trace.txt" ".ultimate/qa/golden/$name.txt"
-    cp "build/qa/$name/cpu.txt" ".ultimate/qa/golden/$name.cpu.txt"
-    echo "$name: recorded $(wc -l < ".ultimate/qa/golden/$name.txt") frames"
+    cp "build/qa/$name/trace.txt" "$golden.txt"
+    cp "build/qa/$name/cpu.txt" "$golden.cpu.txt"
+    cp "build/prof/$name/prof.txt" "$golden.prof.txt"
+    echo "$name: recorded $(wc -l < "$golden.txt") frames"
   else
     echo -n "$name: "
-    .ultimate/bin/qa-run compare ".ultimate/qa/golden/$name.txt" "build/qa/$name/trace.txt" || status=1
-    golden_cpu=".ultimate/qa/golden/$name.cpu.txt"
-    if ! .ultimate/bin/qa-run slow "$golden_cpu" "build/qa/$name/cpu.txt" > "build/qa-$name.slow"; then
-      # A garbage collection pause sometimes lands on another frame: replay once and keep only
-      # frames that are newly slow in both runs.
-      file=".ultimate/qa/scenarios/$name.txt"
-      read -r _ _ cart _ param < <(head -1 "$file")
-      args=(--out "build/qa/$name.rerun")
-      [[ -z "${param:-}" ]] || args+=(--param "$param")
-      if ! .ultimate/bin/qa-run "${args[@]}" "$cart" "$file" > "build/qa-$name.rerun.log" 2>&1; then
-        # An incomplete rerun has no CPU data for its missing frames: keep the first verdict.
+    .ultimate/bin/qa-run compare "$golden.txt" "build/qa/$name/trace.txt" || status=1
+    if ! .ultimate/bin/qa-run slow "$golden.cpu.txt" "build/qa/$name/cpu.txt" > "build/qa-$name.slow"; then
+      # A garbage collection pause sometimes lands on another frame: replay once, and pass when
+      # either run does.
+      if ! play "$name" "build/qa/$name.rerun" > "build/qa-$name.rerun.log" 2>&1; then
         echo "rerun failed:" >> "build/qa-$name.slow"
         cat "build/qa-$name.rerun.log" >> "build/qa-$name.slow"
         status=1
-      elif ! .ultimate/bin/qa-run slow "$golden_cpu" "build/qa/$name/cpu.txt" "build/qa/$name.rerun/cpu.txt" \
+      elif ! .ultimate/bin/qa-run slow "$golden.cpu.txt" "build/qa/$name/cpu.txt" "build/qa/$name.rerun/cpu.txt" \
         > "build/qa-$name.slow"; then
         status=1
       fi
     fi
     sed 's/^/  /' "build/qa-$name.slow"
+    echo -n "  "
+    .ultimate/bin/qa-prof compare "$golden.prof.txt" "build/prof/$name/prof.txt" | sed '2,$s/^/  /' || status=1
   fi
 done
 exit "$status"
