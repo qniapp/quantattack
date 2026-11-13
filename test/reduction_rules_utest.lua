@@ -1605,6 +1605,41 @@ describe('ブロックの簡約パターン', function()
     assert.becomes_i(block_at(4, 1))
   end)
 
+  -- どの SWAP の端が入れ替え中でも消えない
+  for _, moving in pairs({ { 1, 3 }, { 2, 3 }, { 2, 2 }, { 3, 2 } }) do
+    it('T X-X X-X T: (' .. moving[1] .. ', ' .. moving[2] .. ') が入れ替え中なら消えない', function()
+      put(1, 4, "t")
+      put(1, 3, "swap", 2)
+      put(2, 3, "swap", 1)
+      put(2, 2, "swap", 3)
+      put(3, 2, "swap", 2)
+      put(3, 1, "t")
+      local block = block_class("swap")
+      block.other_x, block.state = block_at(unpack(moving)).other_x, "swap"
+      board:put(moving[1], moving[2], block)
+
+      reduce_blocks()
+
+      assert.is_nil(block_at(1, 4).new_block)
+      assert.is_nil(block_at(3, 1).new_block)
+    end)
+  end
+
+  -- 下のゲートの連鎖を引き継ぐ
+  it('T X-X X-X T: 下の T の chain_id を引き継ぐ', function()
+    put(1, 4, "t")
+    put(1, 3, "swap", 2)
+    put(2, 3, "swap", 1)
+    put(2, 2, "swap", 3)
+    put(3, 2, "swap", 2)
+    put(3, 1, "t")
+    block_at(3, 1).chain_id = "chain"
+
+    reduce_blocks()
+
+    assert.are.equal("chain", block_at(1, 4).chain_id)
+  end)
+
   -----------------------------------------------------------------------------
   -- 70 Points
   -----------------------------------------------------------------------------
