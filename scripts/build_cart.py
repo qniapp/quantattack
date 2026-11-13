@@ -4,7 +4,8 @@
   build_cart.py CART CONFIG OUTPUT [--src DIR] [--main FILE]
 
 1. Preprocess every src/ file: keep `--#if SYMBOL` / `--#ifn SYMBOL` ... `--#endif` blocks
-   only when SYMBOL is (or, for #ifn, is not) one of the build's symbols.
+   only when SYMBOL is (or, for #ifn, is not) one of the build's symbols, and write
+   `x = x + e` as `x += e` where that cannot change the result (see compound_assign).
 2. Bundle `require("path")` modules like picotool did: each module becomes
    `package._c["path"]=function() ... end`, loaded once by a small require().
 3. Minify with `shrinko8 --minify-safe-only` and add the cart data, label and title.
@@ -22,6 +23,8 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIRECTIVE = re.compile(r"\s*--#(if|ifn|endif)\b\s*(\w*)")
 REQUIRE = re.compile(r'\brequire\("([\w/]+)"\)')
+CONTINUED = re.compile(r"\s*([-+*/%^<>=~&|.,)\]}]|(and|or)\b)")
+COMPOUND = re.compile(r"^(\s*)([A-Za-z_][\w.]*) = \2 ([-+*/]) (.+?)\s*$")
 REQUIRE_FUNCTION = """function require(p)
 local l=package.loaded
 if (l[p]==nil) l[p]=package._c[p]()
@@ -59,7 +62,36 @@ def preprocess(path, symbols):
                 stack.append((m.group(2) in symbols) != (m.group(1) == "ifn"))
     if stack:
         sys.exit(f"{path}: file ends inside --#if")
-    return out
+    # A line whose expression goes on in the next line is not a whole statement: leave it.
+    return [line if CONTINUED.match(after) else compound_assign(line)
+            for line, after in zip(out, out[1:] + [""])]
+
+
+def compound_assign(line):
+    """Return `line` with `x = x + e` written as PICO-8's `x += e` (one token less, same cycles).
+
+    src/ stays standard Lua for the unit tests, so this happens at build time. `x op= e` means
+    `x = x op (e)`, so it rewrites only when `e` is one complete expression on this line whose
+    operators outside brackets all bind tighter than `op`: `*`, `/`, `\\`, `%`, `^` for `+` and
+    `-`; `^` for `*` and `/`.
+    """
+    m = COMPOUND.match(line)
+    if not m:
+        return line
+    indent, name, op, rest = m.groups()
+    flat = re.sub(r'"[^"]*"|\'[^\']*\'', "s", rest)
+    flat = re.sub(r"\b\d+\.\d+|\b0x[\da-f.]+", "n", flat)
+    while True:
+        inner = re.sub(r"\([^()]*\)|\[[^\[\]]*\]|\{[^{}]*\}", "v", flat)
+        if inner == flat:
+            break
+        flat = inner
+    looser = r"[-+<>=~&|,(\[{]|\.\.|\b(or|and|not|function)\b"
+    if op in "*/":
+        looser += r"|[*/%\\]"
+    if re.search(looser, flat):
+        return line
+    return f"{indent}{name} {op}= {rest}\n"
 
 
 def bundle(src, main, symbols):
