@@ -47,7 +47,9 @@ for cart in "${carts[@]}"; do
   main="main_${cart}.lua"
   if [[ "$config" == harness ]]; then
     main="qa_main_${cart}.lua"
-    cat .ultimate/harness/qa_pre.lua "src/main_${cart}.lua" .ultimate/harness/qa_post.lua > "$src/$main"
+    # qa_<cart>.lua, when present, adds harness code to that cart only.
+    cat .ultimate/harness/qa_pre.lua "src/main_${cart}.lua" .ultimate/harness/qa_post.lua \
+      $(ls .ultimate/harness/qa_"$cart".lua 2>/dev/null) > "$src/$main"
   fi
   # The same build as the Rakefile's.
   python3 scripts/build_cart.py "$cart" "$config" "$output/quantattack_${cart}.p8" --src "$src" --main "$main"

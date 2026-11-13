@@ -354,6 +354,25 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
     ::next_rule::
   end
 
+  -- G, SWAP, SWAP, G (issue #125): 二段の SWAP で別の列へ移ったゲート G 同士を簡約する。
+  -- 3 列にまたがるのでパターン文字列では書けない。CPU 負荷を抑えるため、上の SWAP からだけ探す
+  if block.type == "swap" and #reduction.to == 0 and y > 2 then
+    local top, swap2 = reducible_blocks[y + 1] and reducible_blocks[y + 1][x], reducible_blocks[y - 1][block.other_x]
+    local bottom = swap2 and swap2.type == "swap" and swap2.other_x ~= x and reducible_blocks[y - 2][swap2.other_x]
+    if top and bottom and #top.type == 1 and top.type ~= "g" and bottom.type == top.type then
+      reduction = {
+        to = {
+          { dy = 1, block_type = top.type == "t" and "s" or top.type == "s" and "z" or "i" },
+          { dx = true, dy = -2, block_type = "i" }
+        },
+        dx = swap2.other_x - x,
+        score = 60,
+        chain_id = top.chain_id or x .. "," .. y,
+        contains_swap = true
+      }
+    end
+  end
+
   return reduction
 end
 

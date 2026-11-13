@@ -1,0 +1,4 @@
+# cart: endless param: s;x;t;h;y;z|h;z;swap,4;swap,3;x;s|i;swap,3;swap,2;i;i;i|i;t;i;i;i;i
+# Issue #125: T, SWAP, SWAP (to a third column), T. The bottom T is swapped into place
+# under the second SWAP; the top T becomes S and the bottom T disappears (score 60).
+250 shot 1 down 4 down 4 down 4 down 4 down 4 shot 1 x 6 shot 1 20 shot 1 40 shot 1 100 shot 1

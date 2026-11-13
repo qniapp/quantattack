@@ -1543,6 +1543,68 @@ describe('ブロックの簡約パターン', function()
     assert.becomes_i(block_at(1, 1))
   end)
 
+  -- SWAP を二段重ねて別の列へ送ったゲート (issue #125)
+  --
+  -- ┌───┐
+  -- │ G │                          G'
+  -- └───┘
+  --   X────────X            ───>   X────────X
+  --            X────────X                   X────────X
+  --                   ┌───┐
+  --                   │ G │                          I
+  --                   └───┘
+  for _, gates in pairs({ { "h", "i" }, { "x", "i" }, { "y", "i" }, { "z", "i" }, { "s", "z" }, { "t", "s" } }) do
+    local gate, reduced = unpack(gates)
+
+    it(gate .. ' X-X X-X ' .. gate .. ' ─> ' .. reduced .. ' X-X X-X', function()
+      put(1, 4, gate)
+      put(1, 3, "swap", 2)
+      put(2, 3, "swap", 1)
+      put(2, 2, "swap", 3)
+      put(3, 2, "swap", 2)
+      put(3, 1, gate)
+
+      reduce_blocks()
+
+      assert.are.equal(reduced, block_at(1, 4).new_block.type)
+      assert.is_swap(block_at(1, 3), 2)
+      assert.is_swap(block_at(2, 3), 1)
+      assert.is_swap(block_at(2, 2), 3)
+      assert.is_swap(block_at(3, 2), 2)
+      assert.becomes_i(block_at(3, 1))
+    end)
+
+    it(gate .. ' X-X X-X ' .. gate .. ' ─> ' .. reduced .. ' X-X X-X (左右反転)', function()
+      put(6, 4, gate)
+      put(4, 3, "swap", 6)
+      put(6, 3, "swap", 4)
+      put(1, 2, "swap", 4)
+      put(4, 2, "swap", 1)
+      put(1, 1, gate)
+
+      reduce_blocks()
+
+      assert.are.equal(reduced, block_at(6, 4).new_block.type)
+      assert.becomes_i(block_at(1, 1))
+    end)
+  end
+
+  -- issue #125 の盤面
+  it('T X-X X-X T ─> S X-X X-X (issue #125)', function()
+    put(2, 4, "t")
+    put(3, 4, "t")
+    put(2, 3, "swap", 3)
+    put(3, 3, "swap", 2)
+    put(3, 2, "swap", 4)
+    put(4, 2, "swap", 3)
+    put(4, 1, "t")
+
+    reduce_blocks()
+
+    assert.becomes_s(block_at(2, 4))
+    assert.becomes_i(block_at(4, 1))
+  end)
+
   -----------------------------------------------------------------------------
   -- 70 Points
   -----------------------------------------------------------------------------

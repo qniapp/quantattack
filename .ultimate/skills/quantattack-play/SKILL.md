@@ -26,7 +26,7 @@ window. Don't use Xvfb or xdotool, and don't take screenshots of the desktop.
   Both it and the Rakefile build with `scripts/build_cart.py` (preprocess, bundle `require`s,
   `shrinko8 --minify-safe-only`). It installs debug and release carts into the PICO-8 carts folder.
 - `.ultimate/bin/qa-build count` prints release token counts. The limit is 8192. vs_qpu is
-  closest, at 8018.
+  closest, at 7884.
 - The carts are listed in `data/cartridges.txt`: title, tutorial, rush, endless, vs_qpu,
   qpu_vs_qpu, vs_human. `title` jumps to the others with `load()`, and they jump back.
 
@@ -58,7 +58,11 @@ Script tokens are separated by spaces, and `#` starts a comment. The game runs a
   inside another, and the script must still have frames after its last `shot`/`rec`.
   A frame that loads another cart draws nothing, so it gets no screenshot. `qa-run` says so.
 - `--param` is what the title menu passes to the next cart (`stat(6)`). vs_qpu needs it: 1 is the
-  hardest QPU, 3 the easiest.
+  hardest QPU, 3 the easiest. In endless it is an optional starting board
+  (`.ultimate/harness/qa_endless.lua`): rows bottom up separated by `|`, cells by `;`, each a block
+  type with an optional `,other_x`, e.g. `i;t;swap,4;swap,3;i;i|...`. Use it to reproduce one board
+  layout in the real cart; see `scenarios/swap_swap.txt`. A `harness/qa_<cart>.lua` is appended to
+  that cart's harness build only.
 
 For example, the title demo, then the menu, then endless, then one swap:
 
@@ -103,10 +107,12 @@ title to endless to title cart jumps.
   is not covered.
 - `--record` rewrites the goldens. Record only from the reference behaviour, for example on
   `main` before a refactor, never to make a failing check pass. A new scenario needs its
-  golden recorded on the reference commit first.
+  golden recorded on the reference commit first. The one exception so far: a gameplay fix the
+  user approved (issue #125) re-recorded only the CPU goldens whose spikes moved, with pixel
+  goldens untouched.
 
 ## When the harness cart is too large
 
-The harness adds about 130 tokens. vs_qpu's harness build is 8146 of 8192. If a game change
+The harness adds about 135 tokens. vs_qpu's harness build is 8019 of 8192. If a game change
 pushes a harness cart over the limit, `qa-run` fails with `program too large` in its log. Shrink
 the harness first; never change the game to make room.
