@@ -1,0 +1,4 @@
+# cart: endless param: s;x;y;h;t;z|x;s;swap,4;swap,3;y;h|z;swap,3;swap,2;h;s;i|swap,2;swap,1;y;i;i;i|t;i;i;i;i;i
+# Three stacked SWAPs carry the top T from column 1 to column 4. The bottom T is swapped into
+# place under the last SWAP; the top T becomes S and the bottom T disappears (score 60).
+250 shot 1 right 4 down 4 down 4 down 4 down 4 down 4 shot 1 x 6 shot 1 20 shot 1 40 shot 1 100 shot 1

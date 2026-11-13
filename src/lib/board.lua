@@ -354,26 +354,31 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
     ::next_rule::
   end
 
-  -- G, SWAP, SWAP, G (issue #125): 二段の SWAP で別の列へ移ったゲート G 同士を簡約する。
-  -- 3 列にまたがるのでパターン文字列では書けない。CPU 負荷を抑えるため、上の SWAP からだけ探す
-  if block.type == "swap" and #reduction.to == 0 and y > 2 then
-    local top, swap1, swap2 = reducible_blocks[y + 1] and reducible_blocks[y + 1][x], reducible_blocks[y][block.other_x],
-        reducible_blocks[y - 1][block.other_x]
-    local swap3 = swap1 and swap1.type == "swap" and swap1.other_x == x and
-        swap2 and swap2.type == "swap" and swap2.other_x ~= x and reducible_blocks[y - 1][swap2.other_x]
-    local bottom = swap3 and swap3.type == "swap" and swap3.other_x == block.other_x and
-        reducible_blocks[y - 2][swap2.other_x]
+  -- G, SWAP, SWAP, ..., G (issue #125): 二段以上の SWAP で別の列へ移ったゲート G 同士を簡約する。
+  -- 何列にもまたがるのでパターン文字列では書けない。CPU 負荷を抑えるため、上の SWAP からだけ探す
+  if block.type == "swap" and #reduction.to == 0 then
+    local top, cx, cy = reducible_blocks[y + 1] and reducible_blocks[y + 1][x], x, y
+    local chain_id = top and top.chain_id
+    -- 止まっている SWAP の両端をたどって、ゲートがどの列へ運ばれるかを追う
+    while cy > 0 do
+      local swap1 = reducible_blocks[cy][cx]
+      local swap2 = swap1 and swap1.type == "swap" and reducible_blocks[cy][swap1.other_x]
+      if not (swap2 and swap2.type == "swap" and swap2.other_x == cx) then
+        break
+      end
+      -- 既存のパターンと同じく、下のブロックの chain_id を優先する
+      chain_id, cx, cy = swap2.chain_id or swap1.chain_id or chain_id, swap1.other_x, cy - 1
+    end
+    local bottom = cy > 0 and y - cy > 1 and reducible_blocks[cy][cx]
     if top and bottom and #top.type == 1 and top.type ~= "g" and bottom.type == top.type then
       reduction = {
         to = {
           { dy = 1, block_type = top.type == "t" and "s" or top.type == "s" and "z" or "i" },
-          { dx = true, dy = -2, block_type = "i" }
+          { dx = true, dy = cy - y, block_type = "i" }
         },
-        dx = swap2.other_x - x,
+        dx = cx - x,
         score = 60,
-        -- 既存のパターンと同じく、下のブロックの chain_id を優先する
-        chain_id = bottom.chain_id or swap3.chain_id or swap2.chain_id or swap1.chain_id or block.chain_id or
-            top.chain_id or x .. "," .. y,
+        chain_id = bottom.chain_id or chain_id or x .. "," .. y,
         contains_swap = true
       }
     end

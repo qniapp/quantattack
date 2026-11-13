@@ -1625,6 +1625,84 @@ describe('ブロックの簡約パターン', function()
     end)
   end
 
+  -- 3 段以上の SWAP
+  -- cols: ゲートが運ばれる列 (上から)
+  local put_swaps = function(cols, gate)
+    local top = #cols
+    put(cols[1], top + 1, gate)
+    for i = 1, top - 1 do
+      put(cols[i], top + 1 - i, "swap", cols[i + 1])
+      put(cols[i + 1], top + 1 - i, "swap", cols[i])
+    end
+    put(cols[top], 1, gate)
+  end
+
+  for _, cols in pairs({ { 1, 2, 3, 4 }, { 1, 2, 3, 4, 5 }, { 6, 5, 4, 3, 2 }, { 1, 3, 2, 6 }, { 2, 1, 3, 2 },
+    { 1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6, 1, 2, 3, 4 } }) do
+    for _, gates in pairs({ { "h", "i" }, { "x", "i" }, { "y", "i" }, { "z", "i" }, { "s", "z" }, { "t", "s" } }) do
+      local gate, reduced = unpack(gates)
+
+      it(gate .. ' ' .. (#cols - 1) .. ' 段 SWAP (' .. table.concat(cols, ",") .. ') ' .. gate .. ' ─> ' .. reduced, function()
+        put_swaps(cols, gate)
+
+        reduce_blocks()
+
+        assert.are.equal(reduced, block_at(cols[1], #cols + 1).new_block.type)
+        assert.becomes_i(block_at(cols[#cols], 1))
+        for y = 2, #cols do
+          assert.is_nil(block_at(cols[#cols], y).new_block)
+        end
+      end)
+    end
+  end
+
+  it('T 3 段 SWAP T: 下の端が違うゲートなら消えない', function()
+    put_swaps({ 1, 2, 3, 4 }, "t")
+    put(4, 1, "s")
+
+    reduce_blocks()
+
+    assert.is_nil(block_at(1, 5).new_block)
+  end)
+
+  it('T 3 段 SWAP T: 途中にゲートがあると消えない', function()
+    put(1, 5, "t")
+    put(1, 4, "swap", 2)
+    put(2, 4, "swap", 1)
+    put(2, 3, "h")
+    put(2, 2, "swap", 3)
+    put(3, 2, "swap", 2)
+    put(3, 1, "t")
+
+    reduce_blocks()
+
+    assert.is_nil(block_at(1, 5).new_block)
+    assert.is_nil(block_at(3, 1).new_block)
+  end)
+
+  for _, moving in pairs({ { 3, 2 }, { 4, 2 } }) do
+    it('T 3 段 SWAP T: 3 段目の (' .. moving[1] .. ', ' .. moving[2] .. ') が入れ替え中なら消えない', function()
+      put_swaps({ 1, 2, 3, 4 }, "t")
+      local block = block_class("swap")
+      block.other_x, block.state = block_at(unpack(moving)).other_x, "swap"
+      board:put(moving[1], moving[2], block)
+
+      reduce_blocks()
+
+      assert.is_nil(block_at(1, 5).new_block)
+      assert.is_nil(block_at(4, 1).new_block)
+    end)
+  end
+
+  it('T 4 段 SWAP T: 3 段目の SWAP の chain_id を引き継ぐ', function()
+    put_swaps({ 1, 2, 3, 4, 5 }, "t")
+    block_at(4, 3).chain_id = "middle"
+
+    reduce_blocks()
+
+    assert.are.equal("middle", block_at(1, 6).chain_id)
+  end)
+
   -- 下のゲートの連鎖を引き継ぐ
   it('T X-X X-X T: 下の T の chain_id を引き継ぐ', function()
     put(1, 4, "t")
