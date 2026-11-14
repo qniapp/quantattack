@@ -51,22 +51,15 @@ function bubbles._update(_ENV, all)
 end
 
 function bubbles._render(_ENV)
-  if _type == "combo" then
-    draw_rounded_box(_x - 1, _y + 1, _x + 7, _y + 9, 5, 5)
-    draw_rounded_box(_x - 1, _y, _x + 7, _y + 8, 7, 8)
+  local combo = _type == "combo"
+  local dx = combo and 1 or (_count < 10 and 2 or 4)
+  draw_rounded_box(_x - dx, _y + 1, _x + dx + 6, _y + 9, 5, 5)
+  draw_rounded_box(_x - dx, _y, _x + dx + 6, _y + 8, 7, combo and 8 or 3)
 
-    cursor(_x + 2, _y + 2)
-  else
-    local rbox_dx = _count < 10 and 0 or -2
-
-    draw_rounded_box(_x + rbox_dx - 2, _y + 1, _x - rbox_dx + 8, _y + 9, 5, 5)
-    draw_rounded_box(_x + rbox_dx - 2, _y, _x - rbox_dx + 8, _y + 8, 7, 3)
-
-    spr(96, _x + rbox_dx, _y - 1) -- the "x" part in "x5"
-
-    cursor(_x + rbox_dx + 4, _y + 2)
+  if not combo then
+    spr(96, _x + 2 - dx, _y - 1) -- the "x" part in "x5"
   end
-
+  cursor(_x + (combo and 2 or 6 - dx), _y + 2)
   print(_count, 10)
 end
 

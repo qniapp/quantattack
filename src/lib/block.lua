@@ -224,7 +224,7 @@ end
 --#ifn tutorial
 --- おじゃまブロック
 
-local inner_border_colors = { nil, 14, 11, 9 }
+local inner_border_colors = split",14,11,9"
 
 --- 新しいおじゃまブロックを作る
 function garbage_block(_span, _height, _color, _chain_id, _tick_fall)

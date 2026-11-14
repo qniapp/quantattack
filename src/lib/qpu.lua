@@ -72,13 +72,12 @@ function qpu_class._flatten_block(_ENV, each, each_x, each_y)
 end
 
 function qpu_class._reduce_single_block(_ENV, each, each_x, each_y)
-  if is_single_block(each) then
-    -- 下の行とマッチするか走査
-    if each_y > 1 and find_left_and_right(_ENV, _is_match, each) or
-        -- 上の行とマッチするか走査
-        each_y < board.rows and find_left_and_right(_ENV, _is_match, each, true) then
-      return true
-    end
+  if is_single_block(each) and
+      -- 下の行とマッチするか走査
+      (each_y > 1 and find_left_and_right(_ENV, _is_match, each) or
+      -- 上の行とマッチするか走査
+      each_y < board.rows and find_left_and_right(_ENV, _is_match, each, true)) then
+    return true
   end
 end
 
@@ -88,38 +87,39 @@ function qpu_class._reduce_cnot(_ENV, each, each_x, each_y)
       each_y > 1 and board:reducible_block_at(each_x, each_y - 1) or block_class("i")
 
   if not is_single_block(each) then
+    local kind, other_x, right_x, left_x = each.type, each.other_x, each_x + 1, each_x - 1
     -- d-2 / e-2. 上または下の X-C を左にずらす
     --
     -- [X--]-C      X-C  ■
     --  X-C  ■     [X--]-C
-    if each.type == "cnot_x" and each.other_x == each_x + 2 and
-        (lower_block.type == "cnot_x" and lower_block.other_x == each_x + 1 or
-        upper_block.type == "cnot_x" and upper_block.other_x == each_x + 1) then
-      move_and_swap(_ENV, each_x + 1, each_y)
-      return true
-    end
+    local dx
+    if kind == "cnot_x" and other_x == each_x + 2 and
+        (lower_block.type == "cnot_x" and lower_block.other_x == right_x or
+        upper_block.type == "cnot_x" and upper_block.other_x == right_x) then
+      dx = 1
 
     -- a. CNOT を縮める: [X-]--C / [C-]--X
     -- b. CNOT を同じ方向 (右がC) にそろえる: C-X --> X-C
     -- c. CNOT を右に移動: X-[C ]
-    if (each.type == "cnot_x" or each.type == "control") and each_x + 1 < each.other_x or
-        each.type == "control" and each.other_x == each_x + 1 or
-        each_x < board.cols and each.type == "control" and each.other_x < each_x and
-        _is_empty(board, each_x + 1, each_y) then
-      move_and_swap(_ENV, each_x, each_y)
-      return true
-    end
+    elseif kind == "cnot_x" and right_x < other_x or
+        kind == "control" and (right_x <= other_x or
+        each_x < board.cols and other_x < each_x and _is_empty(board, right_x, each_y)) then
+      dx = 0
 
     -- d-1. 上の X-C を左にずらす
     --
     -- [  X]-C
     --  X-C  ■
     -- e. 下の X-C を左にずらす: X-C ■ / [  X]-C
-    if each_x > 1 and
-        _is_empty(board, each_x - 1, each_y) and each.type == "cnot_x" and each.other_x == each_x + 1 and
-        (each_y > 1 and lower_block.type == "control" and lower_block.other_x == each_x - 1 or
-        upper_block.type == "control" and upper_block.other_x == each_x - 1) then
-      move_and_swap(_ENV, each_x - 1, each_y)
+    elseif each_x > 1 and
+        _is_empty(board, left_x, each_y) and kind == "cnot_x" and other_x == right_x and
+        (each_y > 1 and lower_block.type == "control" and lower_block.other_x == left_x or
+        upper_block.type == "control" and upper_block.other_x == left_x) then
+      dx = -1
+    end
+
+    if dx then
+      move_and_swap(_ENV, each_x + dx, each_y)
       return true
     end
   end

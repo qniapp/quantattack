@@ -108,24 +108,19 @@ function game_class.update(_ENV)
 
     if countdown > 0 then
       start_time = t()
+    end
 
-      if countdown_number < 4 then
-        for _, each in pairs(all_players_info) do
-          each.board.countdown = countdown_number
-        end
-      end
-
-      if countdown % 60 == 0 then
-        sfx(13)
-      end
-    elseif countdown == 0 then
-      countdown = nil
-
+    if countdown_number < 4 then
       for _, each in pairs(all_players_info) do
-        each.board.countdown = nil
+        each.board.countdown = countdown > 0 and countdown_number or nil
       end
+    end
 
+    if countdown == 0 then
+      countdown = nil
       sfx(14)
+    elseif countdown % 60 == 0 then
+      sfx(13)
     end
   end
 
@@ -207,16 +202,13 @@ function game_class.update(_ENV)
     elapsed_time = t() - start_time
 
     -- プレーヤーが 2 人であれば、勝ったほうの board に win = true をセット
-    if #all_players_info == 1 then
-      if all_players_info[1].board:is_game_over() then
-        game_over_time = t()
-      end
-    else
-      local board1, board2 = all_players_info[1].board, all_players_info[2].board
+    local board1, other = all_players_info[1].board, all_players_info[2]
+    local board2 = other and other.board
 
-      if board1:is_game_over() or board2:is_game_over() then
-        game_over_time = t()
+    if board1:is_game_over() or board2 and board2:is_game_over() then
+      game_over_time = t()
 
+      if board2 then
         if board1.lose then
           board2.win = true
         end

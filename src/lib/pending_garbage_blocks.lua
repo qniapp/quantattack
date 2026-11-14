@@ -87,13 +87,11 @@ function pending_garbage_blocks_class.render(_ENV, board)
         pal(6, each.inner_border_color)
       end
 
-      if each.span < 6 then
-        draw_rounded_box(x0, y0 + 4, x0 + 12, y0 + 9, 7, 7)
-        draw_rounded_box(x0 + 1, y0 + 5, x0 + 11, y0 + 8, 0, 0)
-      else
-        draw_rounded_box(x0, y0 + 1, x0 + 12, y0 + 9, 7, 7)
-        draw_rounded_box(x0 + 1, y0 + 2, x0 + 11, y0 + 8, 0, 0)
+      local top = y0 + (each.span < 6 and 4 or 1)
+      draw_rounded_box(x0, top, x0 + 12, y0 + 9, 7, 7)
+      draw_rounded_box(x0 + 1, top + 1, x0 + 11, y0 + 8, 0, 0)
 
+      if each.span >= 6 then
         cursor(x0 + 5, y0 + 3)
         print(each.height, 6)
       end
