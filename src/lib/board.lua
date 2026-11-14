@@ -89,9 +89,10 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
         -- 新しい chain_id の場合 _chain_count を 1 に初期化する
         if _chain_count[chain_id] then
-          chain_xy[chain_id] = { x = x, y = y }
+          chain_xy[chain_id] = { x, y }
         end
-        _chain_count[chain_id] = (_chain_count[chain_id] or 0) + 1
+        local chain_count = (_chain_count[chain_id] or 0) + 1
+        _chain_count[chain_id] = chain_count
 
         if combo_count and game.combo_callback then
           -- 同時消し
@@ -132,7 +133,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
               if not block_to_fall.chain_id or
                 not _chain_count[block_to_fall.chain_id] or
-                _chain_count[chain_id] and _chain_count[chain_id] > _chain_count[block_to_fall.chain_id] then
+                chain_count > _chain_count[block_to_fall.chain_id] then
                 block_to_fall.chain_id = chain_id
               end
             end
@@ -244,17 +245,16 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
   -- 連鎖
   for chain_id, xy in pairs(chain_xy) do
-    local coord = { screen_x(_ENV, xy.x), screen_y(_ENV, xy.y) }
+    local coord = { screen_x(_ENV, xy[1]), screen_y(_ENV, xy[2]) }
 
-    if game and game.chain_callback then
-      -- 相殺しても残っていれば、相手に攻撃
-      if #pending_garbage_blocks.all <= 1 or game.block_offset_callback(
-        _chain_count[chain_id], coord, player, _ENV, other_board
-      ) > 0 then
-        game.chain_callback(
-          chain_id, _chain_count[chain_id], coord, player, _ENV, other_board
-        )
-      end
+    -- 相殺しても残っていれば、相手に攻撃
+    if game and game.chain_callback and
+        (#pending_garbage_blocks.all <= 1 or game.block_offset_callback(
+          _chain_count[chain_id], coord, player, _ENV, other_board
+        ) > 0) then
+      game.chain_callback(
+        chain_id, _chain_count[chain_id], coord, player, _ENV, other_board
+      )
     end
   end
 end
@@ -468,7 +468,7 @@ function board_class.put(_ENV, x, y, block)
   -- おじゃまブロックを分解する時 (= garbage_match ブロックと置き換える時)、
   -- おじゃまブロックキャッシュから消す
   local previous = blocks[y][x]
-  if previous and previous.type == "g" then
+  if previous.type == "g" then
     del(_garbage_blocks, previous)
   end
 
@@ -511,11 +511,8 @@ function board_class.insert_blocks_at_bottom(_ENV)
       control_x, cnot_x_x = ceil_rnd(cols), ceil_rnd(cols)
     until control_x ~= cnot_x_x
 
-    local control_block = block_class"control"
-    control_block.other_x = cnot_x_x
-
-    local cnot_x_block = block_class"cnot_x"
-    cnot_x_block.other_x = control_x
+    local control_block, cnot_x_block = block_class"control", block_class"cnot_x"
+    control_block.other_x, cnot_x_block.other_x = cnot_x_x, control_x
 
     put(_ENV, control_x, 0, control_block)
     put(_ENV, cnot_x_x, 0, cnot_x_block)
@@ -581,11 +578,11 @@ function board_class.update(_ENV, game, player, other_board)
   end
 
   if state == "play" then
-    if win or lose then
+    if win or lose or timeup then
       state, tick_over = "over", 0
-      sfx(17)
-    elseif timeup then
-      state, tick_over = "over", 0
+      if win or lose then
+        sfx(17)
+      end
     else
       _update_game(_ENV, game, player, other_board)
     end
