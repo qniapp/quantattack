@@ -67,7 +67,8 @@ def preprocess(path, symbols):
 
 def code_lines(lines):
     """Return, per line, its Lua code with comments removed, or None when any of it lies in a
-    long string or long comment ([[ ]], [=[ ]=], --[[ ]]): a small lexical scan of the whole text."""
+    long string or long comment ([[ ]], [=[ ]=], --[[ ]]) or in a quoted string that goes on to
+    another line (a backslash at the end of a line): a small lexical scan of the whole text."""
     text, codes, i = "".join(lines), [], 0
     code, plain, close = [], True, None  # close: the delimiter that ends the open long bracket
     while i < len(text):
@@ -96,8 +97,14 @@ def code_lines(lines):
             end = i + 1
             while end < len(text) and text[end] not in (ch, "\n"):
                 end += 2 if text[end] == "\\" else 1
-            code.append(text[i:end + 1])
-            i = end + 1
+            string = text[i:end + 1] if end < len(text) and text[end] == ch else text[i:end]
+            # Every line an escaped newline crosses gets None, and so does the line it ends on.
+            for _ in range(string.count("\n")):
+                codes.append(None)
+                code = []
+            plain = plain and "\n" not in string
+            code.append(string)
+            i += len(string)
             continue
         code.append(ch)
         i += 1
