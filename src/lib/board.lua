@@ -28,12 +28,11 @@ function board_class.init(_ENV, _cols)
       "play", false, false, false, 0, false, false, false
 
   -- ゲームオーバーの線 etc.
-  top_line_start_x, freeze_timer,
-  _chain_count, _topped_out_frame_count, _topped_out_delay_frame_count, _bounce_speed,
-  _bounce_screen_dy,
   -- 各種ブロックの取得
-  blocks, reducible_blocks, _garbage_blocks, contains_q_block =
-      0, 0, {}, 0, 600, 0, 0, {}, {}, {}, false
+  _chain_count, blocks, reducible_blocks, _garbage_blocks, contains_q_block,
+  top_line_start_x, freeze_timer, _topped_out_frame_count, _topped_out_delay_frame_count,
+  _bounce_speed, _bounce_screen_dy =
+      {}, {}, {}, {}, false, unpack_split"0,0,0,600,0,0"
 
   tick, steps, pending_garbage_blocks, _flash_col_timer, _flash_col_colors, _check_hover_flag, cache_reduce,
   cache_is_block_fallable, cache_is_empty =
@@ -84,7 +83,8 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         )
       end
 
-      if #reduction.to > 0 then
+      local targets = reduction.to
+      if #targets > 0 then
         local chain_id = reduction.chain_id
 
         -- 新しい chain_id の場合 _chain_count を 1 に初期化する
@@ -96,7 +96,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
 
         if combo_count and game.combo_callback then
           -- 同時消し
-          combo_count = combo_count + #reduction.to
+          combo_count = combo_count + #targets
           game.combo_callback(
             combo_count,
             { screen_x(_ENV, x), screen_y(_ENV, y) },
@@ -105,10 +105,10 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
             other_board
           )
         else
-          combo_count = #reduction.to
+          combo_count = #targets
         end
 
-        for index, r in pairs(reduction.to) do
+        for index, r in pairs(targets) do
           sfx(35)
 
           local target_x, target_y, new_block = x + (r.dx and reduction.dx or 0), y + (r.dy or 0), block_class(r.block_type)
@@ -158,7 +158,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
         -- 隣接ブロック adj_x, adj_y がマッチ中であるかを返す。
         local match_with = function(adj_x, adj_y)
           if adj_y < 1 or adj_x < 1 or cols < adj_x then
-            return false
+            return
           end
 
           local adjacent_block = blocks[adj_y][adj_x]
@@ -168,8 +168,6 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
             each.chain_id = adjacent_block.chain_id
             return true
           end
-
-          return false
         end
 
         --          ██ ██ ██ ██  y+garbage_height
@@ -223,7 +221,7 @@ function board_class.reduce_blocks(_ENV, game, player, other_board)
             -- new garbage head ──┼>g  i  i  i  │
             --       (x=0,dy=1)   │ ██ ██ ██ ██ │ random block (dy=0)
             --                    └─────────────┘
-            blocks[y + dy][x + dx]:replace_with(
+            q_block:replace_with(
               dy == 0 and _random_single_block(_ENV) or
               (dy == 1 and dx == 0 and
                 garbage_block(garbage_span, garbage_height - 1, each.body_color) or
@@ -305,7 +303,7 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
 
     ::check_match::
     -- chainable フラグがついたブロックがマッチしたブロックの中に 1 個でも含まれていたら連鎖
-    local chain_id, contains_swap = x .. "," .. y, false
+    local chain_id = x .. "," .. y
 
     -- マッチするかチェック
     for i, block_types in pairs(block_pattern_rows) do
@@ -321,11 +319,6 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
         if block1.type ~= first or
             block1.other_x and block1.other_x ~= other_x then
           goto next_rule
-        end
-
-        -- SWAP を含むパターンの点数かどうかをチェック
-        if score == 50 or score == 60 or score == 70 or score == 200 or score == 300 then
-          contains_swap = true
         end
 
         chain_id = block1.chain_id or chain_id
@@ -347,7 +340,8 @@ function board_class._reduce_nocache(_ENV, x, y, include_next_blocks)
       dx = dx,
       score = score,
       chain_id = chain_id,
-      contains_swap = contains_swap
+      -- SWAP を含むパターンの点数かどうかをチェック
+      contains_swap = score == 50 or score == 60 or score == 70 or score == 200 or score == 300
     }
     break
 
@@ -1000,8 +994,8 @@ function board_class.observable_update(_ENV, block, old_state)
   cache_is_empty = {}
 
   if old_state == "swap" and block.swap_direction == "right" and block.state == "idle" then
-    local new_x = x + 1
-    local right_block = blocks[y][new_x]
+    local new_x, row = x + 1, blocks[y]
+    local right_block = row[new_x]
 
     --#if assert
     assert(right_block.state == "swap" and right_block.swap_direction == "left", right_block.state)
@@ -1023,11 +1017,11 @@ function board_class.observable_update(_ENV, block, old_state)
     local right_block_other_x = right_block.other_x
 
     if block.other_x then
-      blocks[y][block.other_x].other_x = new_x
+      row[block.other_x].other_x = new_x
     end
 
     if right_block_other_x then
-      blocks[y][right_block_other_x].other_x = x
+      row[right_block_other_x].other_x = x
     end
 
     put(_ENV, new_x, y, block)
@@ -1077,12 +1071,13 @@ function board_class.observable_update(_ENV, block, old_state)
     end
   end
 
+  local reducible = block:is_reducible()
   reducible_blocks[y] = reducible_blocks[y] or {}
-  reducible_blocks[y][x] = block:is_reducible() and block or nil
+  reducible_blocks[y][x] = reducible and block or nil
 
   _changed = true
 
-  if block:is_reducible() then
+  if reducible then
     cache_reduce = {}
   end
 
