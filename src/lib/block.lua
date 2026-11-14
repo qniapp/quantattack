@@ -2,9 +2,9 @@
 
 --- ブロック (量子ゲート) クラス
 block_class = new_class()
-block_class.block_match_animation_frame_count = 45
-block_class.block_match_delay_per_block = 8
-block_class.block_swap_animation_frame_count = 3
+block_class.block_match_animation_frame_count,
+    block_class.block_match_delay_per_block,
+    block_class.block_swap_animation_frame_count = 45, 8, 3
 block_class.sprites = transform({
   -- default|landing|match
   h = "0|1,1,1,2,2,2,3,3,1,1,1,1|24,24,24,25,25,25,24,24,24,26,26,26,0,0,0,27",

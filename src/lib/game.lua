@@ -2,7 +2,7 @@
 
 game_class = new_class()
 
-local chain_bonus = transform(split("0,50,80,150,300,400,500,700,900,1100,1300,1500,1800"), tonum)
+local chain_bonus = split"0,50,80,150,300,400,500,700,900,1100,1300,1500,1800"
 
 function game_class.reduce_callback(score, player, board, contains_swap)
   player.score = player.score + (score >> 16)
@@ -141,10 +141,8 @@ function game_class.update(_ENV)
       if 0 <= music_pattern_id and music_pattern_id <= 7 then
         music(16)
       end
-    else
-      if 16 <= music_pattern_id and music_pattern_id <= 19 then
-        music(0)
-      end
+    elseif 16 <= music_pattern_id and music_pattern_id <= 19 then
+      music(0)
     end
   end
 

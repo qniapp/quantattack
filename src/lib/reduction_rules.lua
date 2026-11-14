@@ -38,7 +38,7 @@ reduction_rules = transform(
               block_type = block_type == "" and 'i' or block_type
             }
           end),
-          tonum(score)
+          score
         }
       end
     )

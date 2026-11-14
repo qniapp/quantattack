@@ -93,9 +93,8 @@ function qpu_class._reduce_cnot(_ENV, each, each_x, each_y)
     -- [X--]-C      X-C  ■
     --  X-C  ■     [X--]-C
     if each.type == "cnot_x" and each.other_x == each_x + 2 and
-        lower_block.type == "cnot_x" and lower_block.other_x == each_x + 1 or
-        each.type == "cnot_x" and each.other_x == each_x + 2 and
-        upper_block.type == "cnot_x" and upper_block.other_x == each_x + 1 then
+        (lower_block.type == "cnot_x" and lower_block.other_x == each_x + 1 or
+        upper_block.type == "cnot_x" and upper_block.other_x == each_x + 1) then
       move_and_swap(_ENV, each_x + 1, each_y)
       return true
     end
@@ -115,19 +114,11 @@ function qpu_class._reduce_cnot(_ENV, each, each_x, each_y)
     --
     -- [  X]-C
     --  X-C  ■
-    if each_x > 1 and each_y > 1 and
-        _is_empty(board, each_x - 1, each_y) and each.type == "cnot_x" and each.other_x == each_x + 1 and
-        lower_block.type == "control" and
-        lower_block.other_x == each_x - 1 then
-      move_and_swap(_ENV, each_x - 1, each_y)
-      return true
-    end
-
     -- e. 下の X-C を左にずらす: X-C ■ / [  X]-C
     if each_x > 1 and
         _is_empty(board, each_x - 1, each_y) and each.type == "cnot_x" and each.other_x == each_x + 1 and
-        upper_block.type == "control" and
-        upper_block.other_x == each_x - 1 then
+        (each_y > 1 and lower_block.type == "control" and lower_block.other_x == each_x - 1 or
+        upper_block.type == "control" and upper_block.other_x == each_x - 1) then
       move_and_swap(_ENV, each_x - 1, each_y)
       return true
     end

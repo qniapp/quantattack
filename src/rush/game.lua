@@ -3,7 +3,7 @@ local game = new_class()
 
 local all_players_info, countdown
 
-local chain_bonus = transform(split"0,50,80,150,300,400,500,700,900,1100,1300,1500,1800", tonum)
+local chain_bonus = split"0,50,80,150,300,400,500,700,900,1100,1300,1500,1800"
 
 function game.reduce_callback(score, player, board, contains_swap)
   player.score = player.score + (score >> 16)
@@ -13,19 +13,22 @@ function game.reduce_callback(score, player, board, contains_swap)
   end
 end
 
+local function attack(target, player, points)
+  sfx(21)
+  particles:create(
+    target,
+    "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
+  )
+  player.score = player.score + (points >> 16)
+end
+
 function game.combo_callback(combo_count, coord, player, board, other_board)
   bubbles:create("combo", combo_count, coord)
   ions:create(
     coord,
     board.attack_ion_target,
     function(target)
-      sfx(21)
-      particles:create(
-        target,
-        "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
-      )
-
-      player.score = player.score + ((combo_count * 10) >> 16)
+      attack(target, player, combo_count * 10)
 
       -- 対戦相手がいる時、おじゃまブロックを送る
       if other_board then
@@ -43,13 +46,7 @@ function game.block_offset_callback(chain_count, coord, player, board, other_boa
       coord,
       board.block_offset_target,
       function(target)
-        sfx(21)
-        particles:create(
-          target,
-          "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
-        )
-
-        player.score = player.score + ((chain_bonus[chain_count] or 1800) >> 16)
+        attack(target, player, chain_bonus[chain_count] or 1800)
 
         if other_board then
           offset_height = pending_garbage_blocks:offset(offset_height)
@@ -69,13 +66,7 @@ function game.chain_callback(chain_id, chain_count, coord, player, board, other_
       coord,
       board.attack_ion_target,
       function(target)
-        sfx(21)
-        particles:create(
-          target,
-          "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
-        )
-
-        player.score = player.score + ((chain_bonus[chain_count] or 1800) >> 16)
+        attack(target, player, chain_bonus[chain_count] or 1800)
 
         -- 対戦相手がいる時、おじゃまブロックを送る
         if other_board then
@@ -97,9 +88,7 @@ function game._init(_ENV)
 end
 
 function game.init(_ENV)
-  all_players_info, countdown = {}, 240
-  start_time = t()
-  game_over_time, time_left = nil, nil
+  all_players_info, countdown, start_time, game_over_time, time_left = {}, 240, t()
 
   music(-1) -- stop the music
 end
@@ -155,10 +144,8 @@ function game.update(_ENV)
       if 0 <= music_pattern_id and music_pattern_id <= 7 then
         music(16)
       end
-    else
-      if 16 <= music_pattern_id and music_pattern_id <= 19 then
-        music(0)
-      end
+    elseif 16 <= music_pattern_id and music_pattern_id <= 19 then
+      music(0)
     end
   end
 
@@ -235,8 +222,7 @@ function game:render() -- override
 
     -- カウントダウンの数字はカーソルの上に表示
     if board.countdown then
-      local countdown_sprite_x = { 32, 16, 0 }
-      sspr(countdown_sprite_x[board.countdown], 80,
+      sspr(48 - board.countdown * 16, 80,
         16, 16,
         board.offset_x + 16, 43)
     end
