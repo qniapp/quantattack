@@ -23,8 +23,6 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIRECTIVE = re.compile(r"\s*--#(if|ifn|endif)\b\s*(\w*)")
 REQUIRE = re.compile(r'\brequire\("([\w/]+)"\)')
-LONG_OPEN = re.compile(r"\[=*\[")
-LONG_CLOSE = re.compile(r"\]=*\]")
 CONTINUED = re.compile(r"\s*([-+*/%^<>=~&|.,:)\]}(\[{\"']|(and|or)\b)")
 COMPOUND = re.compile(r"^(\s*)([A-Za-z_][\w.]*) = \2 ([-+*/]) (.+?)\s*$")
 REQUIRE_FUNCTION = """function require(p)
@@ -67,19 +65,58 @@ def preprocess(path, symbols):
     return compound_assign_lines(out)
 
 
-def compound_assign_lines(lines):
-    """Apply compound_assign to each line that is a whole statement outside long strings."""
-    out, long_open = [], False
-    for i, line in enumerate(lines):
-        # Inside a long string or comment ([[ ... ]], [=[ ... ]=], --[[ ... ]]): leave it.
-        starts_long = bool(LONG_OPEN.search(line))
-        if long_open or starts_long:
-            out.append(line)
-            long_open = (long_open or starts_long) and not LONG_CLOSE.search(line.split("[", 1)[-1])
+def code_lines(lines):
+    """Return, per line, its Lua code with comments removed, or None when any of it lies in a
+    long string or long comment ([[ ]], [=[ ]=], --[[ ]]): a small lexical scan of the whole text."""
+    text, codes, i = "".join(lines), [], 0
+    code, plain, close = [], True, None  # close: the delimiter that ends the open long bracket
+    while i < len(text):
+        ch = text[i]
+        if close:
+            plain, end = False, text.find(close, i)
+            end = len(text) if end < 0 else end + len(close)
+            for _ in range(text.count("\n", i, end)):
+                codes.append(None)
+            i, close = end, None
             continue
-        # A statement whose expression goes on below (blank and comment lines skipped) is not whole.
-        after = next((n for n in lines[i + 1:] if n.strip() and not n.lstrip().startswith("--")), "")
-        out.append(line if CONTINUED.match(after) else compound_assign(line))
+        if ch == "\n":
+            codes.append("".join(code) if plain else None)
+            code, plain, i = [], True, i + 1
+            continue
+        long = re.match(r"(--)?\[(=*)\[", text[i:])
+        if long:
+            close, plain = "]" + long.group(2) + "]", False
+            i += long.end()
+            continue
+        if text.startswith("--", i):
+            i = text.find("\n", i)
+            i = len(text) if i < 0 else i
+            continue
+        if ch in "\"'":
+            end = i + 1
+            while end < len(text) and text[end] not in (ch, "\n"):
+                end += 2 if text[end] == "\\" else 1
+            code.append(text[i:end + 1])
+            i = end + 1
+            continue
+        code.append(ch)
+        i += 1
+    if code or not text.endswith("\n"):
+        codes.append("".join(code) if plain else None)
+    return codes
+
+
+def compound_assign_lines(lines):
+    """Apply compound_assign to each line that is a whole statement of plain code."""
+    codes = code_lines(lines)
+    out = []
+    for i, line in enumerate(lines):
+        # The next line that has code; a long string or comment there counts as code too.
+        after = next((c if c is not None else "[[" for c in codes[i + 1:] if c is None or c.strip()), "")
+        if codes[i] is None or codes[i] != line.rstrip("\n") or CONTINUED.match(after):
+            out.append(line)
+        else:
+            out.append(compound_assign(line))
     return out
 
 
