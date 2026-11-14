@@ -11,14 +11,15 @@ qa_post.lua; the run itself goes through qa-run (same input, same frames). Each 
 build/prof/SCENARIO/prof.txt: one line per function, "name self calls", both per frame. self is
 the function's own time (without the wrapped functions it calls) in thousandths of a frame
 (1000 = all of stat(1) 1.0), averaged over every frame of the run. The wrappers make the cart
-about three times slower; their cost is measured in the same run (qa_cal) and subtracted, so the
-numbers are close to an unwrapped run. Only functions stored in global tables are wrapped
+about three times slower; their cost is measured in the same run (1000 calls of an empty
+function, unwrapped and wrapped) and subtracted, so the numbers are close to an unwrapped run. Only functions stored in global tables are wrapped
 (classes, effect sets); time outside them (main's _update60/_draw, plain global helpers) is
 counted in their callers.
 
 compare fails when a function present in both takes more than 1% and more than 0.5 thousandths
 of a frame longer per frame than in GOLDEN: a slower spot that a faster run overall could hide.
 """
+import os
 import re
 import subprocess
 import sys
@@ -26,6 +27,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 RISE, FLOOR = 0.01, 0.5
+SHRINKO8_BIN = Path.home() / ".local/share/quantattack-tools/venv/bin"
 
 
 def fail(message):
@@ -45,9 +47,11 @@ def profile(names, build=True):
         _, _, cart, *rest = text.splitlines()[0].split()
         out = ROOT / f"build/prof/{name}"
         out.mkdir(parents=True, exist_ok=True)
-        # qa_prof.lua sends no screens: drop shot and rec:N (rec's frames are played as waits).
+        # Drop the scenario's shot and rec:N (rec's frames are played as waits), and play 60 more
+        # frames: qa_prof.lua prints its counts every 60 frames, so every scenario frame is printed.
         text = re.sub(r"#.*", "", text)
         text = re.sub(r"(?<!\S)shot(?!\S)", "", re.sub(r"(?<!\S)rec:(\d+)(?!\S)", "", text))
+        text += " 60\n"
         (out / "script.txt").write_text(text)
         command = [ROOT / ".ultimate/bin/qa-run", "--carts", ROOT / f"build/v{version}_prof", "--out", out]
         if rest:
@@ -55,30 +59,61 @@ def profile(names, build=True):
         log = open(ROOT / f"build/prof/{name}.log", "w")
         runs.append((name, out, log, subprocess.Popen(command + [cart, out / "script.txt"], stdout=log,
                                                       stderr=subprocess.STDOUT)))
+    cal = calibrate(version)
     status = 0
     for name, out, log, process in runs:
         if process.wait():
             print(f"{name}: run failed (build/prof/{name}.log)")
             status = 1
             continue
-        totals = summarize(out / "log.txt", sum(1 for _ in open(out / "cpu.txt")))
+        totals = summarize(out / "log.txt", cal)
         (out / "prof.txt").write_text("".join(f"{n} {s:.3f} {c:.2f}\n" for n, (s, c) in totals))
         print(f"{name}: {out / 'prof.txt'}")
     return status
 
 
-def summarize(log, frames):
+def calibrate(version):
+    """Return (callee, caller): what one wrapped call adds to the callee's and the caller's self.
+
+    A separate cart (.ultimate/harness/qa_prof_cal*.lua around qa_prof.lua) times 1000 calls of
+    an empty function before and after qa_prof.lua wraps it. The wrapped call costs
+    `wrapped - plain` more than a plain one; the empty callee's own measured time is the part
+    added to every callee, the rest is added to the caller.
+    """
+    out = ROOT / "build/prof/calibration"
+    (out / "carts").mkdir(parents=True, exist_ok=True)
+    harness = ROOT / ".ultimate/harness"
+    code = "".join((harness / f).read_text() for f in
+                   ("qa_pre.lua", "qa_prof_cal.lua", "qa_prof.lua", "qa_prof_cal_end.lua"))
+    (out / "cal.lua").write_text(code)
+    subprocess.run(["shrinko8", out / "cal.lua", out / "carts/quantattack_title.p8", "--minify-safe-only"],
+                   check=True, env={**os.environ, "PATH": f"{SHRINKO8_BIN}:{os.environ['PATH']}"})
+    subprocess.run([ROOT / ".ultimate/bin/qa-run", "--carts", out / "carts", "--out", out, "title", "-"],
+                   input=b"60", check=True, stdout=subprocess.DEVNULL)
+    plain = wrapped = callee = None
+    for line in open(out / "log.txt"):
+        if line.startswith("pc "):
+            plain, wrapped = (float(v) / 1000 for v in line.split()[1:])
+        elif line.startswith("p qa_cal.b "):
+            callee = float(line.split()[2]) / float(line.split()[3])
+    if None in (plain, wrapped, callee):
+        fail(f"calibration failed (see {out / 'log.txt'})")
+    return callee, wrapped - plain - callee
+
+
+def summarize(log, cal):
     """Return [(name, (self, calls))] per frame, costliest first, with the wrapper cost removed."""
-    raw = {}
+    raw, frames = {}, 0
     for line in open(log):
         if line.startswith("p "):
             _, name, slf, calls, kids = line.split()
             s, c, k = raw.get(name, (0, 0, 0))
             raw[name] = (s + float(slf), c + float(calls), k + float(kids))
-    if "qa_cal.a" not in raw:
-        fail(f"{log}: no calibration (did the run reach frame 60?)")
-    callee = raw["qa_cal.b"][0] / raw["qa_cal.b"][1]  # a wrapped call's cost inside the callee
-    caller = raw.pop("qa_cal.a")[0] / raw.pop("qa_cal.b")[1]  # and inside its caller
+        elif line.startswith("pf "):
+            frames += int(line.split()[1])
+    if not frames:
+        fail(f"{log}: no profile")
+    callee, caller = cal
     totals = {n: ((s - c * callee - k * caller) * 1000 / frames, c / frames) for n, (s, c, k) in raw.items() if c}
     return sorted(totals.items(), key=lambda item: -item[1][0])
 

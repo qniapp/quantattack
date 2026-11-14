@@ -23,7 +23,9 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIRECTIVE = re.compile(r"\s*--#(if|ifn|endif)\b\s*(\w*)")
 REQUIRE = re.compile(r'\brequire\("([\w/]+)"\)')
-CONTINUED = re.compile(r"\s*([-+*/%^<>=~&|.,)\]}]|(and|or)\b)")
+LONG_OPEN = re.compile(r"\[=*\[")
+LONG_CLOSE = re.compile(r"\]=*\]")
+CONTINUED = re.compile(r"\s*([-+*/%^<>=~&|.,:)\]}(\[{\"']|(and|or)\b)")
 COMPOUND = re.compile(r"^(\s*)([A-Za-z_][\w.]*) = \2 ([-+*/]) (.+?)\s*$")
 REQUIRE_FUNCTION = """function require(p)
 local l=package.loaded
@@ -62,9 +64,23 @@ def preprocess(path, symbols):
                 stack.append((m.group(2) in symbols) != (m.group(1) == "ifn"))
     if stack:
         sys.exit(f"{path}: file ends inside --#if")
-    # A line whose expression goes on in the next line is not a whole statement: leave it.
-    return [line if CONTINUED.match(after) else compound_assign(line)
-            for line, after in zip(out, out[1:] + [""])]
+    return compound_assign_lines(out)
+
+
+def compound_assign_lines(lines):
+    """Apply compound_assign to each line that is a whole statement outside long strings."""
+    out, long_open = [], False
+    for i, line in enumerate(lines):
+        # Inside a long string or comment ([[ ... ]], [=[ ... ]=], --[[ ... ]]): leave it.
+        starts_long = bool(LONG_OPEN.search(line))
+        if long_open or starts_long:
+            out.append(line)
+            long_open = (long_open or starts_long) and not LONG_CLOSE.search(line.split("[", 1)[-1])
+            continue
+        # A statement whose expression goes on below (blank and comment lines skipped) is not whole.
+        after = next((n for n in lines[i + 1:] if n.strip() and not n.lstrip().startswith("--")), "")
+        out.append(line if CONTINUED.match(after) else compound_assign(line))
+    return out
 
 
 def compound_assign(line):

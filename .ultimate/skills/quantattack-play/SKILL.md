@@ -127,8 +127,9 @@ title to endless to title cart jumps.
 
 The `prof` build wraps every function stored in a global table (classes, effect sets) with
 `.ultimate/harness/qa_prof.lua` and measures its own time per frame, in thousandths of a frame
-(1000 = `stat(1)` 1.0), and its calls per frame. The wrappers' cost is measured in the same run
-and subtracted, and the numbers are deterministic. Drawing takes 55-73% of the time
+(1000 = `stat(1)` 1.0), and its calls per frame, over every frame of the scenario. The wrappers'
+cost is measured by a small calibration cart (`harness/qa_prof_cal*.lua`: an empty function,
+unwrapped and wrapped) and subtracted, and the numbers are deterministic. Drawing takes 55-73% of the time
 (`board_class.render`, `block_class.render`, `ripple._render`), the board update most of the
 rest; reduction and QPU code take a few percent. Before cutting tokens in a function, look at
 its share: code that runs rarely can be shortened freely, and code that runs hundreds of times a
@@ -137,6 +138,6 @@ new tables, closures and strings each frame.
 
 ## When the harness cart is too large
 
-The harness adds about 135 tokens, the prof harness about 250; vs_qpu is the largest. If a game
+The harness adds about 135 tokens, the prof harness about 310; vs_qpu is the largest. If a game
 change pushes a harness or prof cart over the limit, `qa-run` fails with `program too large` in
 its log. Shrink the harness first; never change the game to make room.
