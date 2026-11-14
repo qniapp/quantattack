@@ -618,9 +618,9 @@ function board_class.update(_ENV, game, player, other_board)
   end
 
   -- 列フラッシュのタイマーをそれぞれ -1 する
-  _flash_col_timer = transform(_flash_col_timer, function(each)
-    return each and max(each - 1, 0) or 0
-  end)
+  for x, each in pairs(_flash_col_timer) do
+    _flash_col_timer[x] = max(each - 1, 0)
+  end
 
   tick = tick + 1
 end

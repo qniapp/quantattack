@@ -20,9 +20,7 @@ function effect_set:update_all()
 end
 
 function effect_set:render_all()
-  foreach(self.all, function(each)
-    self._render(each)
-  end)
+  foreach(self.all, self._render)
 end
 
 

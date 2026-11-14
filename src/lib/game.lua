@@ -13,77 +13,54 @@ function game_class.reduce_callback(score, player, board, contains_swap)
   end
 end
 
-function game_class.combo_callback(combo_count, coord, player, board, other_board)
-  bubbles:create("combo", combo_count, coord)
+-- イオン球を target へ飛ばし、着いたらパーティクルを出して points 点を足し、garbage があれば呼ぶ
+local function attack(coord, target, ion_color, player, points, garbage)
   ions:create(
     coord,
-    board.attack_ion_target,
-    function(target)
+    target,
+    function(ion_target)
       sfx(21)
       particles:create(
-        target,
+        ion_target,
         "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
       )
 
-      player.score = player.score + ((combo_count * 10) >> 16)
+      player.score = player.score + (points >> 16)
 
-      -- 対戦相手がいる時、おじゃまブロックを送る
-      if other_board then
-        other_board:send_garbage(nil, combo_count > 6 and 6 or combo_count - 1, 1)
+      if garbage then
+        garbage()
       end
-    end
+    end,
+    ion_color
   )
 end
 
+function game_class.combo_callback(combo_count, coord, player, board, other_board)
+  bubbles:create("combo", combo_count, coord)
+  -- 対戦相手がいる時、おじゃまブロックを送る
+  attack(coord, board.attack_ion_target, nil, player, combo_count * 10, other_board and function()
+    other_board:send_garbage(nil, combo_count > 6 and 6 or combo_count - 1, 1)
+  end)
+end
+
 function game_class.block_offset_callback(chain_count, coord, player, board, other_board)
-  local offset_height = chain_count
-
-  if offset_height > 2 then
-    ions:create(
-      coord,
-      board.block_offset_target,
-      function(target)
-        sfx(21)
-        particles:create(
-          target,
-          "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
-        )
-
-        player.score = player.score + ((chain_bonus[chain_count] or 1800) >> 16)
-
-        if other_board then
-          offset_height = board.pending_garbage_blocks:offset(offset_height)
-        end
-      end,
-      9
-    )
+  if chain_count > 2 then
+    attack(coord, board.block_offset_target, 9, player, chain_bonus[chain_count] or 1800, other_board and function()
+      board.pending_garbage_blocks:offset(chain_count)
+    end)
   end
 
-  return offset_height
+  return chain_count
 end
 
 function game_class.chain_callback(chain_id, chain_count, coord, player, board, other_board)
   if chain_count > 1 then
     bubbles:create("chain", chain_count, coord)
     if chain_count > 2 then
-      ions:create(
-        coord,
-        board.attack_ion_target,
-        function(target)
-          sfx(21)
-          particles:create(
-            target,
-            "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
-          )
-
-          player.score = player.score + ((chain_bonus[chain_count] or 1800) >> 16)
-
-          -- 対戦相手がいる時、おじゃまブロックを送る
-          if other_board then
-            other_board:send_garbage(chain_id, 6, chain_count - 1 < 6 and chain_count - 1 or 5)
-          end
-        end
-      )
+      -- 対戦相手がいる時、おじゃまブロックを送る
+      attack(coord, board.attack_ion_target, nil, player, chain_bonus[chain_count] or 1800, other_board and function()
+        other_board:send_garbage(chain_id, 6, chain_count - 1 < 6 and chain_count - 1 or 5)
+      end)
     end
   else
     player.score = player.score + ((chain_bonus[chain_count] or 1800) >> 16)
