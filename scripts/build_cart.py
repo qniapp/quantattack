@@ -139,8 +139,9 @@ def compound_assign(line):
     if not m:
         return line
     indent, name, op, rest = m.groups()
-    flat = re.sub(r'"[^"]*"|\'[^\']*\'', "s", rest)
-    flat = re.sub(r"\b\d+\.\d+|\b0x[\da-f.]+", "n", flat)
+    if '"' in rest or "'" in rest:
+        return line  # a string could hide an operator (escaped quotes): leave it
+    flat = re.sub(r"\b\d+\.\d+|\b0x[\da-f.]+", "n", rest)
     while True:
         inner = re.sub(r"\([^()]*\)|\[[^\[\]]*\]|\{[^{}]*\}", "v", flat)
         if inner == flat:
