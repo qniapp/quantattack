@@ -3,72 +3,74 @@ require("lib/helpers")
 
 local ion = new_class()
 
-function ion._init(_ENV)
-  _x, _y, _dx, _dy = 84, 36, 0, 0
-end
-
-function ion.update(_ENV)
-  if _state == ":appear" then
-    if _tick == _max_tick then
-      _state = "idle"
-      _appear_callback()
-      return
-    end
-
-    _dx, _dy = 0, 0
-    _x, _y = _quadratic_bezier(_ENV, 64, 128, 84), _quadratic_bezier(_ENV, 128, 64, 36)
-
-    -- イオン君のしっぽを追加
-    if ceil_rnd(10) > 7 then
-      particles:create(
-        { _x, _y },
-        "3,1,12,7,0,0,0,0,20"
-      )
-    end
-  elseif _state == ":shake" then
-    if _tick == _max_tick then
-      _state = "idle"
-      if _shake_callback then
-        _shake_callback()
-      end
-    end
-
-    _dx = 0
-    _dy = cos(t() / 0.2) * 4
-  else -- state == "idle"
-    _dx = cos(t() / 2) * 1.5
-    _dy = sin(t() / 2.5) * 1.5
+do local _ENV = ion
+  function _init(_ENV)
+    _x, _y, _dx, _dy = 84, 36, 0, 0
   end
 
-  _tick = _tick + 1
-end
+  function update(_ENV)
+    if _state == ":appear" then
+      if _tick == _max_tick then
+        _state = "idle"
+        _appear_callback()
+        return
+      end
 
-function ion.draw(_ENV)
-  local x, y, angle = _x + _dx, _y + _dy, t()
+      _dx, _dy = 0, 0
+      _x, _y = _quadratic_bezier(_ENV, 64, 128, 84), _quadratic_bezier(_ENV, 128, 64, 36)
 
-  fillp(23130.5)
-  circfill(x, y, 8 + 2 * sin(angle), 12)
-  fillp()
-  circfill(x, y, 6 + 2 * sin(1.5 * angle), 12)
-  circfill(x, y, 5 + sin(2.5 * angle), 7)
-end
+      -- イオン君のしっぽを追加
+      if ceil_rnd(10) > 7 then
+        particles:create(
+          { _x, _y },
+          "3,1,12,7,0,0,0,0,20"
+        )
+      end
+    elseif _state == ":shake" then
+      if _tick == _max_tick then
+        _state = "idle"
+        if _shake_callback then
+          _shake_callback()
+        end
+      end
 
--- 画面外から定位置に登場
-function ion.appear(_ENV, callback)
-  _state, _tick, _max_tick, _appear_callback = ":appear", 0, 60, callback
-  sfx(20)
-end
+      _dx = 0
+      _dy = cos(t() / 0.2) * 4
+    else -- state == "idle"
+      _dx = cos(t() / 2) * 1.5
+      _dy = sin(t() / 2.5) * 1.5
+    end
 
--- 左右に素早くゆれる
-function ion.shake(_ENV, callback)
-  _state, _tick, _max_tick, _shake_callback = ":shake", 0, 30, callback
-  sfx(20)
-end
+    _tick = _tick + 1
+  end
 
--- TODO: attack_ion と共通の関数にする
-function ion._quadratic_bezier(_ENV, from, mid, to)
-  local t = _tick / 60
-  return (1 - t) * (1 - t) * from + 2 * (1 - t) * t * mid + t * t * to
+  function draw(_ENV)
+    local x, y, angle = _x + _dx, _y + _dy, t()
+
+    fillp(23130.5)
+    circfill(x, y, 8 + 2 * sin(angle), 12)
+    fillp()
+    circfill(x, y, 6 + 2 * sin(1.5 * angle), 12)
+    circfill(x, y, 5 + sin(2.5 * angle), 7)
+  end
+
+  -- 画面外から定位置に登場
+  function appear(_ENV, callback)
+    _state, _tick, _max_tick, _appear_callback = ":appear", 0, 60, callback
+    sfx(20)
+  end
+
+  -- 左右に素早くゆれる
+  function shake(_ENV, callback)
+    _state, _tick, _max_tick, _shake_callback = ":shake", 0, 30, callback
+    sfx(20)
+  end
+
+  -- TODO: attack_ion と共通の関数にする
+  function _quadratic_bezier(_ENV, from, mid, to)
+    local t = _tick / 60
+    return (1 - t) * (1 - t) * from + 2 * (1 - t) * t * mid + t * t * to
+  end
 end
 
 return ion

@@ -6,8 +6,9 @@
 1. Preprocess every src/ file: keep `--#if SYMBOL` / `--#ifn SYMBOL` ... `--#endif` blocks
    only when SYMBOL is (or, for #ifn, is not) one of the build's symbols, and write
    `x = x + e` as `x += e` where that cannot change the result (see compound_assign).
-2. Bundle `require("path")` modules like picotool did: each module becomes
-   `package._c["path"]=function() ... end`, loaded once by a small require().
+2. Inline `require("path")` modules: each module's code goes into a `do ... end` block where it
+   is first required, so the cart needs no require() or package table. `local x = require("path")`
+   becomes `local x` and a block that ends with `x = <the module's return value>`.
 3. Minify with `shrinko8 --minify-safe-only` and add the cart data, label and title.
 
 Symbols: the cart name, `sash` for endless and rush, and `tostring,dump` in debug builds.
@@ -22,16 +23,9 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIRECTIVE = re.compile(r"\s*--#(if|ifn|endif)\b\s*(\w*)")
-REQUIRE = re.compile(r'\brequire\("([\w/]+)"\)')
+REQUIRE = re.compile(r'^(\s*)(?:local (\w+) = )?require\("([\w/]+)"\)\s*$')
 CONTINUED = re.compile(r"\s*([-+*/%^<>=~&|.,:)\]}(\[{\"']|(and|or)\b)")
 COMPOUND = re.compile(r"^(\s*)([A-Za-z_][\w.]*) = \2 ([-+*/]) (.+?)\s*$")
-REQUIRE_FUNCTION = """function require(p)
-local l=package.loaded
-if (l[p]==nil) l[p]=package._c[p]()
-if (l[p]==nil) l[p]=true
-return l[p]
-end
-"""
 # Matches the PICO-8 version pico-boots wrote, so PICO-8 runs the carts with the same compatibility settings.
 CART_VERSION = "27"
 
@@ -156,32 +150,36 @@ def compound_assign(line):
 
 
 def bundle(src, main, symbols):
-    """Return the main file's code with every required module prepended, as picotool built it."""
-    modules = {}  # require path -> code, in discovery order
+    """Return the main file's code with each module inlined in a do block at its first require."""
+    seen = set()
 
-    def visit(lines):
+    def expand(lines):
+        out = []
         for line in lines:
-            if line.lstrip().startswith("--"):
+            m = REQUIRE.match(line)
+            if not m:
+                out.append(line)
                 continue
-            for name in REQUIRE.findall(line):
-                if name not in modules:
-                    modules[name] = None
-                    code = preprocess(os.path.join(src, name + ".lua"), symbols)
-                    modules[name] = code
-                    visit(code)
+            indent, var, name = m.groups()
+            if name in seen:
+                if var:
+                    sys.exit(f"{name}: required twice with a value")
+                continue
+            seen.add(name)
+            code = expand(preprocess(os.path.join(src, name + ".lua"), symbols))
+            if var:
+                last = max(i for i, l in enumerate(code) if l.strip())
+                value = code[last].strip()
+                if not value.startswith("return "):
+                    sys.exit(f"{name}: must end with return")
+                code[last] = f"{var} = {value[7:]}\n"
+                out.append(f"{indent}local {var}\n")
+            out.append("do\n")
+            out.extend(code)
+            out.append("\nend\n")
+        return out
 
-    main_code = preprocess(os.path.join(src, main), symbols)
-    visit(main_code)
-    if not modules:
-        return "".join(main_code)
-    parts = ["package={loaded={},_c={}}\n"]
-    for name, code in modules.items():
-        parts.append(f'package._c["{name}"]=function()\n')
-        parts.extend(code)
-        parts.append("\nend\n")
-    parts.append(REQUIRE_FUNCTION)
-    parts.extend(main_code)
-    return "".join(parts)
+    return "".join(expand(preprocess(os.path.join(src, main), symbols)))
 
 
 def main():

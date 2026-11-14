@@ -29,90 +29,92 @@ end)
 
 -- TODO: span, height は garbage の特異プロパティにする？ 検討
 -- TODO: _timer_landing の初期化いる？ 検討
-function block_class._init(_ENV, _type, _span, _height)
-  type, state, span, height, sprite_set, _timer_landing =
-      _type, "idle", _span or 1, _height or 1, sprites[_type], 0
-end
-
--- NOTE: board クラスでは「ブロックが落とせない状態か？」という判定しか行わないため、
--- not block:is_fallable() ではなく block:is_not_fallable() と書けるようにする。
--- これによって "not" のトークンを削減
-function block_class.is_not_fallable(_ENV)
-  return type == "i" or type == "?" or state == "swap" or state == "freeze" or state == "match"
-end
-
-function block_class.is_reducible(_ENV)
-  return state == "idle" and type ~= "i" and type ~= "?"
-end
-
-function block_class.is_swappable_state(_ENV)
-  return state == "idle" or state == "fall"
-end
-
-function block_class.swap_with(_ENV, direction)
-  chain_id, swap_direction = nil, direction
-  change_state(_ENV, "swap")
-end
-
-function block_class.hover(_ENV, _timer)
-  timer = _timer or 12 -- ホバー状態はデフォルトで 12 フレーム
-  change_state(_ENV, "hover")
-end
-
-function block_class.fall(_ENV)
-  --#if assert
-  assert(not is_not_fallable(_ENV), "block " .. type)
-  assert(x, "x is not set")
-  assert(y, "y is not set")
-  --#endif
-
-  if state ~= "fall" then
-    change_state(_ENV, "fall")
+do local _ENV = block_class
+  function _init(_ENV, _type, _span, _height)
+    type, state, span, height, sprite_set, _timer_landing =
+        _type, "idle", _span or 1, _height or 1, sprites[_type], 0
   end
-end
 
-function block_class.replace_with(_ENV, other, match_index, _chain_id, garbage_span, garbage_height)
-  new_block, _match_index, _tick_match, chain_id, other.chain_id, _garbage_span, _garbage_height =
-      other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height
+  -- NOTE: board クラスでは「ブロックが落とせない状態か？」という判定しか行わないため、
+  -- not block:is_fallable() ではなく block:is_not_fallable() と書けるようにする。
+  -- これによって "not" のトークンを削減
+  function is_not_fallable(_ENV)
+    return type == "i" or type == "?" or state == "swap" or state == "freeze" or state == "match"
+  end
 
-  change_state(_ENV, "match")
-end
+  function is_reducible(_ENV)
+    return state == "idle" and type ~= "i" and type ~= "?"
+  end
 
-function block_class.update(_ENV)
-  if state == "idle" then
-    if _timer_landing > 0 then
-      _timer_landing = _timer_landing - 1
+  function is_swappable_state(_ENV)
+    return state == "idle" or state == "fall"
+  end
+
+  function swap_with(_ENV, direction)
+    chain_id, swap_direction = nil, direction
+    change_state(_ENV, "swap")
+  end
+
+  function hover(_ENV, _timer)
+    timer = _timer or 12 -- ホバー状態はデフォルトで 12 フレーム
+    change_state(_ENV, "hover")
+  end
+
+  function fall(_ENV)
+    --#if assert
+    assert(not is_not_fallable(_ENV), "block " .. type)
+    assert(x, "x is not set")
+    assert(y, "y is not set")
+    --#endif
+
+    if state ~= "fall" then
+      change_state(_ENV, "fall")
     end
-  elseif state == "swap" then
-    if _tick_swap < block_swap_animation_frame_count then
-      _tick_swap = _tick_swap + 1
-    else
-      chain_id = nil
-      change_state(_ENV, "idle")
-    end
-  elseif state == "hover" then
-    if timer > 0 then
-      timer = timer - 1
-    else
-      change_state(_ENV, "idle")
-    end
-  elseif state == "match" then
-    if _tick_match <= block_match_animation_frame_count + _match_index * block_match_delay_per_block then
-      _tick_match = _tick_match + 1
-    else
-      change_state(_ENV, "idle")
+  end
 
-      if _garbage_span then
-        new_block._tick_freeze = 0
-        new_block._freeze_frame_count = (_garbage_span * _garbage_height - _match_index) * block_match_delay_per_block
-        new_block:change_state("freeze")
+  function replace_with(_ENV, other, match_index, _chain_id, garbage_span, garbage_height)
+    new_block, _match_index, _tick_match, chain_id, other.chain_id, _garbage_span, _garbage_height =
+        other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height
+
+    change_state(_ENV, "match")
+  end
+
+  function update(_ENV)
+    if state == "idle" then
+      if _timer_landing > 0 then
+        _timer_landing = _timer_landing - 1
       end
-    end
-  elseif state == "freeze" then
-    if _tick_freeze < _freeze_frame_count then
-      _tick_freeze = _tick_freeze + 1
-    else
-      change_state(_ENV, "idle")
+    elseif state == "swap" then
+      if _tick_swap < block_swap_animation_frame_count then
+        _tick_swap = _tick_swap + 1
+      else
+        chain_id = nil
+        change_state(_ENV, "idle")
+      end
+    elseif state == "hover" then
+      if timer > 0 then
+        timer = timer - 1
+      else
+        change_state(_ENV, "idle")
+      end
+    elseif state == "match" then
+      if _tick_match <= block_match_animation_frame_count + _match_index * block_match_delay_per_block then
+        _tick_match = _tick_match + 1
+      else
+        change_state(_ENV, "idle")
+
+        if _garbage_span then
+          new_block._tick_freeze = 0
+          new_block._freeze_frame_count = (_garbage_span * _garbage_height - _match_index) * block_match_delay_per_block
+          new_block:change_state("freeze")
+        end
+      end
+    elseif state == "freeze" then
+      if _tick_freeze < _freeze_frame_count then
+        _tick_freeze = _tick_freeze + 1
+      else
+        change_state(_ENV, "idle")
+      end
     end
   end
 end

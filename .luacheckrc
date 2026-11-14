@@ -8,6 +8,7 @@ std = "lua52"
 ignore = {
   "1..",      -- globals: meaningless with the _ENV object idiom
   "21./_ENV", -- methods receive _ENV even when they do not use it; `local _ENV = self` scopes field access
+  "431/_ENV", -- methods inside `do local _ENV = class ... end` take their own _ENV argument
   "212/self", -- `function obj:method()` overrides keep the method signature
   "212/each_.*", -- for_all_* callbacks receive (block, x, y)
   "214",      -- `_`-prefixed names are used as constructor arguments, not as "unused" hints
