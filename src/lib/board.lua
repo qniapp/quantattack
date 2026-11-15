@@ -36,8 +36,8 @@ do local _ENV = board_class
         {}, {}, {}, {}, false, unpack_split"0,0,0,600,0,0"
 
     tick, steps, pending_garbage_blocks, _flash_col_timer, _flash_col_colors, _check_hover_flag, cache_reduce,
-    cache_is_block_fallable, cache_is_empty =
-        0, 0, pending_garbage_blocks_class(), {}, split"1,1,1,1,1,1,5,5,5,5,5,13,13,7", {}, {}, {}, {}
+    cache_is_block_fallable, cache_is_empty, _gates, _gate_swaps, _gate_chain =
+        0, 0, pending_garbage_blocks_class(), {}, split"1,1,1,1,1,1,5,5,5,5,5,13,13,7", {}, {}, {}, {}, {}, {}, {}
 
     for y = 0, rows do
       reducible_blocks[y], _check_hover_flag[y] = {}, {}
@@ -89,7 +89,9 @@ do local _ENV = board_class
 
         local targets = reduction.to
         if #targets > 0 then
+          -- SWAP から探した簡約では SWAP が止まったまま残るので、キャッシュを捨てないと同じ簡約をくり返す
           local chain_id = reduction.chain_id
+          cache_reduce[y][x] = nil
 
           -- 新しい chain_id の場合 _chain_count を 1 に初期化する
           if _chain_count[chain_id] then
@@ -115,7 +117,7 @@ do local _ENV = board_class
           for index, r in pairs(targets) do
             sfx(35)
 
-            local target_x, target_y, new_block = x + (r.dx and reduction.dx or 0), y + (r.dy or 0), block_class(r.block_type)
+            local target_x, target_y, new_block = r.x or x + (r.dx and reduction.dx or 0), y + (r.dy or 0), block_class(r.block_type)
 
             if new_block.type == "swap" or new_block.type == "cnot_x" or new_block.type == "control" then
               new_block.other_x = x + (r.dx and 0 or reduction.dx)
@@ -268,6 +270,11 @@ do local _ENV = board_class
     return _memoize(_ENV, _reduce_nocache, cache_reduce, x, y)
   end
 
+  -- H, X, Y, Z, S, T のどれかで、止まっているブロックかどうか (block は reducible_blocks から取り出したもの)
+  local function _is_single_gate(block)
+    return block and #block.type == 1 and block.type ~= "g"
+  end
+
   function _reduce_nocache(_ENV, x, y, include_next_blocks)
     local reduction, block = { to = {}, score = 0 }, blocks[y][x]
     for _, rule in pairs(reduction_rules[block.type] or {}) do
@@ -352,33 +359,71 @@ do local _ENV = board_class
       ::next_rule::
     end
 
-    -- G, SWAP, SWAP, ..., G (issue #125): 二段以上の SWAP で別の列へ移ったゲート G 同士を簡約する。
-    -- 何列にもまたがるのでパターン文字列では書けない。CPU 負荷を抑えるため、上の SWAP からだけ探す
+    -- G1, (SWAP | G2)..., G1 (issue #125): 二段以上の SWAP であみだくじのようにつながったゲートの列を、
+    -- 一列のパターン (h x h や t s z t など) と照らして簡約する。何列にもまたがるのでパターン文字列では書けない。
+    -- CPU 負荷を抑えるため、SWAP からだけ探す
     if block.type == "swap" and #reduction.to == 0 then
-      local top, cx, cy = reducible_blocks[y + 1] and reducible_blocks[y + 1][x], x, y
-      local chain_id = top and top.chain_id
-      -- 止まっている SWAP の両端をたどって、ゲートがどの列へ運ばれるかを追う
-      while cy > 0 do
-        local swap1 = reducible_blocks[cy][cx]
-        local swap2 = swap1 and swap1.type == "swap" and reducible_blocks[cy][swap1.other_x]
-        if not (swap2 and swap2.type == "swap" and swap2.other_x == cx) then
+      -- SWAP の上にすきまなく積まれたゲート (最大 3 個) から始めて、
+      -- 止まっている SWAP の両端をたどり、ゲートを運ばれる順に集める。空きやそのほかのブロックで止める
+      local top, n, swaps, cx, cy, chain_id = y, 0, 0, x, y
+      while top - y < 3 and _is_single_gate(reducible_blocks[top + 1] and reducible_blocks[top + 1][x]) do
+        top = top + 1
+      end
+      for each_y = top, y + 1, -1 do
+        n = n + 1
+        _gates[n], _gate_swaps[n] = reducible_blocks[each_y][x], 0
+      end
+      -- _gate_chain: SWAP からそのゲートまでのうち、いちばん下のブロックの chain_id
+      while n > 0 and cy > 0 do
+        local cell = reducible_blocks[cy][cx]
+        local other = cell and cell.type == "swap" and reducible_blocks[cy][cell.other_x]
+        if other and other.type == "swap" and other.other_x == cx then
+          chain_id, cx, swaps = other.chain_id or cell.chain_id or chain_id, cell.other_x, swaps + 1
+        elseif _is_single_gate(cell) then
+          chain_id, n = cell.chain_id or chain_id, n + 1
+          _gates[n], _gate_swaps[n], _gate_chain[n] = cell, swaps, chain_id
+        else
           break
         end
-        -- 既存のパターンと同じく、下のブロックの chain_id を優先する
-        chain_id, cx, cy = swap2.chain_id or swap1.chain_id or chain_id, swap1.other_x, cy - 1
+        cy = cy - 1
       end
-      local bottom = cy > 0 and y - cy > 1 and reducible_blocks[cy][cx]
-      if top and bottom and #top.type == 1 and top.type ~= "g" and bottom.type == top.type then
-        reduction = {
-          to = {
-            { dy = 1, block_type = top.type == "t" and "s" or top.type == "s" and "z" or "i" },
-            { dx = true, dy = cy - y, block_type = "i" }
-          },
-          dx = cx - x,
-          score = 60,
-          chain_id = bottom.chain_id or chain_id or x .. "," .. y,
-          contains_swap = true
-        }
+      -- 上のゲートから順に、そこを先頭とするパターンを探す
+      for first = 1, top - y do
+        for _, rule in pairs(reduction_rules[_gates[first].type]) do
+          local rows, last = rule[1], first + #rule[1] - 1
+          if last > n then
+            break
+          end
+          -- SWAP が 1 段だけのものは既存のパターンが簡約する
+          if _gate_swaps[last] - _gate_swaps[first] < 2 then
+            goto next_swap_rule
+          end
+          for i, row in pairs(rows) do
+            if row[2] or _gates[first + i - 1].type ~= row[1] then
+              goto next_swap_rule
+            end
+          end
+          do
+            -- 既存のパターンと同じく、下のブロックの chain_id を優先する
+            local to, top_chain_id = {}
+            for i = first, top - y do
+              top_chain_id = _gates[i].chain_id or top_chain_id
+            end
+            for i, r in pairs(rule[2]) do
+              -- 2 個のパターン (G, G) は、issue #125 のときのとおり上のゲートを残す
+              local gate = _gates[first - (r.dy or 0)]
+              add(to, { x = gate.x, dy = gate.y - y, block_type = (#rows == 2 and rule[2][3 - i] or r).block_type })
+            end
+            return {
+              to = to,
+              -- SWAP を 1 段だけはさんだパターンと同じ点数
+              score = rule[3] + (#rows == 2 and 50 or 40),
+              chain_id = _gate_chain[last] or top_chain_id or x .. "," .. y,
+              contains_swap = true
+            }
+          end
+          ::next_swap_rule::
+        end
       end
     end
 

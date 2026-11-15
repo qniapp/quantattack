@@ -1718,6 +1718,115 @@ describe('ブロックの簡約パターン', function()
     assert.are.equal("chain", block_at(1, 4).chain_id)
   end)
 
+  -- SWAP であみだくじのようにつながったゲートの列
+  --
+  -- ┌───┐
+  -- │ T │                          I
+  -- └───┘
+  --   X────────X            ───>   X────────X
+  --          ┌───┐
+  --          │ S │                          I
+  --          └───┘
+  --            X────────X                   X────────X
+  --                   ┌───┐
+  --                   │ Z │                          I
+  --                   └───┘
+  --                     X────────X                   X────────X
+  --                            ┌───┐
+  --                            │ T │                          I
+  --                            └───┘
+  it('T X-X S X-X Z X-X T ─> X-X X-X X-X (70 点)', function()
+    local score = 0
+    put(1, 7, "t")
+    put(1, 6, "swap", 2)
+    put(2, 6, "swap", 1)
+    put(2, 5, "s")
+    put(2, 4, "swap", 3)
+    put(3, 4, "swap", 2)
+    put(3, 3, "z")
+    put(3, 2, "swap", 4)
+    put(4, 2, "swap", 3)
+    put(4, 1, "t")
+
+    board:reduce_blocks({ reduce_callback = function(points) score = score + points end }, {})
+
+    assert.becomes_i(block_at(1, 7))
+    assert.becomes_i(block_at(2, 5))
+    assert.becomes_i(block_at(3, 3))
+    assert.becomes_i(block_at(4, 1))
+    assert.is_nil(block_at(2, 4).new_block)
+    assert.are.equal(70, score)
+  end)
+
+  it('H X-X X X-X H ─> X-X X-X Z', function()
+    put(1, 5, "h")
+    put(1, 4, "swap", 2)
+    put(2, 4, "swap", 1)
+    put(2, 3, "x")
+    put(2, 2, "swap", 3)
+    put(3, 2, "swap", 2)
+    put(3, 1, "h")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 5))
+    assert.becomes_i(block_at(2, 3))
+    assert.becomes_z(block_at(3, 1))
+  end)
+
+  it('T S X-X Z X-X T ─> X-X X-X (上に積まれたゲートから始まる)', function()
+    put(1, 6, "t")
+    put(1, 5, "s")
+    put(1, 4, "swap", 2)
+    put(2, 4, "swap", 1)
+    put(2, 3, "z")
+    put(2, 2, "swap", 3)
+    put(3, 2, "swap", 2)
+    put(3, 1, "t")
+
+    reduce_blocks()
+
+    assert.becomes_i(block_at(1, 6))
+    assert.becomes_i(block_at(1, 5))
+    assert.becomes_i(block_at(2, 3))
+    assert.becomes_i(block_at(3, 1))
+  end)
+
+  -- 簡約したあとも SWAP は止まったままなので、同じ簡約をくり返さない (連鎖数が増えていくバグ)
+  it('H X-X X-X H: 一度だけ簡約する', function()
+    local count = 0
+    put(1, 4, "h")
+    put(1, 3, "swap", 2)
+    put(2, 3, "swap", 1)
+    put(2, 2, "swap", 3)
+    put(3, 2, "swap", 2)
+    put(3, 1, "h")
+    local game = { reduce_callback = function(points) if points > 0 then count = count + 1 end end }
+
+    board:reduce_blocks(game, {})
+    board:reduce_blocks(game, {})
+
+    assert.are.equal(1, count)
+  end)
+
+  -- あみだの間に空きがあると、H H の間に空きがあるときと同じく消えない
+  it('T X-X S X-X _ T: 空きがあると消えない', function()
+    put(1, 6, "t")
+    put(1, 5, "swap", 2)
+    put(2, 5, "swap", 1)
+    put(2, 4, "s")
+    put(2, 3, "swap", 3)
+    put(3, 3, "swap", 2)
+    put(3, 1, "t")
+    put(4, 1, "h")
+    put(4, 2, "h")
+
+    reduce_blocks()
+
+    assert.is_nil(block_at(1, 6).new_block)
+    assert.is_nil(block_at(3, 1).new_block)
+  end)
+
   -----------------------------------------------------------------------------
   -- 70 Points
   -----------------------------------------------------------------------------

@@ -1,0 +1,4 @@
+# cart: endless param: s;z;y;h;t;s|i;swap,3;swap,2;i;i;i|i;x;i;i;i;i|swap,2;swap,1;i;i;i;i|h;i;i;i;i;i
+# H, SWAP, X, SWAP, H: an X between two stacked SWAPs. The bottom H is swapped into place under
+# the second SWAP; the top H and the X disappear and the bottom H becomes Z (score 60), once.
+250 shot 1 down 4 down 4 down 4 down 4 down 4 shot 1 x 6 shot 1 20 shot 1 40 shot 1 100 shot 1 100 shot 1
