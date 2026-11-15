@@ -46,8 +46,9 @@ do local _ENV = block_class
     return type == "i" or type == "?" or state == "swap" or state == "freeze" or state == "match"
   end
 
+  -- 押し上げられて浮いているブロックは、下りきるまでマッチしない
   function is_reducible(_ENV)
-    return state == "idle" and type ~= "i" and type ~= "?"
+    return state == "idle" and type ~= "i" and type ~= "?" and jump_dy == 0
   end
 
   -- 押し上げられているブロックは、QA2 と同じく入れ替えられない
@@ -72,9 +73,7 @@ do local _ENV = block_class
     assert(y, "y is not set")
     --#endif
 
-    if state ~= "fall" then
-      change_state(_ENV, "fall")
-    end
+    change_state(_ENV, "fall")
   end
 
   -- マッチしたゲートは match_group (同じマッチのブロックと rows: 段数) と match_index (下から何段目か)
@@ -96,6 +95,12 @@ do local _ENV = block_class
       if _jump_hold < 0 and state == "idle" then
         -- 押し上げる高さはどれも偶数 (12, 24, 36, 48, 72 とその和) なので、ちょうど 0 で止まる
         jump_dy = jump_dy - 2
+        -- 下りきったところで着地する。マッチできるようになったことを盤面に知らせ、ふつうの着地と同じく
+        -- 次のフレームのマッチの判定を chain_id を消すより先にする (このフレームのうちに 12 になる)
+        if jump_dy == 0 then
+          _timer_landing = 13
+          observer:observable_update(_ENV)
+        end
       end
     end
 
@@ -207,7 +212,8 @@ do local _ENV = block_class
   end
 
   function change_state(_ENV, new_state)
-    _timer_landing, _tick_swap = (state == "fall") and 12 or 0, 0
+    -- 押し上げられて浮いたまま落ちてきたときは、下りきるまで着地しない
+    _timer_landing, _tick_swap = state == "fall" and jump_dy == 0 and 12 or 0, 0
 
     local old_state = state
     state = new_state

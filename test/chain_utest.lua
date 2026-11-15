@@ -68,9 +68,10 @@ describe('連鎖 (chain)', function()
     put(1, 2, 'h')
     put(1, 1, 'h')
 
+    -- 押し上げられた X と T が落ちて、押し上げから下りきって着地するまで
     repeat
       board:update()
-    until block_at(1, 1).type == "x" and block_at(1, 1).state == "idle"
+    until block_at(1, 1).type == "x" and block_at(1, 1).state == "idle" and block_at(1, 1).jump_dy == 0
 
     --  ┌───┐
     --  │ T │
@@ -455,11 +456,14 @@ describe('連鎖 (chain)', function()
     block_at(5, 4).type = "x"
     block_at(6, 4).type = "x"
 
-    -- おじゃまブロックの上段が落ちるまで待つ
+    -- おじゃまブロックの上段が落ちて、押し上げから下りきって着地するまで待つ
     repeat
       board:update()
-    until block_at(2, 2).type == 'x' and block_at(2, 2).state == "idle"
-    board:update()
+    until block_at(2, 2).type == 'x' and block_at(2, 2).state == "idle" and block_at(2, 2).jump_dy == 0
+    -- 押し上げられていたブロックもすべて下りきって着地するまで
+    for _ = 1, 60 do
+      board:update()
+    end
 
     -- 落ちてきたおじゃまブロックの上段の chain_id が nil になる
     assert.is_nil(block_at(1, 3).chain_id)

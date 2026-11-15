@@ -849,8 +849,9 @@ do local _ENV = board_class
             top_block_y = y
           end
 
-          -- 着地したブロックの chain_id を消す
-          if block.state == "idle" and block._timer_landing ~= 0 and not blocks[y - 1][x].chain_id then
+          -- 着地したブロックの chain_id を消す。押し上げから下りきって着地したフレーム (_timer_landing が 12) は
+          -- まだ消さず、次のフレームのマッチの判定を先にする (ふつうの着地では、ここではもう 11 以下)
+          if block.state == "idle" and block._timer_landing % 12 > 0 and not blocks[y - 1][x].chain_id then
             block.chain_id = nil
           end
 
@@ -874,9 +875,8 @@ do local _ENV = board_class
                 end
               elseif is_empty(_ENV, x, y - 1) then
                 -- 落下中のブロックをひとつ下に移動
-                block.fall_dy = -24
                 for each in all{ block, other_block } do
-                  each.state = "fall"
+                  each.state, each.fall_dy = "fall", -24
                   remove_block(_ENV, each.x, y)
                   put(_ENV, each.x, y - 1, each)
                 end
