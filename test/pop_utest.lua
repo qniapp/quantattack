@@ -306,15 +306,19 @@ describe('マッチしたブロックが下からはじける', function()
   --  │ H │          2 段目
   -- ─┴───┴─────────
   it("おじゃまブロックは、下で下りているブロックにめり込まない", function()
-    board:put(1, 4, garbage_block(3))
-    put(1, 2, 'h')
+    -- すきまをあけて落ちる場合と、すぐ上に載っていっしょに落ちだす場合
+    for _, garbage_y in pairs({ 4, 3 }) do
+      board = board_class()
+      board:put(1, garbage_y, garbage_block(3))
+      put(1, 2, 'h')
 
-    for _ = 1, 40 do
-      board:update()
-      local h, g = block_at(1, 1), board:block_at(1, 2)
-      if h.type == 'h' and g.type == 'g' then
-        -- すぐ上のマスにいるとき、下のブロックより下には描かない
-        assert.is_true(g.fall_dy <= h.fall_dy)
+      for _ = 1, 40 do
+        board:update()
+        local h, g = block_at(1, 1), board:block_at(1, 2)
+        if h.type == 'h' and g.type == 'g' then
+          -- すぐ上のマスにいるとき、下のブロックより下には描かない
+          assert.is_true(g.fall_dy <= h.fall_dy)
+        end
       end
     end
   end)

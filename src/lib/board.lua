@@ -858,34 +858,38 @@ do local _ENV = board_class
           -- おじゃまブロックは秒速 15 マス (4 フレームで 1 マス)。ブロックは先に下のマスに移り、
           -- fall_dy (負、1/3 ドット単位) だけ上にずらして描きながら、そのマスまで下りてくる。
           -- 入れ替え中も下り続け、下で下りているブロックより下には描かない。CNOT と SWAP は左の端が移す
-          local other_block, step = row[block.other_x], block.type == "g" and 6 or 2
-          if block.fall_dy < 0 then
-            block.fall_dy = min(block.fall_dy + step, 0)
-            for_all_nonempty_blocks_below(_ENV, x, y, function(each)
-              block.fall_dy = min(block.fall_dy, each.fall_dy)
-            end)
-          elseif block.state == "fall" and (not block.other_x or x < block.other_x) then
-            if not _is_block_fallable(_ENV, x, y) then
-              if block.type == "g" then
-                bounce(_ENV)
-                sfx(9)
-                block.first_drop = false
-              end
+          local other_block = row[block.other_x]
+          if (block.other_x or 9) > x then
+            if block.state == "fall" and block.fall_dy == 0 then
+              if not _is_block_fallable(_ENV, x, y) then
+                if block.type == "g" then
+                  bounce(_ENV)
+                  sfx(9)
+                  block.first_drop = false
+                end
 
-              block:change_state"idle"
-              if other_block then
-                other_block:change_state"idle"
+                block:change_state"idle"
+                if other_block then
+                  other_block:change_state"idle"
+                end
+              elseif is_empty(_ENV, x, y - 1) then
+                -- 落下中のブロックをひとつ下に移動
+                block.fall_dy = -24
+                for each in all{ block, other_block } do
+                  each.state = "fall"
+                  remove_block(_ENV, each.x, y)
+                  put(_ENV, each.x, y - 1, each)
+                end
               end
-            elseif is_empty(_ENV, x, y - 1) then
-              -- 落下中のブロックをひとつ下に移動
-              remove_block(_ENV, x, y)
-              put(_ENV, x, y - 1, block)
-              block.fall_dy = step - 24
-
+            end
+            -- 移ったばかりのフレームも含め、下で下りているブロックより下には描かない
+            if block.fall_dy < 0 then
+              block.fall_dy = min(block.fall_dy + (block.type == "g" and 6 or 2), 0)
+              for_all_nonempty_blocks_below(_ENV, x, block.y, function(each)
+                block.fall_dy = min(block.fall_dy, each.fall_dy)
+              end)
               if other_block then
-                other_block.state, other_block.fall_dy = "fall", block.fall_dy
-                remove_block(_ENV, block.other_x, y)
-                put(_ENV, block.other_x, y - 1, other_block)
+                other_block.fall_dy = block.fall_dy
               end
             end
           end
