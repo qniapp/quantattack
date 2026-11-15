@@ -1809,6 +1809,21 @@ describe('ブロックの簡約パターン', function()
     assert.are.equal(1, count)
   end)
 
+  -- # ブロック (チュートリアル) はゲートではないので、あみだの列に入らない
+  it('# X-X X-X #: 消えない', function()
+    put(1, 4, "#")
+    put(1, 3, "swap", 2)
+    put(2, 3, "swap", 1)
+    put(2, 2, "swap", 3)
+    put(3, 2, "swap", 2)
+    put(3, 1, "#")
+
+    reduce_blocks()
+
+    assert.is_nil(block_at(1, 4).new_block)
+    assert.is_nil(block_at(3, 1).new_block)
+  end)
+
   -- あみだの間に空きがあると、H H の間に空きがあるときと同じく消えない
   it('T X-X S X-X _ T: 空きがあると消えない', function()
     put(1, 6, "t")

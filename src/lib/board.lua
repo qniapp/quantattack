@@ -271,8 +271,9 @@ do local _ENV = board_class
   end
 
   -- H, X, Y, Z, S, T のどれかで、止まっているブロックかどうか (block は reducible_blocks から取り出したもの)
+  -- 1 文字のブロックのうち、おじゃまブロック g と # には簡約ルールがない
   local function _is_single_gate(block)
-    return block and #block.type == 1 and block.type ~= "g"
+    return block and #block.type == 1 and reduction_rules[block.type]
   end
 
   function _reduce_nocache(_ENV, x, y, include_next_blocks)
