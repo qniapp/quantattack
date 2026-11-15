@@ -418,10 +418,10 @@ do local _ENV = board_class
             for i = first, top - y do
               top_chain_id = _gates[i].chain_id or top_chain_id
             end
-            for i, r in pairs(rule[2]) do
-              -- 2 個のパターン (G, G) は、issue #125 のときのとおり上のゲートを残す
+            for r in all(rule[2]) do
+              -- QA2 と同じく、結果はいちばん上のゲートの場所に出る (ルールの結果は上の段から並ぶ)
               local gate = _gates[first - r.dy]
-              add(to, { x = gate.x, dy = gate.y - y, block_type = (#rows == 2 and rule[2][3 - i] or r).block_type })
+              add(to, { x = gate.x, dy = gate.y - y, block_type = r.block_type })
             end
             return {
               to = to,

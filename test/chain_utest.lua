@@ -174,9 +174,10 @@ describe('連鎖 (chain)', function()
     put(1, 2, 't')
     put(1, 1, 't')
 
+    -- 結果はいちばん上のマスに出るので、最後の Z Z が消えて列が空になるまで進める
     repeat
       board:update()
-    until block_at(1, 1).type == 'i'
+    until block_at(1, 1).type == 'i' and block_at(1, 2).type == 'i'
 
     assert.are.equal(3, board._chain_count["1,2"])
   end)

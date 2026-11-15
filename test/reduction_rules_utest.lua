@@ -324,47 +324,47 @@ describe('ブロックの簡約パターン', function()
     assert.becomes_i(block_at(1, 1))
   end)
 
-  -- ┌───┐
-  -- │ S │        I
-  -- ├───┤ ───> ┌───┐
+  -- ┌───┐      ┌───┐
   -- │ S │      │ Z │
-  -- └───┘      └───┘
+  -- ├───┤ ───> └───┘
+  -- │ S │        I
+  -- └───┘
   it('SS ─> Z', function()
     put(1, 2, "s")
     put(1, 1, "s")
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 2))
-    assert.becomes_z(block_at(1, 1))
+    assert.becomes_z(block_at(1, 2))
+    assert.becomes_i(block_at(1, 1))
   end)
 
-  -- ┌───┐
-  -- │ T │        I
-  -- ├───┤ ───> ┌───┐
+  -- ┌───┐      ┌───┐
   -- │ T │      │ S │
-  -- └───┘      └───┘
+  -- ├───┤ ───> └───┘
+  -- │ T │        I
+  -- └───┘
   it('TT ─> S', function()
     put(1, 2, "t")
     put(1, 1, "t")
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 2))
-    assert.becomes_s(block_at(1, 1))
+    assert.becomes_s(block_at(1, 2))
+    assert.becomes_i(block_at(1, 1))
   end)
 
   -----------------------------------------------------------------------------
   -- 20 Points
   -----------------------------------------------------------------------------
 
-  -- ┌───┐
-  -- │ H │        I
-  -- ├───┤ ───>
-  -- │ X │        I
-  -- ├───┤ ───> ┌───┐
+  -- ┌───┐      ┌───┐
   -- │ H │      │ Z │
-  -- └───┘      └───┘
+  -- ├───┤ ───> └───┘
+  -- │ X │        I
+  -- ├───┤ ───>
+  -- │ H │        I
+  -- └───┘
   it('HXH ─> Z', function()
     put(1, 3, "h")
     put(1, 2, "x")
@@ -372,18 +372,18 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 3))
+    assert.becomes_z(block_at(1, 3))
     assert.becomes_i(block_at(1, 2))
-    assert.becomes_z(block_at(1, 1))
+    assert.becomes_i(block_at(1, 1))
   end)
 
-  -- ┌───┐
-  -- │ H │        I
-  -- ├───┤ ───>
-  -- │ Y │        I
-  -- ├───┤ ───> ┌───┐
+  -- ┌───┐      ┌───┐
   -- │ H │      │ Y │
-  -- └───┘      └───┘
+  -- ├───┤ ───> └───┘
+  -- │ Y │        I
+  -- ├───┤ ───>
+  -- │ H │        I
+  -- └───┘
   it('HYH ─> Y', function()
     put(1, 3, "h")
     put(1, 2, "y")
@@ -391,18 +391,18 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 3))
+    assert.becomes_y(block_at(1, 3))
     assert.becomes_i(block_at(1, 2))
-    assert.becomes_y(block_at(1, 1))
+    assert.becomes_i(block_at(1, 1))
   end)
 
-  -- ┌───┐
-  -- │ H │        I
-  -- ├───┤ ───>
-  -- │ Z │        I
-  -- ├───┤ ───> ┌───┐
+  -- ┌───┐      ┌───┐
   -- │ H │      │ X │
-  -- └───┘      └───┘
+  -- ├───┤ ───> └───┘
+  -- │ Z │        I
+  -- ├───┤ ───>
+  -- │ H │        I
+  -- └───┘
   it('HZH ─> X', function()
     put(1, 3, "h")
     put(1, 2, "z")
@@ -410,18 +410,18 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 3))
+    assert.becomes_x(block_at(1, 3))
     assert.becomes_i(block_at(1, 2))
-    assert.becomes_x(block_at(1, 1))
+    assert.becomes_i(block_at(1, 1))
   end)
 
-  -- ┌───┐
-  -- │ S │        I
-  -- ├───┤ ───>
-  -- │ X │        I
-  -- ├───┤ ───> ┌───┐
+  -- ┌───┐      ┌───┐
   -- │ S │      │ X │
-  -- └───┘      └───┘
+  -- ├───┤ ───> └───┘
+  -- │ X │        I
+  -- ├───┤ ───>
+  -- │ S │        I
+  -- └───┘
   it('SXS ─> X', function()
     put(1, 3, "s")
     put(1, 2, "x")
@@ -429,18 +429,18 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 3))
+    assert.becomes_x(block_at(1, 3))
     assert.becomes_i(block_at(1, 2))
-    assert.becomes_x(block_at(1, 1))
+    assert.becomes_i(block_at(1, 1))
   end)
 
-  -- ┌───┐
-  -- │ S │        I
-  -- ├───┤ ───>
-  -- │ Y │        I
-  -- ├───┤ ───> ┌───┐
+  -- ┌───┐      ┌───┐
   -- │ S │      │ Y │
-  -- └───┘      └───┘
+  -- ├───┤ ───> └───┘
+  -- │ Y │        I
+  -- ├───┤ ───>
+  -- │ S │        I
+  -- └───┘
   it('SYS ─> Y', function()
     put(1, 3, "s")
     put(1, 2, "y")
@@ -448,9 +448,9 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 3))
+    assert.becomes_y(block_at(1, 3))
     assert.becomes_i(block_at(1, 2))
-    assert.becomes_y(block_at(1, 1))
+    assert.becomes_i(block_at(1, 1))
   end)
 
   -- ┌───┐
@@ -472,13 +472,13 @@ describe('ブロックの簡約パターン', function()
     assert.becomes_i(block_at(1, 1))
   end)
 
-  -- ┌───┐
-  -- │ T │        I
-  -- ├───┤ ───>
-  -- │ S │        I
-  -- ├───┤ ───> ┌───┐
+  -- ┌───┐      ┌───┐
   -- │ T │      │ Z │
-  -- └───┘      └───┘
+  -- ├───┤ ───> └───┘
+  -- │ S │        I
+  -- ├───┤ ───>
+  -- │ T │        I
+  -- └───┘
   it('TST ─> Z', function()
     put(1, 3, "t")
     put(1, 2, "s")
@@ -486,9 +486,9 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 3))
+    assert.becomes_z(block_at(1, 3))
     assert.becomes_i(block_at(1, 2))
-    assert.becomes_z(block_at(1, 1))
+    assert.becomes_i(block_at(1, 1))
   end)
 
   -----------------------------------------------------------------------------
@@ -893,11 +893,11 @@ describe('ブロックの簡約パターン', function()
     assert.becomes_i(block_at(1, 1))
   end)
 
-  -- ┌───┐
-  -- │ H │                 I
-  -- ├───┤               ┌───┐
-  -- │ X │               │ Z │
-  -- └───┘               └───┘
+  -- ┌───┐               ┌───┐
+  -- │ H │               │ Z │
+  -- ├───┤               └───┘
+  -- │ X │                 I
+  -- └───┘
   --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ H │                 I
@@ -911,18 +911,18 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 4))
-    assert.becomes_z(block_at(1, 3))
+    assert.becomes_z(block_at(1, 4))
+    assert.becomes_i(block_at(1, 3))
     assert.is_swap(block_at(1, 2), 3)
     assert.is_swap(block_at(3, 2), 1)
     assert.becomes_i(block_at(3, 1))
   end)
 
-  --          ┌───┐
-  --          │ H │                 I
-  --          ├───┤               ┌───┐
-  --          │ X │               │ Z │
-  --          └───┘               └───┘
+  --          ┌───┐               ┌───┐
+  --          │ H │               │ Z │
+  --          ├───┤               └───┘
+  --          │ X │                 I
+  --          └───┘
   --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ H │                 I
@@ -936,8 +936,8 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(3, 4))
-    assert.becomes_z(block_at(3, 3))
+    assert.becomes_z(block_at(3, 4))
+    assert.becomes_i(block_at(3, 3))
     assert.is_swap(block_at(1, 2), 3)
     assert.is_swap(block_at(3, 2), 1)
     assert.becomes_i(block_at(1, 1))
@@ -993,11 +993,11 @@ describe('ブロックの簡約パターン', function()
     assert.becomes_i(block_at(1, 1))
   end)
 
-  -- ┌───┐
-  -- │ H │                 I
-  -- ├───┤               ┌───┐
-  -- │ Y │               │ Y │
-  -- └───┘               └───┘
+  -- ┌───┐               ┌───┐
+  -- │ H │               │ Y │
+  -- ├───┤               └───┘
+  -- │ Y │                 I
+  -- └───┘
   --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ H │                 I
@@ -1011,18 +1011,18 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 4))
-    assert.becomes_y(block_at(1, 3))
+    assert.becomes_y(block_at(1, 4))
+    assert.becomes_i(block_at(1, 3))
     assert.is_swap(block_at(1, 2), 3)
     assert.is_swap(block_at(3, 2), 1)
     assert.becomes_i(block_at(3, 1))
   end)
 
-  --          ┌───┐
-  --          │ H │                 I
-  --          ├───┤               ┌───┐
-  --          │ Y │               │ Y │
-  --          └───┘               └───┘
+  --          ┌───┐               ┌───┐
+  --          │ H │               │ Y │
+  --          ├───┤               └───┘
+  --          │ Y │                 I
+  --          └───┘
   --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ H │                 I
@@ -1036,8 +1036,8 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(3, 4))
-    assert.becomes_y(block_at(3, 3))
+    assert.becomes_y(block_at(3, 4))
+    assert.becomes_i(block_at(3, 3))
     assert.is_swap(block_at(1, 2), 3)
     assert.is_swap(block_at(3, 2), 1)
     assert.becomes_i(block_at(1, 1))
@@ -1093,11 +1093,11 @@ describe('ブロックの簡約パターン', function()
     assert.becomes_i(block_at(1, 1))
   end)
 
-  -- ┌───┐
-  -- │ H │                 I
-  -- ├───┤               ┌───┐
-  -- │ Z │               │ X │
-  -- └───┘               └───┘
+  -- ┌───┐               ┌───┐
+  -- │ H │               │ X │
+  -- ├───┤               └───┘
+  -- │ Z │                 I
+  -- └───┘
   --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ H │                 I
@@ -1111,18 +1111,18 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 4))
-    assert.becomes_x(block_at(1, 3))
+    assert.becomes_x(block_at(1, 4))
+    assert.becomes_i(block_at(1, 3))
     assert.is_swap(block_at(1, 2), 3)
     assert.is_swap(block_at(3, 2), 1)
     assert.becomes_i(block_at(3, 1))
   end)
 
-  --          ┌───┐
-  --          │ H │                 I
-  --          ├───┤               ┌───┐
-  --          │ Z │               │ X │
-  --          └───┘               └───┘
+  --          ┌───┐               ┌───┐
+  --          │ H │               │ X │
+  --          ├───┤               └───┘
+  --          │ Z │                 I
+  --          └───┘
   --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ H │                 I
@@ -1136,8 +1136,8 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(3, 4))
-    assert.becomes_x(block_at(3, 3))
+    assert.becomes_x(block_at(3, 4))
+    assert.becomes_i(block_at(3, 3))
     assert.is_swap(block_at(1, 2), 3)
     assert.is_swap(block_at(3, 2), 1)
     assert.becomes_i(block_at(1, 1))
@@ -1193,11 +1193,11 @@ describe('ブロックの簡約パターン', function()
     assert.becomes_i(block_at(1, 1))
   end)
 
-  -- ┌───┐
-  -- │ S │                 I
-  -- ├───┤               ┌───┐
-  -- │ X │               │ X │
-  -- └───┘               └───┘
+  -- ┌───┐               ┌───┐
+  -- │ S │               │ X │
+  -- ├───┤               └───┘
+  -- │ X │                 I
+  -- └───┘
   --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ S │                 I
@@ -1211,18 +1211,18 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 4))
-    assert.becomes_x(block_at(1, 3))
+    assert.becomes_x(block_at(1, 4))
+    assert.becomes_i(block_at(1, 3))
     assert.is_swap(block_at(1, 2), 3)
     assert.is_swap(block_at(3, 2), 1)
     assert.becomes_i(block_at(3, 1))
   end)
 
-  --          ┌───┐
-  --          │ S │                 I
-  --          ├───┤               ┌───┐
-  --          │ X │               │ X │
-  --          └───┘               └───┘
+  --          ┌───┐               ┌───┐
+  --          │ S │               │ X │
+  --          ├───┤               └───┘
+  --          │ X │                 I
+  --          └───┘
   --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ S │                 I
@@ -1236,8 +1236,8 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(3, 4))
-    assert.becomes_x(block_at(3, 3))
+    assert.becomes_x(block_at(3, 4))
+    assert.becomes_i(block_at(3, 3))
     assert.is_swap(block_at(1, 2), 3)
     assert.is_swap(block_at(3, 2), 1)
     assert.becomes_i(block_at(1, 1))
@@ -1293,11 +1293,11 @@ describe('ブロックの簡約パターン', function()
     assert.becomes_i(block_at(1, 1))
   end)
 
-  -- ┌───┐
-  -- │ S │                 I
-  -- ├───┤               ┌───┐
-  -- │ Y │               │ Y │
-  -- └───┘               └───┘
+  -- ┌───┐               ┌───┐
+  -- │ S │               │ Y │
+  -- ├───┤               └───┘
+  -- │ Y │                 I
+  -- └───┘
   --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ S │                 I
@@ -1311,18 +1311,18 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 4))
-    assert.becomes_y(block_at(1, 3))
+    assert.becomes_y(block_at(1, 4))
+    assert.becomes_i(block_at(1, 3))
     assert.is_swap(block_at(1, 2), 3)
     assert.is_swap(block_at(3, 2), 1)
     assert.becomes_i(block_at(3, 1))
   end)
 
-  --          ┌───┐
-  --          │ S │                 I
-  --          ├───┤               ┌───┐
-  --          │ Y │               │ Y │
-  --          └───┘               └───┘
+  --          ┌───┐               ┌───┐
+  --          │ S │               │ Y │
+  --          ├───┤               └───┘
+  --          │ Y │                 I
+  --          └───┘
   --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ S │                 I
@@ -1336,8 +1336,8 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(3, 4))
-    assert.becomes_y(block_at(3, 3))
+    assert.becomes_y(block_at(3, 4))
+    assert.becomes_i(block_at(3, 3))
     assert.is_swap(block_at(1, 2), 3)
     assert.is_swap(block_at(3, 2), 1)
     assert.becomes_i(block_at(1, 1))
@@ -1493,11 +1493,11 @@ describe('ブロックの簡約パターン', function()
     assert.becomes_i(block_at(1, 1))
   end)
 
-  -- ┌───┐
-  -- │ T │                 I
-  -- ├───┤               ┌───┐
-  -- │ S │               │ Z │
-  -- └───┘               └───┘
+  -- ┌───┐               ┌───┐
+  -- │ T │               │ Z │
+  -- ├───┤               └───┘
+  -- │ S │                 I
+  -- └───┘
   --   X────────X   ───>   X────────X
   --          ┌───┐
   --          │ T │                 I
@@ -1511,18 +1511,18 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 4))
-    assert.becomes_z(block_at(1, 3))
+    assert.becomes_z(block_at(1, 4))
+    assert.becomes_i(block_at(1, 3))
     assert.is_swap(block_at(1, 2), 3)
     assert.is_swap(block_at(3, 2), 1)
     assert.becomes_i(block_at(3, 1))
   end)
 
-  --          ┌───┐
-  --          │ T │                 I
-  --          ├───┤               ┌───┐
-  --          │ S │               │ Z │
-  --          └───┘               └───┘
+  --          ┌───┐               ┌───┐
+  --          │ T │               │ Z │
+  --          ├───┤               └───┘
+  --          │ S │                 I
+  --          └───┘
   --   X────────X   ───>   X────────X
   -- ┌───┐
   -- │ T │                 I
@@ -1536,8 +1536,8 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(3, 4))
-    assert.becomes_z(block_at(3, 3))
+    assert.becomes_z(block_at(3, 4))
+    assert.becomes_i(block_at(3, 3))
     assert.is_swap(block_at(1, 2), 3)
     assert.is_swap(block_at(3, 2), 1)
     assert.becomes_i(block_at(1, 1))
@@ -1758,7 +1758,7 @@ describe('ブロックの簡約パターン', function()
     assert.are.equal(70, score)
   end)
 
-  it('H X-X X X-X H ─> X-X X-X Z', function()
+  it('H X-X X X-X H ─> Z X-X X-X', function()
     put(1, 5, "h")
     put(1, 4, "swap", 2)
     put(2, 4, "swap", 1)
@@ -1769,9 +1769,9 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 5))
+    assert.becomes_z(block_at(1, 5))
     assert.becomes_i(block_at(2, 3))
-    assert.becomes_z(block_at(3, 1))
+    assert.becomes_i(block_at(3, 1))
   end)
 
   it('T S X-X Z X-X T ─> X-X X-X (上に積まれたゲートから始まる)', function()
@@ -2521,13 +2521,13 @@ describe('ブロックの簡約パターン', function()
   -- 100 Points
   -----------------------------------------------------------------------------
 
-  --          ┌───┐
-  --   ●──────│ X │        I        I
-  -- ┌───┐    └───┘
+  --          ┌───┐      ┌───┐    ┌───┐
+  --   ●──────│ X │      │ S ├────┤ S │
+  -- ┌───┐    └───┘      └───┘    └───┘
   -- │ X ├──────●   ───>   I        I
-  -- └───┘    ┌───┐      ┌───┐    ┌───┐
-  --   ●──────┤ X │      │ S ├────┤ S │
-  --          └───┘      └───┘    └───┘
+  -- └───┘    ┌───┐
+  --   ●──────┤ X │        I        I
+  --          └───┘
   it('C-X X-C C-X ─> X-X', function()
     put(1, 3, "control", 3)
     put(3, 3, "cnot_x", 1)
@@ -2538,21 +2538,21 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 3))
-    assert.becomes_i(block_at(3, 3))
+    assert.becomes_swap(block_at(1, 3), 3)
+    assert.becomes_swap(block_at(3, 3), 1)
     assert.becomes_i(block_at(1, 2))
     assert.becomes_i(block_at(3, 2))
-    assert.becomes_swap(block_at(1, 1), 3)
-    assert.becomes_swap(block_at(3, 1), 1)
+    assert.becomes_i(block_at(1, 1))
+    assert.becomes_i(block_at(3, 1))
   end)
 
-  -- ┌───┐
-  -- │ X ├──────●          I        I
-  -- └───┘    ┌───┐
-  --   ●──────│ X │ ───>   I        I
-  -- ┌───┐    └───┘      ┌───┐    ┌───┐
+  -- ┌───┐               ┌───┐    ┌───┐
   -- │ X ├──────●        │ S ├────┤ S │
-  -- └───┘               └───┘    └───┘
+  -- └───┘    ┌───┐      └───┘    └───┘
+  --   ●──────│ X │ ───>   I        I
+  -- ┌───┐    └───┘
+  -- │ X ├──────●          I        I
+  -- └───┘
   it('X-C C-X X-C ─> X-X', function()
     put(1, 3, "cnot_x", 3)
     put(3, 3, "control", 1)
@@ -2563,12 +2563,12 @@ describe('ブロックの簡約パターン', function()
 
     reduce_blocks()
 
-    assert.becomes_i(block_at(1, 3))
-    assert.becomes_i(block_at(3, 3))
+    assert.becomes_swap(block_at(1, 3), 3)
+    assert.becomes_swap(block_at(3, 3), 1)
     assert.becomes_i(block_at(1, 2))
     assert.becomes_i(block_at(3, 2))
-    assert.becomes_swap(block_at(1, 1), 3)
-    assert.becomes_swap(block_at(3, 1), 1)
+    assert.becomes_i(block_at(1, 1))
+    assert.becomes_i(block_at(3, 1))
   end)
 
   -----------------------------------------------------------------------------

@@ -53,7 +53,7 @@ describe('マッチしたブロックが下からはじける', function()
     put(1, 2, 'x')
     put(1, 1, 'h')
 
-    -- HXH がマッチ (結果は 1 段目が Z、ほかは空き)。このフレームを 1 フレーム目と数える
+    -- HXH がマッチ (QA2 と同じく結果はいちばん上の 3 段目が Z、ほかは空き)。このフレームを 1 フレーム目と数える
     board:update()
 
     -- 1 段目 (いちばん下) は 45 + 15 = 60 フレーム目にはじける
@@ -77,9 +77,9 @@ describe('マッチしたブロックが下からはじける', function()
     assert.is_false(visible(1, 3))
     assert.are.equal('match', block_at(1, 1).state)
     update(1)
-    assert.are.equal('z', block_at(1, 1).type)
+    assert.are.equal('i', block_at(1, 1).type)
     assert.are.equal('i', block_at(1, 2).type)
-    assert.are.equal('i', block_at(1, 3).type)
+    assert.are.equal('z', block_at(1, 3).type)
   end)
 
   it("はじけるたびに、まだはじけていないブロックとその上をゲートごとの高さまで押し上げる", function()
@@ -126,7 +126,7 @@ describe('マッチしたブロックが下からはじける', function()
     put(1, 2, 't')
     put(1, 1, 't')
 
-    -- TT がマッチ (結果は 1 段目が S、2 段目が空き)
+    -- TT がマッチ (QA2 と同じく結果は上の 2 段目が S、1 段目が空き)
     board:update()
 
     -- T は 1.5 マス (12 ドット、jump_dy で 36) ずつ、T がはじけるたびに押し上げる
@@ -138,14 +138,22 @@ describe('マッチしたブロックが下からはじける', function()
     -- 2 段目がはじけて (75 フレーム目) 結果が出た (76 フレーム目) あと、12 フレームはその高さ
     update(88 - 60)
     assert.are.equal(72, block_at(1, 3).jump_dy)
-    assert.are.equal('s', block_at(1, 1).type)
-    assert.are.equal(36, block_at(1, 1).jump_dy)
+    assert.are.equal('s', block_at(1, 2).type)
+    assert.are.equal(72, block_at(1, 2).jump_dy)
 
-    -- 1.5 マス (12 ドット) を 1 フレーム 2/3 ドット (jump_dy で 2) ずつ、ちょうど 18 フレームで下りる
-    update(17)
+    -- S と H は空いた 1 段目へ 1 マス落ち、着地するまでは押し上げた高さのまま
+    local s = block_at(1, 2)
+    repeat
+      board:update()
+      assert.are.equal(72, s.jump_dy)
+    until s.y == 1 and s.state == 'idle'
+
+    -- 着地してから、3 マス (jump_dy で 72) を 1 フレーム 2 ずつ、ちょうど 36 フレームで下りる
+    update(35)
     assert.is_true(block_at(1, 1).jump_dy > 0)
     update(1)
     assert.are.equal(0, block_at(1, 1).jump_dy)
+    assert.are.equal(0, block_at(1, 2).jump_dy)
   end)
 
   it("押し上げられているブロックは入れ替えられない", function()
