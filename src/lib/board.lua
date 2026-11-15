@@ -864,9 +864,9 @@ do local _ENV = board_class
             if block.state == "fall" and block.fall_dy == 0 then
               if not _is_block_fallable(_ENV, x, y) then
                 if block.type == "g" then
-                  bounce(_ENV)
+                  -- 盤面を揺らす (bounce エフェクト)
+                  _bounce_screen_dy, _bounce_speed, block.first_drop = 0, -4, false
                   sfx(9)
-                  block.first_drop = false
                 end
 
                 block:change_state"idle"
@@ -911,11 +911,6 @@ do local _ENV = board_class
 
       ::next_chain_id::
     end
-  end
-
-  --- bounce エフェクトを開始
-  function bounce(_ENV)
-    _bounce_screen_dy, _bounce_speed = 0, -4
   end
 
   function _update_bounce(_ENV)
@@ -1195,6 +1190,8 @@ do local _ENV = board_class
           if each and each.type ~= "i" and not columns[each] then
             columns[each], each.jump_dy, each._jump_hold =
                 true, each.jump_dy + block.sprite_set.jump, 58 + 15 * group.rows - block._tick_match
+            -- 浮いたブロックは下りきるまでマッチしないので、盤面のマッチできるブロックから外す
+            observable_update(_ENV, each)
             for i = min(each.x, each.other_x or 9), max(each.x + each.span - 1, each.other_x or 0) do
               columns[i] = true
             end

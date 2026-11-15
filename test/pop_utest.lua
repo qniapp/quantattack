@@ -156,6 +156,19 @@ describe('マッチしたブロックが下からはじける', function()
     assert.are.equal(0, block_at(1, 2).jump_dy)
   end)
 
+  it("押し上げられて浮いているブロックは、下りきるまでマッチできるブロックから外れる", function()
+    put(1, 3, 'x')
+    put(1, 2, 'h')
+    put(1, 1, 'h')
+
+    board:update()
+    assert.are.equal(block_at(1, 3), board.reducible_blocks[3][1])
+
+    -- 45 フレーム目に押し上げられる
+    update(44)
+    assert.is_nil(board.reducible_blocks[3][1])
+  end)
+
   it("押し上げられているブロックは入れ替えられない", function()
     put(1, 3, 'h')
     put(2, 3, 'y')
