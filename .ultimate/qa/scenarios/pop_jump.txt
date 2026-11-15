@@ -1,0 +1,4 @@
+# cart: endless param: swap,2;swap,1;h;y;z;s|x;i;i;t;h;z|swap,2;swap,1;i;z;h;x|y;h;i;x;s;t
+# QA2 と同じ消え方: 下の段から 15 フレームごとに、上を押し上げてからはじける。
+# X をどけて上の SWAP を下の SWAP に落とし、SWAP SWAP (3 マスのジャンプ) を消す。上の Y と H も押し上げられる。
+250 left 4 left 4 down 4 down 4 down 4 down 4 x 6 right 4 x 2 shot 1 46 shot 1 15 shot 1 15 shot 1 15 shot 1 30 shot 1 100
