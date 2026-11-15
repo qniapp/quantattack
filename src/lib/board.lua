@@ -5,6 +5,11 @@ require("lib/block")
 require("lib/reduction_rules")
 require("lib/pending_garbage_blocks")
 
+-- H, X, Y, Z, S, T だけが単一ゲート。QPU と簡約の探索で共有する。
+function is_single_block(_ENV)
+  return _ENV and #type == 1 and not not reduction_rules[type]
+end
+
 --- ボードのクラス
 board_class = new_class()
 
@@ -119,7 +124,8 @@ do local _ENV = board_class
 
             local target_x, target_y, new_block = r.x or x + (r.dx and reduction.dx or 0), y + (r.dy or 0), block_class(r.block_type)
 
-            if new_block.type == "swap" or new_block.type == "cnot_x" or new_block.type == "control" then
+            -- 簡約先の複数字型は SWAP と CNOT の端点だけ。
+            if #new_block.type > 1 then
               new_block.other_x = x + (r.dx and 0 or reduction.dx)
             end
 
@@ -270,12 +276,6 @@ do local _ENV = board_class
     return _memoize(_ENV, _reduce_nocache, cache_reduce, x, y)
   end
 
-  -- H, X, Y, Z, S, T のどれかで、止まっているブロックかどうか (block は reducible_blocks から取り出したもの)
-  -- 1 文字のブロックのうち、おじゃまブロック g と # には簡約ルールがない
-  local function _is_single_gate(block)
-    return block and #block.type == 1 and reduction_rules[block.type]
-  end
-
   function _reduce_nocache(_ENV, x, y, include_next_blocks)
     local reduction, block = { to = {}, score = 0 }, blocks[y][x]
     for _, rule in pairs(reduction_rules[block.type] or {}) do
@@ -367,7 +367,7 @@ do local _ENV = board_class
       -- SWAP の上にすきまなく積まれたゲート (最大 3 個) から始めて、
       -- 止まっている SWAP の両端をたどり、ゲートを運ばれる順に集める。空きやそのほかのブロックで止める
       local top, n, swaps, cx, cy, chain_id = y, 0, 0, x, y
-      while top - y < 3 and _is_single_gate(reducible_blocks[top + 1] and reducible_blocks[top + 1][x]) do
+      while top - y < 3 and is_single_block(reducible_blocks[top + 1] and reducible_blocks[top + 1][x]) do
         top = top + 1
       end
       for each_y = top, y + 1, -1 do
@@ -380,7 +380,7 @@ do local _ENV = board_class
         local other = cell and cell.type == "swap" and reducible_blocks[cy][cell.other_x]
         if other and other.type == "swap" and other.other_x == cx then
           chain_id, cx, swaps = other.chain_id or cell.chain_id or chain_id, cell.other_x, swaps + 1
-        elseif _is_single_gate(cell) then
+        elseif is_single_block(cell) then
           chain_id, n = cell.chain_id or chain_id, n + 1
           _gates[n], _gate_swaps[n], _gate_chain[n] = cell, swaps, chain_id
         else
@@ -536,17 +536,15 @@ do local _ENV = board_class
   function remove_block(_ENV, x, y)
     put(_ENV, x, y, block_class"i")
   end
-end
 
---#ifn title
---#ifn tutorial
-function board_class.send_garbage(_ENV, chain_id, span, _height)
-  pending_garbage_blocks:add_garbage(span, _height, chain_id)
-end
---#endif
---#endif
+  --#ifn title
+  --#ifn tutorial
+  function send_garbage(_ENV, chain_id, span, _height)
+    pending_garbage_blocks:add_garbage(span, _height, chain_id)
+  end
+  --#endif
+  --#endif
 
-do local _ENV = board_class
   --#ifn tutorial
   function insert_blocks_at_bottom(_ENV)
     shift_all_blocks_up(_ENV)
@@ -943,8 +941,8 @@ do local _ENV = board_class
     for tmp_x = 1, x - 1 do
       local block = blocks[y][tmp_x]
 
-      if (block.type == "cnot_x" or block.type == "control" or block.type == "swap") and
-        x < block.other_x then
+      -- other_x を持つのは CNOT と SWAP の端点だけ。
+      if block.other_x and x < block.other_x then
         return block
       end
     end

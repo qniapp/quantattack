@@ -86,7 +86,8 @@ end
 function ions._update(_ENV, all)
   local _quadratic_bezier = function(from, mid, to)
     local t = _tick / 60
-    return (1 - t) * (1 - t) * from + 2 * (1 - t) * t * mid + t * t * to
+    local u = 1 - t
+    return u * u * from + 2 * u * t * mid + t * t * to
   end
 
   if _tick == 60 then
@@ -94,10 +95,10 @@ function ions._update(_ENV, all)
     del(all, _ENV)
   end
 
-  _x, _y, _tick =
+  _x, _y =
       _quadratic_bezier(_from_x, _from_x > 64 and _from_x + 60 or _from_x - 60, _target[1]),
-      _quadratic_bezier(_from_y, _from_y + 40, _target[2]),
-      _tick + 1
+      _quadratic_bezier(_from_y, _from_y + 40, _target[2])
+  _tick = _tick + 1
 
   -- しっぽを追加
   if ceil_rnd(10) > 7 then
@@ -158,7 +159,11 @@ function particles._update(_ENV, all)
     _color, _radius = _color_fade, _end_radius
   end
 
-  _x, _y, _dx, _dy, _tick = _x + _dx, _y + _dy, _dx + _ddx, _dy + _ddy, _tick + 1
+  _x = _x + _dx
+  _y = _y + _dy
+  _dx = _dx + _ddx
+  _dy = _dy + _ddy
+  _tick = _tick + 1
 end
 
 --- パーティクルを描画
@@ -179,10 +184,9 @@ end
 
 --- 波紋の状態を更新
 function ripple._update(_ENV)
-  tick, t1, t2 =
-      tick + 1,
-      t1 - 1 / ((ripple.slow or ripple.freeze) and 3000 or 1500),
-      t2 - 1 / ((ripple.slow or ripple.freeze) and 300 or 150)
+  tick = tick + 1
+  t1 = t1 - 1 / ((ripple.slow or ripple.freeze) and 3000 or 1500)
+  t2 = t2 - 1 / ((ripple.slow or ripple.freeze) and 300 or 150)
 end
 
 --- 波紋を描画
@@ -224,13 +228,15 @@ end
 
 function sash._update(_ENV)
   if state == ":slidein" then
-    background_height, dh = background_height + dh, dh + ddh
+    background_height = background_height + dh
+    dh = dh + ddh
     if background_height > 10 then
       background_height = 10
     end
 
     if text_x < text_center_x then
-      text_x, text_dx = text_x + text_dx, text_dx + text_ddx
+      text_x = text_x + text_dx
+      text_dx = text_dx + text_ddx
     end
 
     if text_x > text_center_x then
@@ -244,8 +250,10 @@ function sash._update(_ENV)
   end
 
   if state == ":slideout" then
-    background_height, dh, text_x, text_dx =
-        background_height + dh, dh + ddh, text_x + text_dx, text_dx + text_ddx
+    background_height = background_height + dh
+    dh = dh + ddh
+    text_x = text_x + text_dx
+    text_dx = text_dx + text_ddx
 
     if text_x > 127 then
       if slideout_callback then

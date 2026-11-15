@@ -26,12 +26,12 @@ reduction_rules = transform(
     return transform(
       split(gate_rules, "&"),
       function(each)
-        local pattern, reduce_to, score = unpack(split(each, "|"))
+        local pattern, reduce_to, score = unpack_split(each, "|")
 
         return {
           transform(split(pattern, "\n"), split),
           transform(split(reduce_to, "\n"), function(to)
-            local dx, dy, block_type = unpack(split(to))
+            local dx, dy, block_type = unpack_split(to)
             return {
               dx = dx ~= "",
               dy = tonum(dy),

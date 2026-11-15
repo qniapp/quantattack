@@ -2,72 +2,72 @@
 
 game_class = new_class()
 
-local chain_bonus = split"0,50,80,150,300,400,500,700,900,1100,1300,1500,1800"
+do local _ENV = game_class
+  local chain_bonus = split"0,50,80,150,300,400,500,700,900,1100,1300,1500,1800"
 
-function game_class.reduce_callback(score, player, board, contains_swap)
-  player.score = player.score + (score >> 16)
+  function reduce_callback(score, player, board, contains_swap)
+    player.score = player.score + (score >> 16)
 
-  if contains_swap then
-    board.freeze_timer = 120
-    sfx(49)
+    if contains_swap then
+      board.freeze_timer = 120
+      sfx(49)
+    end
   end
-end
 
--- イオン球を target へ飛ばし、着いたらパーティクルを出して points 点を足し、garbage があれば呼ぶ
-local function attack(coord, target, ion_color, player, points, garbage)
-  ions:create(
-    coord,
-    target,
-    function(ion_target)
-      sfx(21)
-      particles:create(
-        ion_target,
-        "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
-      )
+  -- イオン球を target へ飛ばし、着いたらパーティクルを出して points 点を足し、garbage があれば呼ぶ
+  local function attack(coord, target, ion_color, player, points, garbage)
+    ions:create(
+      coord,
+      target,
+      function(ion_target)
+        sfx(21)
+        particles:create(
+          ion_target,
+          "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
+        )
 
-      player.score = player.score + (points >> 16)
+        player.score = player.score + (points >> 16)
 
-      if garbage then
-        garbage()
-      end
-    end,
-    ion_color
-  )
-end
+        if garbage then
+          garbage()
+        end
+      end,
+      ion_color
+    )
+  end
 
-function game_class.combo_callback(combo_count, coord, player, board, other_board)
-  bubbles:create("combo", combo_count, coord)
-  -- 対戦相手がいる時、おじゃまブロックを送る
-  attack(coord, board.attack_ion_target, nil, player, combo_count * 10, other_board and function()
-    other_board:send_garbage(nil, combo_count > 6 and 6 or combo_count - 1, 1)
-  end)
-end
-
-function game_class.block_offset_callback(chain_count, coord, player, board, other_board)
-  if chain_count > 2 then
-    attack(coord, board.block_offset_target, 9, player, chain_bonus[chain_count] or 1800, other_board and function()
-      board.pending_garbage_blocks:offset(chain_count)
+  function combo_callback(combo_count, coord, player, board, other_board)
+    bubbles:create("combo", combo_count, coord)
+    -- 対戦相手がいる時、おじゃまブロックを送る
+    attack(coord, board.attack_ion_target, nil, player, combo_count * 10, other_board and function()
+      other_board:send_garbage(nil, min(6, combo_count - 1), 1)
     end)
   end
 
-  return chain_count
-end
-
-function game_class.chain_callback(chain_id, chain_count, coord, player, board, other_board)
-  if chain_count > 1 then
-    bubbles:create("chain", chain_count, coord)
+  function block_offset_callback(chain_count, coord, player, board, other_board)
     if chain_count > 2 then
-      -- 対戦相手がいる時、おじゃまブロックを送る
-      attack(coord, board.attack_ion_target, nil, player, chain_bonus[chain_count] or 1800, other_board and function()
-        other_board:send_garbage(chain_id, 6, chain_count - 1 < 6 and chain_count - 1 or 5)
+      attack(coord, board.block_offset_target, 9, player, chain_bonus[chain_count] or 1800, other_board and function()
+        board.pending_garbage_blocks:offset(chain_count)
       end)
     end
-  else
-    player.score = player.score + ((chain_bonus[chain_count] or 1800) >> 16)
-  end
-end
 
-do local _ENV = game_class
+    return chain_count
+  end
+
+  function chain_callback(chain_id, chain_count, coord, player, board, other_board)
+    if chain_count > 1 then
+      bubbles:create("chain", chain_count, coord)
+      if chain_count > 2 then
+        -- 対戦相手がいる時、おじゃまブロックを送る
+        attack(coord, board.attack_ion_target, nil, player, chain_bonus[chain_count] or 1800, other_board and function()
+          other_board:send_garbage(chain_id, 6, min(5, chain_count - 1))
+        end)
+      end
+    else
+      player.score = player.score + ((chain_bonus[chain_count] or 1800) >> 16)
+    end
+  end
+
   function is_game_over(_ENV)
     return game_over_time ~= nil
   end

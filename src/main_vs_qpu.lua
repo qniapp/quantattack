@@ -6,10 +6,10 @@ require("lib/qpu")
 require("lib/game")
 
 local game, board, qpu_board =
-game_class(), board_class(cursor_class(), 3), board_class(cursor_class(), 78)
+game_class(), board_class(nil, 3), board_class(nil, 78)
 
 board.block_offset_target, qpu_board.block_offset_target, board.attack_ion_target, qpu_board.attack_ion_target =
-{ 27, 9 }, { 102, 9 }, { 102, 9 }, { 27, 9 }
+split"27,9", split"102,9", split"102,9", split"27,9"
 
 game:add_player(player_class(), board, qpu_board)
 game:add_player(qpu_class(qpu_board, stat(6)), qpu_board, board)

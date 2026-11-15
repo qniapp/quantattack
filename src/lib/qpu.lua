@@ -1,9 +1,5 @@
 ---@diagnostic disable: lowercase-global, global-in-nil-env
 
-function is_single_block(_ENV)
-  return type == 'h' or type == 'x' or type == 'y' or type == 'z' or type == 's' or type == 't'
-end
-
 local function _is_empty(board, block_x, block_y)
   return block_x >= 1 and board.cols >= block_x and board.rows >= block_y and
       board.blocks[block_y][block_x].state == "idle" and board:is_empty(block_x, block_y)
@@ -38,7 +34,7 @@ do local _ENV = qpu_class
     -- raise はテスト用で、false にすると QPU プレーヤーは x を押さない
     -- 通常は常に true
     board, cursor, level, sleep, raise =
-    _board, _board and _board.cursor or nil, _level or 2, true, true
+    _board, _board and _board.cursor, _level or 2, true, true
     init(_ENV)
   end
 
@@ -67,7 +63,7 @@ do local _ENV = qpu_class
 
   function _flatten_block(_ENV, each, each_x, each_y)
     -- 二列目より上のブロックについて、空のブロックがあればそこに落とす
-    if 1 < each_y and is_single_block(each) and find_left_and_right(_ENV, _is_empty, each, false, true) then
+    if 1 < each_y and is_single_block(each) and find_left_and_right(_ENV, _is_empty, each) then
       return true
     end
   end

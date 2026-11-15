@@ -1,35 +1,37 @@
 ---@diagnostic disable: lowercase-global
 
+require("lib/helpers")
+
 --- ブロック (量子ゲート) クラス
 block_class = new_class()
-block_class.block_match_animation_frame_count,
-    block_class.block_match_delay_per_block,
-    block_class.block_swap_animation_frame_count = 45, 8, 3
-block_class.sprites = transform({
-  -- default|landing|match
-  h = "0|1,1,1,2,2,2,3,3,1,1,1,1|24,24,24,25,25,25,24,24,24,26,26,26,0,0,0,27",
-  x = "16|17,17,17,18,18,18,19,19,17,17,17,17|40,40,40,41,41,41,40,40,40,42,42,42,16,16,16,43",
-  y = "32|33,33,33,34,34,34,35,35,33,33,33,33|56,56,56,57,57,57,56,56,56,58,58,58,32,32,32,59",
-  z = "48|49,49,49,50,50,50,51,51,49,49,49,49|12,12,12,13,13,13,12,12,12,14,14,14,48,48,48,15",
-  s = "4|5,5,5,6,6,6,7,7,5,5,5,5|28,28,28,29,29,29,28,28,28,30,30,30,4,4,4,31",
-  t = "20|21,21,21,22,22,22,23,23,21,21,21,21|44,44,44,45,45,45,44,44,44,46,46,46,20,20,20,47",
-  control = "36|37,37,37,38,38,38,39,39,37,37,37,37|60,60,60,61,61,61,60,60,60,62,62,62,36,36,36,63",
-  cnot_x = "52|53,53,53,54,54,54,55,55,53,53,53,53|64,64,64,65,65,65,64,64,64,66,66,66,52,52,52,67",
-  swap = "8|9,9,9,10,10,10,11,11,9,9,9,9|80,80,80,81,81,81,80,80,80,82,82,82,8,8,8,83",
-  ["?"] = "98|98,98,98,98,98,98,98,98,98,98,98,98|98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98",
-  ["#"] = "113|113,113,113,113,113,113,113,113,113,113,113,113|113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113"
-}, function(each)
-  local default, landing, match = unpack(split(each, "|"))
-  return {
-    default = default,
-    landing = split(landing),
-    match = split(match)
-  }
-end)
-
--- TODO: span, height は garbage の特異プロパティにする？ 検討
--- TODO: _timer_landing の初期化いる？ 検討
 do local _ENV = block_class
+  block_match_animation_frame_count,
+      block_match_delay_per_block,
+      block_swap_animation_frame_count = unpack_split"45,8,3"
+  sprites = transform({
+    -- default|landing|match
+    h = "0|1,1,1,2,2,2,3,3,1,1,1,1|24,24,24,25,25,25,24,24,24,26,26,26,0,0,0,27",
+    x = "16|17,17,17,18,18,18,19,19,17,17,17,17|40,40,40,41,41,41,40,40,40,42,42,42,16,16,16,43",
+    y = "32|33,33,33,34,34,34,35,35,33,33,33,33|56,56,56,57,57,57,56,56,56,58,58,58,32,32,32,59",
+    z = "48|49,49,49,50,50,50,51,51,49,49,49,49|12,12,12,13,13,13,12,12,12,14,14,14,48,48,48,15",
+    s = "4|5,5,5,6,6,6,7,7,5,5,5,5|28,28,28,29,29,29,28,28,28,30,30,30,4,4,4,31",
+    t = "20|21,21,21,22,22,22,23,23,21,21,21,21|44,44,44,45,45,45,44,44,44,46,46,46,20,20,20,47",
+    control = "36|37,37,37,38,38,38,39,39,37,37,37,37|60,60,60,61,61,61,60,60,60,62,62,62,36,36,36,63",
+    cnot_x = "52|53,53,53,54,54,54,55,55,53,53,53,53|64,64,64,65,65,65,64,64,64,66,66,66,52,52,52,67",
+    swap = "8|9,9,9,10,10,10,11,11,9,9,9,9|80,80,80,81,81,81,80,80,80,82,82,82,8,8,8,83",
+    ["?"] = "98|98,98,98,98,98,98,98,98,98,98,98,98|98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98",
+    ["#"] = "113|113,113,113,113,113,113,113,113,113,113,113,113|113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113"
+  }, function(each)
+    local default, landing, match = unpack_split(each, "|")
+    return {
+      default = default,
+      landing = split(landing),
+      match = split(match)
+    }
+  end)
+
+  -- TODO: span, height は garbage の特異プロパティにする？ 検討
+  -- TODO: _timer_landing の初期化いる？ 検討
   function _init(_ENV, _type, _span, _height)
     type, state, span, height, sprite_set, _timer_landing =
         _type, "idle", _span or 1, _height or 1, sprites[_type], 0
@@ -117,13 +119,9 @@ do local _ENV = block_class
       end
     end
   end
-end
 
-function block_class:render(screen_x, screen_y, screen_other_x)
-  local shake_dx, shake_dy, swap_screen_dx, sprite = 0, 0
-
-  do
-    local _ENV = self
+  function render(_ENV, screen_x, screen_y, screen_other_x)
+    local shake_dx, shake_dy, swap_screen_dx, sprite = 0, 0
 
     if type == "i" then
       return
@@ -156,38 +154,38 @@ function block_class:render(screen_x, screen_y, screen_other_x)
         (state == "match") and 13 or 10
       )
     end
+
+    if type == "?" then
+      palt(0, false)
+      pal(13, body_color)
+    end
+
+    if state == "over" then
+      shake_dx, shake_dy = rnd(2) - 1, rnd(2) - 1
+      pal(6, 9)
+      pal(7, 1)
+    end
+
+    spr(sprite, screen_x + swap_screen_dx + shake_dx, screen_y + shake_dy)
+
+    palt(0, true)
+    pal(13, 13)
+    pal(6, 6)
+    pal(7, 7)
   end
 
-  if self.type == "?" then
-    palt(0, false)
-    pal(13, self.body_color)
+  function attach(_ENV, _observer)
+    observer = _observer
   end
 
-  if self.state == "over" then
-    shake_dx, shake_dy = rnd(2) - 1, rnd(2) - 1
-    pal(6, 9)
-    pal(7, 1)
+  function change_state(_ENV, new_state)
+    _timer_landing, _tick_swap = (state == "fall") and 12 or 0, 0
+
+    local old_state = state
+    state = new_state
+
+    observer:observable_update(_ENV, old_state)
   end
-
-  spr(sprite, screen_x + swap_screen_dx + shake_dx, screen_y + shake_dy)
-
-  palt(0, true)
-  pal(13, 13)
-  pal(6, 6)
-  pal(7, 7)
-end
-
-function block_class.attach(_ENV, _observer)
-  observer = _observer
-end
-
-function block_class.change_state(_ENV, new_state)
-  _timer_landing, _tick_swap = (state == "fall") and 12 or 0, 0
-
-  local old_state = state
-  state = new_state
-
-  observer:observable_update(_ENV, old_state)
 end
 
 --#if debug
