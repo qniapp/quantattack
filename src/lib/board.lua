@@ -859,7 +859,7 @@ do local _ENV = board_class
           -- fall_dy (負、1/3 ドット単位) だけ上にずらして描きながら、そのマスまで下りてくる。
           -- 入れ替え中も下り続け、下で下りているブロックより下には描かない。CNOT と SWAP は左の端が移す
           local other_block = row[block.other_x]
-          if (block.other_x or 9) > x then
+          if not block.other_x or x < block.other_x then
             if block.state == "fall" and block.fall_dy == 0 then
               if not _is_block_fallable(_ENV, x, y) then
                 if block.type == "g" then

@@ -284,6 +284,16 @@ describe('マッチしたブロックが下からはじける', function()
     assert.are.equal(24, block_at(3, 3).jump_dy)
   end)
 
+  it("タイトルのデモのように幅の広い盤面でも、右の列のブロックが落ちる", function()
+    board = board_class(nil, 0, 16)
+    put(16, 2, 'h')
+
+    update(40)
+
+    assert.are.equal('h', block_at(16, 1).type)
+    assert.are.equal('idle', block_at(16, 1).state)
+  end)
+
   it("落ちている途中のブロックを入れ替えても、そのまま下り続ける", function()
     put(1, 2, 'h')
 
