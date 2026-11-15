@@ -1125,10 +1125,6 @@ do local _ENV = board_class
     end
 
     if old_state == "match" and block.state == "idle" then
-      -- 押し上げられたままのマスには、結果のゲートも同じ高さで出す
-      if block.new_block.type ~= "i" then
-        block.new_block.jump_dy, block.new_block._jump_hold = block.jump_dy, block._jump_hold
-      end
       put(_ENV, x, y, block.new_block)
       if not block._match_group then
         pop(_ENV, block, 45)

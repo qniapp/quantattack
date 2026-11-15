@@ -94,7 +94,8 @@ do local _ENV = block_class
     if jump_dy > 0 then
       _jump_hold = _jump_hold - 1
       if _jump_hold < 0 and state == "idle" then
-        jump_dy = max(jump_dy - 2, 0)
+        -- 押し上げる高さはどれも偶数 (12, 24, 36, 48, 72 とその和) なので、ちょうど 0 で止まる
+        jump_dy = jump_dy - 2
       end
     end
 
@@ -123,6 +124,10 @@ do local _ENV = block_class
         end
         _tick_match = _tick_match + 1
       else
+        -- 押し上げられたままのマスには、結果のゲートも同じ高さで出す
+        if new_block.type ~= "i" then
+          new_block.jump_dy, new_block._jump_hold = jump_dy, _jump_hold
+        end
         change_state(_ENV, "idle")
 
         if _garbage_span then

@@ -6,7 +6,9 @@
 -- counters are 16.16 numbers) and before loading another cart. qa-prof plays 60 more frames
 -- after the scenario, so its last frames are printed too.
 -- Same button protocol as qa_post.lua, without the screen. Kept small: vs_qpu has few tokens left.
-local recs, c, n, d, fr, update, draw, cart_load = {}, { [0] = 0 }, { [0] = 0 }, 0, 0, _update60, _draw, load
+-- recs: each wrapped function's { self, calls, wrapped calls made, "p <name> " }.
+-- c[d], n[d]: time and wrapped calls of the functions called by the one running at depth d.
+local recs, c, n, d, fr, update, draw, cart_load = {}, { 0 }, { 0 }, 1, 0, _update60, _draw, load
 local function fin(r, s, ...)
   s = stat(1) - s
   r[1] += s - c[d]
@@ -19,8 +21,7 @@ for k, v in pairs(_ENV) do
   if type(v) == "table" then
     for m, f in pairs(v) do
       if type(f) == "function" then
-        local r = { 0, 0, 0, k .. "." .. m }
-        add(recs, r)
+        local r = add(recs, { 0, 0, 0, "p " .. k .. "." .. m .. " " })
         v[m] = function(...)
           r[2] += 1
           n[d] += 1
@@ -34,7 +35,7 @@ for k, v in pairs(_ENV) do
 end
 local function flush()
   for r in all(recs) do
-    printh("p " .. r[4] .. " " .. r[1] .. " " .. r[2] .. " " .. r[3])
+    printh(r[4] .. r[1] .. " " .. r[2] .. " " .. r[3])
     r[1], r[2], r[3] = 0, 0, 0
   end
   printh("pf " .. fr)
@@ -53,8 +54,6 @@ function _update60()
   fr += 1
   update()
   draw()
-  if fr == 60 then
-    flush()
-  end
+  if (fr == 60) flush()
   printh("qa 0 " .. stat(1))
 end
