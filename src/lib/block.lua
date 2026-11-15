@@ -9,32 +9,34 @@ do local _ENV = block_class
       block_match_delay_per_block,
       block_swap_animation_frame_count = unpack_split"45,8,3"
   sprites = transform({
-    -- default|landing|match
-    h = "0|1,1,1,2,2,2,3,3,1,1,1,1|24,24,24,25,25,25,24,24,24,26,26,26,0,0,0,27",
-    x = "16|17,17,17,18,18,18,19,19,17,17,17,17|40,40,40,41,41,41,40,40,40,42,42,42,16,16,16,43",
-    y = "32|33,33,33,34,34,34,35,35,33,33,33,33|56,56,56,57,57,57,56,56,56,58,58,58,32,32,32,59",
-    z = "48|49,49,49,50,50,50,51,51,49,49,49,49|12,12,12,13,13,13,12,12,12,14,14,14,48,48,48,15",
-    s = "4|5,5,5,6,6,6,7,7,5,5,5,5|28,28,28,29,29,29,28,28,28,30,30,30,4,4,4,31",
-    t = "20|21,21,21,22,22,22,23,23,21,21,21,21|44,44,44,45,45,45,44,44,44,46,46,46,20,20,20,47",
-    control = "36|37,37,37,38,38,38,39,39,37,37,37,37|60,60,60,61,61,61,60,60,60,62,62,62,36,36,36,63",
-    cnot_x = "52|53,53,53,54,54,54,55,55,53,53,53,53|64,64,64,65,65,65,64,64,64,66,66,66,52,52,52,67",
-    swap = "8|9,9,9,10,10,10,11,11,9,9,9,9|80,80,80,81,81,81,80,80,80,82,82,82,8,8,8,83",
+    -- default|landing|match|jump
+    -- jump: マッチではじけるときに上のブロックを押し上げる高さ (ドット)。QA2 と同じ 0.5, 1, 1.5, 2, 3 マス
+    h = "0|1,1,1,2,2,2,3,3,1,1,1,1|24,24,24,25,25,25,24,24,24,26,26,26,0,0,0,27|4",
+    x = "16|17,17,17,18,18,18,19,19,17,17,17,17|40,40,40,41,41,41,40,40,40,42,42,42,16,16,16,43|4",
+    y = "32|33,33,33,34,34,34,35,35,33,33,33,33|56,56,56,57,57,57,56,56,56,58,58,58,32,32,32,59|4",
+    z = "48|49,49,49,50,50,50,51,51,49,49,49,49|12,12,12,13,13,13,12,12,12,14,14,14,48,48,48,15|4",
+    s = "4|5,5,5,6,6,6,7,7,5,5,5,5|28,28,28,29,29,29,28,28,28,30,30,30,4,4,4,31|8",
+    t = "20|21,21,21,22,22,22,23,23,21,21,21,21|44,44,44,45,45,45,44,44,44,46,46,46,20,20,20,47|12",
+    control = "36|37,37,37,38,38,38,39,39,37,37,37,37|60,60,60,61,61,61,60,60,60,62,62,62,36,36,36,63|16",
+    cnot_x = "52|53,53,53,54,54,54,55,55,53,53,53,53|64,64,64,65,65,65,64,64,64,66,66,66,52,52,52,67|16",
+    swap = "8|9,9,9,10,10,10,11,11,9,9,9,9|80,80,80,81,81,81,80,80,80,82,82,82,8,8,8,83|24",
     ["?"] = "98|98,98,98,98,98,98,98,98,98,98,98,98|98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98",
     ["#"] = "113|113,113,113,113,113,113,113,113,113,113,113,113|113,113,113,113,113,113,113,113,113,113,113,113,113,113,113,113"
   }, function(each)
-    local default, landing, match = unpack_split(each, "|")
+    local default, landing, match, jump = unpack_split(each, "|")
     return {
       default = default,
       landing = split(landing),
-      match = split(match)
+      match = split(match),
+      jump = jump
     }
   end)
 
   -- TODO: span, height は garbage の特異プロパティにする？ 検討
   -- TODO: _timer_landing の初期化いる？ 検討
   function _init(_ENV, _type, _span, _height)
-    type, state, span, height, sprite_set, _timer_landing =
-        _type, "idle", _span or 1, _height or 1, sprites[_type], 0
+    type, state, span, height, sprite_set, _timer_landing, jump_dy =
+        _type, "idle", _span or 1, _height or 1, sprites[_type], 0, 0
   end
 
   -- NOTE: board クラスでは「ブロックが落とせない状態か？」という判定しか行わないため、
@@ -48,8 +50,9 @@ do local _ENV = block_class
     return state == "idle" and type ~= "i" and type ~= "?"
   end
 
+  -- 押し上げられているブロックは、QA2 と同じく入れ替えられない
   function is_swappable_state(_ENV)
-    return state == "idle" or state == "fall"
+    return (state == "idle" or state == "fall") and jump_dy == 0
   end
 
   function swap_with(_ENV, direction)
@@ -74,14 +77,27 @@ do local _ENV = block_class
     end
   end
 
-  function replace_with(_ENV, other, match_index, _chain_id, garbage_span, garbage_height)
-    new_block, _match_index, _tick_match, chain_id, other.chain_id, _garbage_span, _garbage_height =
-        other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height
+  -- マッチしたゲートは match_group (同じマッチのブロックと rows: 段数) と match_index (下から何段目か)
+  -- をもらい、QA2 と同じように 45 フレーム光ったあと、下の段から 15 フレームごとに上を押し上げてはじける。
+  -- はじけたマスは最後の段がはじけるまで埋まったままで、結果はまとめて出る。
+  -- おじゃまブロックの分解 (match_group なし) は今までどおり 8 フレームごと。
+  function replace_with(_ENV, other, match_index, _chain_id, garbage_span, garbage_height, match_group)
+    new_block, _match_index, _tick_match, chain_id, other.chain_id, _garbage_span, _garbage_height, _match_group =
+        other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height, match_group
 
     change_state(_ENV, "match")
   end
 
   function update(_ENV)
+    -- 押し上げられたブロックは、マッチが終わって 12 フレーム浮いたあと、落下と同じ 1 フレーム 1 マスで
+    -- 下りる。マスごと落ちているあいだは押し上げた高さを保ち、着地してからその分を下りる
+    if jump_dy > 0 then
+      _jump_hold = _jump_hold - 1
+      if _jump_hold < 0 and state == "idle" then
+        jump_dy = max(jump_dy - 8, 0)
+      end
+    end
+
     if state == "idle" then
       if _timer_landing > 0 then
         _timer_landing = _timer_landing - 1
@@ -100,7 +116,16 @@ do local _ENV = block_class
         change_state(_ENV, "idle")
       end
     elseif state == "match" then
-      if _tick_match <= block_match_animation_frame_count + _match_index * block_match_delay_per_block then
+      if _tick_match <= block_match_animation_frame_count + (_match_group and _match_group.rows * 15 or _match_index * block_match_delay_per_block) then
+        -- 自分の段の番 (45 + 15 * (段 - 1) フレーム目) に上を押し上げ、その 15 フレーム後にはじける
+        if _match_group then
+          local t = _tick_match - _match_index * 15
+          if t == 30 then
+            observer:push_up(_ENV)
+          elseif t == 45 then
+            observer:pop(_ENV)
+          end
+        end
         _tick_match = _tick_match + 1
       else
         change_state(_ENV, "idle")
@@ -127,6 +152,8 @@ do local _ENV = block_class
       return
     end
 
+    screen_y = screen_y - jump_dy
+
     -- 8 / 3 で割り切れないので、先に掛けてから割る (順序を変えると固定小数点の丸めで描画位置がずれる)
     swap_screen_dx = (_tick_swap or 0) * 8 / block_swap_animation_frame_count
     if state == "swap" and swap_direction == "left" then
@@ -136,6 +163,9 @@ do local _ENV = block_class
     if state == "idle" and _timer_landing > 0 then
       sprite = sprite_set.landing[_timer_landing]
     elseif state == "match" then
+      if _match_group and _tick_match > 45 + _match_index * 15 then
+        return
+      end
       local sequence = sprite_set.match
       sprite = _tick_match <= block_match_delay_per_block and sequence[_tick_match] or sequence[#sequence]
     elseif state == "over" then
@@ -236,6 +266,7 @@ function garbage_block(_span, _height, _color, _chain_id, _tick_fall)
     first_drop = true,
     _render_box = draw_rounded_box,
     render = function(_ENV, screen_x, screen_y)
+      screen_y = screen_y - jump_dy
       local y0, x1, y1, _body_color =
           screen_y + (1 - height) * 8,
           screen_x + span * 8 - 2,

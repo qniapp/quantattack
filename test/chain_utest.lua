@@ -224,10 +224,11 @@ describe('連鎖 (chain)', function()
     --         │ Y │
     --         └───┘
 
-    -- 3 列目の YY がマッチするまで進める
+    -- 3 列目の YY がマッチし、真ん中の Y が着地するまで進める
+    -- (真ん中の列は HH が最後にはじけてから空くので、Y が遅れて落ちる)
     repeat
       board:update()
-    until block_at(3, 1).state == "match"
+    until block_at(3, 1).state == "match" and block_at(2, 1).type == "y" and block_at(2, 1).state == "idle"
 
     --         ┌───┐
     --         │ Y*│

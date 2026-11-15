@@ -119,7 +119,12 @@ do local _ENV = board_class
             combo_count = #targets
           end
 
-          for index, r in pairs(targets) do
+          -- QA2 と同じく、下の段から順にはじける。reduction をマッチのグループに使い、rows に段数を入れる。
+          -- 各ブロックの _match_index はいちばん下の段を 1 とした段の番号。
+          -- どの簡約も結果を上の段から並べるので、最後の結果がいちばん下の段
+          reduction.rows = 1 - (targets[#targets].dy or 0)
+
+          for _, r in pairs(targets) do
             sfx(35)
 
             local target_x, target_y, new_block = r.x or x + (r.dx and reduction.dx or 0), y + (r.dy or 0), block_class(r.block_type)
@@ -132,7 +137,7 @@ do local _ENV = board_class
             if not blocks[target_y] then
               put(_ENV, target_y, target_x, block_class"i")
             end
-            blocks[target_y][target_x]:replace_with(new_block, index, chain_id)
+            blocks[target_y][target_x]:replace_with(new_block, (r.dy or 0) + reduction.rows, chain_id, nil, nil, reduction)
             _flash_col_timer[target_x] = #_flash_col_colors + 1
 
             -- ブロックが消える、または変化するとき、その上にあるブロックすべてに chain_id をセット
@@ -153,6 +158,7 @@ do local _ENV = board_class
 
             ::next_reduction::
           end
+
         end
       end
     end
@@ -1107,12 +1113,14 @@ do local _ENV = board_class
     end
 
     if old_state == "match" and block.state == "idle" then
-      sfx(11, -1, (block._match_index % 6 - 1) * 4, 4)
+      -- 押し上げられたままのマスには、結果のゲートも同じ高さで出す
+      if block.new_block.type ~= "i" then
+        block.new_block.jump_dy, block.new_block._jump_hold = block.jump_dy, block._jump_hold
+      end
       put(_ENV, x, y, block.new_block)
-      particles:create(
-        { screen_x(_ENV, x) + 3, screen_y(_ENV, y) + 3 },
-        "2,1,7,7,-1,-1,0.05,0.05,16|2,1,7,7,1,-1,-0.05,0.05,16|2,1,7,7,-1,1,0.05,-0.05,16|2,1,7,7,1,1,-0.05,-0.05,16"
-      )
+      if not block._match_group then
+        pop(_ENV, block)
+      end
       return
     end
 
@@ -1138,6 +1146,40 @@ do local _ENV = board_class
     if not (block.state == "swap" or block.state == "match") then
       for i = y, #blocks do
         cache_is_block_fallable[i] = {}
+      end
+    end
+  end
+
+  function pop(_ENV, block)
+    sfx(11, -1, (block._match_index % 6 - 1) * 4, 4)
+    particles:create(
+      { screen_x(_ENV, block.x) + 3, screen_y(_ENV, block.y) - block.jump_dy + 3 },
+      "2,1,7,7,-1,-1,0.05,0.05,16|2,1,7,7,1,-1,-0.05,0.05,16|2,1,7,7,-1,1,0.05,-0.05,16|2,1,7,7,1,1,-0.05,-0.05,16"
+    )
+  end
+
+  --- QA2 のジャンプ: マッチしたブロック block と、その上に載っているブロックすべてを、
+  -- block のジャンプの高さまで押し上げて描く (QA2 と同じく足し合わせず、高いほう)。マスは動かさない。
+  -- CNOT, SWAP, おじゃまブロックが載っていれば、その幅の列の上も押し上げる。
+  -- 押し上げたブロックは、マッチが終わって 12 フレームたつまでその高さにとどまる。
+  function push_up(_ENV, block)
+    local columns, group = {}, block._match_group
+
+    for y = block.y, #blocks do
+      -- 同じ段の CNOT や SWAP のもう片方が左にあっても押し上げるように、段ごとに 2 回調べる。
+      -- QA2 と同じく、まだはじけていない同じマッチのブロックも押し上げる
+      for _ = 1, 2 do
+        for x = 1, cols do
+          local each = (columns[x] or blocks[y][x]._match_group == group) and
+              (_garbage_head_block(_ENV, x, y) or blocks[y][x])
+          if each and each.type ~= "i" then
+            each.jump_dy, each._jump_hold =
+                max(each.jump_dy, block.sprite_set.jump), 28 + 15 * (group.rows - block._match_index)
+            for i = min(x, each.other_x or x), max(each.x + each.span - 1, each.other_x or x) do
+              columns[i] = true
+            end
+          end
+        end
       end
     end
   end
