@@ -123,13 +123,13 @@ do local _ENV = board_class
           -- 各ブロックの _match_index はいちばん下の段を 1 とした段の番号。
           -- どの簡約も結果を上の段から並べるので、最初の結果がいちばん上、最後の結果がいちばん下の段
           -- (SWAP をたどる簡約では dy が正にもなる)
-          local bottom_dy = targets[#targets].dy or 0
-          reduction.rows = (targets[1].dy or 0) - bottom_dy + 1
+          local bottom_dy = targets[#targets].dy
+          reduction.rows = targets[1].dy - bottom_dy + 1
 
           for _, r in pairs(targets) do
             sfx(35)
 
-            local target_x, target_y, new_block = r.x or x + (r.dx and reduction.dx or 0), y + (r.dy or 0), block_class(r.block_type)
+            local target_x, target_y, new_block = r.x or x + (r.dx and reduction.dx or 0), y + r.dy, block_class(r.block_type)
 
             -- 簡約先の複数字型は SWAP と CNOT の端点だけ。
             if #new_block.type > 1 then
@@ -139,7 +139,7 @@ do local _ENV = board_class
             if not blocks[target_y] then
               put(_ENV, target_y, target_x, block_class"i")
             end
-            blocks[target_y][target_x]:replace_with(new_block, (r.dy or 0) - bottom_dy + 1, chain_id, nil, nil, reduction)
+            blocks[target_y][target_x]:replace_with(new_block, r.dy - bottom_dy + 1, chain_id, nil, nil, reduction)
             _flash_col_timer[target_x] = #_flash_col_colors + 1
 
             -- ブロックが消える、または変化するとき、その上にあるブロックすべてに chain_id をセット
@@ -420,7 +420,7 @@ do local _ENV = board_class
             end
             for i, r in pairs(rule[2]) do
               -- 2 個のパターン (G, G) は、issue #125 のときのとおり上のゲートを残す
-              local gate = _gates[first - (r.dy or 0)]
+              local gate = _gates[first - r.dy]
               add(to, { x = gate.x, dy = gate.y - y, block_type = (#rows == 2 and rule[2][3 - i] or r).block_type })
             end
             return {
@@ -1131,7 +1131,7 @@ do local _ENV = board_class
       end
       put(_ENV, x, y, block.new_block)
       if not block._match_group then
-        pop(_ENV, block)
+        pop(_ENV, block, 45)
       end
       return
     end
@@ -1162,21 +1162,25 @@ do local _ENV = board_class
     end
   end
 
-  function pop(_ENV, block)
-    sfx(11, -1, (block._match_index % 6 - 1) * 4, 4)
-    particles:create(
-      { screen_x(_ENV, block.x) + 3, screen_y(_ENV, block.y) - block.jump_dy / 3 + 3 },
-      "2,1,7,7,-1,-1,0.05,0.05,16|2,1,7,7,1,-1,-0.05,0.05,16|2,1,7,7,-1,1,0.05,-0.05,16|2,1,7,7,1,1,-0.05,-0.05,16"
-    )
-  end
-
-  --- QA2 のジャンプ: マッチしたブロック block と、その上に載っているブロックすべてを、
-  -- block のジャンプの高さだけさらに押し上げて描く。マスは動かさない。
-  -- QA2 と同じく、段がはじけるたびに高さが足されていく。同じフレームに同じ段の複数のブロックが
-  -- 押し上げても、足すのは 1 回 (いちばん高いもの) だけ。
+  --- マッチしたブロック block が自分の番の t フレーム目に呼ぶ。
+  -- t == 45: はじける (音と粒)。
+  -- t == 30: QA2 のジャンプ。block と、その上に載っているブロックすべてを、block のジャンプの高さだけ
+  -- さらに押し上げて描く。マスは動かさない。QA2 と同じく、段がはじけるたびに高さが足されていく。
+  -- 同じフレームに同じ段の複数のブロックが押し上げても、足すのは 1 回 (いちばん高いもの) だけ。
   -- CNOT, SWAP, おじゃまブロックが載っていれば、その幅の列の上も押し上げる。
   -- 押し上げたブロックは、マッチが終わって 12 フレームたつまでその高さにとどまる。
-  function push_up(_ENV, block)
+  function pop(_ENV, block, t)
+    if t == 45 then
+      sfx(11, -1, (block._match_index % 6 - 1) * 4, 4)
+      particles:create(
+        { screen_x(_ENV, block.x) + 3, screen_y(_ENV, block.y) - block.jump_dy / 3 + 3 },
+        "2,1,7,7,-1,-1,0.05,0.05,16|2,1,7,7,1,-1,-0.05,0.05,16|2,1,7,7,-1,1,0.05,-0.05,16|2,1,7,7,1,1,-0.05,-0.05,16"
+      )
+    end
+    if t ~= 30 then
+      return
+    end
+
     local columns, group = {}, block._match_group
 
     for y = block.y, #blocks do

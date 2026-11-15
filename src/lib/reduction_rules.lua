@@ -34,7 +34,7 @@ reduction_rules = transform(
             local dx, dy, block_type = unpack_split(to)
             return {
               dx = dx ~= "",
-              dy = tonum(dy),
+              dy = tonum(dy) or 0,
               block_type = block_type == "" and 'i' or block_type
             }
           end),

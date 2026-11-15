@@ -36,7 +36,7 @@ do local _ENV = block_class
   -- TODO: _timer_landing の初期化いる？ 検討
   function _init(_ENV, _type, _span, _height)
     type, state, span, height, sprite_set, _timer_landing, jump_dy, fall_dy =
-        _type, "idle", _span or 1, _height or 1, sprites[_type], 0, 0, 0
+        _type, "idle", _span or 1, _height or 1, sprites[_type], unpack_split"0,0,0"
   end
 
   -- NOTE: board クラスでは「ブロックが落とせない状態か？」という判定しか行わないため、
@@ -119,12 +119,7 @@ do local _ENV = block_class
       if _tick_match <= block_match_animation_frame_count + (_match_group and _match_group.rows * 15 or _match_index * block_match_delay_per_block) then
         -- 自分の段の番 (45 + 15 * (段 - 1) フレーム目) に上を押し上げ、その 15 フレーム後にはじける
         if _match_group then
-          local t = _tick_match - _match_index * 15
-          if t == 30 then
-            observer:push_up(_ENV)
-          elseif t == 45 then
-            observer:pop(_ENV)
-          end
+          observer:pop(_ENV, _tick_match - _match_index * 15)
         end
         _tick_match = _tick_match + 1
       else
