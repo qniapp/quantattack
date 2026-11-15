@@ -699,7 +699,8 @@ do local _ENV = board_class
       for y = 0, rows do
         local scr_x, scr_y, block = screen_x(_ENV, x), screen_y(_ENV, y), block_at(_ENV, x, y)
 
-        block:render(scr_x, scr_y, block.other_x and screen_x(_ENV, block.other_x))
+        -- jump_dy と fall_dy は 1/3 ドット単位 (秒速 5 マスが 1 フレーム 2 になる)
+        block:render(scr_x, scr_y + (block.fall_dy - block.jump_dy) / 3, block.other_x and screen_x(_ENV, block.other_x))
 
         -- 一番下のマスクを描画
         if y == 0 and not is_game_over(_ENV) then
@@ -856,12 +857,15 @@ do local _ENV = board_class
           -- QA2 と同じ速さで落とす: ふつうのブロックは秒速 5 マス (12 フレームで 1 マス)、
           -- おじゃまブロックは秒速 15 マス (4 フレームで 1 マス)。ブロックは先に下のマスに移り、
           -- fall_dy (負、1/3 ドット単位) だけ上にずらして描きながら、そのマスまで下りてくる。
-          -- CNOT と SWAP は左の端が両端を動かす
+          -- 入れ替え中も下り続け、下で下りているブロックより下には描かない。CNOT と SWAP は左の端が移す
           local other_block, step = row[block.other_x], block.type == "g" and 6 or 2
-          if block.state == "fall" and (not block.other_x or x < block.other_x) then
-            if block.fall_dy < 0 then
-              block.fall_dy = min(block.fall_dy + step, 0)
-            elseif not _is_block_fallable(_ENV, x, y) then
+          if block.fall_dy < 0 then
+            block.fall_dy = min(block.fall_dy + step, 0)
+            for_all_nonempty_blocks_below(_ENV, x, y, function(each)
+              block.fall_dy = min(block.fall_dy, each.fall_dy)
+            end)
+          elseif block.state == "fall" and (not block.other_x or x < block.other_x) then
+            if not _is_block_fallable(_ENV, x, y) then
               if block.type == "g" then
                 bounce(_ENV)
                 sfx(9)
@@ -869,7 +873,6 @@ do local _ENV = board_class
               end
 
               block:change_state"idle"
-
               if other_block then
                 other_block:change_state"idle"
               end
@@ -880,13 +883,10 @@ do local _ENV = board_class
               block.fall_dy = step - 24
 
               if other_block then
-                other_block.state = "fall"
+                other_block.state, other_block.fall_dy = "fall", block.fall_dy
                 remove_block(_ENV, block.other_x, y)
                 put(_ENV, block.other_x, y - 1, other_block)
               end
-            end
-            if other_block then
-              other_block.fall_dy = block.fall_dy
             end
           end
         end
@@ -1162,7 +1162,7 @@ do local _ENV = board_class
   -- t == 45: はじける (音と粒)。
   -- t == 30: QA2 のジャンプ。block と、その上に載っているブロックすべてを、block のジャンプの高さだけ
   -- さらに押し上げて描く。マスは動かさない。QA2 と同じく、段がはじけるたびに高さが足されていく。
-  -- 同じフレームに同じ段の複数のブロックが押し上げても、足すのは 1 回 (いちばん高いもの) だけ。
+  -- 同じ段の複数のブロックが押し上げても、足すのは 1 回だけ。
   -- CNOT, SWAP, おじゃまブロックが載っていれば、その幅の列の上も押し上げる。
   -- 押し上げたブロックは、マッチが終わって 12 フレームたつまでその高さにとどまる。
   function pop(_ENV, block, t)
@@ -1173,11 +1173,13 @@ do local _ENV = board_class
         "2,1,7,7,-1,-1,0.05,0.05,16|2,1,7,7,1,-1,-0.05,0.05,16|2,1,7,7,-1,1,0.05,-0.05,16|2,1,7,7,1,1,-0.05,-0.05,16"
       )
     end
-    if t ~= 30 then
+    local columns, group = {}, block._match_group
+    -- 押し上げるのは段ごとに最初のブロックだけ (同じ段のゲートは同じ高さで、同じフレームに押し上げる。
+    -- 別の段は 15 フレームずれる)。columns には、押し上げる列と押し上げ終わったブロックを入れる
+    if t ~= 30 or group.tick == tick then
       return
     end
-
-    local columns, group = {}, block._match_group
+    group.tick = tick
 
     for y = block.y, #blocks do
       -- 同じ段の CNOT や SWAP のもう片方が左にあっても押し上げるように、段ごとに 2 回調べる。
@@ -1186,12 +1188,9 @@ do local _ENV = board_class
         for x = 1, cols do
           local each = (columns[x] or blocks[y][x]._match_group == group) and
               _block_or_its_head_block(_ENV, x, y)
-          if each and each.type ~= "i" then
-            if each._jump_tick ~= tick then
-              each._jump_tick, each._jump_base = tick, each.jump_dy
-            end
-            each.jump_dy, each._jump_hold =
-                max(each.jump_dy, each._jump_base + block.sprite_set.jump), 28 + 15 * (group.rows - block._match_index)
+          if each and each.type ~= "i" and not columns[each] then
+            columns[each], each.jump_dy, each._jump_hold =
+                true, each.jump_dy + block.sprite_set.jump, 58 + 15 * group.rows - block._tick_match
             for i = min(each.x, each.other_x or 9), max(each.x + each.span - 1, each.other_x or 0) do
               columns[i] = true
             end

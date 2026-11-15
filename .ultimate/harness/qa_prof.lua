@@ -21,7 +21,7 @@ for k, v in pairs(_ENV) do
   if type(v) == "table" then
     for m, f in pairs(v) do
       if type(f) == "function" then
-        local r = add(recs, { 0, 0, 0, "p " .. k .. "." .. m .. " " })
+        local r = add(recs, split("0,0,0,p " .. k .. "." .. m .. " "))
         v[m] = function(...)
           r[2] += 1
           n[d] += 1

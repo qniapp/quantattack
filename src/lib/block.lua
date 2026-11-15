@@ -152,9 +152,6 @@ do local _ENV = block_class
       return
     end
 
-    -- jump_dy と fall_dy は 1/3 ドット単位 (秒速 5 マスが 1 フレーム 2 になる)
-    screen_y = screen_y + (fall_dy - jump_dy) / 3
-
     -- 8 / 3 で割り切れないので、先に掛けてから割る (順序を変えると固定小数点の丸めで描画位置がずれる)
     swap_screen_dx = (_tick_swap or 0) * 8 / block_swap_animation_frame_count
     if state == "swap" and swap_direction == "left" then
@@ -210,7 +207,7 @@ do local _ENV = block_class
   end
 
   function change_state(_ENV, new_state)
-    _timer_landing, _tick_swap, fall_dy = (state == "fall") and 12 or 0, 0, 0
+    _timer_landing, _tick_swap = (state == "fall") and 12 or 0, 0
 
     local old_state = state
     state = new_state
@@ -267,7 +264,6 @@ function garbage_block(_span, _height, _color, _chain_id, _tick_fall)
     first_drop = true,
     _render_box = draw_rounded_box,
     render = function(_ENV, screen_x, screen_y)
-      screen_y = screen_y + (fall_dy - jump_dy) / 3
       local y0, x1, y1, _body_color =
           screen_y + (1 - height) * 8,
           screen_x + span * 8 - 2,

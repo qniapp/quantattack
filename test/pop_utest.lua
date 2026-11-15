@@ -256,4 +256,66 @@ describe('マッチしたブロックが下からはじける', function()
     update(1)
     assert.are_not.equal('match', block_at(1, 4).state)
   end)
+
+  --  ┌───┬───┬───┐
+  --  │ X ┼───┼─X │  ← 両端が別々のマッチの上
+  --  ├───┼───┼───┤
+  --  │ H │ Y │ Z │
+  --  ├───┼───┼───┤
+  --  │ H │ S │ Z │
+  -- ─┴───┴───┴───┴─
+  it("別々のマッチが同じフレームに同じブロックを押し上げると、両方の高さを足す", function()
+    board:put(1, 3, block_class("swap"))
+    board:put(3, 3, block_class("swap"))
+    block_at(1, 3).other_x, block_at(3, 3).other_x = 3, 1
+    put(1, 2, 'h')
+    put(1, 1, 'h')
+    put(2, 2, 'y')
+    put(2, 1, 's')
+    put(3, 2, 'z')
+    put(3, 1, 'z')
+
+    -- 同時消しなので game がいる
+    board:update({})
+    update(44)
+
+    -- H H も Z Z も 0.5 マス (12)
+    assert.are.equal(24, block_at(1, 3).jump_dy)
+    assert.are.equal(24, block_at(3, 3).jump_dy)
+  end)
+
+  it("落ちている途中のブロックを入れ替えても、そのまま下り続ける", function()
+    put(1, 2, 'h')
+
+    -- ホバー 12 フレームのあと、1 段目に移って下りはじめる
+    update(15)
+    assert.are.equal('h', block_at(1, 1).type)
+    local fall_dy = block_at(1, 1).fall_dy
+    assert.is_true(fall_dy < 0)
+
+    assert.is_true(board:swap(1, 1))
+    update(1)
+    assert.are.equal(fall_dy + 2, block_at(1, 1).fall_dy)
+  end)
+
+  --  ┌───────────┐
+  --  │     G     │  4 段目
+  --  └───────────┘
+  --                 3 段目 (空き)
+  --  ┌───┐
+  --  │ H │          2 段目
+  -- ─┴───┴─────────
+  it("おじゃまブロックは、下で下りているブロックにめり込まない", function()
+    board:put(1, 4, garbage_block(3))
+    put(1, 2, 'h')
+
+    for _ = 1, 40 do
+      board:update()
+      local h, g = block_at(1, 1), board:block_at(1, 2)
+      if h.type == 'h' and g.type == 'g' then
+        -- すぐ上のマスにいるとき、下のブロックより下には描かない
+        assert.is_true(g.fall_dy <= h.fall_dy)
+      end
+    end
+  end)
 end)
