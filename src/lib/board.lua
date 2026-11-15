@@ -121,8 +121,10 @@ do local _ENV = board_class
 
           -- QA2 と同じく、下の段から順にはじける。reduction をマッチのグループに使い、rows に段数を入れる。
           -- 各ブロックの _match_index はいちばん下の段を 1 とした段の番号。
-          -- どの簡約も結果を上の段から並べるので、最後の結果がいちばん下の段
-          reduction.rows = 1 - (targets[#targets].dy or 0)
+          -- どの簡約も結果を上の段から並べるので、最初の結果がいちばん上、最後の結果がいちばん下の段
+          -- (SWAP をたどる簡約では dy が正にもなる)
+          local bottom_dy = targets[#targets].dy or 0
+          reduction.rows = (targets[1].dy or 0) - bottom_dy + 1
 
           for _, r in pairs(targets) do
             sfx(35)
@@ -137,7 +139,7 @@ do local _ENV = board_class
             if not blocks[target_y] then
               put(_ENV, target_y, target_x, block_class"i")
             end
-            blocks[target_y][target_x]:replace_with(new_block, (r.dy or 0) + reduction.rows, chain_id, nil, nil, reduction)
+            blocks[target_y][target_x]:replace_with(new_block, (r.dy or 0) - bottom_dy + 1, chain_id, nil, nil, reduction)
             _flash_col_timer[target_x] = #_flash_col_colors + 1
 
             -- ブロックが消える、または変化するとき、その上にあるブロックすべてに chain_id をセット
@@ -1171,11 +1173,11 @@ do local _ENV = board_class
       for _ = 1, 2 do
         for x = 1, cols do
           local each = (columns[x] or blocks[y][x]._match_group == group) and
-              (_garbage_head_block(_ENV, x, y) or blocks[y][x])
+              _block_or_its_head_block(_ENV, x, y)
           if each and each.type ~= "i" then
             each.jump_dy, each._jump_hold =
                 max(each.jump_dy, block.sprite_set.jump), 28 + 15 * (group.rows - block._match_index)
-            for i = min(x, each.other_x or x), max(each.x + each.span - 1, each.other_x or x) do
+            for i = min(each.x, each.other_x or 9), max(each.x + each.span - 1, each.other_x or 0) do
               columns[i] = true
             end
           end

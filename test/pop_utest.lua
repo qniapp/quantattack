@@ -168,4 +168,78 @@ describe('マッチしたブロックが下からはじける', function()
     assert.are.equal(4, block_at(2, 3).jump_dy)
     assert.are.equal(4, block_at(2, 4).jump_dy)
   end)
+
+  --  ┌───────────┐
+  --  │ C ──┼── X │  ← 真ん中の列だけが HH の上
+  --  └───┬───┬───┘
+  --      │ H │
+  --      ├───┤
+  --      │ H │
+  -- ─────┴───┴───
+  it("CNOT の真ん中の列を押し上げても、両端とその上を押し上げる", function()
+    board:put(1, 3, block_class("control"))
+    board:put(3, 3, block_class("cnot_x"))
+    block_at(1, 3).other_x, block_at(3, 3).other_x = 3, 1
+    put(1, 4, 'y')
+    put(3, 4, 'z')
+    put(1, 1, 's')
+    put(3, 1, 's')
+    put(1, 2, 'x')
+    put(3, 2, 'y')
+    put(2, 2, 'h')
+    put(2, 1, 'h')
+
+    board:update()
+    update(44)
+
+    assert.are.equal(4, block_at(1, 3).jump_dy)
+    assert.are.equal(4, block_at(3, 3).jump_dy)
+    assert.are.equal(4, block_at(1, 4).jump_dy)
+    assert.are.equal(4, block_at(3, 4).jump_dy)
+    assert.are.equal(0, block_at(1, 2).jump_dy)
+  end)
+
+  --  ┌───┐
+  --  │ T │              4 段目
+  --  ├───┼───┐
+  --  │ X ┼─X │          3 段目 (SWAP)
+  --  └───┼───┼───┐
+  --      │ X ┼─X │      2 段目 (SWAP)
+  --  ┌───┼───┼───┤
+  --  │ H │ Y │ T │      1 段目
+  -- ─┴───┴───┴───┴─
+  it("SWAP をたどる簡約でも、いちばん上のゲートまで下から順にはじける", function()
+    put(1, 4, 't')
+    board:put(1, 3, block_class("swap"))
+    board:put(2, 3, block_class("swap"))
+    block_at(1, 3).other_x, block_at(2, 3).other_x = 2, 1
+    board:put(2, 2, block_class("swap"))
+    board:put(3, 2, block_class("swap"))
+    block_at(2, 2).other_x, block_at(3, 2).other_x = 3, 2
+    put(1, 1, 'h')
+    put(2, 1, 'y')
+    put(3, 1, 't')
+    put(1, 2, 's')
+
+    board:update()
+
+    -- T と T が簡約される (SWAP は残る)。上の T が 4 段目、下の T が 1 段目
+    assert.are.equal('match', block_at(3, 1).state)
+    assert.are.equal('match', block_at(1, 4).state)
+    assert.are.equal(4, block_at(1, 4)._match_group.rows)
+    assert.are.equal(4, block_at(1, 4)._match_index)
+    assert.are.equal(1, block_at(3, 1)._match_index)
+
+    -- 1 段目の T は 60 フレーム目、4 段目の T は 105 フレーム目にはじけ、その次のフレームに結果が出る
+    update(59)
+    assert.is_false(visible(3, 1))
+    assert.is_true(visible(1, 4))
+    update(44)
+    assert.is_true(visible(1, 4))
+    update(1)
+    assert.is_false(visible(1, 4))
+    assert.are.equal('match', block_at(1, 4).state)
+    update(1)
+    assert.are_not.equal('match', block_at(1, 4).state)
+  end)
 end)
