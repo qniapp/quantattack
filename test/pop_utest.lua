@@ -90,28 +90,28 @@ describe('マッチしたブロックが下からはじける', function()
 
     board:update()
 
-    -- 1 段目の H の番: 45 フレーム目に H (0.5 マス = 4 ドット) の高さまで押し上げる
+    -- 1 段目の H の番: 45 フレーム目に H (0.5 マス = 4 ドット、jump_dy は 1/3 ドット単位で 12) の高さまで押し上げる
     update(43)
     assert.are.equal(0, block_at(1, 4).jump_dy)
     update(1)
-    assert.are.equal(4, block_at(1, 1).jump_dy)
-    assert.are.equal(4, block_at(1, 2).jump_dy)
-    assert.are.equal(4, block_at(1, 4).jump_dy)
+    assert.are.equal(12, block_at(1, 1).jump_dy)
+    assert.are.equal(12, block_at(1, 2).jump_dy)
+    assert.are.equal(12, block_at(1, 4).jump_dy)
 
     -- 2 段目の X の番には、さらに X (0.5 マス) の高さだけ押し上げる
     update(14)
-    assert.are.equal(4, block_at(1, 4).jump_dy)
+    assert.are.equal(12, block_at(1, 4).jump_dy)
     update(1)
-    assert.are.equal(8, block_at(1, 2).jump_dy)
-    assert.are.equal(8, block_at(1, 3).jump_dy)
-    assert.are.equal(8, block_at(1, 4).jump_dy)
+    assert.are.equal(24, block_at(1, 2).jump_dy)
+    assert.are.equal(24, block_at(1, 3).jump_dy)
+    assert.are.equal(24, block_at(1, 4).jump_dy)
     -- はじけた 1 段目はそれ以上押し上げない
-    assert.are.equal(4, block_at(1, 1).jump_dy)
+    assert.are.equal(12, block_at(1, 1).jump_dy)
 
     -- 3 段目の H の番には、さらに H (0.5 マス)
     update(15)
-    assert.are.equal(12, block_at(1, 3).jump_dy)
-    assert.are.equal(12, block_at(1, 4).jump_dy)
+    assert.are.equal(36, block_at(1, 3).jump_dy)
+    assert.are.equal(36, block_at(1, 4).jump_dy)
   end)
 
   --  ┌───┐
@@ -121,7 +121,7 @@ describe('マッチしたブロックが下からはじける', function()
   --  ├───┤
   --  │ T │
   -- ─┴───┴─
-  it("押し上げたブロックは、マッチが終わって 12 フレーム浮いたあと、1 フレーム 1 マスで下りる", function()
+  it("押し上げたブロックは、マッチが終わって 12 フレーム浮いたあと、QA2 と同じ秒速 5 マスで下りる", function()
     put(1, 3, 'h')
     put(1, 2, 't')
     put(1, 1, 't')
@@ -129,20 +129,21 @@ describe('マッチしたブロックが下からはじける', function()
     -- TT がマッチ (結果は 1 段目が S、2 段目が空き)
     board:update()
 
-    -- T は 1.5 マス (12 ドット) ずつ、T がはじけるたびに押し上げる
+    -- T は 1.5 マス (12 ドット、jump_dy で 36) ずつ、T がはじけるたびに押し上げる
     update(44)
-    assert.are.equal(12, block_at(1, 3).jump_dy)
+    assert.are.equal(36, block_at(1, 3).jump_dy)
     update(15)
-    assert.are.equal(24, block_at(1, 3).jump_dy)
+    assert.are.equal(72, block_at(1, 3).jump_dy)
 
     -- 2 段目がはじけて (75 フレーム目) 結果が出た (76 フレーム目) あと、12 フレームはその高さ
     update(88 - 60)
-    assert.are.equal(24, block_at(1, 3).jump_dy)
+    assert.are.equal(72, block_at(1, 3).jump_dy)
     assert.are.equal('s', block_at(1, 1).type)
-    assert.are.equal(12, block_at(1, 1).jump_dy)
+    assert.are.equal(36, block_at(1, 1).jump_dy)
 
-    update(1)
-    assert.are.equal(4, block_at(1, 1).jump_dy)
+    -- 1.5 マス (12 ドット) を 1 フレーム 2/3 ドット (jump_dy で 2) ずつ、ちょうど 18 フレームで下りる
+    update(17)
+    assert.is_true(block_at(1, 1).jump_dy > 0)
     update(1)
     assert.are.equal(0, block_at(1, 1).jump_dy)
   end)
@@ -177,9 +178,9 @@ describe('マッチしたブロックが下からはじける', function()
     board:update()
     update(44)
 
-    assert.are.equal(4, block_at(1, 3).jump_dy)
-    assert.are.equal(4, block_at(2, 3).jump_dy)
-    assert.are.equal(4, block_at(2, 4).jump_dy)
+    assert.are.equal(12, block_at(1, 3).jump_dy)
+    assert.are.equal(12, block_at(2, 3).jump_dy)
+    assert.are.equal(12, block_at(2, 4).jump_dy)
   end)
 
   --  ┌───────────┐
@@ -205,10 +206,10 @@ describe('マッチしたブロックが下からはじける', function()
     board:update()
     update(44)
 
-    assert.are.equal(4, block_at(1, 3).jump_dy)
-    assert.are.equal(4, block_at(3, 3).jump_dy)
-    assert.are.equal(4, block_at(1, 4).jump_dy)
-    assert.are.equal(4, block_at(3, 4).jump_dy)
+    assert.are.equal(12, block_at(1, 3).jump_dy)
+    assert.are.equal(12, block_at(3, 3).jump_dy)
+    assert.are.equal(12, block_at(1, 4).jump_dy)
+    assert.are.equal(12, block_at(3, 4).jump_dy)
     assert.are.equal(0, block_at(1, 2).jump_dy)
   end)
 

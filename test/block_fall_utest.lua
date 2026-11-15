@@ -26,7 +26,7 @@ describe('ブロックの落下', function()
       assert.is_true(block.state == "hover")
     end)
 
-    it("1 フレームで 1 ブロック落下する", function()
+    it("落ちはじめのフレームで下のマスに移る", function()
       board:put(1, 2, block)
 
       -- hover 状態に遷移
@@ -43,7 +43,7 @@ describe('ブロックの落下', function()
       assert.are.equal("h", board:block_at(1, 1).type)
     end)
 
-    it("着地後 1 フレームで状態が idle になる", function()
+    it("1 マス下りきって着地すると状態が idle になる", function()
       board:put(1, 2, block)
 
       board:update()
@@ -53,6 +53,11 @@ describe('ブロックの落下', function()
       end
 
       board:update()
+
+      -- QA2 と同じ速さで 1 マス下りきるまで (ふつうのブロックは 12 フレーム、おじゃまブロックは 4 フレーム)
+      for i = 1, 11 do
+        board:update()
+      end
       board:update()
 
       assert.is_true(block.state == "idle")
@@ -77,7 +82,7 @@ describe('ブロックの落下', function()
       assert.is_true(block2.state == "hover")
     end)
 
-    it("1 フレームで 1 ブロック落下する", function()
+    it("落ちはじめのフレームで下のマスに移る", function()
       board:put(1, 3, block1)
       board:put(1, 2, block2)
 
@@ -105,7 +110,7 @@ describe('ブロックの落下', function()
       assert.are.equal("x", board:block_at(1, 1).type)
     end)
 
-    it("着地後 1 フレームで状態が idle になる", function()
+    it("1 マス下りきって着地すると状態が idle になる", function()
       board:put(1, 3, block1)
       board:put(1, 2, block2)
 
@@ -116,6 +121,11 @@ describe('ブロックの落下', function()
       end
 
       board:update()
+
+      -- QA2 と同じ速さで 1 マス下りきるまで (ふつうのブロックは 12 フレーム、おじゃまブロックは 4 フレーム)
+      for i = 1, 11 do
+        board:update()
+      end
       board:update()
 
       assert.is_true(block1.state == "idle")
@@ -148,7 +158,7 @@ describe('ブロックの落下', function()
       assert.is_true(cnot_x.state == "fall")
     end)
 
-    it("1 フレームで 1 ブロック落下する", function()
+    it("落ちはじめのフレームで下のマスに移る", function()
       board:put(1, 2, control)
       board:put(2, 2, cnot_x)
 
@@ -166,7 +176,7 @@ describe('ブロックの落下', function()
       assert.are.equal(cnot_x, board:block_at(2, 1))
     end)
 
-    it("着地後 1 フレームで状態が idle になる", function()
+    it("1 マス下りきって着地すると状態が idle になる", function()
       board:put(1, 2, control)
       board:put(2, 2, cnot_x)
 
@@ -177,6 +187,11 @@ describe('ブロックの落下', function()
       end
 
       board:update()
+
+      -- QA2 と同じ速さで 1 マス下りきるまで
+      for i = 1, 11 do
+        board:update()
+      end
       board:update()
 
       assert.is_true(control.state == "idle")
@@ -208,7 +223,7 @@ describe('ブロックの落下', function()
       assert.is_true(swap_right.state == "fall")
     end)
 
-    it("1 フレームで 1 ブロック落下する", function()
+    it("落ちはじめのフレームで下のマスに移る", function()
       board:put(1, 2, swap_left)
       board:put(2, 2, swap_right)
 
@@ -226,7 +241,7 @@ describe('ブロックの落下', function()
       assert.are.equal(swap_right, board:block_at(2, 1))
     end)
 
-    it("着地後 1 フレームで状態が idle になる", function()
+    it("1 マス下りきって着地すると状態が idle になる", function()
       board:put(1, 2, swap_left)
       board:put(2, 2, swap_right)
 
@@ -237,6 +252,11 @@ describe('ブロックの落下', function()
       end
 
       board:update()
+
+      -- QA2 と同じ速さで 1 マス下りきるまで (ふつうのブロックは 12 フレーム、おじゃまブロックは 4 フレーム)
+      for i = 1, 11 do
+        board:update()
+      end
       board:update()
 
       assert.is_true(swap_left.state == "idle")
@@ -266,6 +286,11 @@ describe('ブロックの落下', function()
       end
 
       board:update()
+
+      -- QA2 と同じ速さで 1 マス下りきるまで
+      for i = 1, 11 do
+        board:update()
+      end
       board:update()
 
       assert.are.equal(swap_left, board:block_at(1, 1))
@@ -296,7 +321,7 @@ describe('ブロックの落下', function()
       assert.is_true(garbage.state == "fall")
     end)
 
-    it("1 フレームで 1 ブロック落下する", function()
+    it("落ちはじめのフレームで下のマスに移る", function()
       board:put(1, 2, garbage)
 
       board:update()
@@ -311,7 +336,7 @@ describe('ブロックの落下', function()
       assert.are.equal(garbage, board:block_at(1, 1))
     end)
 
-    it("着地後 1 フレームで状態が idle になる", function()
+    it("1 マス下りきって着地すると状態が idle になる", function()
       board:put(1, 2, garbage)
 
       board:update()
@@ -321,6 +346,11 @@ describe('ブロックの落下', function()
       end
 
       board:update()
+
+      -- QA2 と同じ速さで 1 マス下りきるまで (ふつうのブロックは 12 フレーム、おじゃまブロックは 4 フレーム)
+      for i = 1, 3 do
+        board:update()
+      end
       board:update()
 
       assert.is_true(garbage.state == "idle")

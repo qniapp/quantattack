@@ -853,8 +853,15 @@ do local _ENV = board_class
             block.chain_id = nil
           end
 
-          if block.state == "fall" then
-            if not _is_block_fallable(_ENV, x, y) then
+          -- QA2 と同じ速さで落とす: ふつうのブロックは秒速 5 マス (12 フレームで 1 マス)、
+          -- おじゃまブロックは秒速 15 マス (4 フレームで 1 マス)。ブロックは先に下のマスに移り、
+          -- fall_dy (負、1/3 ドット単位) だけ上にずらして描きながら、そのマスまで下りてくる。
+          -- CNOT と SWAP は左の端が両端を動かす
+          local other_block, step = row[block.other_x], block.type == "g" and 6 or 2
+          if block.state == "fall" and (not block.other_x or x < block.other_x) then
+            if block.fall_dy < 0 then
+              block.fall_dy = min(block.fall_dy + step, 0)
+            elseif not _is_block_fallable(_ENV, x, y) then
               if block.type == "g" then
                 bounce(_ENV)
                 sfx(9)
@@ -863,20 +870,23 @@ do local _ENV = board_class
 
               block:change_state"idle"
 
-              if block.other_x and x < block.other_x then
-                row[block.other_x]:change_state"idle"
+              if other_block then
+                other_block:change_state"idle"
               end
-            elseif is_empty(_ENV, x, y - 1) and (not block.other_x or x < block.other_x) then
+            elseif is_empty(_ENV, x, y - 1) then
               -- 落下中のブロックをひとつ下に移動
               remove_block(_ENV, x, y)
               put(_ENV, x, y - 1, block)
+              block.fall_dy = step - 24
 
-              if block.other_x then
-                local other_block = row[block.other_x]
+              if other_block then
                 other_block.state = "fall"
                 remove_block(_ENV, block.other_x, y)
                 put(_ENV, block.other_x, y - 1, other_block)
               end
+            end
+            if other_block then
+              other_block.fall_dy = block.fall_dy
             end
           end
         end
@@ -1155,7 +1165,7 @@ do local _ENV = board_class
   function pop(_ENV, block)
     sfx(11, -1, (block._match_index % 6 - 1) * 4, 4)
     particles:create(
-      { screen_x(_ENV, block.x) + 3, screen_y(_ENV, block.y) - block.jump_dy + 3 },
+      { screen_x(_ENV, block.x) + 3, screen_y(_ENV, block.y) - block.jump_dy / 3 + 3 },
       "2,1,7,7,-1,-1,0.05,0.05,16|2,1,7,7,1,-1,-0.05,0.05,16|2,1,7,7,-1,1,0.05,-0.05,16|2,1,7,7,1,1,-0.05,-0.05,16"
     )
   end
