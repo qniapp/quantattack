@@ -1161,7 +1161,9 @@ do local _ENV = board_class
   end
 
   --- QA2 のジャンプ: マッチしたブロック block と、その上に載っているブロックすべてを、
-  -- block のジャンプの高さまで押し上げて描く (QA2 と同じく足し合わせず、高いほう)。マスは動かさない。
+  -- block のジャンプの高さだけさらに押し上げて描く。マスは動かさない。
+  -- QA2 と同じく、段がはじけるたびに高さが足されていく。同じフレームに同じ段の複数のブロックが
+  -- 押し上げても、足すのは 1 回 (いちばん高いもの) だけ。
   -- CNOT, SWAP, おじゃまブロックが載っていれば、その幅の列の上も押し上げる。
   -- 押し上げたブロックは、マッチが終わって 12 フレームたつまでその高さにとどまる。
   function push_up(_ENV, block)
@@ -1175,8 +1177,11 @@ do local _ENV = board_class
           local each = (columns[x] or blocks[y][x]._match_group == group) and
               _block_or_its_head_block(_ENV, x, y)
           if each and each.type ~= "i" then
+            if each._jump_tick ~= tick then
+              each._jump_tick, each._jump_base = tick, each.jump_dy
+            end
             each.jump_dy, each._jump_hold =
-                max(each.jump_dy, block.sprite_set.jump), 28 + 15 * (group.rows - block._match_index)
+                max(each.jump_dy, each._jump_base + block.sprite_set.jump), 28 + 15 * (group.rows - block._match_index)
             for i = min(each.x, each.other_x or 9), max(each.x + each.span - 1, each.other_x or 0) do
               columns[i] = true
             end

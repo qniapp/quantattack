@@ -98,9 +98,20 @@ describe('マッチしたブロックが下からはじける', function()
     assert.are.equal(4, block_at(1, 2).jump_dy)
     assert.are.equal(4, block_at(1, 4).jump_dy)
 
-    -- 足し合わせず、高いほうになる (X も 0.5 マス)
-    update(15)
+    -- 2 段目の X の番には、さらに X (0.5 マス) の高さだけ押し上げる
+    update(14)
     assert.are.equal(4, block_at(1, 4).jump_dy)
+    update(1)
+    assert.are.equal(8, block_at(1, 2).jump_dy)
+    assert.are.equal(8, block_at(1, 3).jump_dy)
+    assert.are.equal(8, block_at(1, 4).jump_dy)
+    -- はじけた 1 段目はそれ以上押し上げない
+    assert.are.equal(4, block_at(1, 1).jump_dy)
+
+    -- 3 段目の H の番には、さらに H (0.5 マス)
+    update(15)
+    assert.are.equal(12, block_at(1, 3).jump_dy)
+    assert.are.equal(12, block_at(1, 4).jump_dy)
   end)
 
   --  ┌───┐
@@ -118,13 +129,15 @@ describe('マッチしたブロックが下からはじける', function()
     -- TT がマッチ (結果は 1 段目が S、2 段目が空き)
     board:update()
 
-    -- T は 1.5 マス (12 ドット) 押し上げる
+    -- T は 1.5 マス (12 ドット) ずつ、T がはじけるたびに押し上げる
     update(44)
     assert.are.equal(12, block_at(1, 3).jump_dy)
+    update(15)
+    assert.are.equal(24, block_at(1, 3).jump_dy)
 
     -- 2 段目がはじけて (75 フレーム目) 結果が出た (76 フレーム目) あと、12 フレームはその高さ
-    update(88 - 45)
-    assert.are.equal(12, block_at(1, 3).jump_dy)
+    update(88 - 60)
+    assert.are.equal(24, block_at(1, 3).jump_dy)
     assert.are.equal('s', block_at(1, 1).type)
     assert.are.equal(12, block_at(1, 1).jump_dy)
 
