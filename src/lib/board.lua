@@ -1236,9 +1236,11 @@ do local _ENV = board_class
                 true, each.jump_dy + block.sprite_set.jump, 58 + 15 * group.rows - block._tick_match
             -- 浮いたブロックは下りきるまでマッチしないので、盤面のマッチできるブロックから外す
             observable_update(_ENV, each)
-            -- 分解中のおじゃまブロックのマスなら、もとのおじゃまブロックの幅全体を押し上げる
+            -- 分解中のおじゃまブロックのマスなら、もとのおじゃまブロックの幅全体を押し上げる。
+            -- それ以外はブロックの幅 (CNOT と SWAP は両端の間) の列だけ。横の列に広げないよう、
+            -- other_x のないときは cols と比べる (タイトルのデモは 16 列)
             local g = each._garbage or each
-            for i = min(g.x, each.other_x or 9), max(g.x + g.span - 1, each.other_x or 0) do
+            for i = min(g.x, each.other_x or cols), max(g.x + g.span - 1, each.other_x or 0) do
               columns[i] = true
             end
           end

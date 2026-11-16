@@ -532,6 +532,94 @@ describe('マッチしたブロックが下からはじける', function()
     assert.is_true(landed)
   end)
 
+  --  9    10   11   12   13   14  列
+  --                 ┌───┐
+  --                 │ Y │           5 段目
+  --                 ├───┼───┐
+  --                 │ C ┼─X │       4 段目
+  --                 ├───┼───┤
+  --                 │ S │ T │       3 段目
+  --  ┌───┬───┬───┬──┴┬──┴┬──┴┐
+  --  │ X │ Y │ Z │ H │ S │ T │      2 段目
+  --  ├───┼───┼───┼───┼───┼───┤
+  --  │ T │ S │ X │ H │ Z │ Y │      1 段目
+  -- ─┴───┴───┴───┴───┴───┴───┴─
+  it("タイトルのデモのように幅の広い盤面でも、押し上げるのはマッチした列の上だけで、横のブロックは押し上げない", function()
+    board = board_class(nil, 0, 16)
+    for x, t in pairs({ 't', 's', 'x', 'h', 'z', 'y' }) do
+      put(x + 8, 1, t)
+    end
+    for x, t in pairs({ 'x', 'y', 'z', 'h', 's', 't' }) do
+      put(x + 8, 2, t)
+    end
+    put(12, 3, 's')
+    put(13, 3, 't')
+    board:put(12, 4, control_block(13))
+    board:put(13, 4, cnot_x_block(12))
+    put(12, 5, 'y')
+
+    board:update()
+    update(44)
+
+    -- 12 列目の H H の上は、S, CNOT, Y と上まで押し上げる。CNOT が載っているので 13 列目の CNOT の端も
+    for _, xy in pairs({ { 12, 1 }, { 12, 2 }, { 12, 3 }, { 12, 4 }, { 13, 4 }, { 12, 5 } }) do
+      assert.are.equal(12, block_at(xy[1], xy[2]).jump_dy)
+    end
+    -- 横のブロック (CNOT の下の 13 列目の T も) は押し上げない
+    for x = 9, 14 do
+      if x ~= 12 then
+        for y = 1, 3 do
+          assert.are.equal(0, block_at(x, y).jump_dy)
+        end
+      end
+    end
+  end)
+
+  --  ┌───┐       ┌───┐
+  --  │ S │       │ Y │       7 段目
+  --  ├───┴───────┴───┤
+  --  │       G       │       6 段目 (2 列目の上に載る)
+  --  └───┬───┬───────┘
+  --      │ Z │   ┌───┐   5 段目
+  --      ├───┤   │ T │   4 段目
+  --      │ X ┼───┼─X │   3 段目 (SWAP)
+  --  ┌───┼───┼───┼───┤
+  --  │ S │ H │ T │ S │   2 段目
+  --  ├───┼───┼───┼───┤
+  --  │ T │ H │ S │ T │   1 段目
+  -- ─┴───┴───┴───┴───┴─
+  it("押し上げは真上にだけ伝わり、複数列のブロックではその各列の上に広がる。横のブロックは押し上げない", function()
+    for x, t in pairs({ 't', 'h', 's', 't' }) do
+      put(x, 1, t)
+    end
+    for x, t in pairs({ 's', 'h', 't', 's' }) do
+      put(x, 2, t)
+    end
+    board:put(2, 3, swap_block(4))
+    board:put(4, 3, swap_block(2))
+    put(2, 4, 'x')
+    put(2, 5, 'z')
+    put(4, 4, 't')
+    board:put(1, 6, garbage_block(4))
+    put(1, 7, 's')
+    put(4, 7, 'y')
+
+    board:update()
+    update(44)
+
+    -- 2 列目の H が押し上げるのは SWAP から上。SWAP が 4 列目の T を、X Z がおじゃまブロックを、
+    -- おじゃまブロックが 1 列目と 4 列目の上を押し上げる
+    for _, xy in pairs({ { 2, 3 }, { 4, 3 }, { 2, 4 }, { 2, 5 }, { 4, 4 }, { 1, 6 }, { 1, 7 }, { 4, 7 } }) do
+      assert.are.equal(12, block_at(xy[1], xy[2]).jump_dy)
+    end
+    -- 横の列 (SWAP の真ん中の 3 列目も) のブロックは押し上げない
+    for _, x in pairs({ 1, 3, 4 }) do
+      for y = 1, 2 do
+        assert.are.equal(0, block_at(x, y).jump_dy)
+      end
+    end
+  end)
+
   it("タイトルのデモのように幅の広い盤面でも、右の列のブロックが落ちる", function()
     board = board_class(nil, 0, 16)
     put(16, 2, 'h')
