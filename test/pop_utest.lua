@@ -368,6 +368,37 @@ describe('マッチしたブロックが下からはじける', function()
     assert.are.equal(0, block_at(1, 4).jump_dy)
   end)
 
+  --          ┌───┐
+  --          │ Y │  4 段目
+  --  ┌───────┴───┤
+  --  │     G     │  3 段目 (下の HH のマッチで分解が始まる)
+  --  ├───┬───┬───┤
+  --  │ H │ S │ T │
+  --  ├───┼───┼───┤
+  --  │ H │ T │ S │
+  -- ─┴───┴───┴───┴─
+  it("分解中のおじゃまブロックを下から押し上げると、分解した列だけでなく全体が押し上がる", function()
+    board:put(1, 3, garbage_block(3))
+    put(3, 4, 'y')
+    put(1, 2, 'h')
+    put(2, 2, 's')
+    put(3, 2, 't')
+    put(1, 1, 'h')
+    put(2, 1, 't')
+    put(3, 1, 's')
+
+    -- 45 と 60 フレーム目に H が 1 段ずつ押し上げる (12 + 12)。60 フレーム目のおじゃまブロックは
+    -- 1 マス目と 2 マス目がゲートになり、3 マス目はまだ分解中
+    board:update()
+    update(59)
+
+    assert.are.equal('match', block_at(3, 3).state)
+    for x = 1, 3 do
+      assert.are.equal(24, block_at(x, 3).jump_dy)
+    end
+    assert.are.equal(24, block_at(3, 4).jump_dy)
+  end)
+
   it("タイトルのデモのように幅の広い盤面でも、右の列のブロックが落ちる", function()
     board = board_class(nil, 0, 16)
     put(16, 2, 'h')

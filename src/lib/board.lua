@@ -139,7 +139,7 @@ do local _ENV = board_class
             if not blocks[target_y] then
               put(_ENV, target_y, target_x, block_class"i")
             end
-            blocks[target_y][target_x]:replace_with(new_block, r.dy - bottom_dy + 1, chain_id, nil, nil, reduction)
+            blocks[target_y][target_x]:replace_with(new_block, r.dy - bottom_dy + 1, chain_id, nil, reduction)
             _flash_col_timer[target_x] = #_flash_col_colors + 1
 
             -- ブロックが消える、または変化するとき、その上にあるブロックすべてに chain_id をセット
@@ -248,8 +248,7 @@ do local _ENV = board_class
                   block_class"i"),
                 dx + dy * garbage_span,
                 (dy == 0 or dy == 1 and dx == 0) and each.chain_id or nil,
-                garbage_span,
-                garbage_height
+                each
               )
             end
           end
@@ -1162,7 +1161,7 @@ do local _ENV = board_class
   -- t == 30: QA2 のジャンプ。block と、その上に載っているブロックすべてを、block のジャンプの高さだけ
   -- さらに押し上げて描く。マスは動かさない。QA2 と同じく、段がはじけるたびに高さが足されていく。
   -- 同じ段の複数のブロックが押し上げても、足すのは 1 回だけ。
-  -- CNOT, SWAP, おじゃまブロックが載っていれば、その幅の列の上も押し上げる。
+  -- CNOT, SWAP, おじゃまブロック (分解中も) が載っていれば、その幅の列の上も押し上げる。
   -- 押し上げたブロックは、マッチが終わって 12 フレームたつまでその高さにとどまる。
   function pop(_ENV, block, t)
     if t == 45 then
@@ -1194,7 +1193,9 @@ do local _ENV = board_class
                 true, each.jump_dy + block.sprite_set.jump, 58 + 15 * group.rows - block._tick_match
             -- 浮いたブロックは下りきるまでマッチしないので、盤面のマッチできるブロックから外す
             observable_update(_ENV, each)
-            for i = min(each.x, each.other_x or 9), max(each.x + each.span - 1, each.other_x or 0) do
+            -- 分解中のおじゃまブロックのマスなら、もとのおじゃまブロックの幅全体を押し上げる
+            local g = each._garbage or each
+            for i = min(g.x, each.other_x or 9), max(g.x + g.span - 1, each.other_x or 0) do
               columns[i] = true
             end
           end

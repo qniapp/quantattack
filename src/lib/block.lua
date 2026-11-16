@@ -80,9 +80,10 @@ do local _ENV = block_class
   -- をもらい、QA2 と同じように 45 フレーム光ったあと、下の段から 15 フレームごとに上を押し上げてはじける。
   -- はじけたマスは最後の段がはじけるまで埋まったままで、結果はまとめて出る。
   -- おじゃまブロックの分解 (match_group なし) は今までどおり 8 フレームごと。
-  function replace_with(_ENV, other, match_index, _chain_id, garbage_span, garbage_height, match_group)
-    new_block, _match_index, _tick_match, chain_id, other.chain_id, _garbage_span, _garbage_height, _match_group =
-        other, match_index or 0, 1, _chain_id, _chain_id, garbage_span, garbage_height, match_group
+  -- 分解中のマスは、もとのおじゃまブロック garbage を覚えておき、押し上げられるときはその幅全体で上がる。
+  function replace_with(_ENV, other, match_index, _chain_id, garbage, match_group)
+    new_block, _match_index, _tick_match, chain_id, other.chain_id, _garbage, _match_group =
+        other, match_index or 0, 1, _chain_id, _chain_id, garbage, match_group
 
     change_state(_ENV, "match")
   end
@@ -135,16 +136,17 @@ do local _ENV = block_class
         end
         change_state(_ENV, "idle")
 
-        if _garbage_span then
-          new_block._tick_freeze = 0
-          new_block._freeze_frame_count = (_garbage_span * _garbage_height - _match_index) * block_match_delay_per_block
+        if _garbage then
+          new_block._garbage, new_block._freeze_frame_count =
+              _garbage, (_garbage.span * _garbage.height - _match_index) * block_match_delay_per_block
           new_block:change_state("freeze")
         end
       end
     elseif state == "freeze" then
-      if _tick_freeze < _freeze_frame_count then
-        _tick_freeze = _tick_freeze + 1
+      if _freeze_frame_count > 0 then
+        _freeze_frame_count = _freeze_frame_count - 1
       else
+        _garbage = nil
         change_state(_ENV, "idle")
       end
     end
