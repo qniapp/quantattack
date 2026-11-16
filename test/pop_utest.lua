@@ -473,6 +473,37 @@ describe('マッチしたブロックが下からはじける', function()
     assert.are.equal(0, board:block_at(1, 4).jump_dy)
   end)
 
+  --  ┌───┬───┐
+  --  │ X ┼─X │  9 段目 (SWAP、下が空いているので落ちてくる)
+  --  └───┴───┘
+  --               4 から 8 段目 (空き)
+  --      ┌───┐
+  --      │ Y │  3 段目
+  --  ┌───┼───┤
+  --  │ S │ T │
+  --  ├───┼───┤
+  --  │ X │ T │
+  -- ─┴───┴───┴─
+  it("落ちてくる SWAP は、段を移るフレームも押し上げられたブロックに貫通されない", function()
+    board:put(1, 9, block_class("swap"))
+    board:put(2, 9, block_class("swap"))
+    block_at(1, 9).other_x, block_at(2, 9).other_x = 2, 1
+    put(2, 3, 'y')
+    put(1, 2, 's')
+    put(2, 2, 't')
+    put(1, 1, 'x')
+    put(2, 1, 't')
+    local y, swap, pushed = block_at(2, 3), block_at(1, 9), false
+
+    -- T T で Y が 2 段ぶん押し上げられているあいだに、SWAP が右の端の列 (Y の列) へ落ちてくる
+    for _ = 1, 200 do
+      board:update()
+      pushed = pushed or swap.jump_dy > 0
+      assert.is_true(swap.y * 24 + swap.jump_dy - swap.fall_dy >= (y.y + 1) * 24 + y.jump_dy - y.fall_dy)
+    end
+    assert.is_true(pushed)
+  end)
+
   it("タイトルのデモのように幅の広い盤面でも、右の列のブロックが落ちる", function()
     board = board_class(nil, 0, 16)
     put(16, 2, 'h')

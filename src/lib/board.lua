@@ -914,14 +914,14 @@ do local _ENV = board_class
 
           -- すきまをあけて上にあるブロックも、押し上げられた下のブロックを貫通しない。その上端に届いたら
           -- (CNOT, SWAP, おじゃまブロックは幅全体で) そこに載る高さまで押し上げられ、その上に載ったまま下りる。
-          -- 押し上げられているブロックより下は調べない。CNOT と SWAP は右の端が、両端と間の列 (同じ段は空きマス) の
-          -- 下を調べて両端を押し上げる (左の端では x1 > x2 なので何もしない)
+          -- 押し上げられているブロックより下は調べない。CNOT と SWAP は左の端が、両端と間の列 (同じ段は空きマス) の
+          -- 下を調べて両端を押し上げる (両端をひとつ下の段へ移したフレームも。右の端では x2 < x なので何もしない)
           if _lifting then
-            local x1, x2, bottom, dy = block.other_x or x, x + block.span - 1, block.y * 24 - block.fall_dy, block.jump_dy
-            for i = x1, x2 do
+            local x2, bottom, dy = block.other_x or x + block.span - 1, block.y * 24 - block.fall_dy, block.jump_dy
+            for i = x, x2 do
               dy = max(dy, (tops[i] or 0) - bottom)
             end
-            for i = x1, x2 do
+            for i = x, x2 do
               tops[i] = bottom + dy + 24 * block.height
             end
             if dy > block.jump_dy then
