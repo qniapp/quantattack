@@ -891,7 +891,7 @@ do local _ENV = board_class
                 if other_block then
                   -- 右の端はこのあとこのフレームに update するので、押し上げられていれば左の端と同じフレームに下りはじめる
                   other_block:change_state"idle"
-                  other_block._jump_hold = 1
+                  other_block._jump_hold = max(block._jump_hold or 0, 0) + 1
                 end
               elseif is_empty(_ENV, x, y - 1) then
                 -- 落下中のブロックをひとつ下に移動

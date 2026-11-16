@@ -208,12 +208,7 @@ do local _ENV = game_class
         game_over_time = t()
 
         if board2 then
-          if board1.lose then
-            board2.win = true
-          end
-          if board2.lose then
-            board1.win = true
-          end
+          board1.win, board2.win = board2.lose, board1.lose
         end
       end
     end

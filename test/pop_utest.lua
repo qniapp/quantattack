@@ -512,6 +512,26 @@ describe('マッチしたブロックが下からはじける', function()
     end
   end)
 
+  it("押し上げられたまま着地した SWAP は、両端がそろって下りる", function()
+    -- 落ちている SWAP の下で T T がマッチし、押し上げられたまま (浮いているあいだに) 着地する
+    board:put(1, 6, block_class("swap"))
+    board:put(2, 6, block_class("swap"))
+    block_at(1, 6).other_x, block_at(2, 6).other_x = 2, 1
+    put(1, 2, 't')
+    put(2, 2, 'y')
+    put(1, 1, 't')
+    put(2, 1, 'z')
+    local left, right, landed = block_at(1, 6), block_at(2, 6), false
+
+    for _ = 1, 200 do
+      board:update()
+      landed = landed or left.state == "idle" and left.jump_dy > 0
+      assert.are.equal(left.y, right.y)
+      assert.are.equal(left.jump_dy, right.jump_dy)
+    end
+    assert.is_true(landed)
+  end)
+
   it("タイトルのデモのように幅の広い盤面でも、右の列のブロックが落ちる", function()
     board = board_class(nil, 0, 16)
     put(16, 2, 'h')
