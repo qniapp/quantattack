@@ -305,6 +305,42 @@ describe('マッチしたブロックが下からはじける', function()
     assert.are.equal(24, block_at(3, 3).jump_dy)
   end)
 
+  --        Y           H      6 段目
+  --        C ───────── X      5 段目 (長い CNOT)
+  --  X     S     Z     T     X     4 段目
+  --  X ───────── X           3 段目 (長い SWAP)
+  --  H                         2 段目
+  --  H                         1 段目
+  it("長い SWAP とその上の長い CNOT を、載っているブロックごと押し上げる", function()
+    board:put(1, 3, block_class("swap"))
+    board:put(4, 3, block_class("swap"))
+    block_at(1, 3).other_x, block_at(4, 3).other_x = 4, 1
+    board:put(2, 5, block_class("control"))
+    board:put(5, 5, block_class("cnot_x"))
+    block_at(2, 5).other_x, block_at(5, 5).other_x = 5, 2
+    for x, t in pairs({ 'x', 's', 'z', 't', 'x' }) do
+      put(x, 4, t)
+    end
+    put(2, 6, 'y')
+    put(5, 6, 'h')
+    for x = 2, 6 do
+      put(x, 1, 'y')
+      put(x, 2, 's')
+    end
+    put(1, 2, 'h')
+    put(1, 1, 'h')
+
+    board:update()
+    update(59)
+
+    -- H H で 0.5 マス (12) ずつ 2 回
+    for _, xy in pairs({ { 1, 3 }, { 4, 3 }, { 1, 4 }, { 4, 4 }, { 2, 5 }, { 5, 5 }, { 2, 6 }, { 5, 6 } }) do
+      assert.are.equal(24, block_at(xy[1], xy[2]).jump_dy)
+    end
+    -- CNOT の右の端の下の X は SWAP の上にはないので押し上げない
+    assert.are.equal(0, block_at(5, 4).jump_dy)
+  end)
+
   it("タイトルのデモのように幅の広い盤面でも、右の列のブロックが落ちる", function()
     board = board_class(nil, 0, 16)
     put(16, 2, 'h')
