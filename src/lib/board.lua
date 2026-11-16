@@ -360,7 +360,7 @@ do local _ENV = board_class
         score = score,
         chain_id = chain_id,
         -- SWAP を含むパターンの点数かどうかをチェック
-        contains_swap = score == 50 or score == 60 or score == 70 or score == 200 or score == 300
+        contains_swap = score >= 50 and score <= 70 or score >= 200
       }
       break
 
@@ -642,8 +642,8 @@ do local _ENV = board_class
         _update_game(_ENV, game, player, other_board)
       end
     elseif state == "over" then
-      if lose then
-        if tick_over == 20 and not done_over_fx then
+      if lose and (tick_over == 0 or tick_over == 20 and not done_over_fx) then
+        if tick_over == 20 then
           sfx(18)
         end
 
@@ -651,7 +651,7 @@ do local _ENV = board_class
           for y = 0, #blocks do
             if tick_over == 0 then
               blocks[y][x].state = "over"
-            elseif tick_over == 20 and not done_over_fx then
+            else
               blocks[y][x] = block_class"i"
               particles:create(
                 { screen_x(_ENV, x), screen_y(_ENV, y) },
@@ -748,13 +748,14 @@ do local _ENV = board_class
       cursor:render(screen_x(_ENV, cursor.x), screen_y(_ENV, cursor.y))
     elseif (win or lose) and tick_over > 20 and #particles.all == 0 then
       -- WIN! または LOSE を描画
+      local shake = 3 * sin(tick % 60 / 60)
       sspr(
         win and 0 or 48,
         96,
         48,
         24,
-        win and offset_x or offset_x + 3 * sin(tick % 60 / 60),
-        win and 40 + 3 * sin(tick % 60 / 60) or 43
+        win and offset_x or offset_x + shake,
+        win and 40 + shake or 43
       )
     end
 
@@ -975,8 +976,8 @@ do local _ENV = board_class
       --
       --   local garbage_x, garbage_y = each.x, each.y
       --
-      if each.x <= x and x <= each.x + each.span - 1 and     -- 幅に x が含まれる
-          each.y <= y and y <= each.y + each.height - 1 then -- 高さに y が含まれる
+      if each.x <= x and x < each.x + each.span and     -- 幅に x が含まれる
+          each.y <= y and y < each.y + each.height then -- 高さに y が含まれる
         return each
       end
     end

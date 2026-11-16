@@ -7,14 +7,13 @@
 -- after the scenario, so its last frames are printed too.
 -- Same button protocol as qa_post.lua, without the screen. Kept small: vs_qpu has few tokens left.
 -- recs: each wrapped function's { self, calls, wrapped calls made, "p <name> " }.
--- c[d], n[d]: time and wrapped calls of the functions called by the one running at depth d.
-local recs, c, n, d, fr, update, draw, cart_load = {}, { 0 }, { 0 }, 1, 0, _update60, _draw, load
-local function fin(r, s, ...)
+-- 呼び出し元のレコードから子の所要時間を直接引き、深さごとの配列を省く。
+local recs, parent, fr, update, draw, cart_load = {}, { 0, 0, 0 }, 0, _update60, _draw, load
+local function fin(r, p, s, ...)
   s = stat(1) - s
-  r[1] += s - c[d]
-  r[3] += n[d]
-  d -= 1
-  c[d] += s
+  r[1] += s
+  p[1] -= s
+  parent = p
   return ...
 end
 for k, v in pairs(_ENV) do
@@ -24,10 +23,10 @@ for k, v in pairs(_ENV) do
         local r = add(recs, split("0,0,0,p " .. k .. "." .. m .. " "))
         v[m] = function(...)
           r[2] += 1
-          n[d] += 1
-          d += 1
-          c[d], n[d] = 0, 0
-          return fin(r, stat(1), f(...))
+          local p = parent
+          p[3] += 1
+          parent = r
+          return fin(r, p, stat(1), f(...))
         end
       end
     end

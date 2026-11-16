@@ -48,16 +48,14 @@ do local _ENV = qpu_class
     if next_command then
       del(commands, next_command)
       _ENV[next_command] = true
+    elseif raise and board.top_block_y < 7 then
+      add(commands, "o")
+      add_sleep_command(_ENV, 3)
     else
-      if raise and board.top_block_y < 7 then
-        add(commands, "o")
-        add_sleep_command(_ENV, 3)
-      else
-        return for_all_reducible_blocks(_ENV, _reduce_cnot) or
-            for_all_reducible_blocks(_ENV, _flatten_block) or
-            board.contains_q_block or
-            for_all_reducible_blocks(_ENV, _reduce_single_block)
-      end
+      return for_all_reducible_blocks(_ENV, _reduce_cnot) or
+          for_all_reducible_blocks(_ENV, _flatten_block) or
+          board.contains_q_block or
+          for_all_reducible_blocks(_ENV, _reduce_single_block)
     end
   end
 
