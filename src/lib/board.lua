@@ -810,7 +810,11 @@ do local _ENV = board_class
     --
     -- swap などのペアとなるブロックを正しく落とすために、
     -- 一番下の行から上に向かって順に処理
-    top_block_y, contains_q_block = 0, nil
+    -- tops[x]: 列 x でいちばん上のブロックが押し上げられていれば、その描いた上端 (1/3 ドット、盤面の底から)。
+    -- _lifting: このフレームで、押し上げられたブロックがもう更新したか (block.update が立てる)。
+    -- 立ってから後の (上の) ブロックだけを調べる
+    local tops = {}
+    top_block_y, contains_q_block, _lifting = 0, nil, false
 
     for y = 1, #blocks do
       local row = blocks[y]
@@ -904,6 +908,27 @@ do local _ENV = board_class
               end)
               if other_block then
                 other_block.fall_dy = block.fall_dy
+              end
+            end
+          end
+
+          -- すきまをあけて上にあるブロックも、押し上げられた下のブロックを貫通しない。その上端に届いたら
+          -- (CNOT, SWAP, おじゃまブロックは幅全体で) そこに載る高さまで押し上げられ、その上に載ったまま下りる。
+          -- 押し上げられているブロックより下は調べない。CNOT と SWAP は右の端が、両端と間の列 (同じ段は空きマス) の
+          -- 下を調べて両端を押し上げる (左の端では x1 > x2 なので何もしない)
+          if _lifting then
+            local x1, x2, bottom, dy = block.other_x or x, x + block.span - 1, block.y * 24 - block.fall_dy, block.jump_dy
+            for i = x1, x2 do
+              dy = max(dy, (tops[i] or 0) - bottom)
+            end
+            for i = x1, x2 do
+              tops[i] = bottom + dy + 24 * block.height
+            end
+            if dy > block.jump_dy then
+              -- 浮いたブロックは下りきるまでマッチしないので、盤面のマッチできるブロックから外す
+              -- (外しても新しいマッチはできないので、盤面には知らせない。下りきれば block.update が知らせる)
+              for each in all { block, other_block } do
+                each.jump_dy, each._jump_hold, reducible_blocks[each.y][each.x] = dy, 0 -- luacheck: ignore 532
               end
             end
           end

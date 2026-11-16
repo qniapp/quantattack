@@ -399,6 +399,80 @@ describe('マッチしたブロックが下からはじける', function()
     assert.are.equal(24, block_at(3, 4).jump_dy)
   end)
 
+  --  ┌───────────┐
+  --  │     G     │  5 段目
+  --  └───┬───┬───┤
+  --      │ Z │ X │  4 段目 (1 列目はすきま)
+  --  ┌───┼───┼───┤
+  --  │ Y │ X │ Z │
+  --  ├───┼───┼───┤
+  --  │ T │ H │ S │
+  --  ├───┼───┼───┤
+  --  │ T │ S │ H │
+  -- ─┴───┴───┴───┴─
+  it("すきまの上のおじゃまブロックは、押し上げられたブロックが届いたらその上に載る高さまで押し上げられ、貫通されない", function()
+    board:put(1, 5, garbage_block(3))
+    put(2, 4, 'z')
+    put(3, 4, 'x')
+    put(1, 3, 'y')
+    put(2, 3, 'x')
+    put(3, 3, 'z')
+    put(1, 2, 't')
+    put(2, 2, 'h')
+    put(3, 2, 's')
+    put(1, 1, 't')
+    put(2, 1, 's')
+    put(3, 1, 'h')
+    local y, g = block_at(1, 3), board:block_at(1, 5)
+
+    -- 45 フレーム目: T (1.5 マス、jump_dy で 36) で Y が押し上げられ、すきま 1 マス (24) をこえた
+    -- 12 だけおじゃまブロックも押し上げられる
+    board:update()
+    update(43)
+    assert.are.equal(0, g.jump_dy)
+    update(1)
+    assert.are.equal(36, y.jump_dy)
+    assert.are.equal(12, g.jump_dy)
+    -- 60 フレーム目: もう 1 段の T で Y は 72、おじゃまブロックは 48
+    update(15)
+    assert.are.equal(72, y.jump_dy)
+    assert.are.equal(48, g.jump_dy)
+
+    -- すきまの上のおじゃまブロックは、下りるときもその下のブロックにめり込まない
+    for _ = 1, 200 do
+      board:update()
+      assert.is_true(g.y * 24 + g.jump_dy - g.fall_dy >= (y.y + 1) * 24 + y.jump_dy - y.fall_dy)
+    end
+    assert.are.equal(5, g.y)
+    assert.are.equal(0, g.jump_dy)
+  end)
+
+  --  ┌───────────┐
+  --  │     G     │  4 段目
+  --  └───┬───┬───┤
+  --      │ Z │ X │  3 段目 (1 列目はすきま)
+  --  ┌───┼───┼───┤
+  --  │ H │ T │ S │
+  --  ├───┼───┼───┤
+  --  │ H │ S │ T │
+  -- ─┴───┴───┴───┴─
+  it("押し上げられたブロックが届かなければ、すきまの上のおじゃまブロックは押し上げられない", function()
+    board:put(1, 4, garbage_block(3))
+    put(2, 3, 'z')
+    put(3, 3, 'x')
+    put(1, 2, 'h')
+    put(2, 2, 't')
+    put(3, 2, 's')
+    put(1, 1, 'h')
+    put(2, 1, 's')
+    put(3, 1, 't')
+
+    -- H H は 0.5 マスずつで、すきま 1 マスに届かない
+    board:update()
+    update(89)
+    assert.are.equal(0, board:block_at(1, 4).jump_dy)
+  end)
+
   it("タイトルのデモのように幅の広い盤面でも、右の列のブロックが落ちる", function()
     board = board_class(nil, 0, 16)
     put(16, 2, 'h')
