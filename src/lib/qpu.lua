@@ -7,7 +7,7 @@ end
 
 local function _is_match(board, block_x, block_y, block)
   if board.rows < block_y then
-    return false
+    return
   end
 
   local other_block = board.blocks[block_y][block_x]
@@ -16,7 +16,7 @@ end
 
 local function _is_swappable(board, block_x, block_y)
   if block_x < 1 or board.cols < block_x then
-    return false
+    return
   end
 
   local block = board.blocks[block_y][block_x]
@@ -43,7 +43,8 @@ do local _ENV = qpu_class
   end
 
   function update(_ENV)
-    left, right, up, down, x, o, next_command = false, false, false, false, false, false, commands[1]
+    -- 入力フラグは nil に戻し、今回のコマンドだけを立てる。
+    next_command, left, right, up, down, x, o = commands[1] -- luacheck: ignore 532
 
     if next_command then
       del(commands, next_command)
@@ -59,21 +60,17 @@ do local _ENV = qpu_class
     end
   end
 
-  function _flatten_block(_ENV, each, each_x, each_y)
+  function _flatten_block(_ENV, each)
     -- 二列目より上のブロックについて、空のブロックがあればそこに落とす
-    if 1 < each_y and is_single_block(each) and find_left_and_right(_ENV, _is_empty, each) then
-      return true
-    end
+    return 1 < each.y and is_single_block(each) and find_left_and_right(_ENV, _is_empty, each)
   end
 
   function _reduce_single_block(_ENV, each, each_x, each_y)
-    if is_single_block(each) and
+    return is_single_block(each) and
         -- 下の行とマッチするか走査
         (each_y > 1 and find_left_and_right(_ENV, _is_match, each) or
         -- 上の行とマッチするか走査
-        each_y < board.rows and find_left_and_right(_ENV, _is_match, each, true)) then
-      return true
-    end
+        each_y < board.rows and find_left_and_right(_ENV, _is_match, each, true))
   end
 
   function _reduce_cnot(_ENV, each, each_x, each_y)
@@ -126,7 +123,7 @@ do local _ENV = qpu_class
 
     for dx = 1, board.cols - 1 do
       if not (find_left or find_right) then
-        return false
+        return
       end
 
       if find_left then
@@ -151,8 +148,6 @@ do local _ENV = qpu_class
         end
       end
     end
-
-    return false
   end
 
   function move_and_swap(_ENV, block_x, block_y)
@@ -195,7 +190,5 @@ do local _ENV = qpu_class
         end
       end
     end
-
-    return false
   end
 end

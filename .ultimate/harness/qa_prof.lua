@@ -8,10 +8,10 @@
 -- Same button protocol as qa_post.lua, without the screen. Kept small: vs_qpu has few tokens left.
 -- recs: each wrapped function's { self, calls, wrapped calls made, "p <name> " }.
 -- 呼び出し元のレコードから子の所要時間を直接引き、深さごとの配列を省く。
-local recs, parent, fr, update, draw, cart_load = {}, { 0, 0, 0 }, 0, _update60, _draw, load
-local function fin(r, p, s, ...)
+local recs, parent, fr, update, draw, cart_load = {}, split"0,0,0", 0, _update60, _draw, load
+local function fin(p, s, ...)
   s = stat(1) - s
-  r[1] += s
+  parent[1] += s
   p[1] -= s
   parent = p
   return ...
@@ -26,7 +26,7 @@ for k, v in pairs(_ENV) do
           local p = parent
           p[3] += 1
           parent = r
-          return fin(r, p, stat(1), f(...))
+          return fin(p, stat(1), f(...))
         end
       end
     end

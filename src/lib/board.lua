@@ -7,7 +7,7 @@ require("lib/pending_garbage_blocks")
 
 -- H, X, Y, Z, S, T だけが単一ゲート。QPU と簡約の探索で共有する。
 function is_single_block(_ENV)
-  return _ENV and #type == 1 and not not reduction_rules[type]
+  return _ENV and #type == 1 and reduction_rules[type]
 end
 
 --- ボードのクラス
@@ -15,8 +15,10 @@ board_class = new_class()
 
 do local _ENV = board_class
   function _init(_ENV, _cursor, __offset_x, _cols)
-    cursor, _offset_x, show_top_line =
-        _cursor or cursor_class(), __offset_x, true
+    cursor, _offset_x = _cursor or cursor_class(), __offset_x
+    --#if title
+    show_top_line = true
+    --#endif
     init(_ENV, _cols)
   end
 
@@ -26,19 +28,22 @@ do local _ENV = board_class
     cols, rows = _cols or 6, 17
 
     -- 画面上のサイズと位置
-    width, height, offset_x, raised_dots =
-        cols * 8, (rows - 1) * 8, _offset_x or 11, 0
+    height, offset_x, raised_dots = 128, _offset_x or 11, 0
+    --#if sash
+    width = cols * 8
+    --#endif
 
     -- board の状態
-    state, win, lose, timeup, top_block_y, _changed, show_gameover_menu, done_over_fx =
-        "play", false, false, false, 0, false, false, false
+    -- 真偽値としてだけ使うフラグは、余った代入先を nil に戻す。
+    state, top_block_y, win, lose, timeup, _changed, show_gameover_menu, done_over_fx = -- luacheck: ignore 532
+        "play", 0
 
     -- ゲームオーバーの線 etc.
     -- 各種ブロックの取得
-    _chain_count, blocks, reducible_blocks, _garbage_blocks, contains_q_block,
+    _chain_count, blocks, reducible_blocks, _garbage_blocks,
     top_line_start_x, freeze_timer, _topped_out_frame_count, _topped_out_delay_frame_count,
-    _bounce_speed, _bounce_screen_dy =
-        {}, {}, {}, {}, false, unpack_split"0,0,0,600,0,0"
+    _bounce_speed, _bounce_screen_dy, contains_q_block =
+        {}, {}, {}, {}, unpack_split"0,0,0,600,0,0"
 
     tick, steps, pending_garbage_blocks, _flash_col_timer, _flash_col_colors, _check_hover_flag, cache_reduce,
     cache_is_block_fallable, cache_is_empty, _gates, _gate_swaps, _gate_chain =
@@ -126,7 +131,7 @@ do local _ENV = board_class
           local bottom_dy = targets[#targets].dy
           reduction.rows = targets[1].dy - bottom_dy + 1
 
-          for _, r in pairs(targets) do
+          for r in all(targets) do
             sfx(35)
 
             local target_x, target_y, new_block = r.x or x + (r.dx and reduction.dx or 0), y + r.dy, block_class(r.block_type)
@@ -468,8 +473,6 @@ do local _ENV = board_class
         end
       end
     end
-
-    return false
   end
 
   function is_game_over(_ENV)
@@ -633,7 +636,11 @@ do local _ENV = board_class
     end
 
     if state == "play" then
-      if win or lose or timeup then
+      if win or lose
+          --#if rush
+          or timeup
+          --#endif
+          then
         state, tick_over = "over", 0
         if win or lose then
           sfx(17)
@@ -734,7 +741,10 @@ do local _ENV = board_class
 
     -- ブロック上限の線を描画
     if not is_game_over(_ENV) then
-      if show_top_line and top_line_start_x < 73 then
+      --#if title
+      if show_top_line then
+      --#endif
+      if top_line_start_x < 73 then
         line(
           max(offset_x - 1, offset_x + top_line_start_x - 25),
           40,
@@ -743,6 +753,10 @@ do local _ENV = board_class
           freeze_timer > 0 and 12 or is_topped_out(_ENV) and 8 or 1
         )
       end
+
+      --#if title
+      end
+      --#endif
 
       -- カーソルを描画
       cursor:render(screen_x(_ENV, cursor.x), screen_y(_ENV, cursor.y))
@@ -796,7 +810,7 @@ do local _ENV = board_class
     --
     -- swap などのペアとなるブロックを正しく落とすために、
     -- 一番下の行から上に向かって順に処理
-    top_block_y, contains_q_block = 0, false
+    top_block_y, contains_q_block = 0, nil
 
     for y = 1, #blocks do
       local row = blocks[y]

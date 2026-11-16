@@ -4,14 +4,11 @@
 cursor_class = new_class()
 
 do local _ENV = cursor_class
-  function _init(_ENV)
-    init(_ENV)
-  end
-
   --- カーソルの初期化
   function init(_ENV)
     x, y, _tick = 3, 6, 0
   end
+  _init = init
 
   --- カーソルを左に移動
   function move_left(_ENV)

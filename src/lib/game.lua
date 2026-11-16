@@ -26,7 +26,7 @@ do local _ENV = game_class
           "5,5,9,7,,,-0.03,-0.03,20|5,5,9,7,,,-0.03,-0.03,20|4,4,9,7,,,-0.03,-0.03,20|4,4,2,5,,,-0.03,-0.03,20|4,4,6,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,9,7,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|2,2,6,5,,,-0.03,-0.03,20|0,0,2,5,,,-0.03,-0.03,20"
         )
 
-        player.score = player.score + (points >> 16)
+        reduce_callback(points, player)
 
         if garbage then
           garbage()
@@ -64,7 +64,7 @@ do local _ENV = game_class
         end)
       end
     else
-      player.score = player.score + ((chain_bonus[chain_count] or 1800) >> 16)
+      reduce_callback(chain_bonus[chain_count] or 1800, player)
     end
   end
 
@@ -79,7 +79,7 @@ do local _ENV = game_class
   function init(_ENV)
     countdown, start_time, game_over_time = 240, t()
 
-    for _, each in pairs(all_players_info) do
+    for each in all(all_players_info) do
       each.player:init()
       each.board:init()
       each.board:put_random_blocks()
@@ -112,7 +112,7 @@ do local _ENV = game_class
       end
 
       if countdown_number < 4 then
-        for _, each in pairs(all_players_info) do
+        for each in all(all_players_info) do
           each.board.countdown = countdown > 0 and countdown_number or nil
         end
       end
@@ -132,19 +132,17 @@ do local _ENV = game_class
     end
 
     local music_pattern_id = stat(54)
-    if music_pattern_id then
-      if all_players_info[1].board:is_topped_out() then
-        if 0 <= music_pattern_id and music_pattern_id <= 7 then
-          music(16)
-        end
-      elseif 16 <= music_pattern_id and music_pattern_id <= 19 then
-        music(0)
+    if all_players_info[1].board:is_topped_out() then
+      if 0 <= music_pattern_id and music_pattern_id <= 7 then
+        music(16)
       end
+    elseif 16 <= music_pattern_id and music_pattern_id <= 19 then
+      music(0)
     end
 
-    ripple.slow, ripple.freeze = false, false
+    ripple.slow, ripple.freeze = nil, nil
 
-    for _, each in pairs(all_players_info) do
+    for each in all(all_players_info) do
       local player, board, other_board = each.player, each.board, each.other_board
       local cursor = board.cursor
 
@@ -224,7 +222,7 @@ do local _ENV = game_class
   function render(_ENV) -- override
     ripple:render_all()
 
-    for _, each in pairs(all_players_info) do
+    for each in all(all_players_info) do
       local board = each.board
 
       board:render()
@@ -279,7 +277,7 @@ do local _ENV = game_class
   -- ゲーム経過時間を文字列で返す (e.g., "01:23")
   function elapsed_time_string(_ENV)
     local function length2_number_string_0filled(num)
-      return (num < 10) and "0" .. num or num
+      return num < 10 and "0" .. num or num
     end
 
     return length2_number_string_0filled(flr(elapsed_time / 60)) ..
