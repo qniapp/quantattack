@@ -1187,7 +1187,9 @@ do local _ENV = board_class
         for x = 1, cols do
           local each = (columns[x] or blocks[y][x]._match_group == group) and
               _block_or_its_head_block(_ENV, x, y)
-          if each and each.type ~= "i" and not columns[each] then
+          -- QA2 と同じく、押し上げるのはすきまなく載っているブロックだけ。空きマスでその列は終わる
+          columns[x] = each and each.type ~= "i"
+          if columns[x] and not columns[each] then
             columns[each], each.jump_dy, each._jump_hold =
                 true, each.jump_dy + block.sprite_set.jump, 58 + 15 * group.rows - block._tick_match
             -- 浮いたブロックは下りきるまでマッチしないので、盤面のマッチできるブロックから外す

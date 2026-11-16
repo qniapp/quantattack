@@ -35,8 +35,12 @@ for k, v in pairs(_ENV) do
 end
 local function flush()
   for r in all(recs) do
-    printh(r[4] .. r[1] .. " " .. r[2] .. " " .. r[3])
-    r[1], r[2], r[3] = 0, 0, 0
+    local s = r[4]
+    for i = 1, 3 do
+      s ..= r[i] .. " "
+      r[i] = 0
+    end
+    printh(s)
   end
   printh("pf " .. fr)
   fr = 0

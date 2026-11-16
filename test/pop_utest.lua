@@ -341,6 +341,33 @@ describe('マッチしたブロックが下からはじける', function()
     assert.are.equal(0, block_at(5, 4).jump_dy)
   end)
 
+  --  ┌───────────┐
+  --  │     G     │  4 段目
+  --  ├───┬───┬───┘
+  --  │ Z │   │ Y │  3 段目 (真ん中は空き)
+  --  ├───┼───┼───┤
+  --  │ S │ H │ T │
+  --  ├───┼───┼───┤
+  --  │ T │ H │ S │
+  -- ─┴───┴───┴───┴─
+  it("QA2 と同じく、マッチの上にすきまがあれば、その上のおじゃまブロックは押し上げない", function()
+    board:put(1, 4, garbage_block(3))
+    put(1, 3, 'z')
+    put(3, 3, 'y')
+    put(1, 2, 's')
+    put(2, 2, 'h')
+    put(3, 2, 't')
+    put(1, 1, 't')
+    put(2, 1, 'h')
+    put(3, 1, 's')
+
+    board:update()
+    update(59)
+
+    assert.are.equal(24, block_at(2, 2).jump_dy)
+    assert.are.equal(0, block_at(1, 4).jump_dy)
+  end)
+
   it("タイトルのデモのように幅の広い盤面でも、右の列のブロックが落ちる", function()
     board = board_class(nil, 0, 16)
     put(16, 2, 'h')
