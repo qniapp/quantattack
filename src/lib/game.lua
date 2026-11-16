@@ -69,7 +69,7 @@ do local _ENV = game_class
   end
 
   function is_game_over(_ENV)
-    return game_over_time ~= nil
+    return game_over_time
   end
 
   function _init(_ENV)

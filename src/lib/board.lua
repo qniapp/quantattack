@@ -883,13 +883,15 @@ do local _ENV = board_class
               if not _is_block_fallable(_ENV, x, y) then
                 if block.type == "g" then
                   -- 盤面を揺らす (bounce エフェクト)
-                  _bounce_screen_dy, _bounce_speed, block.first_drop = 0, -4, false
+                  _bounce_screen_dy, _bounce_speed, block.first_drop = 0, -4 -- luacheck: ignore 532
                   sfx(9)
                 end
 
                 block:change_state"idle"
                 if other_block then
+                  -- 右の端はこのあとこのフレームに update するので、押し上げられていれば左の端と同じフレームに下りはじめる
                   other_block:change_state"idle"
+                  other_block._jump_hold = 1
                 end
               elseif is_empty(_ENV, x, y - 1) then
                 -- 落下中のブロックをひとつ下に移動
@@ -927,8 +929,9 @@ do local _ENV = board_class
             if dy > block.jump_dy then
               -- 浮いたブロックは下りきるまでマッチしないので、盤面のマッチできるブロックから外す
               -- (外しても新しいマッチはできないので、盤面には知らせない。下りきれば block.update が知らせる)
+              -- 右の端はこのあとこのフレームに update するので、そこで下りないように 1 フレーム多く浮かせる
               for each in all { block, other_block } do
-                each.jump_dy, each._jump_hold, reducible_blocks[each.y][each.x] = dy, 0 -- luacheck: ignore 532
+                each.jump_dy, each._jump_hold, reducible_blocks[each.y][each.x] = dy, each.x > x and 1 or 0 -- luacheck: ignore 532
               end
             end
           end
@@ -1038,13 +1041,13 @@ do local _ENV = board_class
   -- CNOT, SWAP, おじゃまゲートもある。
   -- このため、直下のブロックは複数の場合もある。
   function propagatable_hover_timer(_ENV, x, y)
-    local block, hover_timer = blocks[y][x], 0
+    local hover_timer = 0
 
     -- y が最下段、または next block の場合、
     -- またはブロックが落下可能でない状態の場合、
     -- nil を返す
-    if y < 2 or block:is_not_fallable() then
-      return nil
+    if y < 2 or blocks[y][x]:is_not_fallable() then
+      return
     end
 
     for_all_nonempty_blocks_below(_ENV, x, y, function(each)
@@ -1053,7 +1056,7 @@ do local _ENV = board_class
       end
     end)
 
-    return hover_timer > 0 and hover_timer or nil
+    return hover_timer > 0 and hover_timer
   end
 
   -- ブロック x, y が x, y - 1 に落とせるかどうかを返す
@@ -1064,9 +1067,9 @@ do local _ENV = board_class
   end
 
   function _is_block_fallable_nocache(_ENV, x, y)
-    local block, fallable = blocks[y][x], true
+    local fallable = true
 
-    if y < 2 or block:is_not_fallable() then
+    if y < 2 or blocks[y][x]:is_not_fallable() then
       return false
     end
 

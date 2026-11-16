@@ -484,24 +484,32 @@ describe('マッチしたブロックが下からはじける', function()
   --  ├───┼───┤
   --  │ X │ T │
   -- ─┴───┴───┴─
-  it("落ちてくる SWAP は、段を移るフレームも押し上げられたブロックに貫通されない", function()
-    board:put(1, 9, block_class("swap"))
-    board:put(2, 9, block_class("swap"))
-    block_at(1, 9).other_x, block_at(2, 9).other_x = 2, 1
-    put(2, 3, 'y')
-    put(1, 2, 's')
-    put(2, 2, 't')
-    put(1, 1, 'x')
-    put(2, 1, 't')
-    local y, swap, pushed = block_at(2, 3), block_at(1, 9), false
+  -- 落ちてくる場合と、すきまをあけて止まっている場合 (SWAP は左の端の列に支えがある)
+  it("SWAP の右の端は、その下で押し上げられたブロックに貫通されない", function()
+    for _, swap_y in pairs({ 9, 5 }) do
+      board = board_class()
+      board:put(1, swap_y, block_class("swap"))
+      board:put(3, swap_y, block_class("swap"))
+      block_at(1, swap_y).other_x, block_at(3, swap_y).other_x = 3, 1
+      for y, t in pairs({ 'x', 's', 'z', 'h' }) do
+        put(1, y, t)
+      end
+      put(3, 3, 'y')
+      put(3, 2, 't')
+      put(2, 2, 'x')
+      put(3, 1, 't')
+      put(2, 1, 'z')
+      local y, right, pushed = block_at(3, 3), block_at(3, swap_y), false
 
-    -- T T で Y が 2 段ぶん押し上げられているあいだに、SWAP が右の端の列 (Y の列) へ落ちてくる
-    for _ = 1, 200 do
-      board:update()
-      pushed = pushed or swap.jump_dy > 0
-      assert.is_true(swap.y * 24 + swap.jump_dy - swap.fall_dy >= (y.y + 1) * 24 + y.jump_dy - y.fall_dy)
+      -- T T で Y が 3 マス押し上げられ、すきま 1 マスの上の SWAP の右の端に届く
+      for _ = 1, 200 do
+        board:update()
+        pushed = pushed or right.jump_dy > 0
+        assert.is_true(right.y * 24 + right.jump_dy - right.fall_dy >= (y.y + 1) * 24 + y.jump_dy - y.fall_dy)
+      end
+      assert.is_true(pushed)
+      assert.are.equal(0, right.jump_dy)
     end
-    assert.is_true(pushed)
   end)
 
   it("タイトルのデモのように幅の広い盤面でも、右の列のブロックが落ちる", function()
