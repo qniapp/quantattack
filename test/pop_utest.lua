@@ -400,6 +400,48 @@ describe('マッチしたブロックが下からはじける', function()
   end)
 
   --  ┌───────────┐
+  --  │           │  4 段目
+  --  │     G     ├───┐
+  --  │           │ X │  3 段目 (右の XX のマッチで分解が始まる)
+  --  ├───┬───┬───┼───┤
+  --  │ H │ S │ Y │ X │
+  --  ├───┼───┼───┼───┤
+  --  │ Z │ T │ S │ Y │  (分解中に Z を H にして HH で押し上げる)
+  -- ─┴───┴───┴───┴───┴─
+  it("2 段のおじゃまブロックを分解中に押し上げても、上の段はひとつのおじゃまブロックとしてそろって上がる", function()
+    board:put(1, 3, garbage_block(3, 2))
+    put(4, 3, 'x')
+    put(4, 2, 'x')
+    put(1, 2, 'h')
+    put(2, 2, 's')
+    put(3, 2, 'y')
+    put(1, 1, 'z')
+    put(2, 1, 't')
+    put(3, 1, 's')
+    put(4, 1, 'y')
+
+    board:update()
+    update(19)
+    put(1, 1, 'h')
+
+    -- 下の段は 8 フレームごとにゲートになり、上の段は新しいおじゃまブロックになっていく。
+    -- そのあいだ 2 段全体が、おじゃまブロックにおおわれた ? のマスも含めて同じ高さで押し上げられる
+    for _ = 1, 80 do
+      board:update()
+      local g = board:block_at(1, 4)
+      for x = 1, 3 do
+        for y = 3, 4 do
+          if block_at(x, y).type ~= 'i' then
+            assert.are.equal(g.jump_dy, block_at(x, y).jump_dy)
+          end
+        end
+      end
+    end
+    assert.are.equal('g', block_at(1, 4).type)
+    assert.are.equal(24, block_at(1, 4).jump_dy)
+  end)
+
+  --  ┌───────────┐
   --  │     G     │  5 段目
   --  └───┬───┬───┤
   --      │ Z │ X │  4 段目 (1 列目はすきま)

@@ -202,7 +202,7 @@ function game.update(_ENV)
   bubbles:update_all()
   ions:update_all()
 
-  if all_players_info[1].board:is_game_over() then
+  if all_players_info[1].board.state == "over" then
     if game_over_time == nil then
       game_over_time = t()
     end

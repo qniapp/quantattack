@@ -475,10 +475,6 @@ do local _ENV = board_class
     end
   end
 
-  function is_game_over(_ENV)
-    return state == "over"
-  end
-
   -------------------------------------------------------------------------------
   -- board の操作
   -------------------------------------------------------------------------------
@@ -543,10 +539,6 @@ do local _ENV = board_class
     _check_hover_flag[y][x] = true
   end
 
-  function remove_block(_ENV, x, y)
-    put(_ENV, x, y, block_class"i")
-  end
-
   --#ifn title
   --#ifn tutorial
   function send_garbage(_ENV, chain_id, span, _height)
@@ -593,7 +585,7 @@ do local _ENV = board_class
       for x = 1, cols do
         if not is_empty(_ENV, x, y) then
           put(_ENV, x, y + 1, blocks[y][x])
-          remove_block(_ENV, x, y)
+          put(_ENV, x, y, block_class"i")
         end
       end
     end
@@ -629,7 +621,15 @@ do local _ENV = board_class
     pending_garbage_blocks:update(_ENV)
     --#endif
     --#endif
-    _update_bounce(_ENV)
+    -- 盤面の揺れ (bounce エフェクト)
+    if _bounce_speed ~= 0 then
+      _bounce_speed = _bounce_speed + 0.9
+      _bounce_screen_dy = _bounce_screen_dy + _bounce_speed
+
+      if _bounce_screen_dy > 0 then
+        _bounce_screen_dy, _bounce_speed = 0, -_bounce_speed
+      end
+    end
     freeze_timer = max(freeze_timer - 1, 0)
     if freeze_timer == 0 then
       top_line_start_x = (top_line_start_x + 4) % 96
@@ -669,11 +669,9 @@ do local _ENV = board_class
         end
       end
 
+      -- tick_over は増えるだけなので、20 をこえたらそのまま true
       tick_over = tick_over + 1
-
-      if tick_over > 20 then
-        done_over_fx = true
-      end
+      done_over_fx = tick_over > 20
     end
 
     -- 列フラッシュのタイマーをそれぞれ -1 する
@@ -709,7 +707,7 @@ do local _ENV = board_class
         block:render(scr_x, scr_y + (block.fall_dy - block.jump_dy) / 3, block.other_x and screen_x(_ENV, block.other_x))
 
         -- 一番下のマスクを描画
-        if y == 0 and not is_game_over(_ENV) then
+        if y == 0 and state ~= "over" then
           spr(97, scr_x, scr_y)
         end
       end
@@ -740,7 +738,7 @@ do local _ENV = board_class
     --#endif
 
     -- ブロック上限の線を描画
-    if not is_game_over(_ENV) then
+    if state ~= "over" then
       --#if title
       if show_top_line then
       --#endif
@@ -897,7 +895,7 @@ do local _ENV = board_class
                 -- 落下中のブロックをひとつ下に移動
                 for each in all{ block, other_block } do
                   each.state, each.fall_dy = "fall", -24
-                  remove_block(_ENV, each.x, y)
+                  put(_ENV, each.x, y, block_class"i")
                   put(_ENV, each.x, y - 1, each)
                 end
               end
@@ -918,20 +916,27 @@ do local _ENV = board_class
           -- (CNOT, SWAP, おじゃまブロックは幅全体で) そこに載る高さまで押し上げられ、その上に載ったまま下りる。
           -- 押し上げられているブロックより下は調べない。CNOT と SWAP は左の端が、両端と間の列 (同じ段は空きマス) の
           -- 下を調べて両端を押し上げる (両端をひとつ下の段へ移したフレームも。右の端では x2 < x なので何もしない)
+          -- 2 段以上のおじゃまブロックの分解中、上の段から出た新しいおじゃまブロックにおおわれた ? のマスは
+          -- その上に載ったブロックではなく、おじゃまブロックの一部。pop はおじゃまブロックだけを押し上げるので、その高さにそろえる
           if _lifting then
-            local x2, bottom, dy = block.other_x or x + block.span - 1, block.y * 24 - block.fall_dy, block.jump_dy
-            for i = x, x2 do
-              dy = max(dy, (tops[i] or 0) - bottom)
-            end
-            for i = x, x2 do
-              tops[i] = bottom + dy + 24 * block.height
-            end
-            if dy > block.jump_dy then
-              -- 浮いたブロックは下りきるまでマッチしないので、盤面のマッチできるブロックから外す
-              -- (外しても新しいマッチはできないので、盤面には知らせない。下りきれば block.update が知らせる)
-              -- 右の端はこのあとこのフレームに update するので、そこで下りないように 1 フレーム多く浮かせる
-              for each in all { block, other_block } do
-                each.jump_dy, each._jump_hold, reducible_blocks[each.y][each.x] = dy, each.x > x and 1 or 0 -- luacheck: ignore 532
+            local head = block.type == "?" and _garbage_head_block(_ENV, x, y)
+            if head then
+              block.jump_dy, block._jump_hold = head.jump_dy, head._jump_hold
+            else
+              local x2, bottom, dy = block.other_x or x + block.span - 1, block.y * 24 - block.fall_dy, block.jump_dy
+              for i = x, x2 do
+                dy = max(dy, (tops[i] or 0) - bottom)
+              end
+              for i = x, x2 do
+                tops[i] = bottom + dy + 24 * block.height
+              end
+              if dy > block.jump_dy then
+                -- 浮いたブロックは下りきるまでマッチしないので、盤面のマッチできるブロックから外す
+                -- (外しても新しいマッチはできないので、盤面には知らせない。下りきれば block.update が知らせる)
+                -- 右の端はこのあとこのフレームに update するので、そこで下りないように 1 フレーム多く浮かせる
+                for each in all { block, other_block } do
+                  each.jump_dy, each._jump_hold, reducible_blocks[each.y][each.x] = dy, each.x > x and 1 or 0 -- luacheck: ignore 532
+                end
               end
             end
           end
@@ -952,17 +957,6 @@ do local _ENV = board_class
       _chain_count[chain_id] = nil
 
       ::next_chain_id::
-    end
-  end
-
-  function _update_bounce(_ENV)
-    if _bounce_speed ~= 0 then
-      _bounce_speed = _bounce_speed + 0.9
-      _bounce_screen_dy = _bounce_screen_dy + _bounce_speed
-
-      if _bounce_screen_dy > 0 then
-        _bounce_screen_dy, _bounce_speed = 0, -_bounce_speed
-      end
     end
   end
 

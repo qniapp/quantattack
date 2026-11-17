@@ -146,7 +146,7 @@ do local _ENV = game_class
       local player, board, other_board = each.player, each.board, each.other_board
       local cursor = board.cursor
 
-      if board:is_game_over() then
+      if board.state == "over" then
         board:update()
         ripple.slow = false
       else
@@ -204,7 +204,7 @@ do local _ENV = game_class
       local board1, other = all_players_info[1].board, all_players_info[2]
       local board2 = other and other.board
 
-      if board1:is_game_over() or board2 and board2:is_game_over() then
+      if board1.state == "over" or board2 and board2.state == "over" then
         game_over_time = t()
 
         if board2 then
