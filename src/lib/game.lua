@@ -40,7 +40,7 @@ do local _ENV = game_class
     bubbles:create("combo", combo_count, coord)
     -- 対戦相手がいる時、おじゃまブロックを送る
     attack(coord, board.attack_ion_target, nil, player, combo_count * 10, other_board and function()
-      other_board:send_garbage(nil, min(6, combo_count - 1), 1)
+      other_board.pending_garbage_blocks:add_garbage(min(6, combo_count - 1), 1)
     end)
   end
 
@@ -60,7 +60,7 @@ do local _ENV = game_class
       if chain_count > 2 then
         -- 対戦相手がいる時、おじゃまブロックを送る
         attack(coord, board.attack_ion_target, nil, player, chain_bonus[chain_count] or 1800, other_board and function()
-          other_board:send_garbage(chain_id, 6, min(5, chain_count - 1))
+          other_board.pending_garbage_blocks:add_garbage(6, min(5, chain_count - 1), chain_id)
         end)
       end
     else

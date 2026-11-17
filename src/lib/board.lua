@@ -539,14 +539,6 @@ do local _ENV = board_class
     _check_hover_flag[y][x] = true
   end
 
-  --#ifn title
-  --#ifn tutorial
-  function send_garbage(_ENV, chain_id, span, _height)
-    pending_garbage_blocks:add_garbage(span, _height, chain_id)
-  end
-  --#endif
-  --#endif
-
   --#ifn tutorial
   function insert_blocks_at_bottom(_ENV)
     shift_all_blocks_up(_ENV)
@@ -669,9 +661,11 @@ do local _ENV = board_class
         end
       end
 
-      -- tick_over は増えるだけなので、20 をこえたらそのまま true
       tick_over = tick_over + 1
-      done_over_fx = tick_over > 20
+
+      if tick_over > 20 then
+        done_over_fx = true
+      end
     end
 
     -- 列フラッシュのタイマーをそれぞれ -1 する

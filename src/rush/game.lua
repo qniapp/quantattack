@@ -32,7 +32,7 @@ function game.combo_callback(combo_count, coord, player, board, other_board)
 
       -- 対戦相手がいる時、おじゃまブロックを送る
       if other_board then
-        other_board:send_garbage(nil, combo_count > 6 and 6 or combo_count - 1, 1)
+        other_board.pending_garbage_blocks:add_garbage(combo_count > 6 and 6 or combo_count - 1, 1)
       end
     end
   )
@@ -70,7 +70,7 @@ function game.chain_callback(chain_id, chain_count, coord, player, board, other_
 
         -- 対戦相手がいる時、おじゃまブロックを送る
         if other_board then
-          other_board:send_garbage(chain_id, 6, chain_count - 1 < 6 and chain_count - 1 or 5)
+          other_board.pending_garbage_blocks:add_garbage(6, chain_count - 1 < 6 and chain_count - 1 or 5, chain_id)
         end
       end
     )
